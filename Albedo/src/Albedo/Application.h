@@ -3,6 +3,7 @@
 #include "Core.h"
 
 namespace Albedo {
+
 	class Albedo_API Application
 	{
 	public:

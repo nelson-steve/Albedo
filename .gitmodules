@@ -1,0 +1,3 @@
+[submodule "Albedo/dependencies/spdlog"]
+	path = Albedo/dependencies/spdlog
+	url = https://github.com/gabime/spdlog

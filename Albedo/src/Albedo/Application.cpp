@@ -1,6 +1,7 @@
 #include "Application.h"
 
 namespace Albedo {
+
 	Application::Application() 
 	{
 
