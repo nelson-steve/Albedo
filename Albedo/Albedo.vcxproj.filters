@@ -19,6 +19,10 @@
     <ClInclude Include="src\Albedo\Log.h">
       <Filter>Albedo</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Events\Event.h" />
+    <ClInclude Include="src\Albedo\Events\MouseEvent.h" />
+    <ClInclude Include="src\Albedo\Events\KeyEvent.h" />
+    <ClInclude Include="src\Albedo\Events\ApplicationEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">

@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories); src</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -99,7 +99,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories); src</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -123,7 +123,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;%(AdditionalIncludeDirectories); src</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -145,8 +145,16 @@
   <ItemGroup>
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Application.h" />
-    <ClInclude Include="src\Albedo\Core.h" />
+    <ClInclude Include="src\Albedo\Core.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\Albedo\EntryPoint.h" />
+    <ClInclude Include="src\Albedo\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Albedo\Events\Event.h" />
+    <ClInclude Include="src\Albedo\Events\KeyEvent.h" />
+    <ClInclude Include="src\Albedo\Events\MouseEvent.h" />
     <ClInclude Include="src\Albedo\Log.h" />
   </ItemGroup>
   <ItemGroup>
