@@ -7,10 +7,10 @@ namespace Albedo {
 	{
 	public:
 		MouseMovedEvent(float x, float y)
-			:mMouseX(x), m_MouseY(y) {}
+			:m_MouseX(x), m_MouseY(y) {}
 
-		inline float GetMouseX() { return m_Mouse_X; }
-		inline float GetMouseY() { return m_Mouse_Y; }
+		inline float GetMouseX() { return m_MouseX; }
+		inline float GetMouseY() { return m_MouseY; }
 
 		std::string ToString() const override
 		{
@@ -30,8 +30,8 @@ namespace Albedo {
 		MouseScrolledEvent(float xOffset, float yOffset) :
 			m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-		inline float GetXOffset() { return m_XOffset; }
-		inline float GetYOffset() { return m_YOffset; }
+		inline float GetXOffset() const { return m_XOffset; }
+		inline float GetYOffset() const { return m_YOffset; }
 
 		std::string ToString() const override
 		{
@@ -53,9 +53,9 @@ namespace Albedo {
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	protected:
-		MouseMovedEvent(int button)
+		MouseButtonEvent(int button)
 			:m_Button(button) {}
-	private:
+	protected:
 		int m_Button;
 	};
 

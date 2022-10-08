@@ -12,14 +12,12 @@ namespace Albedo
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
-		static WindowsWindow* Create(const WindowProps props = WindowProps());
-
 		void OnUpdate() override;
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
 
-		inline void SetEventCallBack(EventCallBackFn& callback) override { m_Data.EventCallBack = callback; }
+		inline void SetEventCallBack(const EventCallBackFn& callback) override { m_Data.EventCallBack = callback; }
 
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
@@ -35,6 +33,8 @@ namespace Albedo
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
+
+			int Focus;
 
 			EventCallBackFn EventCallBack;
 		};
