@@ -4,6 +4,15 @@
     <Filter Include="Albedo">
       <UniqueIdentifier>{2C2458A7-18C6-827D-0181-96D1EDC109CE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Albedo\Events">
+      <UniqueIdentifier>{90E60D9D-FCA6-89D3-C5E1-D2503161CEAF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Albedo.h" />
@@ -16,13 +25,28 @@
     <ClInclude Include="src\Albedo\EntryPoint.h">
       <Filter>Albedo</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Events\ApplicationEvent.h">
+      <Filter>Albedo\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Events\Event.h">
+      <Filter>Albedo\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Events\KeyEvent.h">
+      <Filter>Albedo\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Events\MouseEvent.h">
+      <Filter>Albedo\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Log.h">
       <Filter>Albedo</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Events\Event.h" />
-    <ClInclude Include="src\Albedo\Events\MouseEvent.h" />
-    <ClInclude Include="src\Albedo\Events\KeyEvent.h" />
-    <ClInclude Include="src\Albedo\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Albedo\Window.h">
+      <Filter>Albedo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
@@ -30,6 +54,10 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Log.cpp">
       <Filter>Albedo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AlbedoPreCompiledHeader.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

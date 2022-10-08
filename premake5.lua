@@ -10,6 +10,11 @@ workspace "Albedo"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
+
+include "Albedo/dependencies/GLFW"
+
 project "Albedo"
 	location "Albedo"
 	kind "SharedLib"
@@ -17,6 +22,9 @@ project "Albedo"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	pchheader "AlbedoPreCompiledHeader.h"
+	pchsource "Albedo/src/AlbedoPreCompiledHeader.cpp"
 
 	files
 	{
@@ -26,7 +34,15 @@ project "Albedo"
 
 	includedirs
 	{
-		"%{prj.name}/dependencies/spdlog/include"
+		"%{prj.name}/dependencies/spdlog/include",
+		"%{prj.name}/src",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib",
 	}
 
 	filter "system:windows"

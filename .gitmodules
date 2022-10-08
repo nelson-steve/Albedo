@@ -1,3 +1,6 @@
 [submodule "Albedo/dependencies/spdlog"]
 	path = Albedo/dependencies/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Albedo/dependencies/GLFW"]
+	path = Albedo/dependencies/GLFW
+	url = https://github.com/nelsonsteve799/glfw

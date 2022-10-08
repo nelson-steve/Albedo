@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Albedo/Events/Event.h"
+#include "Core.h"
+#include "Events/Event.h"
+#include "Window.h"
 
 namespace Albedo {
 
@@ -11,6 +13,8 @@ namespace Albedo {
 		virtual ~Application();
 
 		void Run();
+	private:
+		std::unique_ptr<Window> m_Window;
 	};
 
 	Application* CreateApplication();

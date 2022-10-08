@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Albedo/Core.h"
+#include "AlbedoPreCompiledHeader.h"
 
-#include <functional>
-#include <string>
-#include <sstream>
+#include "Albedo/Core.h"
 
 namespace Albedo {
 
