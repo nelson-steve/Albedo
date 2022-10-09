@@ -12,8 +12,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
+IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
 
 include "Albedo/dependencies/GLFW"
+include "Albedo/dependencies/Glad"
 
 project "Albedo"
 	location "Albedo"
@@ -36,13 +38,15 @@ project "Albedo"
 	{
 		"%{prj.name}/dependencies/spdlog/include",
 		"%{prj.name}/src",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links
 	{
 		"GLFW",
-		"opengl32.lib",
+		"Glad",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
@@ -53,7 +57,8 @@ project "Albedo"
 		defines
 		{
 			"Albedo_Platform_Windows",
-			"Albedo_Build_DLL"
+			"Albedo_Build_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
@@ -63,14 +68,17 @@ project "Albedo"
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
+		buildoptions "/MDd"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
+		buildoptions "/MDd"
 		optimize "On"
 
 project "Sandbox"
@@ -110,12 +118,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
+		buildoptions "/MDd"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
+		buildoptions "/MDd"
 		optimize "On"

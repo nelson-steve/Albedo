@@ -3,6 +3,7 @@
 #include "Event.h"
 
 namespace Albedo {
+
 	class Albedo_API KeyEvent : public Event {
 	public:
 		KeyEvent() {}
@@ -47,4 +48,5 @@ namespace Albedo {
 
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
+
 }

@@ -3,6 +3,7 @@
 #include "Event.h"
 
 namespace Albedo {
+
 	class Albedo_API WindowResizeEvent : public Event
 	{
 	public:
@@ -103,4 +104,5 @@ namespace Albedo {
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	};
+
 }

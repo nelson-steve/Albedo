@@ -3,6 +3,7 @@
 #include "Event.h"
 
 namespace Albedo {
+
 	class Albedo_API MouseMovedEvent : public Event
 	{
 	public:

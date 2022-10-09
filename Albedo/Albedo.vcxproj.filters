@@ -7,6 +7,9 @@
     <Filter Include="Albedo\Events">
       <UniqueIdentifier>{90E60D9D-FCA6-89D3-C5E1-D2503161CEAF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Albedo\Layers">
+      <UniqueIdentifier>{6BD1F0AB-D791-6CE2-A0CC-B55F0C4CB1BE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -37,6 +40,12 @@
     <ClInclude Include="src\Albedo\Events\MouseEvent.h">
       <Filter>Albedo\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Layers\Layer.h">
+      <Filter>Albedo\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Layers\LayerStack.h">
+      <Filter>Albedo\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Log.h">
       <Filter>Albedo</Filter>
     </ClInclude>
@@ -51,6 +60,12 @@
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
       <Filter>Albedo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Layers\Layer.cpp">
+      <Filter>Albedo\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Layers\LayerStack.cpp">
+      <Filter>Albedo\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Log.cpp">
       <Filter>Albedo</Filter>

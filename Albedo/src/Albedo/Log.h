@@ -18,6 +18,7 @@ namespace Albedo {
 		static std::shared_ptr<spdlog::logger> m_CoreLogger;
 		static std::shared_ptr<spdlog::logger> m_AppLogger;
 	};
+
 }
 
 //Core Log Macors
