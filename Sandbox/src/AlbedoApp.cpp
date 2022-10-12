@@ -2,6 +2,8 @@
 
 #include "imgui/imgui.h"
 
+
+
 class ExampleLayer : public Albedo::Layer
 {
 public:
@@ -12,6 +14,10 @@ public:
 
 	void OnUpdate()
 	{
+		if (Albedo::Input::IsKeyPressed(Albedo_KEY_TAB))
+		{
+			Albedo_TRACE("Tab key is pressed");
+		}
 		// mAlbedo_INFO("ExampleLayer::Update()");
 	}
 

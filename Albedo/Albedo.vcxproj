@@ -162,9 +162,11 @@
     <ClInclude Include="src\Albedo\Events\MouseEvent.h" />
     <ClInclude Include="src\Albedo\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Albedo\Input.h" />
+    <ClInclude Include="src\Albedo\KeyCodes.h" />
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Log.h" />
+    <ClInclude Include="src\Albedo\MouseButtonCodes.h" />
     <ClInclude Include="src\Albedo\Window.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />

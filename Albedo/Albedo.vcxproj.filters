@@ -64,6 +64,8 @@
     </ClInclude>
     <ClInclude Include="src\Albedo\Input.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\Albedo\KeyCodes.h" />
+    <ClInclude Include="src\Albedo\MouseButtonCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
