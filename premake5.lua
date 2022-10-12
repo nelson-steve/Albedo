@@ -13,9 +13,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
 IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
+IncludeDir["ImGui"] = "Albedo/dependencies/imgui"
 
 include "Albedo/dependencies/GLFW"
 include "Albedo/dependencies/Glad"
+include "Albedo/dependencies/imgui"
 
 project "Albedo"
 	location "Albedo"
@@ -39,13 +41,15 @@ project "Albedo"
 		"%{prj.name}/dependencies/spdlog/include",
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Glad}"
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
 	{
 		"GLFW",
 		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -58,7 +62,8 @@ project "Albedo"
 		{
 			"Albedo_Platform_Windows",
 			"Albedo_Build_DLL",
-			"GLFW_INCLUDE_NONE"
+			"GLFW_INCLUDE_NONE",
+			"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 		}
 
 		postbuildcommands
@@ -98,7 +103,8 @@ project "Sandbox"
 	includedirs
 	{
 		"Albedo/dependencies/spdlog/include",
-		"Albedo/src"
+		"Albedo/src",
+		"Albedo/dependencies"
 	}
 
 	links

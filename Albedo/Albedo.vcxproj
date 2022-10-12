@@ -79,8 +79,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;IMGUI_IMPL_OPENGL_LOADER_GLAD;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -102,8 +102,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;IMGUI_IMPL_OPENGL_LOADER_GLAD;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -129,8 +129,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;IMGUI_IMPL_OPENGL_LOADER_GLAD;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>dependencies\spdlog\include;src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -160,21 +160,27 @@
     <ClInclude Include="src\Albedo\Events\Event.h" />
     <ClInclude Include="src\Albedo\Events\KeyEvent.h" />
     <ClInclude Include="src\Albedo\Events\MouseEvent.h" />
+    <ClInclude Include="src\Albedo\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Albedo\Input.h" />
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Log.h" />
     <ClInclude Include="src\Albedo\Window.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp" />
+    <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />
+    <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Log.cpp" />
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +189,9 @@
     </ProjectReference>
     <ProjectReference Include="dependencies\Glad\Glad.vcxproj">
       <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="dependencies\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,5 +1,7 @@
 #include <Albedo.h>
 
+#include "imgui/imgui.h"
+
 class ExampleLayer : public Albedo::Layer
 {
 public:
@@ -10,12 +12,19 @@ public:
 
 	void OnUpdate()
 	{
-		Albedo_INFO("ExampleLayer::Update()");
+		// mAlbedo_INFO("ExampleLayer::Update()");
+	}
+
+	virtual void OnImGuiRender() override
+	{
+		ImGui::Begin("Test");
+		ImGui::Text("Hello World");
+		ImGui::End();
 	}
 
 	void OnEvent(Albedo::Event& event) override
 	{
-		Albedo_TRACE("{0}", event);
+		//Albedo_TRACE("{0}", event);
 	}
 
 };

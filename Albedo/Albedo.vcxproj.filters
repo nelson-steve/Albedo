@@ -7,6 +7,9 @@
     <Filter Include="Albedo\Events">
       <UniqueIdentifier>{90E60D9D-FCA6-89D3-C5E1-D2503161CEAF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Albedo\ImGui">
+      <UniqueIdentifier>{560AEEA7-426D-7D4C-EBF2-B502D73449CF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Albedo\Layers">
       <UniqueIdentifier>{6BD1F0AB-D791-6CE2-A0CC-B55F0C4CB1BE}</UniqueIdentifier>
     </Filter>
@@ -40,6 +43,9 @@
     <ClInclude Include="src\Albedo\Events\MouseEvent.h">
       <Filter>Albedo\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\ImGui\ImGuiLayer.h">
+      <Filter>Albedo\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Layers\Layer.h">
       <Filter>Albedo\Layers</Filter>
     </ClInclude>
@@ -56,10 +62,18 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Input.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
       <Filter>Albedo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp">
+      <Filter>Albedo\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp">
+      <Filter>Albedo\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Layers\Layer.cpp">
       <Filter>Albedo\Layers</Filter>
@@ -74,5 +88,6 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>

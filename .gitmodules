@@ -4,3 +4,6 @@
 [submodule "Albedo/dependencies/GLFW"]
 	path = Albedo/dependencies/GLFW
 	url = https://github.com/nelsonsteve799/glfw
+[submodule "Albedo/dependencies/imgui"]
+	path = Albedo/dependencies/imgui
+	url = https://github.com/nelsonsteve799/imgui.git
