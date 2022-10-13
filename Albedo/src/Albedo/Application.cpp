@@ -21,10 +21,83 @@ namespace Albedo {
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+
+		float vertices[3 * 3] = {
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.0f,  0.5f, 0.0f
+		};
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+		unsigned int indices[3] = { 0, 1, 2 };
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		// VERTEX SHADER
+
+		const char* vertexShaderSource = "#version 330 core\n"
+			"layout (location = 0) in vec3 aPos;\n"
+			"void main()\n"
+			"{\n"
+			"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+			"}\0";
+
+		// FRAGMENT SHADER
+
+		const char* fragmentShaderSource = "#version 330 core\n"
+			"out vec4 FragColor;\n"
+			"void main()\n"
+			"{\n"
+			"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+			"}\0";
+			
+		vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		glCompileShader(vertexShader);
+
+		int  success;
+		char infoLog[512];
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+		if (!success)
+		{
+			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+
+		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		glCompileShader(fragmentShader);
+
+		shaderProgram = glCreateProgram();
+
+		glAttachShader(shaderProgram, vertexShader);
+		glAttachShader(shaderProgram, fragmentShader);
+		glLinkProgram(shaderProgram);
+
+		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+		glUseProgram(shaderProgram);
+
 	}
 	Application::~Application() 
 	{
-
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
 	}
 
 	void Application::OnEvent(Event& e)
@@ -54,8 +127,11 @@ namespace Albedo {
 		//	Albedo_Core_TRACE(e);
 		//}
 		while (m_Running) {
-			glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+			glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			glBindVertexArray(vao);
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -64,9 +140,6 @@ namespace Albedo {
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
-
-			auto [x, y] = Input::GetMousePosition();
-			Albedo_Core_TRACE("{0}, {1}", x, y);
 
 			m_Window->OnUpdate();
 		}

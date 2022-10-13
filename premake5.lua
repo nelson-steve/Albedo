@@ -22,8 +22,10 @@ include "Albedo/dependencies/imgui"
 
 project "Albedo"
 	location "Albedo"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -37,6 +39,11 @@ project "Albedo"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/dependencies/glm/glm/**.hpp",
 		"%{prj.name}/dependencies/glm/glm/**.inl"
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
@@ -58,8 +65,6 @@ project "Albedo"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -67,33 +72,34 @@ project "Albedo"
 			"Albedo_Platform_Windows",
 			"Albedo_Build_DLL",
 			"GLFW_INCLUDE_NONE",
-			"IMGUI_IMPL_OPENGL_LOADER_GLAD"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		}
+		--postbuildcommands
+		--{
+		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+		--}
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
 		buildoptions "/MDd"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
 		buildoptions "/MDd"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
 		buildoptions "/MDd"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
+	cppdialect "C++17"
 	language "C++"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -117,8 +123,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines

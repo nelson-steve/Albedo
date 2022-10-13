@@ -33,6 +33,11 @@ namespace Albedo {
 		LayerStack m_LayerStack;
 
 		static Application* s_Instance;
+
+		unsigned int vbo, vao, ibo;
+		unsigned int vertexShader;
+		unsigned int fragmentShader;
+		unsigned int shaderProgram;
 	};
 
 	Application* CreateApplication();
