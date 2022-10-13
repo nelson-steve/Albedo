@@ -14,6 +14,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
 IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
 IncludeDir["ImGui"] = "Albedo/dependencies/imgui"
+IncludeDir["glm"] = "Albedo/dependencies/glm"
 
 include "Albedo/dependencies/GLFW"
 include "Albedo/dependencies/Glad"
@@ -33,7 +34,9 @@ project "Albedo"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/dependencies/glm/glm/**.hpp",
+		"%{prj.name}/dependencies/glm/glm/**.inl"
 	}
 
 	includedirs
@@ -42,7 +45,8 @@ project "Albedo"
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -104,7 +108,7 @@ project "Sandbox"
 	{
 		"Albedo/dependencies/spdlog/include",
 		"Albedo/src",
-		"Albedo/dependencies"
+		"%{IncludeDir.glm}"
 	}
 
 	links
