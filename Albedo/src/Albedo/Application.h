@@ -8,6 +8,9 @@
 #include "Albedo/Events/ApplicationEvent.h"
 #include "Albedo/ImGui/ImGuiLayer.h"
 
+#include "Albedo/Renderer/Renderer.h"
+#include "Renderer/VertexArray.h"
+
 namespace Albedo {
 
 	class Albedo_API Application
@@ -31,6 +34,10 @@ namespace Albedo {
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+
+		std::shared_ptr<VertexArray> m_VertexArray;
+		//std::shared_ptr<Shader> m_Shader;
+
 
 		static Application* s_Instance;
 

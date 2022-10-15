@@ -22,28 +22,48 @@ namespace Albedo {
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 
-		float vertices[3 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
+
+		m_VertexArray.reset(VertexArray::Create());
+		
+		float vertices[3 * 7] = {
+			-0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5,
+			 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5,
+			 0.0f,  0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5
+		};
+		
+		//glGenVertexArrays(1, &vao);
+		//glBindVertexArray(vao);
+
+		//glGenBuffers(1, &vbo);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		std::shared_ptr<VertexBuffer> vertexBuffer;
+		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+
+		BufferLayout layout =
+		{
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"}
 		};
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		vertexBuffer->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(vertexBuffer);
 
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		//glEnableVertexAttribArray(0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
 		unsigned int indices[3] = { 0, 1, 2 };
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		
+		std::shared_ptr<IndexBuffer> indexBuffer;
+		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
+		m_VertexArray->SetIndexBuffer(indexBuffer);
+
+		//glGenBuffers(1, &ibo);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 		// VERTEX SHADER
 

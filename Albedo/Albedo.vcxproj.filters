@@ -1347,6 +1347,17 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
+    <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
+    <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\Albedo\Renderer\Shader.h" />
+    <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\Albedo\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
@@ -1376,5 +1387,15 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
   </ItemGroup>
 </Project>
