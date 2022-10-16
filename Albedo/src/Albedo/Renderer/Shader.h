@@ -6,13 +6,14 @@ namespace Albedo {
 	{
 	public:
 		Shader(const char* VertexSrc, const char* fragmentSrc);
+		~Shader();
 
 		void Bind();
 		void Unbind();
 
-		void UploadMat4f();
+		void UploadUniformdMat4f();
 	private:
-		unsigned int vertexShader, fragmentShader, shaderProgram;
+		unsigned int m_ShaderID;
 	};
 
 }

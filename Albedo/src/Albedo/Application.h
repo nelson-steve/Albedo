@@ -10,6 +10,7 @@
 
 #include "Albedo/Renderer/Renderer.h"
 #include "Renderer/VertexArray.h"
+#include "Albedo/Renderer/Shader.h"
 
 namespace Albedo {
 
@@ -36,15 +37,12 @@ namespace Albedo {
 		LayerStack m_LayerStack;
 
 		std::shared_ptr<VertexArray> m_VertexArray;
+		std::shared_ptr<VertexBuffer> m_VertexBuffer;
+		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::shared_ptr<Shader> m_Shader;
 		//std::shared_ptr<Shader> m_Shader;
 
-
 		static Application* s_Instance;
-
-		unsigned int vbo, vao, ibo;
-		unsigned int vertexShader;
-		unsigned int fragmentShader;
-		unsigned int shaderProgram;
 	};
 
 	Application* CreateApplication();

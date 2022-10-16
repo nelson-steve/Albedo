@@ -2,7 +2,6 @@
 #include "Application.h"
 #include "Log.h"
 #include "Input.h"
-#include "Albedo/Renderer/Shader.h"
 
 #include <glad/glad.h>
 
@@ -38,8 +37,7 @@ namespace Albedo {
 		//glGenBuffers(1, &vbo);
 		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-		std::shared_ptr<VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
 		BufferLayout layout =
 		{
@@ -47,8 +45,8 @@ namespace Albedo {
 			{ShaderDataType::Float4, "a_Color"}
 		};
 
-		vertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(vertexBuffer);
+		m_VertexBuffer->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 		//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -57,16 +55,14 @@ namespace Albedo {
 
 		unsigned int indices[3] = { 0, 1, 2 };
 		
-		std::shared_ptr<IndexBuffer> indexBuffer;
-		indexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
-		m_VertexArray->SetIndexBuffer(indexBuffer);
+		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
+		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		//glGenBuffers(1, &ibo);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		std::shared_ptr<Shader> shader;
 
 		// VERTEX SHADER
 
@@ -86,7 +82,7 @@ namespace Albedo {
 			"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 			"}\0";
 
-		shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
+		m_Shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
 			
 		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		//
@@ -155,7 +151,9 @@ namespace Albedo {
 			glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			glBindVertexArray(vao);
+			//glBindVertexArray(m_VertexArray);
+			//m_VertexArray->Bind();
+			m_Shader->Bind();
 			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack)
