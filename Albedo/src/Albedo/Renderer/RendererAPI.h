@@ -4,6 +4,7 @@
 #include "VertexArray.h"
 
 namespace Albedo {
+
 	class RendererAPI 
 	{
 	public:
@@ -20,4 +21,5 @@ namespace Albedo {
 	private:
 		static API s_API;
 	};
+
 }

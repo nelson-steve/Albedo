@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Log.h"
 #include "Input.h"
+#include "Albedo/Renderer/Shader.h"
 
 #include <glad/glad.h>
 
@@ -65,6 +66,8 @@ namespace Albedo {
 
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+		std::shared_ptr<Shader> shader;
+
 		// VERTEX SHADER
 
 		const char* vertexShaderSource = "#version 330 core\n"
@@ -82,42 +85,44 @@ namespace Albedo {
 			"{\n"
 			"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 			"}\0";
+
+		shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
 			
-		vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		//
+		//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		//glCompileShader(vertexShader);
 
-		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-		glCompileShader(vertexShader);
+		//int  success;
+		//char infoLog[512];
+		//glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+		//
+		//if (!success)
+		//{
+		//	glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		//	std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		//}
 
-		int  success;
-		char infoLog[512];
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-		if (!success)
-		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
-
-		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-		glCompileShader(fragmentShader);
-
-		shaderProgram = glCreateProgram();
-
-		glAttachShader(shaderProgram, vertexShader);
-		glAttachShader(shaderProgram, fragmentShader);
-		glLinkProgram(shaderProgram);
-
-		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-		glUseProgram(shaderProgram);
+		//fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		//
+		//glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		//glCompileShader(fragmentShader);
+		//
+		//shaderProgram = glCreateProgram();
+		//
+		//glAttachShader(shaderProgram, vertexShader);
+		//glAttachShader(shaderProgram, fragmentShader);
+		//glLinkProgram(shaderProgram);
+		//
+		//glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+		//
+		//glUseProgram(shaderProgram);
 
 	}
 	Application::~Application() 
 	{
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+		//glDeleteShader(vertexShader);
+		//glDeleteShader(fragmentShader);
 	}
 
 	void Application::OnEvent(Event& e)

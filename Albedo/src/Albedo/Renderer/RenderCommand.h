@@ -3,6 +3,7 @@
 #include "RendererAPI.h"
 
 namespace Albedo {
+
 	class RenderCommand
 	{
 	public:
@@ -16,4 +17,5 @@ namespace Albedo {
 	private:
 		static RendererAPI* s_RendererAPI;
 	};
+
 }

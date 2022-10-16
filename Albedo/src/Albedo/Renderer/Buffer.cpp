@@ -11,6 +11,7 @@ namespace Albedo {
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
 			case RendererAPI::API::OpenGL: return new OpenGLVertexBuffer(vertices, size);
 		}
 		//assert();
