@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace Albedo {
 
 	class Shader
@@ -11,7 +13,7 @@ namespace Albedo {
 		void Bind();
 		void Unbind();
 
-		void UploadUniformdMat4f();
+		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 	private:
 		unsigned int m_ShaderID;
 	};

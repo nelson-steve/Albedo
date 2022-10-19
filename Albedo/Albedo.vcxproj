@@ -573,6 +573,7 @@
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Log.h" />
     <ClInclude Include="src\Albedo\MouseButtonCodes.h" />
+    <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Window.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
@@ -599,6 +600,7 @@
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />

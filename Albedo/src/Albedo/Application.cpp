@@ -12,6 +12,7 @@ namespace Albedo {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application() 
+		:m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		s_Instance = this;
 
@@ -26,9 +27,9 @@ namespace Albedo {
 		m_VertexArray.reset(VertexArray::Create());
 		
 		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5,
-			 0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5,
-			 0.0f,  0.5f, 0.0f, 0.5f, 0.5f, 0.0f, 0.5
+			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
 		
 		//glGenVertexArrays(1, &vao);
@@ -67,19 +68,27 @@ namespace Albedo {
 		// VERTEX SHADER
 
 		const char* vertexShaderSource = "#version 330 core\n"
-			"layout (location = 0) in vec3 aPos;\n"
+			"layout (location = 0) in vec3 a_Position;\n"
+			"layout (location = 1) in vec4 a_Color;\n"
+			"uniform mat4 u_ProjectionView;\n"
+			"out vec3 v_Position;\n"
+			"out vec4 v_Color;\n"
 			"void main()\n"
 			"{\n"
-			"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+				"v_Position = a_Position;\n"
+				"v_Color = a_Color;\n"
+				"gl_Position = u_ProjectionView * vec4(a_Position, 1.0);\n"
 			"}\0";
 
 		// FRAGMENT SHADER
 
 		const char* fragmentShaderSource = "#version 330 core\n"
-			"out vec4 FragColor;\n"
+			"layout (location = 0) out vec4 Color;\n"
+			"in vec3 v_Position;\n"
+			"in vec4 v_Color;\n"
 			"void main()\n"
 			"{\n"
-			"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+				"Color = v_Color;\n"
 			"}\0";
 
 		m_Shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
@@ -148,13 +157,17 @@ namespace Albedo {
 		//	Albedo_Core_TRACE(e);
 		//}
 		while (m_Running) {
-			glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::ClearColor({0.2f, 0.2f, 0.2f, 0.2f});
+			RenderCommand::Clear();
 
-			//glBindVertexArray(m_VertexArray);
-			//m_VertexArray->Bind();
-			m_Shader->Bind();
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });
+			m_Camera.SetRotation(45.0f);
+
+			Renderer::BeginScene(m_Camera);
+
+			Renderer::Submit(m_Shader, m_VertexArray);
+
+			Renderer::EndScene;
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();

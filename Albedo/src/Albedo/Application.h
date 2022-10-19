@@ -11,6 +11,7 @@
 #include "Albedo/Renderer/Renderer.h"
 #include "Renderer/VertexArray.h"
 #include "Albedo/Renderer/Shader.h"
+#include "Renderer/OrthographicCamera.h"
 
 namespace Albedo {
 
@@ -41,6 +42,8 @@ namespace Albedo {
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		std::shared_ptr<Shader> m_Shader;
 		//std::shared_ptr<Shader> m_Shader;
+
+		OrthographicCamera m_Camera;
 
 		static Application* s_Instance;
 	};
