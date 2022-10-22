@@ -8,11 +8,6 @@
 #include "Albedo/Events/ApplicationEvent.h"
 #include "Albedo/ImGui/ImGuiLayer.h"
 
-#include "Albedo/Renderer/Renderer.h"
-#include "Renderer/VertexArray.h"
-#include "Albedo/Renderer/Shader.h"
-#include "Renderer/OrthographicCamera.h"
-
 namespace Albedo {
 
 	class Albedo_API Application
@@ -36,14 +31,6 @@ namespace Albedo {
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
-
-		std::shared_ptr<VertexArray> m_VertexArray;
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
-		std::shared_ptr<Shader> m_Shader;
-		//std::shared_ptr<Shader> m_Shader;
-
-		OrthographicCamera m_Camera;
 
 		static Application* s_Instance;
 	};

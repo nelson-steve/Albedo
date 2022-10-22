@@ -11,8 +11,7 @@ namespace Albedo {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application() 
-		:m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
+	Application::Application()
 	{
 		s_Instance = this;
 
@@ -22,112 +21,10 @@ namespace Albedo {
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-
-		m_VertexArray.reset(VertexArray::Create());
-		
-		float vertices[3 * 7] = {
-			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
-		};
-		
-		//glGenVertexArrays(1, &vao);
-		//glBindVertexArray(vao);
-
-		//glGenBuffers(1, &vbo);
-		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-
-		BufferLayout layout =
-		{
-			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"}
-		};
-
-		m_VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-
-		unsigned int indices[3] = { 0, 1, 2 };
-		
-		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-		//glGenBuffers(1, &ibo);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-		// VERTEX SHADER
-
-		const char* vertexShaderSource = "#version 330 core\n"
-			"layout (location = 0) in vec3 a_Position;\n"
-			"layout (location = 1) in vec4 a_Color;\n"
-			"uniform mat4 u_ProjectionView;\n"
-			"out vec3 v_Position;\n"
-			"out vec4 v_Color;\n"
-			"void main()\n"
-			"{\n"
-				"v_Position = a_Position;\n"
-				"v_Color = a_Color;\n"
-				"gl_Position = u_ProjectionView * vec4(a_Position, 1.0);\n"
-			"}\0";
-
-		// FRAGMENT SHADER
-
-		const char* fragmentShaderSource = "#version 330 core\n"
-			"layout (location = 0) out vec4 Color;\n"
-			"in vec3 v_Position;\n"
-			"in vec4 v_Color;\n"
-			"void main()\n"
-			"{\n"
-				"Color = v_Color;\n"
-			"}\0";
-
-		m_Shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
-			
-		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		//
-		//glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-		//glCompileShader(vertexShader);
-
-		//int  success;
-		//char infoLog[512];
-		//glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-		//
-		//if (!success)
-		//{
-		//	glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		//	std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		//}
-
-		//fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		//
-		//glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-		//glCompileShader(fragmentShader);
-		//
-		//shaderProgram = glCreateProgram();
-		//
-		//glAttachShader(shaderProgram, vertexShader);
-		//glAttachShader(shaderProgram, fragmentShader);
-		//glLinkProgram(shaderProgram);
-		//
-		//glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-		//
-		//glUseProgram(shaderProgram);
-
 	}
 	Application::~Application() 
 	{
-		//glDeleteShader(vertexShader);
-		//glDeleteShader(fragmentShader);
+
 	}
 
 	void Application::OnEvent(Event& e)
@@ -156,19 +53,8 @@ namespace Albedo {
 		//{
 		//	Albedo_Core_TRACE(e);
 		//}
-		while (m_Running) {
-			RenderCommand::ClearColor({0.2f, 0.2f, 0.2f, 0.2f});
-			RenderCommand::Clear();
-
-			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });
-			m_Camera.SetRotation(45.0f);
-
-			Renderer::BeginScene(m_Camera);
-
-			Renderer::Submit(m_Shader, m_VertexArray);
-
-			Renderer::EndScene;
-
+		while (m_Running) 
+		{
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
