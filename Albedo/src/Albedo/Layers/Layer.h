@@ -2,6 +2,7 @@
 
 #include "Albedo/Events/Event.h"
 #include "Albedo/Core.h"
+#include "Albedo/Core/Timestep.h"
 
 namespace Albedo {
 
@@ -13,7 +14,7 @@ namespace Albedo {
 
 		virtual void OnAttach(){}
 		virtual void OnDetach(){}
-		virtual void OnUpdate(){}
+		virtual void OnUpdate(Timestep ts){}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& e){}
 

@@ -561,6 +561,7 @@
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Application.h" />
     <ClInclude Include="src\Albedo\Core.h" />
+    <ClInclude Include="src\Albedo\Core\Timestep.h" />
     <ClInclude Include="src\Albedo\EntryPoint.h" />
     <ClInclude Include="src\Albedo\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Albedo\Events\Event.h" />

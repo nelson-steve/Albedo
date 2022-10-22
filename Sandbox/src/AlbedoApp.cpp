@@ -1,5 +1,6 @@
 #include <Albedo.h>
 
+
 class ExampleLayer : public Albedo::Layer
 {
 public:
@@ -108,13 +109,30 @@ public:
 		//glUseProgram(shaderProgram);
 	}
 
-		void OnUpdate()
+		void OnUpdate(Albedo::Timestep ts)
 		{
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_TAB))
+				Albedo_TRACE("Tab key is pressed (poll)!");
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_LEFT))
+				m_CameraPosition.x -= m_CameraMoveSpeed * ts;
+			else if (Albedo::Input::IsKeyPressed(Albedo_KEY_RIGHT))
+				m_CameraPosition.x += m_CameraMoveSpeed * ts;
+
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_UP))
+				m_CameraPosition.y += m_CameraMoveSpeed * ts;
+			else if (Albedo::Input::IsKeyPressed(Albedo_KEY_DOWN))
+				m_CameraPosition.y -= m_CameraMoveSpeed * ts;
+
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_A))
+				m_CameraRotation += m_CameraRotationSpeed * ts;
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_D))
+				m_CameraRotation -= m_CameraRotationSpeed * ts;
+
 			Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 			Albedo::RenderCommand::Clear();
 
-			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });
-			m_Camera.SetRotation(45.0f);
+			m_Camera.SetPosition(m_CameraPosition);
+			m_Camera.SetRotation(m_CameraRotation);
 
 			Albedo::Renderer::BeginScene(m_Camera);
 
@@ -138,6 +156,10 @@ private:
 
 	Albedo::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
+	float m_CameraMoveSpeed = 5.0f;
+
+	float m_CameraRotation = 0.0f;
+	float m_CameraRotationSpeed = 180.0f;
 
 };
 

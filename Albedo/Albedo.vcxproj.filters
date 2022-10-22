@@ -1359,6 +1359,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Albedo\Core\Timestep.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Albedo\Application.cpp">
