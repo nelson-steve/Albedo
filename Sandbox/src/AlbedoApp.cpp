@@ -1,5 +1,5 @@
 #include <Albedo.h>
-
+#include <glm/gtc/matrix_transform.hpp>
 
 class ExampleLayer : public Albedo::Layer
 {
@@ -56,13 +56,14 @@ public:
 			"layout (location = 0) in vec3 a_Position;\n"
 			"layout (location = 1) in vec4 a_Color;\n"
 			"uniform mat4 u_ProjectionView;\n"
+			"uniform mat4 u_Transform;\n"
 			"out vec3 v_Position;\n"
 			"out vec4 v_Color;\n"
 			"void main()\n"
 			"{\n"
 			"v_Position = a_Position;\n"
 			"v_Color = a_Color;\n"
-			"gl_Position = u_ProjectionView * vec4(a_Position, 1.0);\n"
+			"gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);\n"
 			"}\0";
 
 		// FRAGMENT SHADER
@@ -128,6 +129,13 @@ public:
 			if (Albedo::Input::IsKeyPressed(Albedo_KEY_D))
 				m_CameraRotation -= m_CameraRotationSpeed * ts;
 
+			if (Albedo::Input::IsKeyPressed(Albedo_KEY_R)) //Camera Reset
+			{
+				m_CameraRotation = 0.0f;
+				m_CameraPosition = glm::vec3(0.0f);
+			}
+				
+
 			Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 			Albedo::RenderCommand::Clear();
 
@@ -136,9 +144,25 @@ public:
 
 			Albedo::Renderer::BeginScene(m_Camera);
 
-			Albedo::Renderer::Submit(m_Shader, m_VertexArray);
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+			glm::vec3 pos(-0.5f, 0.0f, 0.0f);
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+
+			Albedo::Renderer::Submit(m_Shader, m_VertexArray, transform);
 
 			Albedo::Renderer::EndScene;
+
+
+			Albedo::Renderer::BeginScene(m_Camera);
+			
+			scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+			glm::vec3 pos1(0.5f, 0.0f, 0.0f);
+			transform = glm::translate(glm::mat4(1.0f), pos1) * scale;
+
+			Albedo::Renderer::Submit(m_Shader, m_VertexArray, transform);
+
+			Albedo::Renderer::EndScene;
+
 		}
 
 		virtual void OnImGuiRender() override
