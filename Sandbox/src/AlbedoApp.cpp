@@ -1,6 +1,10 @@
 #include <Albedo.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Platform/OpenGL/OpenGLShader.h"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 class ExampleLayer : public Albedo::Layer
 {
 public:
@@ -57,12 +61,13 @@ public:
 			"layout (location = 1) in vec4 a_Color;\n"
 			"uniform mat4 u_ProjectionView;\n"
 			"uniform mat4 u_Transform;\n"
+			"uniform vec4 u_Color;\n"
 			"out vec3 v_Position;\n"
 			"out vec4 v_Color;\n"
 			"void main()\n"
 			"{\n"
 			"v_Position = a_Position;\n"
-			"v_Color = a_Color;\n"
+			"v_Color = u_Color;\n"
 			"gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);\n"
 			"}\0";
 
@@ -76,8 +81,8 @@ public:
 			"{\n"
 			"Color = v_Color;\n"
 			"}\0";
-
-		m_Shader.reset(new Albedo::Shader(vertexShaderSource, fragmentShaderSource));
+		//new Albedo::Shader(vertexShaderSource, fragmentShaderSource)
+		m_Shader.reset(Albedo::Shader::Create(vertexShaderSource, fragmentShaderSource));
 
 		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		//
@@ -148,7 +153,7 @@ public:
 			glm::vec3 pos(-0.5f, 0.0f, 0.0f);
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 
-			Albedo::Renderer::Submit(m_Shader, m_VertexArray, transform);
+			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_BigColor);
 
 			Albedo::Renderer::EndScene;
 
@@ -159,7 +164,7 @@ public:
 			glm::vec3 pos1(0.5f, 0.0f, 0.0f);
 			transform = glm::translate(glm::mat4(1.0f), pos1) * scale;
 
-			Albedo::Renderer::Submit(m_Shader, m_VertexArray, transform);
+			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_SmallColor);
 
 			Albedo::Renderer::EndScene;
 
@@ -184,6 +189,9 @@ private:
 
 	float m_CameraRotation = 0.0f;
 	float m_CameraRotationSpeed = 180.0f;
+
+	glm::vec4 m_BigColor = { 0.2, 0.4, 0.8, 1.0f };
+	glm::vec4 m_SmallColor = { 0.5, 0.5, 0.9, 1.0f };
 
 };
 

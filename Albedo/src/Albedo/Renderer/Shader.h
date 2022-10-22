@@ -7,15 +7,12 @@ namespace Albedo {
 	class Shader
 	{
 	public:
-		Shader(const char* VertexSrc, const char* fragmentSrc);
-		~Shader();
+		virtual ~Shader() = default;
 
-		void Bind();
-		void Unbind();
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
 
-		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
-	private:
-		unsigned int m_ShaderID;
+		static Shader* Create(const char* vertexSrc, const char* fragmentSrc);
 	};
 
 }
