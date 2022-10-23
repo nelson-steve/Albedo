@@ -2,8 +2,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Platform/OpenGL/OpenGLShader.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Albedo/Renderer/Texture.h"
+
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public Albedo::Layer
 {
@@ -19,6 +22,13 @@ public:
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 		};
 
+		float boxVertices[4 * 5] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
+		};
+
 		//glGenVertexArrays(1, &vao);
 		//glBindVertexArray(vao);
 
@@ -26,12 +36,12 @@ public:
 		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		std::shared_ptr<Albedo::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Albedo::VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertexBuffer.reset(Albedo::VertexBuffer::Create(boxVertices, sizeof(boxVertices)));
 
 		Albedo::BufferLayout layout =
 		{
 			{Albedo::ShaderDataType::Float3, "a_Position"},
-			{Albedo::ShaderDataType::Float4, "a_Color"}
+			{Albedo::ShaderDataType::Float2, "a_TexCoord"}
 		};
 
 		vertexBuffer->SetLayout(layout);
@@ -43,9 +53,10 @@ public:
 		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
 		unsigned int indices[3] = { 0, 1, 2 };
+		unsigned int boxIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 		std::shared_ptr<Albedo::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Albedo::IndexBuffer::Create(indices, sizeof(indices) / sizeof(unsigned int)));
+		indexBuffer.reset(Albedo::IndexBuffer::Create(boxIndices, sizeof(boxIndices) / sizeof(unsigned int)));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
 		//glGenBuffers(1, &ibo);
@@ -58,16 +69,16 @@ public:
 
 		const char* vertexShaderSource = "#version 330 core\n"
 			"layout (location = 0) in vec3 a_Position;\n"
-			"layout (location = 1) in vec4 a_Color;\n"
+			"layout (location = 1) in vec2 a_TexCoord;\n"
 			"uniform mat4 u_ProjectionView;\n"
 			"uniform mat4 u_Transform;\n"
 			"uniform vec4 u_Color;\n"
-			"out vec3 v_Position;\n"
-			"out vec4 v_Color;\n"
+			//"out vec3 v_Position;\n"
+			"out vec2 v_TexCoord;\n"
 			"void main()\n"
 			"{\n"
-			"v_Position = a_Position;\n"
-			"v_Color = u_Color;\n"
+			//"v_Position = a_Position;\n"
+			"v_TexCoord = a_TexCoord;\n"
 			"gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);\n"
 			"}\0";
 
@@ -75,14 +86,21 @@ public:
 
 		const char* fragmentShaderSource = "#version 330 core\n"
 			"layout (location = 0) out vec4 Color;\n"
-			"in vec3 v_Position;\n"
-			"in vec4 v_Color;\n"
+			//"in vec3 v_Position;\n"
+			//"in vec4 v_Color;\n"
+			"in vec2 v_TexCoord;\n"
+			"uniform sampler2D u_Texture;\n"
 			"void main()\n"
 			"{\n"
-			"Color = v_Color;\n"
+			"Color = texture(u_Texture, v_TexCoord);\n"
 			"}\0";
 		//new Albedo::Shader(vertexShaderSource, fragmentShaderSource)
 		m_Shader.reset(Albedo::Shader::Create(vertexShaderSource, fragmentShaderSource));
+
+		m_Texture = Albedo::Texture2D::Create("Sample.png"); //Any PNG image
+
+		std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->Bind();
+		std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->UploadUniformInt1("u_Texture", 0);
 
 		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		//
@@ -153,9 +171,9 @@ public:
 			glm::vec3 pos(-0.5f, 0.0f, 0.0f);
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 
-			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_BigColor);
+			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), std::dynamic_pointer_cast<Albedo::OpenGLTexture2D>(m_Texture), m_VertexArray, transform, m_BigColor);
 
-			Albedo::Renderer::EndScene;
+			Albedo::Renderer::EndScene();
 
 
 			Albedo::Renderer::BeginScene(m_Camera);
@@ -166,7 +184,7 @@ public:
 
 			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_SmallColor);
 
-			Albedo::Renderer::EndScene;
+			Albedo::Renderer::EndScene();
 
 		}
 
@@ -182,6 +200,8 @@ public:
 private:
 	std::shared_ptr<Albedo::VertexArray> m_VertexArray;
 	std::shared_ptr<Albedo::Shader> m_Shader;
+
+	std::shared_ptr<Albedo::Texture2D> m_Texture;
 
 	Albedo::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;

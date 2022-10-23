@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "OrthographicCamera.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace Albedo {
 	class Renderer 
@@ -12,6 +13,8 @@ namespace Albedo {
 		static void BeginScene(OrthographicCamera& camera);
 		static void EndScene();
 
+		static void Submit(const std::shared_ptr<OpenGLShader>& shader, const std::shared_ptr<OpenGLTexture2D>& texture,
+			const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color);
 		static void Submit(const std::shared_ptr<OpenGLShader>& shader,
 			const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color);
 

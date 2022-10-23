@@ -22,11 +22,17 @@
     <Filter Include="dependencies\glm\glm\gtx">
       <UniqueIdentifier>{0C6E722F-F892-C1AF-21DE-A63F0D62C0CD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dependencies\stb_image">
+      <UniqueIdentifier>{26BD49FD-12B7-724F-FB23-0960E7BCD8BB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Albedo">
       <UniqueIdentifier>{63FDB604-4FB5-F851-B8BC-D1ADA4939342}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Albedo\Core">
+      <UniqueIdentifier>{9BF7047A-0783-723E-1094-F5327C9ECE3E}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Albedo\Events">
       <UniqueIdentifier>{E75B4314-5372-41AA-9CE9-CCCB083F1232}</UniqueIdentifier>
@@ -37,8 +43,14 @@
     <Filter Include="src\Albedo\Layers">
       <UniqueIdentifier>{C2462623-2E5D-24B9-77D4-AFDAE329F540}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Renderer">
+      <UniqueIdentifier>{69008529-D561-6237-5ECF-A8E9CA2F99F6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform\OpenGL">
+      <UniqueIdentifier>{35A49437-A105-7245-2A73-B8F796D3A804}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
@@ -1290,6 +1302,9 @@
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp">
       <Filter>dependencies\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\stb_image\stb_image.h">
+      <Filter>dependencies\stb_image</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1298,6 +1313,9 @@
     </ClInclude>
     <ClInclude Include="src\Albedo\Core.h">
       <Filter>src\Albedo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\Timestep.h">
+      <Filter>src\Albedo\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\EntryPoint.h">
       <Filter>src\Albedo</Filter>
@@ -1335,11 +1353,50 @@
     <ClInclude Include="src\Albedo\MouseButtonCodes.h">
       <Filter>src\Albedo</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Buffer.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\RenderCommand.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Renderer.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\RendererAPI.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Shader.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\VertexArray.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Window.h">
       <Filter>src\Albedo</Filter>
     </ClInclude>
     <ClInclude Include="src\AlbedoPreCompiledHeader.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
+      <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsInput.h">
       <Filter>src\Platform\Windows</Filter>
@@ -1347,22 +1404,13 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
-    <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
-    <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
-    <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Albedo\Renderer\Shader.h" />
-    <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
-    <ClInclude Include="src\Albedo\Renderer\VertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
-    <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h" />
-    <ClInclude Include="src\Albedo\Core\Timestep.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Albedo\Renderer\Texture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dependencies\stb_image\stb_image.cpp">
+      <Filter>dependencies\stb_image</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Application.cpp">
       <Filter>src\Albedo</Filter>
     </ClCompile>
@@ -1381,8 +1429,44 @@
     <ClCompile Include="src\Albedo\Log.cpp">
       <Filter>src\Albedo</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\OrthographicCamera.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\Renderer.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\Shader.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
@@ -1390,17 +1474,7 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\Shader.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\OrthographicCamera.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
   </ItemGroup>
 </Project>

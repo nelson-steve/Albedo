@@ -15,6 +15,7 @@ IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
 IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
 IncludeDir["ImGui"] = "Albedo/dependencies/imgui"
 IncludeDir["glm"] = "Albedo/dependencies/glm"
+IncludeDir["stb_image"] = "Albedo/dependencies/stb_image"
 
 include "Albedo/dependencies/GLFW"
 include "Albedo/dependencies/Glad"
@@ -38,7 +39,9 @@ project "Albedo"
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/dependencies/glm/glm/**.hpp",
-		"%{prj.name}/dependencies/glm/glm/**.inl"
+		"%{prj.name}/dependencies/glm/glm/**.inl",
+		"%{prj.name}/dependencies/stb_image/**.h",
+		"%{prj.name}/dependencies/stb_image/**.cpp"
 	}
 
 	defines
@@ -53,7 +56,8 @@ project "Albedo"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 
 	links
