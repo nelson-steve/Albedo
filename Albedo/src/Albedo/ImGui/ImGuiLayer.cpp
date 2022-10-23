@@ -49,7 +49,7 @@ namespace Albedo {
 		}
 
 		Application& app = Application::Get();
-		//Application* app = std::unique_ptr<Application>(Application::Get());
+		//Application* app = Scope<Application>(Application::Get());
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings

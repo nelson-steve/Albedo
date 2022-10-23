@@ -16,6 +16,8 @@
 #include "Albedo/Renderer/Buffer.h"
 #include "Albedo/Renderer/VertexArray.h"
 
+#include "Albedo/Core.h"
+
 #include "Albedo/Renderer/OrthographicCamera.h"
 
 

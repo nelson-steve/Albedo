@@ -4,6 +4,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Albedo/Renderer/Texture.h"
+#include "Albedo/Core.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -35,7 +36,7 @@ public:
 		//glGenBuffers(1, &vbo);
 		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-		std::shared_ptr<Albedo::VertexBuffer> vertexBuffer;
+		Albedo::Ref<Albedo::VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(Albedo::VertexBuffer::Create(boxVertices, sizeof(boxVertices)));
 
 		Albedo::BufferLayout layout =
@@ -55,7 +56,7 @@ public:
 		unsigned int indices[3] = { 0, 1, 2 };
 		unsigned int boxIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
-		std::shared_ptr<Albedo::IndexBuffer> indexBuffer;
+		Albedo::Ref<Albedo::IndexBuffer> indexBuffer;
 		indexBuffer.reset(Albedo::IndexBuffer::Create(boxIndices, sizeof(boxIndices) / sizeof(unsigned int)));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
@@ -198,10 +199,10 @@ public:
 			//Albedo_TRACE("{0}", event);
 		}
 private:
-	std::shared_ptr<Albedo::VertexArray> m_VertexArray;
-	std::shared_ptr<Albedo::Shader> m_Shader;
+	Albedo::Ref<Albedo::VertexArray> m_VertexArray;
+	Albedo::Ref<Albedo::Shader> m_Shader;
 
-	std::shared_ptr<Albedo::Texture2D> m_Texture;
+	Albedo::Ref<Albedo::Texture2D> m_Texture;
 
 	Albedo::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;

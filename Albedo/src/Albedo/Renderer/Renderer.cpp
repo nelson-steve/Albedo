@@ -15,8 +15,8 @@ namespace Albedo {
 
 	}
 
-	void Renderer::Submit(const std::shared_ptr<OpenGLShader>& shader, const std::shared_ptr<OpenGLTexture2D>& texture,
-		const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
+	void Renderer::Submit(const Ref<OpenGLShader>& shader, const Ref<OpenGLTexture2D>& texture,
+		const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
 	{
 		shader->Bind();
 		shader->UploadUniformInt1("u_Texture", 0);
@@ -30,8 +30,8 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(vertexArray);
 	}
 
-	void Renderer::Submit(const std::shared_ptr<OpenGLShader>& shader,
-		const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
+	void Renderer::Submit(const Ref<OpenGLShader>& shader,
+		const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
 	{
 		shader->Bind();
 		shader->UploadUniformMat4("u_ProjectionView", s_SceneData->ProjectionViewMatrix);
