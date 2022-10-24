@@ -18,6 +18,9 @@ namespace Albedo {
 		//m_Window = Window::Create();
 		m_Window->SetEventCallBack(BIND_EVENT_FN(OnEvent));
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 	}

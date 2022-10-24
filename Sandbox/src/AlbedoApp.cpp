@@ -98,10 +98,8 @@ public:
 		//new Albedo::Shader(vertexShaderSource, fragmentShaderSource)
 		m_Shader.reset(Albedo::Shader::Create(vertexShaderSource, fragmentShaderSource));
 
-		m_Texture = Albedo::Texture2D::Create("Sample.png"); //Any PNG image
-
-		std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->Bind();
-		std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->UploadUniformInt1("u_Texture", 0);
+		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->Bind();
+		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->UploadUniformInt1("u_Texture", 0);
 
 		//vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		//
@@ -168,9 +166,19 @@ public:
 
 			Albedo::Renderer::BeginScene(m_Camera);
 
-			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.8f));
 			glm::vec3 pos(-0.5f, 0.0f, 0.0f);
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+
+			m_Texture2 = Albedo::Texture2D::Create("TextureSample5.png"); //Any PNG image
+
+			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), std::dynamic_pointer_cast<Albedo::OpenGLTexture2D>(m_Texture2), m_VertexArray, transform, m_BigColor);
+
+			scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.9f));
+			pos = glm::vec3(-0.9f, -0.5f, 0.0f);
+			transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+
+			m_Texture = Albedo::Texture2D::Create("TextureSample6.png"); //Any PNG image
 
 			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), std::dynamic_pointer_cast<Albedo::OpenGLTexture2D>(m_Texture), m_VertexArray, transform, m_BigColor);
 
@@ -183,7 +191,9 @@ public:
 			glm::vec3 pos1(0.5f, 0.0f, 0.0f);
 			transform = glm::translate(glm::mat4(1.0f), pos1) * scale;
 
-			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_SmallColor);
+			m_Texture2 = Albedo::Texture2D::Create("TextureSample5.png"); //Any PNG image
+
+			Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), std::dynamic_pointer_cast<Albedo::OpenGLTexture2D>(m_Texture2), m_VertexArray, transform, m_BigColor);
 
 			Albedo::Renderer::EndScene();
 
@@ -203,6 +213,7 @@ private:
 	Albedo::Ref<Albedo::Shader> m_Shader;
 
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
+	Albedo::Ref<Albedo::Texture2D> m_Texture2;
 
 	Albedo::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
