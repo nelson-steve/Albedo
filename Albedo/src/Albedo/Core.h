@@ -22,8 +22,8 @@
 #endif
 
 #ifdef Albedo_ENABLE_ASSERTS
-#define Albedo_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#define Albedo_CORE_ASSERT(x, ...) { if(!(x)) { HZ_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define Albedo_ASSERT(x, ...) { if(!(x)) { Albedo_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define Albedo_CORE_ASSERT(x, ...) { if(!(x)) { Albedo_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 #define Albedo_ASSERT(x, ...)
 #define Albedo_CORE_ASSERT(x, ...)

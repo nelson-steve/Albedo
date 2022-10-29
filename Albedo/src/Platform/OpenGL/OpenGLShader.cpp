@@ -1,11 +1,118 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "OpenGLShader.h"
-
+#include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include "Albedo/Log.h"
 
 namespace Albedo {
+
+	static GLenum ShaderTypeFromString(const std::string& type)
+	{
+		if (type == "vertex")
+			return GL_VERTEX_SHADER;
+		if (type == "fragment" || type == "pixel")
+			return GL_FRAGMENT_SHADER;
+
+		Albedo_Core_WARN("Unknown shader type!");
+		return 0;
+	}
+	OpenGLShader::OpenGLShader(const std::string& filePath)
+	{
+		std::string source = readFile(filePath);
+		auto shaderSources = PreProcess(source);
+		Compile(shaderSources);		
+	}
+
+	std::string OpenGLShader::readFile(const std::string& filePath)
+	{
+		std::string result;
+		std::ifstream in(filePath, std::ios::in, std::ios::binary);
+		if (in)
+		{
+			in.seekg(0, std::ios::end);
+			result.resize(in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&result[0], result.size());
+			in.close();
+		}
+		return result;
+	}
+	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
+	{
+		std::unordered_map<GLenum, std::string> shaderSources;
+
+		const char* typeToken = "#type";
+		size_t typeTokenLen = strlen(typeToken);
+		size_t pos = source.find(typeToken, 0);
+
+		while (pos != std::string::npos)
+		{
+			size_t eol = source.find_first_of("\r\n", pos);
+			size_t beg = pos + typeTokenLen + 1;
+			std::string type = source.substr(beg, eol - beg);
+			if(!ShaderTypeFromString(type))
+				Albedo_Core_ERROR("Invalid shader type specified");
+
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
+			pos = source.find(typeToken, nextLinePos);
+			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+		}
+		return shaderSources;
+	}
+	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
+	{
+		std::vector<GLenum> glShaderIDs(0);
+
+		m_ShaderID = glCreateProgram();
+		GLuint shaderProgram = m_ShaderID;
+		for (auto& kv : shaderSources)
+		{
+			GLenum type = kv.first;
+			const std::string& source = kv.second;
+
+			GLuint shader = glCreateShader(type);
+	
+			const GLchar* souceCStr = source.c_str();
+
+			glShaderSource(shader, 1, &souceCStr, NULL);
+			glCompileShader(shader);
+
+			int  success = 0;
+			char infoLog[512];
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+			if (!success)
+			{
+				glGetShaderInfoLog(shader, 512, NULL, infoLog);
+				Albedo_Core_ERROR("ERROR::SHADER::COMPILATION_FAILED");
+				glDeleteShader(shader);
+			}
+
+			glAttachShader(shaderProgram, shader);
+			glShaderIDs.push_back(shader);
+		}
+
+		glLinkProgram(shaderProgram);
+
+		GLint isLinked = false;
+		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isLinked);
+		if (!isLinked)
+		{
+			Albedo_Core_ERROR("Shader linking failed");
+
+			glDeleteProgram(shaderProgram);
+
+			for (auto id : glShaderIDs)
+				glDeleteShader(id);
+
+			return;
+		}
+
+		for (auto id : glShaderIDs)
+			glDetachShader(shaderProgram, id);
+	}
 
 	OpenGLShader::OpenGLShader(const char* vertexSrc, const char* fragmentSrc)
 	{
