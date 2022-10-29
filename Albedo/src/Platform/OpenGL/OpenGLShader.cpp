@@ -28,7 +28,7 @@ namespace Albedo {
 	std::string OpenGLShader::readFile(const std::string& filePath)
 	{
 		std::string result;
-		std::ifstream in(filePath, std::ios::in, std::ios::binary);
+		std::ifstream in(filePath, std::ios::in | std::ios::binary);
 		if (in)
 		{
 			in.seekg(0, std::ios::end);
@@ -63,7 +63,8 @@ namespace Albedo {
 	}
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		std::vector<GLenum> glShaderIDs(0);
+		std::array<GLenum, 2> glShaderIDs;
+		int glShaderIDIndex = 0;
 
 		m_ShaderID = glCreateProgram();
 		GLuint shaderProgram = m_ShaderID;
@@ -91,7 +92,7 @@ namespace Albedo {
 			}
 
 			glAttachShader(shaderProgram, shader);
-			glShaderIDs.push_back(shader);
+			glShaderIDs[glShaderIDIndex++] = shader;
 		}
 
 		glLinkProgram(shaderProgram);
