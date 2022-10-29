@@ -22,7 +22,13 @@ namespace Albedo {
 	{
 		std::string source = readFile(filePath);
 		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);		
+		Compile(shaderSources);	
+
+		size_t nameStart = filePath.find_last_of("/\\");
+		nameStart = nameStart == std::string::npos ? 0 : nameStart + 1;
+		size_t nameEnd = filePath.rfind(".");
+		size_t nameLength = nameEnd == std::string::npos ? filePath.size() - nameStart : nameEnd - nameStart;
+		m_Name = filePath.substr(nameStart, nameLength);
 	}
 
 	std::string OpenGLShader::readFile(const std::string& filePath)
@@ -115,7 +121,8 @@ namespace Albedo {
 			glDetachShader(shaderProgram, id);
 	}
 
-	OpenGLShader::OpenGLShader(const char* vertexSrc, const char* fragmentSrc)
+	OpenGLShader::OpenGLShader(const std::string& name, const char* vertexSrc, const char* fragmentSrc)
+		:m_Name(name)
 	{
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 

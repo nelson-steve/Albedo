@@ -97,8 +97,8 @@ public:
 			"}\0";
 		//new Albedo::Shader(vertexShaderSource, fragmentShaderSource)
 		//m_Shader.reset(Albedo::Shader::Create(vertexShaderSource, fragmentShaderSource));
-		m_Shader.reset(Albedo::Shader::Create("Assets/Texture.glsl"));
-
+		//m_Shader.reset(Albedo::Shader::Create("Assets/Texture.glsl"));
+		m_Shader = Albedo::Shader::Create("Assets/Texture.glsl");
 		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->Bind();
 		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->UploadUniformInt1("u_Texture", 0);
 

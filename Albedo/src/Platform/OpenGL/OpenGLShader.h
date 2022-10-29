@@ -12,11 +12,13 @@ namespace Albedo {
 	{
 	public:
 		OpenGLShader::OpenGLShader(const std::string& filePath);
-		OpenGLShader(const char* vertexSrc, const char* fragmentSrc);
+		OpenGLShader(const std::string& name, const char* vertexSrc, const char* fragmentSrc);
 		~OpenGLShader();
 
 		virtual void Bind() override;
 		virtual void Unbind() override;
+
+		const std::string& GetName() const { return m_Name; }
 
 		void UploadUniformInt1(const std::string& name, int value);
 
@@ -33,6 +35,7 @@ namespace Albedo {
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 	private:
 		unsigned int m_ShaderID;
+		std::string m_Name;
 	};
 
 }
