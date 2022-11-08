@@ -5,6 +5,7 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Albedo/Renderer/Texture.h"
 #include "Albedo/Core.h"
+#include "Albedo/OrthographicCameraController.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -13,7 +14,7 @@ class ExampleLayer : public Albedo::Layer
 {
 public:
 	ExampleLayer()
-		:Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
+		:Layer("Example"), m_CameraController(1280.0f / 720.0f, true)
 	{
 		m_VertexArray.reset(Albedo::VertexArray::Create());
 
@@ -135,37 +136,12 @@ public:
 
 		void OnUpdate(Albedo::Timestep ts)
 		{
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_TAB))
-				Albedo_TRACE("Tab key is pressed (poll)!");
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_LEFT))
-				m_CameraPosition.x -= m_CameraMoveSpeed * ts;
-			else if (Albedo::Input::IsKeyPressed(Albedo_KEY_RIGHT))
-				m_CameraPosition.x += m_CameraMoveSpeed * ts;
-
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_UP))
-				m_CameraPosition.y += m_CameraMoveSpeed * ts;
-			else if (Albedo::Input::IsKeyPressed(Albedo_KEY_DOWN))
-				m_CameraPosition.y -= m_CameraMoveSpeed * ts;
-
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_A))
-				m_CameraRotation += m_CameraRotationSpeed * ts;
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_D))
-				m_CameraRotation -= m_CameraRotationSpeed * ts;
-
-			if (Albedo::Input::IsKeyPressed(Albedo_KEY_R)) //Camera Reset
-			{
-				m_CameraRotation = 0.0f;
-				m_CameraPosition = glm::vec3(0.0f);
-			}
-				
+			m_CameraController.OnUpdate(ts);
 
 			Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 			Albedo::RenderCommand::Clear();
 
-			m_Camera.SetPosition(m_CameraPosition);
-			m_Camera.SetRotation(m_CameraRotation);
-
-			Albedo::Renderer::BeginScene(m_Camera);
+			Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
 
 			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.8f));
 			glm::vec3 pos(-0.5f, 0.0f, 0.0f);
@@ -186,7 +162,7 @@ public:
 			Albedo::Renderer::EndScene();
 
 
-			Albedo::Renderer::BeginScene(m_Camera);
+			Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
 			
 			scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 			glm::vec3 pos1(0.5f, 0.0f, 0.0f);
@@ -205,8 +181,9 @@ public:
 
 		}
 
-		void OnEvent(Albedo::Event& event) override
+		void OnEvent(Albedo::Event& e) override
 		{
+			m_CameraController.OnEvent(e);
 			//Albedo_TRACE("{0}", event);
 		}
 private:
@@ -216,7 +193,6 @@ private:
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
 	Albedo::Ref<Albedo::Texture2D> m_Texture2;
 
-	Albedo::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraMoveSpeed = 5.0f;
 
@@ -225,6 +201,8 @@ private:
 
 	glm::vec4 m_BigColor = { 0.2, 0.4, 0.8, 1.0f };
 	glm::vec4 m_SmallColor = { 0.5, 0.5, 0.9, 1.0f };
+
+	Albedo::OrthographicCameraController m_CameraController;
 
 };
 

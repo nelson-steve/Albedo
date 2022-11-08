@@ -16,7 +16,7 @@ namespace Albedo {
 
 		m_Window = Scope<Window>(Window::Create());
 		//m_Window = Window::Create();
-		m_Window->SetEventCallBack(BIND_EVENT_FN(OnEvent));
+		m_Window->SetEventCallBack(BIND_EVENT_FN(Application::OnEvent));
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -32,7 +32,7 @@ namespace Albedo {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{

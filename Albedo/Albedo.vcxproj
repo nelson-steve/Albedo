@@ -575,6 +575,7 @@
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Log.h" />
     <ClInclude Include="src\Albedo\MouseButtonCodes.h" />
+    <ClInclude Include="src\Albedo\OrthographicCameraController.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h" />
@@ -603,6 +604,7 @@
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Log.cpp" />
+    <ClCompile Include="src\Albedo\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
