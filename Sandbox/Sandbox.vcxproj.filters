@@ -18,5 +18,18 @@
     <ClCompile Include="src\AlbedoApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AlbedoApp2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AlbedoApp2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\TextureSquare.glsl" />
+    <None Include="Assets\Texture2.glsl" />
+    <None Include="Assets\Texture.glsl" />
   </ItemGroup>
 </Project>

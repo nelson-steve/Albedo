@@ -1,5 +1,5 @@
 #include <Albedo.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <Albedo/Core/EntryPoint.h>
 
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "AlbedoApp2D.h"
+
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
@@ -19,7 +21,7 @@ public:
 	ExampleLayer()
 		:Layer("Example"), m_CameraController(1280.0f / 720.0f, true)
 	{
-		m_VertexArray.reset(Albedo::VertexArray::Create());
+		m_VertexArray = (Albedo::VertexArray::Create());
 
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -194,20 +196,6 @@ public:
 		//
 		//glUseProgram(shaderProgram);
 	}
-		void reshape(int width, int height) {  // GLsizei for non-negative integer
-			// Compute aspect ratio of the new window
-			if (height == 0) height = 1;                // To prevent divide by 0
-			GLfloat aspect = (GLfloat)width / (GLfloat)height;
-
-			// Set the viewport to cover the new window
-			glViewport(0, 0, width, height);
-
-			// Set the aspect ratio of the clipping volume to match the viewport
-			glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
-			glLoadIdentity();             // Reset
-			// Enable perspective projection with fovy, aspect, zNear and zFar
-			//gluPerspective(45.0f, aspect, 0.1f, 100.0f);
-		}
 
 		void OnUpdate(Albedo::Timestep ts)
 		{
@@ -296,7 +284,8 @@ class Sandbox : public Albedo::Application {
 public:
 	Sandbox()
 	{
-		PushLayer(new ExampleLayer());
+		//PushLayer(new ExampleLayer());
+		PushLayer(new AlbedoApp2D());
 	}
 	~Sandbox()
 	{

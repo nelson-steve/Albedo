@@ -19,8 +19,4 @@
 #include "Albedo/Core/Core.h"
 
 #include "Albedo/Cameras/OrthographicCamera.h"
-
-
-// ----Entry Point-------------------
-#include "Albedo/Core/EntryPoint.h"
-// ----------------------------------
+#include "Albedo/Cameras/OrthographicCameraController.h"

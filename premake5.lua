@@ -13,7 +13,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
 IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
-IncludeDir["ImGui"] = "Albedo/dependencies/imgui"
+IncludeDir["imgui"] = "Albedo/dependencies/imgui"
 IncludeDir["glm"] = "Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "Albedo/dependencies/stb_image"
 
@@ -51,11 +51,11 @@ project "Albedo"
 
 	includedirs
 	{
-		"%{prj.name}/dependencies/spdlog/include",
 		"%{prj.name}/src",
+		"%{prj.name}/dependencies/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.imgui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}"
 	}
@@ -64,7 +64,7 @@ project "Albedo"
 	{
 		"GLFW",
 		"Glad",
-		"ImGui",
+		"imgui",
 		"opengl32.lib"
 	}
 
@@ -118,6 +118,7 @@ project "Sandbox"
 	{
 		"Albedo/dependencies/spdlog/include",
 		"Albedo/src",
+		"Albedo/dependencies",
 		"%{IncludeDir.glm}"
 	}
 
