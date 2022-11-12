@@ -561,6 +561,7 @@
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Application.h" />
+    <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Albedo\Core.h" />
     <ClInclude Include="src\Albedo\Core\Timestep.h" />
     <ClInclude Include="src\Albedo\EntryPoint.h" />
@@ -575,10 +576,10 @@
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Log.h" />
     <ClInclude Include="src\Albedo\MouseButtonCodes.h" />
-    <ClInclude Include="src\Albedo\OrthographicCameraController.h" />
+    <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Albedo\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
     <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
@@ -599,14 +600,15 @@
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
     <ClCompile Include="src\Albedo\Application.cpp" />
+    <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Log.cpp" />
-    <ClCompile Include="src\Albedo\OrthographicCameraController.cpp" />
+    <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp" />

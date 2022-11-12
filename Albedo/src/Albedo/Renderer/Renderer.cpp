@@ -5,7 +5,18 @@
 
 namespace Albedo {
 
-	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData();
+	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
+	
+	void Renderer::Init()
+	{
+		RenderCommand::Init();
+	}
+
+	void Renderer::OnWindowResize(unsigned int width, unsigned int height)
+	{
+		RenderCommand::SetViewPort(0, 0, width, height);
+	}
+
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{
 		s_SceneData->ProjectionViewMatrix = camera.GetProjectionViewMatrix();
@@ -37,6 +48,7 @@ namespace Albedo {
 		shader->Bind();
 		shader->UploadUniformMat4("u_ProjectionView", s_SceneData->ProjectionViewMatrix);
 		shader->UploadUniformMat4("u_Transform", transform);
+		shader->UploadUniformFloat4("u_Color", color);
 
 		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Albedo/Renderer/OrthographicCamera.h"
+#include "Albedo/Cameras/OrthographicCamera.h"
 #include "Albedo/Core/Timestep.h"
 
 #include "Albedo/Events/ApplicationEvent.h"
@@ -17,6 +17,9 @@ namespace Albedo {
 		void OnEvent(Event& e);
 
 		OrthographicCamera& GetCamera() { return m_Camera; }
+
+		float GetZoomLevel() const { return m_ZoomLevel; }
+		void SetZoomLevel(float zoomLevel) { m_ZoomLevel = zoomLevel; }
 		//const OrthographicCamera& GetCamera const{ return m_Camera; }
 
 	private:

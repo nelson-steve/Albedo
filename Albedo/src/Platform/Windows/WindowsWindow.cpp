@@ -69,6 +69,7 @@ namespace Albedo {
 				data.Height = height;
 
 				WindowResizeEvent event(width, height);
+				Albedo_Core_TRACE("{0}, {1}", width, height);
 				data.EventCallBack(event);
 			});
 
@@ -78,6 +79,7 @@ namespace Albedo {
 
 			WindowCloseEvent event;
 			data.EventCallBack(event);
+			Albedo_Core_TRACE("Window Close");
 			});
 
 		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focus) 
