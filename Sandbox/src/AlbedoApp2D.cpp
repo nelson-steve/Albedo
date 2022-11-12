@@ -16,33 +16,7 @@ AlbedoApp2D::AlbedoApp2D()
 
 void AlbedoApp2D::OnAttach()
 {
-	m_VertexArray = (Albedo::VertexArray::Create());
 
-	float squareVertices[4 * 7] = {
-		-0.5f,  0.5f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f,
-		 0.5f,  0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-		-0.5f, -0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
-		 0.5f, -0.5f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f
-	};
-
-	Albedo::Ref<Albedo::VertexBuffer> vertexBuffer;
-	vertexBuffer.reset(Albedo::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
-
-	Albedo::BufferLayout layout =
-	{
-		{Albedo::ShaderDataType::Float3, "a_Position"},
-		{Albedo::ShaderDataType::Float4, "a_Color"}
-	};
-
-	vertexBuffer->SetLayout(layout);
-	m_VertexArray->AddVertexBuffer(vertexBuffer);
-
-	unsigned int cubeIndices[6] = { 0, 1, 2, 2, 1, 3 };
-
-	Albedo::Ref<Albedo::IndexBuffer> indexBuffer;
-	indexBuffer.reset(Albedo::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int)));
-	m_VertexArray->SetIndexBuffer(indexBuffer);
-m_Shader = Albedo::Shader::Create("Assets/TextureSquare.glsl");
 }
 
 void AlbedoApp2D::OnDetach()
@@ -57,15 +31,9 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 	Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 	Albedo::RenderCommand::Clear();
 
-	Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
-
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-	glm::vec3 pos(-0.5f, 0.0f, 0.0f);
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-
-	Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_SquareColor);
-
-	Albedo::Renderer::EndScene();
+	Albedo::Renderer2D::BeginScene(m_CameraController.GetCamera());
+	Albedo::Renderer2D::DrawQuad({0.0f, 0.0f}, { 1.0f, 1.0f}, m_SquareColor);
+	Albedo::Renderer2D::EndScene();
 }
 
 void AlbedoApp2D::OnImGuiRender()

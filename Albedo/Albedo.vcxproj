@@ -583,6 +583,7 @@
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
+    <ClInclude Include="src\Albedo\Renderer\Renderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Albedo\Renderer\Shader.h" />
     <ClInclude Include="src\Albedo\Renderer\Texture.h" />
@@ -611,6 +612,7 @@
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Renderer2D.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Shader.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Texture.cpp" />
