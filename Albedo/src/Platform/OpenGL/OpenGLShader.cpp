@@ -4,7 +4,7 @@
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
-#include "Albedo/Log.h"
+#include "Albedo/Core/Log.h"
 
 namespace Albedo {
 

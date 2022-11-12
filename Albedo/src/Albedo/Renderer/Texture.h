@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 
 
 namespace Albedo {

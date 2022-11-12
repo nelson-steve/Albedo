@@ -1,6 +1,6 @@
 #include "AlbedoPreCompiledHeader.h"
 #include "WindowsWindow.h"
-#include "Albedo/Log.h"
+#include "Albedo/Core/Log.h"
 
 #include "Albedo/Events/ApplicationEvent.h"
 #include "Albedo/Events/KeyEvent.h"

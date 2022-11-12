@@ -2,8 +2,8 @@
 
 #include "OrthographicCameraController.h"
 
-#include "Albedo/Input.h"
-#include "Albedo/KeyCodes.h"
+#include "Albedo/Core/Input.h"
+#include "Albedo/Core/KeyCodes.h"
 
 namespace Albedo {
 

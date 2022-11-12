@@ -1,7 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "Shader.h"
-#include "Albedo/Log.h"
+#include "Albedo/Core/Log.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Albedo/Renderer/Renderer.h"

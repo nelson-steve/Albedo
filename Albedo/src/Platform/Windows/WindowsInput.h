@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Albedo/Input.h"
+#include "Albedo/Core/Input.h"
 
 namespace Albedo {
 

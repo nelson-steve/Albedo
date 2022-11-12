@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Albedo/Events/Event.h"
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 #include "Albedo/Core/Timestep.h"
 
 namespace Albedo {

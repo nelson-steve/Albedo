@@ -31,6 +31,9 @@
     <Filter Include="src\Albedo">
       <UniqueIdentifier>{63FDB604-4FB5-F851-B8BC-D1ADA4939342}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Cameras">
+      <UniqueIdentifier>{4ED449D2-3AB8-0A28-A318-057B8F1BF5A9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Albedo\Core">
       <UniqueIdentifier>{9BF7047A-0783-723E-1094-F5327C9ECE3E}</UniqueIdentifier>
     </Filter>
@@ -1308,17 +1311,41 @@
     <ClInclude Include="src\Albedo.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Application.h">
-      <Filter>src\Albedo</Filter>
+    <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h">
+      <Filter>src\Albedo\Cameras</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Core.h">
-      <Filter>src\Albedo</Filter>
+    <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\Application.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\Core.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\EntryPoint.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\Input.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\KeyCodes.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\Log.h">
+      <Filter>src\Albedo\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Core\MouseButtonCodes.h">
+      <Filter>src\Albedo\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Core\Timestep.h">
       <Filter>src\Albedo\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\EntryPoint.h">
-      <Filter>src\Albedo</Filter>
+    <ClInclude Include="src\Albedo\Core\Window.h">
+      <Filter>src\Albedo\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Events\ApplicationEvent.h">
       <Filter>src\Albedo\Events</Filter>
@@ -1335,31 +1362,16 @@
     <ClInclude Include="src\Albedo\ImGui\ImGuiLayer.h">
       <Filter>src\Albedo\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Input.h">
-      <Filter>src\Albedo</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\KeyCodes.h">
-      <Filter>src\Albedo</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo\Layers\Layer.h">
       <Filter>src\Albedo\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Layers\LayerStack.h">
       <Filter>src\Albedo\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Log.h">
-      <Filter>src\Albedo</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\MouseButtonCodes.h">
-      <Filter>src\Albedo</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h">
-      <Filter>src\Albedo\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h">
@@ -1374,11 +1386,11 @@
     <ClInclude Include="src\Albedo\Renderer\Shader.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\VertexArray.h">
+    <ClInclude Include="src\Albedo\Renderer\Texture.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Window.h">
-      <Filter>src\Albedo</Filter>
+    <ClInclude Include="src\Albedo\Renderer\VertexArray.h">
+      <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AlbedoPreCompiledHeader.h">
       <Filter>src</Filter>
@@ -1395,6 +1407,9 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
@@ -1404,17 +1419,25 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Texture.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
-    <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
-    <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
       <Filter>dependencies\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Application.cpp">
-      <Filter>src\Albedo</Filter>
+    <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Core\Application.cpp">
+      <Filter>src\Albedo\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Core\Log.cpp">
+      <Filter>src\Albedo\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp">
       <Filter>src\Albedo\ImGui</Filter>
@@ -1428,13 +1451,7 @@
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp">
       <Filter>src\Albedo\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Log.cpp">
-      <Filter>src\Albedo</Filter>
-    </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
-      <Filter>src\Albedo\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp">
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp">
@@ -1447,6 +1464,9 @@
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Shader.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\Texture.cpp">
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp">
@@ -1467,6 +1487,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1476,9 +1499,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\Texture.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
-    <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
-    <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
   </ItemGroup>
 </Project>

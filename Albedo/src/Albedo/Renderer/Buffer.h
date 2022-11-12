@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 #include <vector>
 
 namespace Albedo {

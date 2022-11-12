@@ -1,7 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 #include "WindowsInput.h"
 
-#include "Albedo/Application.h"
+#include "Albedo/Core/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace Albedo {

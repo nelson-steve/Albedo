@@ -2,7 +2,7 @@
 
 #include "AlbedoPreCompiledHeader.h"
 
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 
 namespace Albedo {
 

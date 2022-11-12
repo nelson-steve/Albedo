@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Albedo/Log.h"
+#include "Albedo/Core/Log.h"
 
 #ifdef Albedo_Platform_Windows
 	#include <Windows.h>

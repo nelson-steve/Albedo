@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AlbedoPreCompiledHeader.h"
-#include "Events/Event.h"
+#include "Albedo/Events/Event.h"
 #include "Core.h"
 
 namespace Albedo {

@@ -2,9 +2,9 @@
 
 #include "Core.h"
 #include "Window.h"
-#include "Layers/Layer.h"
-#include "Layers/LayerStack.h"
-#include "Events/Event.h"
+#include "Albedo/Layers/Layer.h"
+#include "Albedo/Layers/LayerStack.h"
+#include "Albedo/Events/Event.h"
 #include "Albedo/Events/ApplicationEvent.h"
 #include "Albedo/ImGui/ImGuiLayer.h"
 

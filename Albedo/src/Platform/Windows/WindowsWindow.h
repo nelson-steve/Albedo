@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Albedo/Window.h"
+#include "Albedo/Core/Window.h"
 
 #include <GLFW/glfw3.h>
 

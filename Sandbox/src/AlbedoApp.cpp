@@ -4,7 +4,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Albedo/Renderer/Texture.h"
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 #include "Albedo/Cameras/OrthographicCameraController.h"
 
 #include <glm/gtc/matrix_transform.hpp>

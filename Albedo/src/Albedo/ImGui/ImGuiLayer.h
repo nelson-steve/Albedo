@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Albedo/Layers/Layer.h"
-#include "Albedo/Core.h"
+#include "Albedo/Core/Core.h"
 
 #include "Albedo/Events/ApplicationEvent.h"
 #include "Albedo/Events/KeyEvent.h"

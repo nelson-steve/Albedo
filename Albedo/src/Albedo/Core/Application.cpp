@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Log.h"
 #include "Input.h"
-#include "Renderer/Renderer.h"
+#include "Albedo/Renderer/Renderer.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
