@@ -24,6 +24,9 @@ namespace Albedo {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		//glTextureParameteri(m_TextureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 		
 		int width, height, nrChannels;
 		stbi_set_flip_vertically_on_load(1);
@@ -56,8 +59,9 @@ namespace Albedo {
 		glDeleteTextures(1, &m_TextureID);
 	}
 
-	void OpenGLTexture2D::Bind(unsigned int slot) const
+	void OpenGLTexture2D::Bind() const
 	{
+		//this->Bind();
 		//glBindTextureUnit(slot, m_TextureID);
 		//glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, m_TextureID);

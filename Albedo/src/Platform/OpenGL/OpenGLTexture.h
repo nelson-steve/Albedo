@@ -13,7 +13,7 @@ namespace Albedo {
 		virtual unsigned int getWidth() const override { return m_Width; }
 		virtual unsigned int getHeight() const override { return m_Height; }
 
-		virtual void Bind(unsigned int slot = 0) const override;
+		virtual void Bind() const override;
 	private:
 		std::string m_Path;
 		unsigned int m_Width, m_Height;

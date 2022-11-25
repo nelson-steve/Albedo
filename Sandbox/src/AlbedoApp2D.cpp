@@ -16,7 +16,7 @@ AlbedoApp2D::AlbedoApp2D()
 
 void AlbedoApp2D::OnAttach()
 {
-
+	m_Texture = Albedo::Texture2D::Create("TextureSample5.png");
 }
 
 void AlbedoApp2D::OnDetach()
@@ -32,7 +32,11 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 	Albedo::RenderCommand::Clear();
 
 	Albedo::Renderer2D::BeginScene(m_CameraController.GetCamera());
-	Albedo::Renderer2D::DrawQuad({0.0f, 0.0f}, { 1.0f, 1.0f}, m_SquareColor);
+	Albedo::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_SquareColor);
+	//Albedo::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, m_SquareColor);
+	//Albedo::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_SquareColor);
+	//Albedo::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_Texture);
+	//Albedo::Renderer2D::DrawQuad({ 0.8f, 0.5f }, { 0.2f, 1.0f }, m_SquareColor);
 	Albedo::Renderer2D::EndScene();
 }
 

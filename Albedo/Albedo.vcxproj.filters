@@ -1419,7 +1419,9 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Albedo\Renderer\Renderer2D.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
@@ -1500,6 +1502,8 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\Renderer2D.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Renderer2D.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

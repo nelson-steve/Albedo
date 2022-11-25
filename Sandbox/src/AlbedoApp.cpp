@@ -161,7 +161,7 @@ public:
 		//m_Shader.reset(Albedo::Shader::Create(vertexShaderSource, fragmentShaderSource));
 		//m_Shader.reset(Albedo::Shader::Create("Assets/Texture.glsl"));
 		//m_Shader = Albedo::Shader::Create("Assets/Texture.glsl");
-		m_Shader = Albedo::Shader::Create("Assets/Texture2.glsl");
+		m_Shader = Albedo::Shader::Create("Assets/TextureSquare.glsl");
 		//m_Shader = Albedo::Shader::Create("MeshShader", vertexShaderSource, fragmentShaderSource);
 		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->Bind();
 		//std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader)->UploadUniformInt1("u_Texture", 0);

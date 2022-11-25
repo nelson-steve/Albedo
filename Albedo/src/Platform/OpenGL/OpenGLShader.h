@@ -20,6 +20,18 @@ namespace Albedo {
 
 		const std::string& GetName() const { return m_Name; }
 
+		virtual void SetUniformInt1(const std::string& name, int value) override;
+
+		virtual void SetUniformFloat(const std::string& name, float value) override;
+		virtual void SetUniformFloat2(const std::string& name, const glm::vec2& value) override;
+		virtual void SetUniformFloat3(const std::string& name, const glm::vec3& value) override;
+		virtual void SetUniformFloat4(const std::string& name, const glm::vec4& value) override;
+
+		virtual void SetUniformMat3(const std::string& name, const glm::mat3& matrix) override;
+		virtual void SetUniformMat4(const std::string& name, const glm::mat4& matrix) override;
+
+		//----------------------------------------------------------------------//
+
 		void UploadUniformInt1(const std::string& name, int value);
 
 		void UploadUniformFloat(const std::string& name, float value);
@@ -29,6 +41,8 @@ namespace Albedo {
 
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+
+		inline unsigned int GetShaderID() const { return m_ShaderID; }
 	private:
 		std::string readFile(const std::string& filePath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
