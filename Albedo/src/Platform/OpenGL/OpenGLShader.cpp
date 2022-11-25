@@ -225,7 +225,7 @@ namespace Albedo {
 
 	void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		UploadUniformMat3(name, matrix);
+		UploadUniformMat4(name, matrix);
 	}
 
 	//-------------------------------------------------------------------------------//

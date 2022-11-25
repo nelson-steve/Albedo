@@ -21,6 +21,6 @@ private:
 	Albedo::Ref<Albedo::Shader> m_Shader;
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
 
-	glm::vec4 m_SquareColor = { 0.2, 0.4, 0.8, 1.0f };
+	glm::vec4 m_SquareColor = { 0.9, 0.4, 0.8, 1.0f };
 
 };

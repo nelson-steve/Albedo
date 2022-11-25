@@ -145,11 +145,6 @@
       <Project>{2C2458A7-18C6-827D-0181-96D1EDC109CE}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Texture.glsl" />
-    <None Include="Assets\Texture2.glsl" />
-    <None Include="Assets\TextureSquare.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
