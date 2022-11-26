@@ -35,14 +35,13 @@ namespace Albedo {
 		};
 
 		float textureVertices[4 * 5] = {
-			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
-		};
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f		};
 
 		Ref<VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		vertexBuffer.reset(VertexBuffer::Create(textureVertices, sizeof(textureVertices)));
 
 		//BufferLayout layout =
 		//{
@@ -52,7 +51,7 @@ namespace Albedo {
 
 		vertexBuffer->SetLayout({
 			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"}
+			{ShaderDataType::Float2, "a_TexCoord"}
 		});
 
 		//vertexBuffer->SetLayout(layout);
@@ -63,7 +62,7 @@ namespace Albedo {
 		Ref<IndexBuffer> indexBuffer;
 		indexBuffer.reset(IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int)));
 		s_RendererData->QuadVertexArray->SetIndexBuffer(indexBuffer);
-		s_RendererData->FlatColorShader = Shader::Create("Assets/Texture2.glsl"); //Shader file
+		s_RendererData->FlatColorShader = Shader::Create("Assets/TextureSquare.glsl"); //Shader file
 		s_RendererData->TextureShader = Shader::Create("Assets/Texture2.glsl");
 		s_RendererData->TextureShader->Bind();
 		s_RendererData->TextureShader->SetUniformInt1("u_Texture", 0);
@@ -76,13 +75,14 @@ namespace Albedo {
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-		glm::vec3 pos(-0.5f, 0.0f, 0.0f);
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 		s_RendererData->FlatColorShader->Bind();
 		s_RendererData->FlatColorShader->
 			SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
-		s_RendererData->FlatColorShader->SetUniformMat4("u_Transform", transform);
+
+		s_RendererData->TextureShader->Bind();
+		s_RendererData->TextureShader->
+			SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
+		//s_RendererData->FlatColorShader->SetUniformMat4("u_Transform", transform);
 		//s_RendererData->TextureShader->Bind();
 		//s_RendererData->TextureShader->
 			//SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
@@ -126,15 +126,15 @@ namespace Albedo {
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture)
 	{
+		texture->Bind();
+		//s_RendererData->TextureShader->Bind();
 		s_RendererData->TextureShader->Bind();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		s_RendererData->TextureShader->SetUniformMat4("u_Transform", transform);
 
-		texture->Bind();
 
 		s_RendererData->QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(s_RendererData->QuadVertexArray);
 	}
-
 }

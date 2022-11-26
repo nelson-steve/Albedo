@@ -20,6 +20,7 @@ private:
 	Albedo::Ref<Albedo::VertexArray> m_VertexArray;
 	Albedo::Ref<Albedo::Shader> m_Shader;
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
+	Albedo::Ref<Albedo::Texture2D> m_Texture1;
 
 	glm::vec4 m_SquareColor = { 0.9, 0.4, 0.8, 1.0f };
 
