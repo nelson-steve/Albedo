@@ -22,13 +22,13 @@ private:
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
 	Albedo::Ref<Albedo::Texture2D> m_Texture1;
 
-	struct ProfileResult
-	{
-		const char* Name;
-		float Time;
-	};
+	//struct ProfileResult
+	//{
+	//	const char* Name;
+	//	float Time;
+	//};
 
-	std::vector<ProfileResult> m_ProfileResults;
+	//std::vector<ProfileResult> m_ProfileResults;
 
 	glm::vec4 m_SquareColor = { 0.9, 0.4, 0.8, 1.0f };
 

@@ -559,6 +559,7 @@
     <ClInclude Include="dependencies\glm\glm\vec4.hpp" />
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
+    <ClInclude Include="src\Albedo\Debug\Instrumentor.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />

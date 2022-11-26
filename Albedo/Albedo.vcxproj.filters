@@ -58,6 +58,9 @@
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Debug">
+      <UniqueIdentifier>{9bf81a4b-6d5f-4852-9588-4de46a8baf5c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\glm\glm\common.hpp">
@@ -1421,6 +1424,9 @@
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Debug\Instrumentor.h">
+      <Filter>src\Albedo\Debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

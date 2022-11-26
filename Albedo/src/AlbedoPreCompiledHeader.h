@@ -16,6 +16,8 @@
 
 #include "Albedo/Core/Log.h"
 
+#include "Albedo/Debug/Instrumentor.h"
+
 #ifdef Albedo_Platform_Windows
 	#include <Windows.h>
 #endif
