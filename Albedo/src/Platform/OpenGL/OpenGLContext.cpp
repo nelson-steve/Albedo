@@ -13,12 +13,14 @@ namespace Albedo {
 
 	void OpenGLContext::Init()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glfwMakeContextCurrent(m_WindowHandle);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	}
 	void OpenGLContext::SwapBuffers()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glfwSwapBuffers(m_WindowHandle);
 	}
 

@@ -13,6 +13,7 @@ namespace Albedo {
 
 	Application::Application()
 	{
+		Albedo_PROFILE_FUNCTION();
 		s_Instance = this;
 
 		m_Window = Scope<Window>(Window::Create());
@@ -26,11 +27,13 @@ namespace Albedo {
 	}
 	Application::~Application() 
 	{
-
+		//Albedo_PROFILE_FUNCTION();
+		//Renderer::Shutdown();
 	}
 
 	void Application::OnEvent(Event& e)
 	{
+		Albedo_PROFILE_FUNCTION();
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
@@ -47,6 +50,7 @@ namespace Albedo {
 
 	void Application::Run()
 	{
+		Albedo_PROFILE_FUNCTION();
 		//WindowResizeEvent e(1280, 720);
 		//if(e.IsInCategory(EventCategoryApplication))
 		//{
@@ -58,16 +62,20 @@ namespace Albedo {
 		//}
 		while (m_Running) 
 		{
+			Albedo_PROFILE_FUNCTION();
 			float time = (float)glfwGetTime();
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			if (!m_Minimized)
 			{
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(timestep);
+				{
+					Albedo_PROFILE_FUNCTION();
+					for (Layer* layer : m_LayerStack)
+						layer->OnUpdate(timestep);
+				}
 			}
-
+			//Albedo_PROFILE_FUNCTION();
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
@@ -85,6 +93,7 @@ namespace Albedo {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
+		Albedo_PROFILE_FUNCTION();
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{
 			m_Minimized = true;
@@ -99,11 +108,13 @@ namespace Albedo {
 
 	void Application::PushLayer(Layer* layer)
 	{
+		Albedo_PROFILE_FUNCTION();
 		m_LayerStack.PushLayer(layer);
 	}
 
 	void Application::PushOverlay(Layer* layer)
 	{
+		Albedo_PROFILE_FUNCTION();
 		m_LayerStack.PushOverlay(layer);
 	}
 }

@@ -20,6 +20,7 @@ namespace Albedo {
 	}
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 	{
+		Albedo_PROFILE_FUNCTION();
 		std::string source = readFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);	
@@ -33,6 +34,7 @@ namespace Albedo {
 
 	std::string OpenGLShader::readFile(const std::string& filePath)
 	{
+		Albedo_PROFILE_FUNCTION();
 		std::string result;
 		std::ifstream in(filePath, std::ios::in | std::ios::binary);
 		if (in)
@@ -47,6 +49,7 @@ namespace Albedo {
 	}
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
+		Albedo_PROFILE_FUNCTION();
 		std::unordered_map<GLenum, std::string> shaderSources;
 
 		const char* typeToken = "#type";
@@ -69,6 +72,7 @@ namespace Albedo {
 	}
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
+		Albedo_PROFILE_FUNCTION();
 		std::array<GLenum, 2> glShaderIDs;
 		int glShaderIDIndex = 0;
 
@@ -124,6 +128,7 @@ namespace Albedo {
 	OpenGLShader::OpenGLShader(const std::string& name, const char* vertexSrc, const char* fragmentSrc)
 		:m_Name(name)
 	{
+		Albedo_PROFILE_FUNCTION();
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
 		glShaderSource(vertexShader, 1, &vertexSrc, NULL);
@@ -180,51 +185,61 @@ namespace Albedo {
 
 	OpenGLShader::~OpenGLShader()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glDeleteProgram(m_ShaderID);
 	}
 
 	void OpenGLShader::Bind()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glUseProgram(m_ShaderID);
 	}
 
 	void OpenGLShader::Unbind()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glUseProgram(0);
 	}
 
 	void OpenGLShader::SetUniformInt1(const std::string& name, int value)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformInt1(name, value);
 	}
 
 	void OpenGLShader::SetUniformFloat(const std::string& name, float value)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformFloat(name, value);
 	}
 
 	void OpenGLShader::SetUniformFloat2(const std::string& name, const glm::vec2& value)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformFloat2(name, value);
 	}
 
 	void OpenGLShader::SetUniformFloat3(const std::string& name, const glm::vec3& value)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformFloat3(name, value);
 	}
 
 	void OpenGLShader::SetUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformFloat4(name, value);
 	}
 
 	void OpenGLShader::SetUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformMat3(name, matrix);
 	}
 
 	void OpenGLShader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
+		Albedo_PROFILE_FUNCTION();
 		UploadUniformMat4(name, matrix);
 	}
 

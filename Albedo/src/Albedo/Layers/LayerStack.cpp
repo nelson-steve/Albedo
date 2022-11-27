@@ -28,13 +28,13 @@ namespace Albedo {
 		{
 			m_Layers.erase(it);
 			m_LayerInsertIndex--;
-			layer->OnDetach();
+			//layer->OnDetach();
 		}
 	}
 	void LayerStack::PushOverlay(Layer* overlay)
 	{
 		m_Layers.emplace_back(overlay);
-		overlay->OnAttach();
+		//overlay->OnAttach();
 	}
 	void LayerStack::PopOverlay(Layer* overlay)
 	{

@@ -25,6 +25,7 @@ namespace Albedo {
 
 	void Renderer2D::Init()
 	{
+		Albedo_PROFILE_FUNCTION();
 		s_RendererData = new Renderer2DStorage();
 		s_RendererData->QuadVertexArray = (VertexArray::Create());
 
@@ -76,11 +77,13 @@ namespace Albedo {
 
 	void Renderer2D::Shutdown()
 	{
+		Albedo_PROFILE_FUNCTION();
 		delete s_RendererData;
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
+		Albedo_PROFILE_FUNCTION();
 		s_RendererData->TextureShader->Bind();
 		s_RendererData->TextureShader->
 			SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
@@ -92,7 +95,7 @@ namespace Albedo {
 
 	void Renderer2D::EndScene()
 	{
-
+		Albedo_PROFILE_FUNCTION();
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -102,6 +105,7 @@ namespace Albedo {
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
+		Albedo_PROFILE_FUNCTION();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		s_RendererData->TextureShader->SetUniformFloat4("u_Color", color);
@@ -123,6 +127,7 @@ namespace Albedo {
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture)
 	{
+		Albedo_PROFILE_FUNCTION();
 		s_RendererData->TextureShader->SetUniformFloat4("u_Color", glm::vec4(1.0f));
 		texture->Bind();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });

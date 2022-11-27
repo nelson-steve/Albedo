@@ -17,13 +17,14 @@ AlbedoApp2D::AlbedoApp2D()
 
 void AlbedoApp2D::OnAttach()
 {
+	Albedo_PROFILE_FUNCTION();
 	m_Texture = Albedo::Texture2D::Create("TextureSample5.png");
 	m_Texture1 = Albedo::Texture2D::Create("TextureSample6.png");
 }
 
 void AlbedoApp2D::OnDetach()
 {
-
+	Albedo_PROFILE_FUNCTION();
 }
 
 void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
@@ -74,6 +75,7 @@ void AlbedoApp2D::OnImGuiRender()
 
 void AlbedoApp2D::OnEvent(Albedo::Event& e)
 {
+	Albedo_PROFILE_FUNCTION();
 	m_CameraController.OnEvent(e);	
 }
 

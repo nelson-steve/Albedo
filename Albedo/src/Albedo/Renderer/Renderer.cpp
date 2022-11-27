@@ -10,27 +10,37 @@ namespace Albedo {
 	
 	void Renderer::Init()
 	{
+		Albedo_PROFILE_FUNCTION();
 		RenderCommand::Init();
 		Renderer2D::Init();
 	}
 
+	//void Renderer::Shutdown()
+	//{
+	//	Albedo_PROFILE_FUNCTION();
+	//	Renderer2D::Shutdown();
+	//}
+
 	void Renderer::OnWindowResize(unsigned int width, unsigned int height)
 	{
+		Albedo_PROFILE_FUNCTION();
 		RenderCommand::SetViewPort(0, 0, width, height);
 	}
 
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{
+		Albedo_PROFILE_FUNCTION();
 		s_SceneData->ProjectionViewMatrix = camera.GetProjectionViewMatrix();
 	}
 	void Renderer::EndScene()
 	{
-
+		Albedo_PROFILE_FUNCTION();
 	}
 
 	void Renderer::Submit(const Ref<OpenGLShader>& shader, const Ref<OpenGLTexture2D>& texture,
 		const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
 	{
+		Albedo_PROFILE_FUNCTION();
 		//texture->Bind();
 		
 		shader->Bind();
@@ -47,6 +57,7 @@ namespace Albedo {
 	void Renderer::Submit(const Ref<OpenGLShader>& shader,
 		const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color)
 	{
+		Albedo_PROFILE_FUNCTION();
 		shader->Bind();
 		shader->UploadUniformMat4("u_ProjectionView", s_SceneData->ProjectionViewMatrix);
 		shader->UploadUniformMat4("u_Transform", transform);

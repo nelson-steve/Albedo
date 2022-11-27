@@ -23,14 +23,17 @@ namespace Albedo {
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		Albedo_PROFILE_FUNCTION();
 		Init(props);
 	}
 	WindowsWindow::~WindowsWindow()
 	{
+		Albedo_PROFILE_FUNCTION();
 		Shutdown();
 	}
 	void WindowsWindow::OnUpdate()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
 	}
@@ -50,11 +53,15 @@ namespace Albedo {
 
 		if (!s_GLFWInitialized)
 		{
+			Albedo_PROFILE_FUNCTION("glfw Init");
 			int success = glfwInit();
+			//Albedo_CORE_ASSERT(success, "Could not intialize GLFW!");
+			//glfwSetErrorCallback(GLFWErrorCallback);
 
 			s_GLFWInitialized = true;
 		}
 
+		//Albedo_PROFILE_FUNCTION();
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, props.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -188,5 +195,6 @@ namespace Albedo {
 	}
 	void WindowsWindow::Shutdown()
 	{
+		glfwDestroyWindow(m_Window);
 	}
 }

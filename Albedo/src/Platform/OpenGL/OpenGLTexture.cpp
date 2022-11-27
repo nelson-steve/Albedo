@@ -11,6 +11,7 @@ namespace Albedo {
 	OpenGLTexture2D::OpenGLTexture2D(unsigned int width, unsigned int height)
 		:m_Width(width),m_Height(height)
 	{
+		Albedo_PROFILE_FUNCTION();
 		glGenTextures(1, &m_TextureID);
 		this->Bind();
 
@@ -24,6 +25,7 @@ namespace Albedo {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		:m_Path(path)
 	{
+		Albedo_PROFILE_FUNCTION();
 		//int width, height, channels;
 		//stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 		//if (!data) Albedo_Core_WARN("Didn't load");
@@ -68,17 +70,20 @@ namespace Albedo {
 	}
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
+		Albedo_PROFILE_FUNCTION();
 		glDeleteTextures(1, &m_TextureID);
 	}
 
 	void OpenGLTexture2D::SetData(void* data, unsigned int size)
 	{
+		Albedo_PROFILE_FUNCTION();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
 	void OpenGLTexture2D::Bind() const
 	{
+		Albedo_PROFILE_FUNCTION();
 		//glBindTextureUnit(slot, m_TextureID);
 		//glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, m_TextureID);
