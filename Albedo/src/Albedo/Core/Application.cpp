@@ -74,11 +74,13 @@ namespace Albedo {
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(timestep);
 				}
+				{
+					Albedo_PROFILE_FUNCTION();
+					m_ImGuiLayer->Begin();
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+				}
 			}
-			//Albedo_PROFILE_FUNCTION();
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();

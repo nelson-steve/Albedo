@@ -15,11 +15,11 @@ namespace Albedo {
 		Renderer2D::Init();
 	}
 
-	//void Renderer::Shutdown()
-	//{
-	//	Albedo_PROFILE_FUNCTION();
-	//	Renderer2D::Shutdown();
-	//}
+	void Renderer::Shutdown()
+	{
+		Albedo_PROFILE_FUNCTION();
+		Renderer2D::Shutdown();
+	}
 
 	void Renderer::OnWindowResize(unsigned int width, unsigned int height)
 	{
