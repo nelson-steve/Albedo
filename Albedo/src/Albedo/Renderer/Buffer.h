@@ -109,10 +109,13 @@ namespace Albedo {
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
 
+		virtual void SetData(const void* data, uint32_t size) = 0;
+
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
-		static VertexBuffer* Create(float* vertices, unsigned int size);
+		static Ref<VertexBuffer> Create(uint32_t size);
+		static Ref<VertexBuffer> Create(float* vertices, unsigned int size);
 	};
 
 	class IndexBuffer
@@ -125,6 +128,6 @@ namespace Albedo {
 
 		virtual unsigned int GetCount() const = 0;
 
-		static IndexBuffer* Create(unsigned int* indices, unsigned int size);
+		static Ref<IndexBuffer> Create(unsigned int* indices, unsigned int count);
 	};
 }

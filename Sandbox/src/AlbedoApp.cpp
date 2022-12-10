@@ -90,7 +90,7 @@ public:
 		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		Albedo::Ref<Albedo::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Albedo::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices)));
+		vertexBuffer = Albedo::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
 
 		Albedo::BufferLayout layout =
 		{
@@ -118,7 +118,7 @@ public:
 		unsigned int meshIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 		Albedo::Ref<Albedo::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Albedo::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int)));
+		indexBuffer = Albedo::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
 		//glGenBuffers(1, &ibo);

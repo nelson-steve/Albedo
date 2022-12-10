@@ -7,6 +7,7 @@ namespace Albedo {
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
+		OpenGLVertexBuffer(uint32_t size);
 		OpenGLVertexBuffer(float* vertices, unsigned int size);
 		virtual ~OpenGLVertexBuffer();
 
@@ -15,6 +16,8 @@ namespace Albedo {
 
 		virtual inline const BufferLayout& GetLayout() const override { return m_Layout; }
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+
+		virtual void SetData(const void* data, uint32_t size) override;
 	private:
 		unsigned int m_RendererID;
 		BufferLayout m_Layout;

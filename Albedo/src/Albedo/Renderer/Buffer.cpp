@@ -6,24 +6,36 @@
 
 namespace Albedo {
 
-	VertexBuffer* VertexBuffer::Create(float* vertices, unsigned int size)
+	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None: //assert
-			//case RendererAPI::API::Direct3d: //assert
-			case RendererAPI::API::OpenGL: return new OpenGLVertexBuffer(vertices, size);
+				//case RendererAPI::API::Direct3d: //assert
+			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(size);
 		}
 		//assert();
 		return nullptr;
 	}
 
-	IndexBuffer* IndexBuffer::Create(unsigned int* indices, unsigned int size)
+	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, unsigned int size)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None: //assert
-			case RendererAPI::API::OpenGL: return new OpenGLIndexBuffer(indices, size);
+			//case RendererAPI::API::Direct3d: //assert
+			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
+	Ref<IndexBuffer> IndexBuffer::Create(unsigned int* indices, unsigned int size)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None: //assert
+			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLIndexBuffer>(indices, size);
 		}
 		//assert();
 		return nullptr;
