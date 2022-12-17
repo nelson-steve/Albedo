@@ -106,19 +106,19 @@ public:
 		//glEnableVertexAttribArray(0);
 		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
-		unsigned int cubeIndices[36] = {0, 1, 2, 2, 1, 3,
+		uint32_t cubeIndices[36] = {0, 1, 2, 2, 1, 3,
 										1, 5, 3, 3, 5, 7,
 										0, 4, 2, 2, 4, 6,
 										0, 1, 4, 4, 2, 5,
 										2, 3, 6, 6, 3, 7,
 										4, 5, 6, 6, 5, 7};
-		unsigned int cubeIndices1[6] = { 0, 1, 2, 2, 1, 3 };
-		unsigned int indices[6] = { 0, 1, 2, 2, 1, 3 };
-		unsigned int boxIndices[6] = { 0, 1, 2, 2, 3, 0 };
-		unsigned int meshIndices[6] = { 0, 1, 2, 2, 3, 0 };
+		uint32_t cubeIndices1[6] = { 0, 1, 2, 2, 1, 3 };
+		uint32_t indices[6] = { 0, 1, 2, 2, 1, 3 };
+		uint32_t boxIndices[6] = { 0, 1, 2, 2, 3, 0 };
+		uint32_t meshIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 		Albedo::Ref<Albedo::IndexBuffer> indexBuffer;
-		indexBuffer = Albedo::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int));
+		indexBuffer = Albedo::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(uint32_t));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
 		//glGenBuffers(1, &ibo);

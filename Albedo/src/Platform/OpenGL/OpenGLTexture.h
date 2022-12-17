@@ -16,7 +16,12 @@ namespace Albedo {
 
 		virtual void SetData(void* data, unsigned int size) override;
 
-		virtual void Bind() const override;
+		virtual bool operator==(const Texture& other) const override
+		{
+			return m_TextureID == ((OpenGLTexture2D&)other).m_TextureID;
+		}
+
+		virtual void Bind(uint32_t slot = 0) const override;
 	private:
 		std::string m_Path;
 		unsigned int m_Width, m_Height;

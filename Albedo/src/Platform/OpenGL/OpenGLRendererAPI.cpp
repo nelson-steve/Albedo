@@ -26,7 +26,7 @@ namespace Albedo {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRendererAPI::SetViewport(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, unsigned int width, unsigned int height)
 	{
 		Albedo_PROFILE_FUNCTION();
 		glViewport(x, y, width, height);
