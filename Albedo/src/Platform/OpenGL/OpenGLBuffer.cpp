@@ -12,6 +12,7 @@ namespace Albedo {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
 	{
+		//For batching
 		Albedo_PROFILE_FUNCTION();
 
 		glGenBuffers(1, &m_RendererID);
@@ -19,7 +20,7 @@ namespace Albedo {
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, unsigned int size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
 		Albedo_PROFILE_FUNCTION();
 		glGenBuffers(1, &m_RendererID);
@@ -53,13 +54,15 @@ namespace Albedo {
 	////////////////IndexBuffer///////////////
 	//////////////////////////////////////////
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned int* indices, unsigned int count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 		:m_Count(count)
 	{
+		// GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
+		// Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
 		Albedo_PROFILE_FUNCTION();
 		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{

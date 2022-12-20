@@ -13,6 +13,8 @@
 
 #include <glad/glad.h>
 
+#define BATCH 1
+
 namespace Albedo {
 
 	struct QuadVertex
@@ -30,11 +32,11 @@ namespace Albedo {
 		const uint32_t MaxQuads		= 1000;
 		const uint32_t MaxVertices  = MaxQuads * 4;
 		const uint32_t MaxIndices   = MaxQuads * 6;
-		static const uint32_t MaxTextureSlots = 32;
+		static const uint32_t MaxTextureSlots = 32; //confirmed
 
 		Ref<VertexArray>  QuadVertexArray;
 		Ref<VertexBuffer> QuadVertexBuffer;
-		//Ref<Shader>		  FlatColorShader;
+		Ref<Shader>		  FlatColorShader;
 		Ref<Shader>		  TextureShader;
 		Ref<Texture2D>	  WhiteTexture;
 
@@ -50,84 +52,135 @@ namespace Albedo {
 
 	void Renderer2D::Init()
 	{
+		////////////////////////-CHEKCING THE AMOUNT OF TEXTURE SLOTS-////////////////////////
+		//GLint texture_units;
+		//glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
+		//Albedo_Core_INFO(texture_units);
+		//---------------------------------------------------------------------------------//
+		
 		//GLint res;
 		//glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &res);
 		//Albedo_Core_INFO(res);
-		Albedo_PROFILE_FUNCTION();
 		//s_RendererData = new Renderer2DData();
+		Albedo_PROFILE_FUNCTION();
 		s_RendererData.QuadVertexArray = VertexArray::Create();
 
-		/*float squareVertices[4 * 7] = {
+#ifndef BATCH
+
+		float squareVertices[4 * 7] = {
 			-0.5f,  0.5f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f,
 			 0.5f,  0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
 			 0.5f, -0.5f, 0.0f, 0.1f, 0.8f, 0.2f, 1.0f
-		};*/
+		};
 
-		/* float textureVertices[4 * 5] = {
+		float textureVertices[4 * 5] = {
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
 			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f		
-		};*/
+		};
 
-		//Ref<VertexBuffer> vertexBuffer.reset(VertexBuffer::Create(textureVertices, sizeof(textureVertices)));
+		Ref<VertexBuffer> vertexBuffer;
+		vertexBuffer = VertexBuffer::Create(textureVertices, sizeof(textureVertices));
+		
+		vertexBuffer->SetLayout({
+			{ ShaderDataType::Float3, "a_Position"	   },
+			{ ShaderDataType::Float2, "a_TexCoord"	   },
+			{ ShaderDataType::Float,  "a_TexIndex"	   },
+			{ ShaderDataType::Float,  "a_TilingFactor" }
+			});
+		s_RendererData.QuadVertexArray->AddVertexBuffer(vertexBuffer);
+
+		unsigned int cubeIndices[6] = { 0, 1, 2, 2, 1, 3 };
+		Ref<IndexBuffer> indexBuffer;
+		indexBuffer = IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int));
+
+		s_RendererData.QuadVertexArray->SetIndexBuffer(indexBuffer);
+		s_RendererData.TextureShader = Shader::Create("Assets/Texture.glsl");
+		s_RendererData.TextureShader->Bind();
+		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
+
+#endif
+
+#if BATCH
+
 		s_RendererData.QuadVertexBuffer = VertexBuffer::Create(s_RendererData.MaxVertices * sizeof(QuadVertex));
+		s_RendererData.QuadVertexBuffer->SetLayout({
+
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float4, "a_Color"	   },
+			{ ShaderDataType::Float2, "a_TexCoord" }
+
+			});
+
+		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
+		s_RendererData.QuadVertexBufferBase = new QuadVertex[s_RendererData.MaxVertices];
+
+		uint32_t* quadIndices = new uint32_t[s_RendererData.MaxIndices];
+		uint32_t offset = 0;
+		for (uint32_t i = 0; i < s_RendererData.MaxIndices; i += 6)
+		{
+			quadIndices[i + 0] = 0 + offset; //+4
+			quadIndices[i + 1] = 1 + offset; //+4
+			quadIndices[i + 2] = 2 + offset; //+4
+											 //+4
+			quadIndices[i + 3] = 2 + offset; //+4
+			quadIndices[i + 4] = 3 + offset; //+4
+			quadIndices[i + 5] = 0 + offset; //+4
+
+			offset += 4;
+		}
+
+		Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices, s_RendererData.MaxIndices);
+		s_RendererData.QuadVertexArray->SetIndexBuffer(quadIB);
+		delete[] quadIndices; //freeing the memory allocated by quadIndices on Heap
+
+		s_RendererData.WhiteTexture = Texture2D::Create(1, 1);
+		uint32_t whiteTextureData = 0xffffffff;
+		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+
+		s_RendererData.TextureShader = Shader::Create("Assets/TextureSquare.glsl");
+		s_RendererData.TextureShader->Bind();
+		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
+
+	#if 0
+		s_RendererData.WhiteTexture = Texture2D::Create(1, 1);
+		uint32_t whiteTextureData = 0xffffffff;
+		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(unsigned int));
+	#endif
+
+#endif
 		//BufferLayout layout =
 		//{
 		//	{ShaderDataType::Float3, "a_Position"},
 		//	{ShaderDataType::Float4, "a_Color"}
 		//};
 
-		s_RendererData.QuadVertexBuffer->SetLayout({
-			{ ShaderDataType::Float4, "a_Color"		   },
-			{ ShaderDataType::Float3, "a_Position"	   },
-			{ ShaderDataType::Float2, "a_TexCoord"	   },
-			//{ ShaderDataType::Float,  "a_TexIndex"	   },
-			//{ ShaderDataType::Float,  "a_TilingFactor" }
-		});
-
 		//vertexBuffer->SetLayout(layout);
-		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
 
-		s_RendererData.QuadVertexBufferBase = new QuadVertex[s_RendererData.MaxVertices];
+		//s_RendererData.QuadVertexBufferBase = new QuadVertex[s_RendererData.MaxVertices];
 
-		uint32_t* quadIndices = new uint32_t[s_RendererData.MaxIndices];
+		//uint32_t* quadIndices = new uint32_t[s_RendererData.MaxIndices];
 		
-		uint32_t offset = 0;
-		for(uint32_t i = 0; i < s_RendererData.MaxIndices; i += 6)
-		{
-			quadIndices[i + 0] = offset + 0;
-			quadIndices[i + 1] = offset + 1;
-			quadIndices[i + 2] = offset + 2;
-
-			quadIndices[i + 3] = offset + 2;
-			quadIndices[i + 4] = offset + 3;
-			quadIndices[i + 5] = offset + 0;
-
-			offset += 4;
-		}
-
-		//unsigned int cubeIndices[6] = { 0, 1, 2, 2, 1, 3 };
-		Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices, s_RendererData.MaxIndices);
-		s_RendererData.QuadVertexArray->SetIndexBuffer(quadIB);
-		//s_RendererData.QuadVertexArray->SetIndexBuffer(indexBuffer);
-		delete[] quadIndices;
-
-		//Ref<IndexBuffer> indexBuffer;
-		//indexBuffer.reset(IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(unsigned int)));
-
-		s_RendererData.WhiteTexture = Texture2D::Create(1, 1);
-		uint32_t whiteTextureData = 0xffffffff;
-		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+		//uint32_t offset = 0;
+		//for(uint32_t i = 0; i < s_RendererData.MaxIndices; i += 6)
+		//{
+		//	quadIndices[i + 0] = offset + 0;
+		//	quadIndices[i + 1] = offset + 1;
+		//	quadIndices[i + 2] = offset + 2;
+		//
+		//	quadIndices[i + 3] = offset + 2;
+		//	quadIndices[i + 4] = offset + 3;
+		//	quadIndices[i + 5] = offset + 0;
+		//
+		//	offset += 4;
+		//}
 
 		//int32_t samplers[s_RendererData.MaxTextureSlots];
 		//for (uint32_t i = 0; i < s_RendererData.MaxTextureSlots; i++)
 		//	samplers[i] = i;
 
-		s_RendererData.TextureShader = Shader::Create("Assets/Texture2.glsl");
-		s_RendererData.TextureShader->Bind();
-		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
 		//s_RendererData.TextureShader->SetUniformIntArray("u_Textures", samplers, s_RendererData.MaxTextureSlots);
 
 		//s_RendererData.TextureSlots[0] = s_RendererData.WhiteTexture;
@@ -135,9 +188,9 @@ namespace Albedo {
 
 	void Renderer2D::Shutdown()
 	{
-		//s_Data.QuadIndexCount = 0;
-		//s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 		Albedo_PROFILE_FUNCTION();
+		delete s_RendererData.QuadVertexBufferBase;
+		//delete s_RendererData;
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
@@ -146,12 +199,12 @@ namespace Albedo {
 		s_RendererData.TextureShader->Bind();
 		s_RendererData.TextureShader->
 			SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
-
+#if BATCH
 		s_RendererData.QuadIndexCount = 0;
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 		
 		//s_RendererData.TextureSlotIndex = 1;
-		
+#endif
 		//s_RendererData.FlatColorShader->SetUniformMat4("u_Transform", transform);
 		//s_RendererData.TextureShader->Bind();
 		//s_RendererData.TextureShader->
@@ -160,10 +213,12 @@ namespace Albedo {
 
 	void Renderer2D::EndScene()
 	{
+#if BATCH
 		uint32_t dataSize = (uint8_t*)s_RendererData.QuadVertexBufferPtr - (uint8_t*)s_RendererData.QuadVertexBufferBase;
 		s_RendererData.QuadVertexBuffer->SetData(s_RendererData.QuadVertexBufferBase, dataSize);
 
 		Flush();
+#endif
 		Albedo_PROFILE_FUNCTION();
 	}
 
@@ -183,16 +238,27 @@ namespace Albedo {
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		Albedo_PROFILE_FUNCTION();
-		//glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) 
-			//* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+#ifndef BATCH
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		//s_RendererData.TextureShader->SetUniformFloat4("u_Color", color);
-		//s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", 1.0f);
-		//s_RendererData.WhiteTexture->Bind();
+		s_RendererData.TextureShader->SetUniformFloat4("u_Color", color);
+		s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", 1.0f);
+		s_RendererData.WhiteTexture->Bind();
+
+		s_RendererData.TextureShader->SetUniformMat4("u_Transform", transform);
+
+		s_RendererData.QuadVertexArray->Bind();
+		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+#endif
+
+#if BATCH
 
 		const float texIndex = 0.0f;
 		const float tilingFactor = 1.0f;
-		
 		s_RendererData.QuadVertexBufferPtr->Position = position;
 		s_RendererData.QuadVertexBufferPtr->Color = color;
 		s_RendererData.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
@@ -222,15 +288,13 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr++;
 
 		s_RendererData.QuadIndexCount += 6;
-		
+
+		//s_RendererData.TextureShader->SetUniformMat4("u_Transform", transform);
+#endif
 		//glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 		//glm::vec3 pos(-0.5f, 0.0f, 0.0f);
 		//glm::mat4 transform1 = glm::translate(glm::mat4(1.0f), pos) * scale;
 
-		//s_RendererData.TextureShader->SetUniformMat4("u_Transform", transform);
-
-		//s_RendererData.QuadVertexArray->Bind();
-		//RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor , const glm::vec4& tintColor)
@@ -241,7 +305,7 @@ namespace Albedo {
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		Albedo_PROFILE_FUNCTION();
-
+#if BATCH
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		float textureIndex = 0.0f;
@@ -290,8 +354,9 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr++;
 
 		s_RendererData.QuadIndexCount += 6;
+#endif
 
-#if OLD_PATH
+#if 1
 		//s_RendererData.TextureShader->SetUniformFloat4("u_Color", glm::vec4(1.0f));
 		s_RendererData.TextureShader->SetUniformFloat4("u_Color", tintColor);
 		s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", tilingFactor);

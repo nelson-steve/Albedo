@@ -85,10 +85,10 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		//glBindTextureUnit(slot, m_TextureID);
-		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
 		//glActiveTexture(GL_TEXTURE0 + slot);
 		//glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		//glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_2D, m_TextureID);
 		//glBindTexture(slot, m_TextureID);
 	}
 

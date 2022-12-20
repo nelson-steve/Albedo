@@ -4,5 +4,5 @@
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
 namespace Albedo {
-	RendererAPI* RenderCommand::s_RendererAPI = new OpenGLRendererAPI;
+	Scope<RendererAPI> RenderCommand::s_RendererAPI = RendererAPI::Create();
 }

@@ -30,6 +30,6 @@ private:
 
 	//std::vector<ProfileResult> m_ProfileResults;
 
-	glm::vec4 m_SquareColor = { 0.9, 0.4, 0.8, 1.0f };
+	glm::vec4 m_SquareColor = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 };

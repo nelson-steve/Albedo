@@ -13,7 +13,6 @@ namespace Albedo {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None:
-			//HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); 
 			return nullptr;
 		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLShader>(filePath);
 		}
@@ -25,8 +24,7 @@ namespace Albedo {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None:    
-				//HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); 
+			case RendererAPI::API::None:
 				return nullptr;
 			case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
 		}
