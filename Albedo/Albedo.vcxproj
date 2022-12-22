@@ -590,6 +590,7 @@
     <ClInclude Include="src\Albedo\Renderer\Texture.h" />
     <ClInclude Include="src\Albedo\Renderer\VertexArray.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
+    <ClInclude Include="src\Albedo\Renderer\_Renderer2D.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
@@ -621,6 +622,7 @@
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\_Renderer2D.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />

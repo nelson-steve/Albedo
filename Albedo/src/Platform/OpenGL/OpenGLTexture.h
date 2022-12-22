@@ -21,11 +21,13 @@ namespace Albedo {
 			return m_TextureID == ((OpenGLTexture2D&)other).m_TextureID;
 		}
 
+		virtual uint32_t GetTextureID() const override { return m_TextureID; }
+
 		virtual void Bind(uint32_t slot = 0) const override;
 	private:
 		std::string m_Path;
-		unsigned int m_Width, m_Height;
-		unsigned int m_TextureID;
+		uint32_t m_Width, m_Height;
+		uint32_t m_TextureID;
 	};
 
 }

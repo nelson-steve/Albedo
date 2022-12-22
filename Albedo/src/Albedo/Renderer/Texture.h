@@ -17,6 +17,7 @@ namespace Albedo {
 		virtual unsigned int getHeight() const = 0;
 
 		virtual void SetData(void* data, unsigned int size) = 0;
+		virtual uint32_t GetTextureID() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
 
