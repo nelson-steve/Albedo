@@ -23,6 +23,8 @@ namespace Albedo {
 		Ref<Texture2D> m_Texture;
 		Ref<Texture2D> m_Texture1;
 		Ref<Framebuffer> m_Framebuffer;
+
+		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 		//struct ProfileResult
 		//{
 		//	const char* Name;
