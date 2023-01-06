@@ -28,8 +28,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\TextureSquare.glsl" />
-    <None Include="Assets\Texture2.glsl" />
-    <None Include="Assets\Texture.glsl" />
+    <None Include="Assets\BatchTextureShader.glsl" />
   </ItemGroup>
 </Project>

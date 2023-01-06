@@ -12,7 +12,7 @@
 #include "Albedo/Core/MouseButtonCodes.h"
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Renderer/Renderer2D.h"
-#include "Albedo/Renderer/_Renderer2D.h"
+#include "Albedo/Renderer/BatchRenderer2D.h"
 
 #include "Albedo/Renderer/Shader.h"
 #include "Albedo/Renderer/Buffer.h"

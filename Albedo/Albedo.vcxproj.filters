@@ -37,6 +37,9 @@
     <Filter Include="src\Albedo\Core">
       <UniqueIdentifier>{9BF7047A-0783-723E-1094-F5327C9ECE3E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Debug">
+      <UniqueIdentifier>{1946B0BA-053F-CF0C-2E71-B4911AC9AE18}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Albedo\Events">
       <UniqueIdentifier>{E75B4314-5372-41AA-9CE9-CCCB083F1232}</UniqueIdentifier>
     </Filter>
@@ -57,9 +60,6 @@
     </Filter>
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Albedo\Debug">
-      <UniqueIdentifier>{9bf81a4b-6d5f-4852-9588-4de46a8baf5c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1350,6 +1350,9 @@
     <ClInclude Include="src\Albedo\Core\Window.h">
       <Filter>src\Albedo\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Debug\Instrumentor.h">
+      <Filter>src\Albedo\Debug</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Events\ApplicationEvent.h">
       <Filter>src\Albedo\Events</Filter>
     </ClInclude>
@@ -1370,6 +1373,9 @@
     </ClInclude>
     <ClInclude Include="src\Albedo\Layers\LayerStack.h">
       <Filter>src\Albedo\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h">
+      <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
@@ -1425,10 +1431,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Debug\Instrumentor.h">
-      <Filter>src\Albedo\Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\_Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
@@ -1460,6 +1462,9 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp">
       <Filter>src\Albedo\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Renderer\BatchRenderer2D.cpp">
+      <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>
@@ -1512,6 +1517,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\_Renderer2D.cpp" />
   </ItemGroup>
 </Project>

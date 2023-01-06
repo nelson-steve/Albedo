@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Albedo/Renderer/Renderer2D.h"
+#include "Albedo/Renderer/BatchRenderer2D.h"
 
 namespace Albedo {
 
@@ -12,13 +12,13 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		RenderCommand::Init();
-		Renderer2D::Init();
+		BatchRenderer2D::Init();
 	}
 
 	void Renderer::Shutdown()
 	{
 		Albedo_PROFILE_FUNCTION();
-		Renderer2D::Shutdown();
+		BatchRenderer2D::Shutdown();
 	}
 
 	void Renderer::OnWindowResize(unsigned int width, unsigned int height)

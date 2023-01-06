@@ -559,7 +559,6 @@
     <ClInclude Include="dependencies\glm\glm\vec4.hpp" />
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
-    <ClInclude Include="src\Albedo\Debug\Instrumentor.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
@@ -573,6 +572,7 @@
     <ClInclude Include="src\Albedo\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\Albedo\Core\Timestep.h" />
     <ClInclude Include="src\Albedo\Core\Window.h" />
+    <ClInclude Include="src\Albedo\Debug\Instrumentor.h" />
     <ClInclude Include="src\Albedo\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Albedo\Events\Event.h" />
     <ClInclude Include="src\Albedo\Events\KeyEvent.h" />
@@ -580,6 +580,7 @@
     <ClInclude Include="src\Albedo\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
+    <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
@@ -590,7 +591,6 @@
     <ClInclude Include="src\Albedo\Renderer\Texture.h" />
     <ClInclude Include="src\Albedo\Renderer\VertexArray.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
-    <ClInclude Include="src\Albedo\Renderer\_Renderer2D.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
@@ -611,6 +611,7 @@
     <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\BatchRenderer2D.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
@@ -622,7 +623,6 @@
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\_Renderer2D.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
