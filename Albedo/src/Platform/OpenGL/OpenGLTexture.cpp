@@ -142,6 +142,7 @@ namespace Albedo {
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		Albedo_PROFILE_FUNCTION();
+		this->Unbind();
 		glDeleteTextures(1, &m_TextureID);
 	}
 
@@ -169,6 +170,11 @@ namespace Albedo {
 		//glActiveTexture(GL_TEXTURE0 + slot);
 	//	glBindTextureUnit(slot, m_TextureID);
 		//glBindTexture(slot, m_TextureID);
+	}
+
+	void OpenGLTexture2D::Unbind() const
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 }

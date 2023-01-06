@@ -17,9 +17,11 @@ IncludeDir["imgui"] = "Albedo/dependencies/imgui"
 IncludeDir["glm"] = "Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "Albedo/dependencies/stb_image"
 
-include "Albedo/dependencies/GLFW"
-include "Albedo/dependencies/Glad"
-include "Albedo/dependencies/imgui"
+group "Dependencies"
+	include "Albedo/dependencies/GLFW"
+	include "Albedo/dependencies/Glad"
+	include "Albedo/dependencies/imgui"
+group ""
 
 project "Albedo"
 	location "Albedo"
@@ -98,7 +100,59 @@ project "Albedo"
 		buildoptions "/MDd"
 		optimize "on"
 
-project "Sandbox"
+project "AlbedoEditor"
+	location "AlbedoEditor"
+	kind "ConsoleApp"
+	cppdialect "C++17"
+	language "C++"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.cpp"
+	}
+
+	includedirs
+	{
+		"Albedo/dependencies/spdlog/include",
+		"Albedo/src",
+		"Albedo/dependencies",
+		"%{IncludeDir.glm}"
+	}
+
+	links
+	{
+		"Albedo"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"Albedo_Platform_Windows"
+		}
+
+	filter "configurations:Debug"
+		defines "Albedo_DEBUG"
+		buildoptions "/MDd"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "Albedo_RELEASE"
+		buildoptions "/MDd"
+		optimize "On"
+
+	filter "configurations:Dist"
+		defines "Albedo_DIST"
+		buildoptions "/MDd"
+		optimize "On"
+
+		project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	cppdialect "C++17"

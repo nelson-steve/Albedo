@@ -8,9 +8,9 @@ namespace Albedo {
 	struct WindowProps 
 	{
 		std::string Title;
-		unsigned int Width, Height;
+		uint32_t Width, Height;
 		WindowProps(std::string title = "Albedo Window",
-			unsigned int width = 1280, unsigned int height = 720)
+			uint32_t width = 1280, uint32_t height = 720)
 			:Title(title), Height(height), Width(width) {}
 	};
 
@@ -23,8 +23,8 @@ namespace Albedo {
 
 		virtual void OnUpdate() = 0;
 
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
 
 		virtual void SetVSync(bool enabled) = 0;
 		virtual void SetEventCallBack(const EventCallBackFn& callback) = 0;

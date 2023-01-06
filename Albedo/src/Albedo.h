@@ -15,6 +15,7 @@
 #include "Albedo/Renderer/BatchRenderer2D.h"
 
 #include "Albedo/Renderer/Shader.h"
+#include "Albedo/Renderer/Framebuffer.h"
 #include "Albedo/Renderer/Buffer.h"
 #include "Albedo/Renderer/VertexArray.h"
 

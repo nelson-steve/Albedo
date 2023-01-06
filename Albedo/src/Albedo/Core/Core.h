@@ -42,3 +42,5 @@ namespace Albedo {
 	using Ref = std::shared_ptr<T>;
 
 }
+
+#define BATCH

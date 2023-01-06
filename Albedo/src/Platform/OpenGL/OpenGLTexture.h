@@ -24,6 +24,7 @@ namespace Albedo {
 		virtual uint32_t GetTextureID() const override { return m_TextureID; }
 
 		virtual void Bind(uint32_t slot = 0) const override;
+		virtual void Unbind() const override;
 	private:
 
 		std::string m_Path;

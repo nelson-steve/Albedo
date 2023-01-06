@@ -76,8 +76,9 @@ namespace Albedo {
 		s_RendererData.WhiteTexture = Texture2D::Create(1, 1);
 		uint32_t whiteTextureData = 0xffffffff;
 		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+		s_RendererData.WhiteTexture->Bind();
 
-		s_RendererData.TextureShader = Shader::Create("assets/BatchTextureShader.glsl");
+		s_RendererData.TextureShader = Shader::Create("Assets/BatchTextureShader.glsl");
 		s_RendererData.TextureShader->Bind();
 		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
 	}
@@ -121,7 +122,7 @@ namespace Albedo {
 	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		Albedo_PROFILE_FUNCTION();
-
+		s_RendererData.WhiteTexture->Bind();
 		s_RendererData.QuadVertexBufferPtr->Position = position;
 		s_RendererData.QuadVertexBufferPtr->Color = color;
 		s_RendererData.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
@@ -172,6 +173,7 @@ namespace Albedo {
 
 		s_RendererData.QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
+		texture->Unbind();
 	}
 
 	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)

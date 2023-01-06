@@ -11,12 +11,12 @@ namespace Albedo {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application(const std::string& name)
 	{
 		Albedo_PROFILE_FUNCTION();
 		s_Instance = this;
 
-		m_Window = Scope<Window>(Window::Create());
+		m_Window = Scope<Window>(Window::Create(WindowProps(name)));
 		//m_Window = Window::Create();
 		m_Window->SetEventCallBack(BIND_EVENT_FN(Application::OnEvent));
 
@@ -85,6 +85,11 @@ namespace Albedo {
 
 			m_Window->OnUpdate();
 		}
+	}
+
+	void Application::Close()
+	{
+		m_Running = false;
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)
