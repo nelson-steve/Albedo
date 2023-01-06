@@ -19,6 +19,11 @@ void AlbedoApp2D::OnAttach()
 	Albedo_PROFILE_FUNCTION();
 	m_Texture = Albedo::Texture2D::Create("TextureSample5.png");
 	m_Texture1 = Albedo::Texture2D::Create("TextureSample6.png");
+
+	Albedo::FramebufferSpecification fbSpec;
+	fbSpec.Width = 1280;
+	fbSpec.Height = 720;
+	m_Framebuffer = Albedo::Framebuffer::Create(fbSpec);
 }
 
 void AlbedoApp2D::OnDetach()
@@ -37,6 +42,7 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 	}
 	{
 		Albedo_PROFILE_FUNCTION("Render Prep");
+		m_Framebuffer->Bind();
 		Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 		Albedo::RenderCommand::Clear();
 	}
@@ -62,6 +68,7 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 		}
 		//Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 2.5f, 2.5f }, m_Texture);
 		Albedo::BatchRenderer2D::EndScene();
+		m_Framebuffer->Unbind();
 		#endif
 
 		#ifndef BATCH
@@ -94,7 +101,7 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 
 void AlbedoApp2D::OnImGuiRender()
 {
-	static bool dockingEnabled = false;
+	static bool dockingEnabled = true;
 	if (dockingEnabled)
 	{
 		static bool dockspaceOpen = true;
@@ -166,7 +173,7 @@ void AlbedoApp2D::OnImGuiRender()
 		*/
 		ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
 
-		uint32_t textureID = m_Texture->GetTextureID();
+		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });
 		ImGui::End();
 

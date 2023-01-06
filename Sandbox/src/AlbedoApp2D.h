@@ -21,7 +21,7 @@ private:
 	Albedo::Ref<Albedo::Shader> m_Shader;
 	Albedo::Ref<Albedo::Texture2D> m_Texture;
 	Albedo::Ref<Albedo::Texture2D> m_Texture1;
-
+	Albedo::Ref<Albedo::Framebuffer> m_Framebuffer;
 	//struct ProfileResult
 	//{
 	//	const char* Name;
