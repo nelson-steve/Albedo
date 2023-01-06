@@ -48,13 +48,39 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 		//Albedo::_Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 		//Albedo::_Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
 		//Albedo::_Renderer2D::EndScene();
-
+		#ifdef BATCH
 		Albedo::BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
-		Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-		Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
+		//Albedo::BatchRenderer2D::DrawQuad({ 5.0f, 5.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
+		float value = 10.0f;
+		for (float y = -value; y < value; y += 0.5f)
+		{
+			for (float x = -value; x < value; x += 0.5f)
+			{
+				glm::vec4 color = { (x + value) / 10.0f, 0.4f, (y + value) / 10.0f, 0.7f };
+				Albedo::BatchRenderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
+			}
+		}
+		//Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 2.5f, 2.5f }, m_Texture);
 		Albedo::BatchRenderer2D::EndScene();
-		//Albedo::Renderer2D::BeginScene(m_CameraController.GetCamera());
+		#endif
+
+		#ifndef BATCH
+		Albedo::Renderer2D::BeginScene(m_CameraController.GetCamera());
+		float value = 10.0f;
+		for (float y = -value; y < value; y += 0.5f)
+		{
+			for (float x = -value; x < value; x += 0.5f)
+			{
+				glm::vec4 color = { (x + value) / 10.0f, 0.4f, (y + value) / 10.0f, 0.7f };
+				Albedo::Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
+			}
+		}
 		//Albedo::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+		Albedo::Renderer2D::EndScene();
+		#endif // !1
+
+
+
 		//Albedo::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
 		//Albedo::Renderer2D::DrawQuad({ 0.5f, 0.3f }, { 0.5f, 0.2f }, { 1.0f, 0.0f, 0.0f, 1.0f });
 		//Albedo::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_SquareColor);
