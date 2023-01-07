@@ -12,6 +12,11 @@ namespace Albedo {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_DEPTH_TEST);
+
+		Albedo_Core_INFO("	OpenGL Info:");
+		Albedo_Core_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
+		Albedo_Core_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
+		Albedo_Core_INFO("  Version: {0}", glGetString(GL_VERSION));
 	}
 
 	void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)

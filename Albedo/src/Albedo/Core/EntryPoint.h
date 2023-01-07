@@ -12,11 +12,11 @@ int main(int argc, char** argv) {
 	auto app = Albedo::CreateApplication();
 	Albedo_PROFILE_END_SESSION();
 
-	Albedo_PROFILE_BEGIN_SESSION("Startup", "AlbedoProfile-Runtime.json");
+	Albedo_PROFILE_BEGIN_SESSION("Runtime", "AlbedoProfile-Runtime.json");
 	app->Run();
 	Albedo_PROFILE_END_SESSION();
 
-	Albedo_PROFILE_BEGIN_SESSION("Startup", "AlbedoProfile-Shutdown.json");
+	Albedo_PROFILE_BEGIN_SESSION("Shutdown", "AlbedoProfile-Shutdown.json");
 	delete app;
 	Albedo_PROFILE_END_SESSION();
 

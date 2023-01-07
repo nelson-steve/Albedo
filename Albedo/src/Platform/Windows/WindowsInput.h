@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "Albedo/Core/Input.h"
 
@@ -15,4 +15,4 @@ namespace Albedo {
 		virtual float GetMouseYImpl() override;
 	};
 
-}
+}*/
