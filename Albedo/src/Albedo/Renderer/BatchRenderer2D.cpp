@@ -220,9 +220,9 @@ namespace Albedo {
 	}
 
 }
-
-//----------------------------------------------------------------------------------------------------------------------//
 /*
+//----------------------------------------------------------------------------------------------------------------------//
+
 namespace Albedo {
 
 	struct QuadVertex
@@ -231,7 +231,7 @@ namespace Albedo {
 		glm::vec2 TexCoord;
 		float TilingFactor;
 		glm::vec4 Color;
-		float TexIndex;
+		int TexIndex;
 	};
 
 	struct Renderer2DData
@@ -271,7 +271,7 @@ namespace Albedo {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float, "a_TexIndex" },
+			{ ShaderDataType::Int, "a_TexIndex" }, //float
 			{ ShaderDataType::Float, "a_TilingFactor" }
 			});
 		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
@@ -305,8 +305,8 @@ namespace Albedo {
 		int32_t samplers[s_RendererData.MaxTextureSlots];
 		for (uint32_t i = 0; i < s_RendererData.MaxTextureSlots; i++)
 			samplers[i] = i;
-
-		s_RendererData.TextureShader = Shader::Create("assets/BatchTextureShader.glsl");
+		//BatchTextureShader
+		s_RendererData.TextureShader = Shader::Create("Assets/Texture.glsl");
 		s_RendererData.TextureShader->Bind();
 		s_RendererData.TextureShader->SetUniformIntArray("u_Textures", samplers, s_RendererData.MaxTextureSlots);
 
@@ -347,16 +347,6 @@ Albedo_PROFILE_FUNCTION();
 		Flush();
 	}
 
-	void BatchRenderer2D::Flush()
-	{
-		// Bind textures
-		for (uint32_t i = 0; i < s_RendererData.TextureSlotIndex; i++)
-			s_RendererData.TextureSlots[i]->Bind(i);
-
-		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray, s_RendererData.QuadIndexCount);
-		s_RendererData.Stats.DrawCalls++;
-	}
-
 	void BatchRenderer2D::FlushAndReset()
 	{
 		EndScene();
@@ -365,6 +355,18 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 
 		s_RendererData.TextureSlotIndex = 1;
+	}
+
+	void BatchRenderer2D::Flush()
+	{
+		// Bind textures
+		for (uint32_t i = 0; i < s_RendererData.TextureSlotIndex; i++)
+		{
+			s_RendererData.TextureSlots[i]->Bind(i);
+		}
+
+		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray, s_RendererData.QuadIndexCount);
+		s_RendererData.Stats.DrawCalls++;
 	}
 
 	void BatchRenderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -615,4 +617,5 @@ Albedo_PROFILE_FUNCTION();
 		return s_RendererData.Stats;
 	}
 
-}*/
+}
+*/

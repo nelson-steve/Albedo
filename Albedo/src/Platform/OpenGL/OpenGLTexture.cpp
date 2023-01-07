@@ -85,9 +85,10 @@ namespace Albedo {
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* data = nullptr;
-
-		//HZ_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std:string&)");
-		data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		{
+			//HZ_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std:string&)");
+			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		}
 
 		Albedo_CORE_ASSERT(data, "Failed to load image!");
 		m_Width = width;
@@ -111,7 +112,7 @@ namespace Albedo {
 		//HZ_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
 		glGenTextures(1, &m_TextureID);
-		this->Bind();
+		//this->Bind();
 		//glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		//glTextureStorage2D(m_TextureID, 1, internalFormat, m_Width, m_Height);
 		glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Width, m_Height);
@@ -124,8 +125,8 @@ namespace Albedo {
 
 		if (data)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+			//glGenerateMipmap(GL_TEXTURE_2D);
 
 			//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
 		}
@@ -142,7 +143,6 @@ namespace Albedo {
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		Albedo_PROFILE_FUNCTION();
-		this->Unbind();
 		glDeleteTextures(1, &m_TextureID);
 	}
 
@@ -150,12 +150,13 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 	#if 1
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	#else
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
 		//HZ_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-		glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	#endif
 	}
 

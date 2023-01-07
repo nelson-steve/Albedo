@@ -60,7 +60,7 @@ void AlbedoApp2D::OnUpdate(Albedo::Timestep ts)
 				Albedo::BatchRenderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
 			}
 		}
-		//Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 2.5f, 2.5f }, m_Texture);
+		Albedo::BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 2.5f, 2.5f }, m_Texture);
 		Albedo::BatchRenderer2D::EndScene();
 		#endif
 
