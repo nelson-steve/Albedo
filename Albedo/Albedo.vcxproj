@@ -582,6 +582,7 @@
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
+    <ClInclude Include="src\Albedo\Renderer\Camera.h" />
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />

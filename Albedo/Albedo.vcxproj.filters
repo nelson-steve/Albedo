@@ -1449,6 +1449,7 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">

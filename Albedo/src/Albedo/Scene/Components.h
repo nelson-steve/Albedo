@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Albedo/Renderer/Camera.h"
+
 namespace Albedo {
 
 	struct TagComponent
@@ -35,6 +37,17 @@ namespace Albedo {
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 		SpriteRendererComponent(const glm::vec4& color)
 			: Color(color) {}
+	};
+
+	struct CameraComponent
+	{
+		Albedo::Camera Camera;
+		bool Primary = true; // TODO: think about moving to Scene
+
+		CameraComponent() = default;
+		CameraComponent(const CameraComponent&) = default;
+		CameraComponent(const glm::mat4& projection)
+			: Camera(projection) {}
 	};
 
 }

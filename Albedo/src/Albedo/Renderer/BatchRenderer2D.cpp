@@ -106,6 +106,19 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 	}
 
+	void BatchRenderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
+	{
+		Albedo_PROFILE_FUNCTION();
+
+		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+
+		s_RendererData.TextureShader->Bind();
+		s_RendererData.TextureShader->SetUniformMat4("u_ProjectionView", viewProj);
+
+		s_RendererData.QuadIndexCount = 0;
+		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
+	}
+
 	void BatchRenderer2D::EndScene()
 	{
 		Albedo_PROFILE_FUNCTION();
