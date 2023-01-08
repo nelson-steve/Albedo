@@ -97,7 +97,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

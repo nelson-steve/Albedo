@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "Log.h"
 
 #ifdef Albedo_Platform_Windows
 #ifdef Albedo_Dynamic_LINK
@@ -23,7 +24,7 @@
 
 #ifdef Albedo_ENABLE_ASSERTS
 #define Albedo_ASSERT(x, ...) { if(!(x)) { Albedo_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#define Albedo_CORE_ASSERT(x, ...) { if(!(x)) { Albedo_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define Albedo_CORE_ASSERT(x, ...) { if(!(x)) { Albedo_Core_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
 #define Albedo_ASSERT(x, ...)
 #define Albedo_CORE_ASSERT(x, ...)
@@ -31,7 +32,8 @@
 
 #define BIT(x) (1 << x)
 
-#define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+//#define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+#define BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace Albedo {
 
