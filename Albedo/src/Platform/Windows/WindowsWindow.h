@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo/Core/Window.h"
+#include "Albedo/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -28,6 +29,7 @@ namespace Albedo
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
+		Scope<GraphicsContext> m_GraphicsContext;
 
 		struct WindowData
 		{
@@ -39,6 +41,7 @@ namespace Albedo
 
 			EventCallBackFn EventCallBack;
 		};
+
 		WindowData m_Data;
 	};
 }

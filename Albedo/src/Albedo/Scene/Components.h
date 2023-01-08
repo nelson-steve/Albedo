@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Albedo/Renderer/Camera.h"
+#include "Albedo/Scene/SceneCamera.h"
 
 namespace Albedo {
 
@@ -41,13 +41,12 @@ namespace Albedo {
 
 	struct CameraComponent
 	{
-		Albedo::Camera Camera;
+		SceneCamera Camera;
 		bool Primary = true; // TODO: think about moving to Scene
+		bool FixedAspectRatio = false;
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
-		CameraComponent(const glm::mat4& projection)
-			: Camera(projection) {}
 	};
 
 }

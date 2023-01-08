@@ -1450,6 +1450,7 @@
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Camera.h" />
+    <ClInclude Include="src\Albedo\Scene\SceneCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
@@ -1548,5 +1549,7 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp" />
+    <ClCompile Include="src\Albedo\Scene\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>

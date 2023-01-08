@@ -35,7 +35,7 @@ namespace Albedo {
 		#endif
 	}
 
-	void Renderer::OnWindowResize(unsigned int width, unsigned int height)
+	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
 		Albedo_PROFILE_FUNCTION();
 		RenderCommand::SetViewPort(0, 0, width, height);

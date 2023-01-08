@@ -596,6 +596,7 @@
     <ClInclude Include="src\Albedo\Scene\Entity.h" />
     <ClInclude Include="src\Albedo\Scene\Scene.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
+    <ClInclude Include="src\Albedo\Scene\SceneCamera.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
@@ -628,10 +629,12 @@
     <ClCompile Include="src\Albedo\Renderer\Texture.cpp" />
     <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Albedo\Scene\Entity.cpp" />
+    <ClCompile Include="src\Albedo\Scene\GraphicsContext.cpp" />
     <ClCompile Include="src\Albedo\Scene\Scene.cpp" />
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />

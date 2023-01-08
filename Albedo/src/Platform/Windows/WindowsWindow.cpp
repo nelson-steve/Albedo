@@ -35,10 +35,16 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_GraphicsContext->SwapBuffers();
+		//glfwSwapBuffers(m_Window);
 	}
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		if (enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+
 		m_Data.VSync = enabled;
 	}
 	bool WindowsWindow::IsVSync() const
@@ -47,23 +53,29 @@ namespace Albedo {
 	}
 	void WindowsWindow::Init(const WindowProps& props)
 	{
-		m_Data.Width = props.Width;
+		m_Data.Title  = props.Title;
+		m_Data.Width  = props.Width;
 		m_Data.Height = props.Height;
-		m_Data.Title = props.Title;
 
 		if (!s_GLFWInitialized)
 		{
 			Albedo_PROFILE_FUNCTION("glfw Init");
 			int success = glfwInit();
 			//Albedo_CORE_ASSERT(success, "Could not intialize GLFW!");
-			//glfwSetErrorCallback(GLFWErrorCallback);
+			//glfwSetErrorCallback();
 
-			s_GLFWInitialized = true;
+			//s_GLFWInitialized = true;
 		}
+
+		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 		//Albedo_PROFILE_FUNCTION();
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, props.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
+
+		m_GraphicsContext = GraphicsContext::Create(m_Window);
+		m_GraphicsContext->Init();
+
+		//glfwMakeContextCurrent(m_Window);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		if (!status) Albedo_ERROR("glad not working!");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
