@@ -7,6 +7,9 @@
 #include "Albedo/Core/Log.h"
 #include "Albedo/ImGui/ImGuiLayer.h"
 
+#include "Albedo/Scene/Scene.h"
+#include "Albedo/Scene/Components.h"
+
 #include "Albedo/Core/Input.h"
 #include "Albedo/Core/KeyCodes.h"
 #include "Albedo/Core/MouseButtonCodes.h"

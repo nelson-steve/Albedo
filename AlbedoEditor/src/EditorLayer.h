@@ -14,15 +14,18 @@ namespace Albedo {
 
 		void OnUpdate(Timestep ts) override;
 		virtual void OnImGuiRender() override;
-		void OnEvent(Albedo::Event& e) override;
+		void OnEvent(Event& e) override;
 	private:
-		Albedo::OrthographicCameraController m_CameraController;
+		OrthographicCameraController m_CameraController;
 
 		Ref<VertexArray> m_VertexArray;
 		Ref<Shader> m_Shader;
 		Ref<Texture2D> m_Texture;
 		Ref<Texture2D> m_Texture1;
 		Ref<Framebuffer> m_Framebuffer;
+
+		Ref<Scene> m_ActiveScene;
+		entt::entity m_SquareEntity;
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };

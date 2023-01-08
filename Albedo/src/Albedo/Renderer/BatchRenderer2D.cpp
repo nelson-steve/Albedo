@@ -21,9 +21,9 @@ namespace Albedo {
 
 	struct Renderer2DData
 	{
-		const uint32_t MaxQuads = 10000;
-		const uint32_t MaxVertices = MaxQuads * 4;
-		const uint32_t MaxIndices = MaxQuads * 6;
+		static const uint32_t MaxQuads = 10000;
+		static const uint32_t MaxVertices = MaxQuads * 4;
+		static const uint32_t MaxIndices = MaxQuads * 6;
 
 		Ref<VertexArray> QuadVertexArray;
 		Ref<VertexBuffer> QuadVertexBuffer;
@@ -33,6 +33,8 @@ namespace Albedo {
 		uint32_t QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
+
+		glm::vec4 QuadVertexPositions[4];
 	};
 
 	static Renderer2DData s_RendererData;
@@ -81,6 +83,11 @@ namespace Albedo {
 		s_RendererData.TextureShader = Shader::Create("Assets/BatchTextureShader.glsl");
 		s_RendererData.TextureShader->Bind();
 		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
+
+		s_RendererData.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		s_RendererData.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		s_RendererData.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		s_RendererData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
 	void BatchRenderer2D::Shutdown()
@@ -109,8 +116,19 @@ namespace Albedo {
 		Flush();
 	}
 
+	void BatchRenderer2D::FlushAndReset()
+	{
+		EndScene();
+
+		s_RendererData.QuadIndexCount = 0;
+		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
+	}
+
 	void BatchRenderer2D::Flush()
 	{
+		if (s_RendererData.QuadIndexCount == 0)
+			return; // Nothing to draw
+
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray, s_RendererData.QuadIndexCount);
 	}
 
@@ -122,7 +140,31 @@ namespace Albedo {
 	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		Albedo_PROFILE_FUNCTION();
-		s_RendererData.WhiteTexture->Bind();
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		DrawQuad(transform, color);
+	}
+
+	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	{
+		constexpr size_t quadVertexCount = 4;
+		const float textureIndex = 0.0f; // White Texture
+		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		const float tilingFactor = 1.0f;
+
+		if (s_RendererData.QuadIndexCount >= Renderer2DData::MaxIndices)
+			FlushAndReset();
+
+		for (size_t i = 0; i < quadVertexCount; i++)
+		{
+			s_RendererData.QuadVertexBufferPtr->Position = transform * s_RendererData.QuadVertexPositions[i];
+			s_RendererData.QuadVertexBufferPtr->Color = color;
+			s_RendererData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			s_RendererData.QuadVertexBufferPtr++;
+		}
+
+		/*
 		s_RendererData.QuadVertexBufferPtr->Position = position;
 		s_RendererData.QuadVertexBufferPtr->Color = color;
 		s_RendererData.QuadVertexBufferPtr->TexCoord = { 0.0f, 0.0f };
@@ -142,6 +184,7 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr->Color = color;
 		s_RendererData.QuadVertexBufferPtr->TexCoord = { 0.0f, 1.0f };
 		s_RendererData.QuadVertexBufferPtr++;
+		*/
 
 		s_RendererData.QuadIndexCount += 6;
 
@@ -163,17 +206,22 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		DrawQuad(transform, texture, tilingFactor, tintColor);
+	}
+
+	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
 		s_RendererData.TextureShader->SetUniformFloat4("u_Color", tintColor);
 		s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", tilingFactor);
 		texture->Bind();
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		s_RendererData.TextureShader->SetUniformMat4("u_Transform", transform);
 
 		s_RendererData.QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
-		texture->Unbind();
 	}
 
 	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)

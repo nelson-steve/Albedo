@@ -26,6 +26,14 @@ namespace Albedo {
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_Framebuffer = Framebuffer::Create(fbSpec);
+
+		//m_ActiveScene = std::make_shared<Scene>();
+
+		//auto square = m_ActiveScene->CreateEntity();
+		//m_ActiveScene->Reg().emplace<TransformComponent>(square);
+		//m_ActiveScene->Reg().emplace<SpriteRendererComponent>(square, glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+
+		//m_SquareEntity = square;
 	}
 
 	void EditorLayer::OnDetach()
@@ -60,7 +68,7 @@ namespace Albedo {
 			//_Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
 			//_Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
 			//_Renderer2D::EndScene();
-			#ifdef BATCH
+			#ifdef BATCH____
 			BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
 			//BatchRenderer2D::DrawQuad({ 5.0f, 5.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
 			float value = 10.0f;
@@ -92,7 +100,14 @@ namespace Albedo {
 			Renderer2D::EndScene();
 			#endif // !1
 
+			//BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
 
+			// Update scene
+			//m_ActiveScene->OnUpdate(ts);
+
+			//BatchRenderer2D::EndScene();
+
+			m_Framebuffer->Unbind();
 
 			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
 			//Renderer2D::DrawQuad({ 0.5f, 0.3f }, { 0.5f, 0.2f }, { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -177,7 +192,9 @@ namespace Albedo {
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 			*/
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+
+			auto& squareColor = m_ActiveScene->Reg().get<SpriteRendererComponent>(m_SquareEntity).Color;
+			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 			ImGui::End();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -188,7 +205,13 @@ namespace Albedo {
 			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+			if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0)
+			{
+				m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
+				m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+				m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
+			}
 			//if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
 			//{
 			//	m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);

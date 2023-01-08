@@ -16,6 +16,7 @@ IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
 IncludeDir["imgui"] = "Albedo/dependencies/imgui"
 IncludeDir["glm"] = "Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "Albedo/dependencies/stb_image"
+IncludeDir["entt"] = "Albedo/dependencies/entt/include"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -59,7 +60,8 @@ project "Albedo"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.imgui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -121,7 +123,8 @@ project "AlbedoEditor"
 		"Albedo/dependencies/spdlog/include",
 		"Albedo/src",
 		"Albedo/dependencies",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links
@@ -152,7 +155,7 @@ project "AlbedoEditor"
 		buildoptions "/MDd"
 		optimize "On"
 
-		project "Sandbox"
+project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	cppdialect "C++17"
@@ -173,7 +176,8 @@ project "AlbedoEditor"
 		"Albedo/dependencies/spdlog/include",
 		"Albedo/src",
 		"Albedo/dependencies",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}"
 	}
 
 	links

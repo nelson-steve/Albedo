@@ -52,6 +52,9 @@
     <Filter Include="src\Albedo\Renderer">
       <UniqueIdentifier>{69008529-D561-6237-5ECF-A8E9CA2F99F6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Scene">
+      <UniqueIdentifier>{C0A8BEBB-ACA1-DD0D-D5D3-C292C12BBD19}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
@@ -1407,6 +1410,12 @@
     <ClInclude Include="src\Albedo\Renderer\VertexArray.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Scene\Components.h">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Scene\Scene.h">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\AlbedoPreCompiledHeader.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1498,6 +1507,9 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\VertexArray.cpp">
       <Filter>src\Albedo\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\Scene.cpp">
+      <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <Filter>src</Filter>
