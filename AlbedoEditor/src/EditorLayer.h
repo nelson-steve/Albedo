@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo.h"
+#include "Panels/SceneHierarchyPanel.h"
 
 namespace Albedo {
 	class EditorLayer : public Layer
@@ -42,6 +43,8 @@ namespace Albedo {
 		//std::vector<ProfileResult> m_ProfileResults;
 
 		glm::vec4 m_SquareColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+
+		SceneHierarchyPanel m_SceneHierarchyPanel;
 
 	};
 }
