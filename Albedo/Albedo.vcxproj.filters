@@ -1383,6 +1383,9 @@
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Renderer\Camera.h">
+      <Filter>src\Albedo\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1419,6 +1422,12 @@
     <ClInclude Include="src\Albedo\Scene\Scene.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Scene\SceneCamera.h">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Scene\ScriptableEntity.h">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\AlbedoPreCompiledHeader.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1446,9 +1455,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Camera.h" />
-    <ClInclude Include="src\Albedo\Scene\SceneCamera.h" />
-    <ClInclude Include="src\Albedo\Scene\ScriptableEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
@@ -1514,7 +1520,13 @@
     <ClCompile Include="src\Albedo\Scene\Entity.cpp">
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\GraphicsContext.cpp">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Scene\Scene.cpp">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp">
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
@@ -1547,7 +1559,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp" />
-    <ClCompile Include="src\Albedo\Scene\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>

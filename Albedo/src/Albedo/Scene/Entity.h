@@ -16,28 +16,27 @@ namespace Albedo {
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
-			//Albedo_Core_ASSERT(!HasComponent<T>(), "Entity already has component!");
+			Albedo_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
 		template<typename T>
 		T& GetComponent()
 		{
-			//Albedo_Core_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			Albedo_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 
 		template<typename T>
 		bool HasComponent()
 		{
-			//const auto entity = entt::null;
-			return m_Scene->m_Registry.valid(m_EntityHandle);
+			return m_Scene->m_Registry.has<T>(m_EntityHandle);
 		}
 
 		template<typename T>
 		void RemoveComponent()
 		{
-			//Albedo_Core_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			Albedo_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 
