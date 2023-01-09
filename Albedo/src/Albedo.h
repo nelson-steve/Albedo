@@ -10,6 +10,7 @@
 #include "Albedo/Scene/Scene.h"
 #include "Albedo/Scene/Entity.h"
 #include "Albedo/Scene/Components.h"
+#include "Albedo/Scene/ScriptableEntity.h"
 
 #include "Albedo/Core/Input.h"
 #include "Albedo/Core/KeyCodes.h"

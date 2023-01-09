@@ -15,22 +15,20 @@ namespace Albedo {
 	void OrthographicCameraController::OnUpdate(Timestep ts)
 	{
 		Albedo_PROFILE_FUNCTION();
-		if (Input::IsKeyPressed(Albedo_KEY_TAB))
-			Albedo_TRACE("Tab key is pressed (poll)!");
-		if (Input::IsKeyPressed(Albedo_KEY_LEFT))
+		if (Input::IsKeyPressed(KeyCode::Left))
 			m_CameraPosition.x -= m_CameraTranslationSpeed * ts;
-		else if (Input::IsKeyPressed(Albedo_KEY_RIGHT))
+		else if (Input::IsKeyPressed(KeyCode::Right))
 			m_CameraPosition.x += m_CameraTranslationSpeed * ts;
 
-		if (Input::IsKeyPressed(Albedo_KEY_UP))
+		if (Input::IsKeyPressed(KeyCode::Up))
 			m_CameraPosition.y += m_CameraTranslationSpeed * ts;
-		else if (Input::IsKeyPressed(Albedo_KEY_DOWN))
+		else if (Input::IsKeyPressed(KeyCode::Down))
 			m_CameraPosition.y -= m_CameraTranslationSpeed * ts;
 
 		if(m_Rotation) {
-			if (Input::IsKeyPressed(Albedo_KEY_A))
+			if (Input::IsKeyPressed(KeyCode::A))
 				m_CameraRotation += m_CameraRotationSpeed * ts;
-			if (Input::IsKeyPressed(Albedo_KEY_D))
+			if (Input::IsKeyPressed(KeyCode::D))
 				m_CameraRotation -= m_CameraRotationSpeed * ts;
 
 			m_Camera.SetRotation(m_CameraRotation);

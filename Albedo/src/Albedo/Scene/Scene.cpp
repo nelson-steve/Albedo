@@ -55,6 +55,24 @@ namespace Albedo {
 
 	void Scene::OnUpdate(Timestep ts)
 	{
+		// Update scripts
+		{
+			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+				{
+					if (!nsc.Instance)
+					{
+						nsc.InstantiateFunction();
+						nsc.Instance->m_Entity = Entity{ entity, this };
+
+						if (nsc.OnCreateFunction)
+							nsc.OnCreateFunction(nsc.Instance);
+					}
+
+					if (nsc.OnUpdateFunction)
+						nsc.OnUpdateFunction(nsc.Instance, ts);
+				});
+		}
+
 		Camera* mainCamera = nullptr;
 		glm::mat4* cameraTransform = nullptr;
 		{
@@ -90,7 +108,7 @@ namespace Albedo {
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
-		m_ViewportWidth = width;
+		m_ViewportWidth  = width;
 		m_ViewportHeight = height;
 
 		// Resize our non-FixedAspectRatio cameras

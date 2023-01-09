@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Albedo/Core/Core.h"
+#include "Albedo/Core/KeyCodes.h"
 
 namespace Albedo {
 
 	class Input
 	{
 	public:
-		static bool IsKeyPressed(int keycode);
+		static bool IsKeyPressed(KeyCode keycode);
 
 		inline static bool IsMouseButtonPressed(int button);
 		inline static std::pair<float, float> GetMousePosition();
