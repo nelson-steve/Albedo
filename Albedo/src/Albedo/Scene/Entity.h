@@ -30,7 +30,8 @@ namespace Albedo {
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registry.has<T>(m_EntityHandle);
+			//const auto entity = entt::null;
+			return m_Scene->m_Registry.valid(m_EntityHandle);
 		}
 
 		template<typename T>
