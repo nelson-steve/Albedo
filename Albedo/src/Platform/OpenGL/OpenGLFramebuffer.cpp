@@ -1,4 +1,5 @@
 #include "AlbedoPreCompiledHeader.h"
+#include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "OpenGLFramebuffer.h"
 
 #include <glad/glad.h>

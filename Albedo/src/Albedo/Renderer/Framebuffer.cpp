@@ -1,5 +1,5 @@
 #include "AlbedoPreCompiledHeader.h"
-#include "Framebuffer.h"
+#include "Albedo/Renderer/Framebuffer.h"
 
 #include "Albedo/Renderer/Renderer.h"
 

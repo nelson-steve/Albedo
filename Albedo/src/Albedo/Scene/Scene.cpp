@@ -68,7 +68,7 @@ namespace Albedo {
 
 		if (mainCamera)
 		{
-			BatchRenderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);
+			BatchRenderer2D::BeginScene(*mainCamera, *cameraTransform);
 
 			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 			for (auto entity : group)

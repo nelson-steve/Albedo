@@ -34,10 +34,10 @@ namespace Albedo {
 
 		m_SquareEntity = square;
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");
 		m_CameraEntity.AddComponent<CameraComponent>();
 
-		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
+		m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
 		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
 		cc.Primary = false;
 
@@ -236,7 +236,7 @@ namespace Albedo {
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 			*/
-
+			/*
 			if (m_SquareEntity)
 			{
 				ImGui::Separator();
@@ -263,6 +263,7 @@ namespace Albedo {
 				if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
 					camera.SetOrthographicSize(orthoSize);
 			}
+			*/
 
 			ImGui::End();
 
