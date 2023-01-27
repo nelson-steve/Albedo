@@ -1,5 +1,6 @@
 workspace "Albedo"
 	architecture "x64"
+	startproject "AlbedoEditor"
 
 	configurations
 	{
@@ -8,20 +9,32 @@ workspace "Albedo"
 		"Dist"
 	}
 
+	-- solution_items
+	-- {
+	-- 	".editorconfig"
+	-- }
+
+	-- flags
+	-- {
+	-- 	"MultiProcessorCompile"
+	-- }
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
-IncludeDir["GLFW"] = "Albedo/dependencies/GLFW/include"
-IncludeDir["Glad"] = "Albedo/dependencies/Glad/include"
-IncludeDir["imgui"] = "Albedo/dependencies/imgui"
-IncludeDir["glm"] = "Albedo/dependencies/glm"
-IncludeDir["stb_image"] = "Albedo/dependencies/stb_image"
-IncludeDir["entt"] = "Albedo/dependencies/entt/include"
+IncludeDir["GLFW"] 		= "%{wks.location}/Albedo/dependencies/GLFW/include"
+IncludeDir["Glad"] 		= "%{wks.location}/Albedo/dependencies/Glad/include"
+IncludeDir["imgui"] 	= "%{wks.location}/Albedo/dependencies/imgui"
+IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
+IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
+IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
+IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
 	include "Albedo/dependencies/Glad"
 	include "Albedo/dependencies/imgui"
+	include "Albedo/dependencies/yaml-cpp"
 group ""
 
 project "Albedo"
@@ -62,7 +75,8 @@ project "Albedo"
 		"%{IncludeDir.imgui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.yaml_cpp}"
 	}
 
 	links
@@ -70,6 +84,7 @@ project "Albedo"
 		"GLFW",
 		"Glad",
 		"imgui",
+		"yaml-cpp",
 		"opengl32.lib"
 	}
 
