@@ -3,6 +3,10 @@
 #include <memory>
 #include "Log.h"
 
+#ifdef _MSVC_LANG
+	#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #ifdef Albedo_Platform_Windows
 #ifdef Albedo_Dynamic_LINK
 	#ifdef Albedo_Build_DLL

@@ -236,12 +236,6 @@ namespace Albedo {
 
 					if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) SaveSceneAs();
 
-					if (ImGui::MenuItem("Deserialize"))
-					{
-						SceneSerializer serializer(m_ActiveScene);
-						serializer.Deserialize("Assets/Scenes/Example.albedo");
-					}
-
 					if (ImGui::MenuItem("Exit")) Application::Get().Close();
 					ImGui::EndMenu();
 				}
@@ -404,25 +398,25 @@ namespace Albedo {
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filepath = FileDialogs::OpenFile("Albedo Scene (*.albedo)\0*.albedo\0");
-		if (!filepath.empty())
+		std::optional<std::string> filepath = FileDialogs::OpenFile("Albedo Scene (*.albedo)\0*.albedo\0");
+		if (filepath)
 		{
 			m_ActiveScene = std::make_shared<Scene>();
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 			SceneSerializer serializer(m_ActiveScene);
-			serializer.Deserialize(filepath);
+			serializer.Deserialize(*filepath);
 		}
 	}
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filepath = FileDialogs::SaveFile("Albedo Scene (*.albedo)\0*.albedo\0");
-		if (!filepath.empty())
+		std::optional<std::string> filepath = FileDialogs::SaveFile("Albedo Scene (*.albedo)\0*.albedo\0");
+		if (filepath)
 		{
 			SceneSerializer serializer(m_ActiveScene);
-			serializer.Serialize(filepath);
+			serializer.Serialize(*filepath);
 		}
 	}
 
