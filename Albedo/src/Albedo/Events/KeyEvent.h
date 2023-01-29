@@ -23,7 +23,7 @@ namespace Albedo {
 		KeyPressedEvent(int keycode, int repeatcount)
 			:KeyEvent(keycode), m_RepeatCount(repeatcount) {}
 
-		inline int GetRepeatCoun() const { return m_RepeatCount; }
+		inline int GetRepeatCount() const { return m_RepeatCount; }
 
 		std::string ToString() const override{
 			std::stringstream ss;

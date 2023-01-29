@@ -175,13 +175,7 @@ namespace Albedo {
 		fout << out.c_str();
 	}
 
-	void SceneSerializer::SerializeRuntime(const std::string& filepath)
-	{
-		// Not implemented
-		//Albedo_CORE_ASSERT(false);
-	}
-
-	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
+	bool SceneSerializer::Deserialize(const std::string& filepath)
 	{
 		std::ifstream stream(filepath);
 		std::stringstream strStream;
@@ -252,7 +246,13 @@ namespace Albedo {
 		return true;
 	}
 
-	bool SceneSerializer::Deserialize(const std::string& filepath)
+	void SceneSerializer::SerializeRuntime(const std::string& filepath)
+	{
+		// Not implemented
+		//Albedo_CORE_ASSERT(false);
+	}
+
+	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{
 		// Not implemented
 		//Albedo_CORE_ASSERT(false);
