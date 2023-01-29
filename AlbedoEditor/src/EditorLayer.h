@@ -50,6 +50,8 @@ namespace Albedo {
 
 		glm::vec4 m_SquareColor = { 0.0f, 0.0f, 1.0f, 1.0f };
 
+		int m_GizmoType = -1;
+
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 
 	};

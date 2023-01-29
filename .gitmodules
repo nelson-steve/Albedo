@@ -13,3 +13,6 @@
 [submodule "Albedo/dependencies/yaml-cpp"]
 	path = Albedo/dependencies/yaml-cpp
 	url = https://github.com/TheCherno/yaml-cpp.git
+[submodule "Albedo/dependencies/ImGuizmo"]
+	path = Albedo/dependencies/ImGuizmo
+	url = https://github.com/TheCherno/ImGuizmo.git

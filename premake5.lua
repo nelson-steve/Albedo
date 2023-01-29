@@ -29,6 +29,7 @@ IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
+IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -57,7 +58,9 @@ project "Albedo"
 		"%{prj.name}/dependencies/glm/glm/**.hpp",
 		"%{prj.name}/dependencies/glm/glm/**.inl",
 		"%{prj.name}/dependencies/stb_image/**.h",
-		"%{prj.name}/dependencies/stb_image/**.cpp"
+		"%{prj.name}/dependencies/stb_image/**.cpp",
+		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
+		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp"
 	}
 
 	defines
@@ -76,7 +79,8 @@ project "Albedo"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.yaml_cpp}"
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links
@@ -87,6 +91,9 @@ project "Albedo"
 		"yaml-cpp",
 		"opengl32.lib"
 	}
+
+	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
+	flags { "NoPCH" }
 
 	filter "system:windows"
 		systemversion "latest"
@@ -140,7 +147,8 @@ project "AlbedoEditor"
 		"Albedo/src",
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links

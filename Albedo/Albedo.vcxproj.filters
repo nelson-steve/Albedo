@@ -4,6 +4,9 @@
     <Filter Include="dependencies">
       <UniqueIdentifier>{8CAD9F58-7810-2FFD-2196-67B30DD8FA7F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dependencies\ImGuizmo">
+      <UniqueIdentifier>{6C1DA30B-D889-5E06-A17D-F6630DA9806E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="dependencies\glm">
       <UniqueIdentifier>{DB1DAFD4-C716-CE26-F048-B3ABDCA0AD32}</UniqueIdentifier>
     </Filter>
@@ -55,6 +58,9 @@
     <Filter Include="src\Albedo\Scene">
       <UniqueIdentifier>{C0A8BEBB-ACA1-DD0D-D5D3-C292C12BBD19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Utils">
+      <UniqueIdentifier>{033DECBB-EF35-0B0E-1868-F09204C0EA19}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
@@ -66,6 +72,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h">
+      <Filter>dependencies\ImGuizmo</Filter>
+    </ClInclude>
     <ClInclude Include="dependencies\glm\glm\common.hpp">
       <Filter>dependencies\glm\glm</Filter>
     </ClInclude>
@@ -1431,6 +1440,9 @@
     <ClInclude Include="src\Albedo\Scene\ScriptableEntity.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Utils\PlatformUtils.h">
+      <Filter>src\Albedo\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\AlbedoPreCompiledHeader.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1458,9 +1470,12 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Utils\PlatformUtils.h" />
+    <ClInclude Include="src\Albedo\Math\Math.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
+      <Filter>dependencies\ImGuizmo</Filter>
+    </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
       <Filter>dependencies\stb_image</Filter>
     </ClCompile>
@@ -1563,9 +1578,12 @@
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
+    <ClCompile Include="src\Albedo\Math\Math.cpp" />
   </ItemGroup>
 </Project>
