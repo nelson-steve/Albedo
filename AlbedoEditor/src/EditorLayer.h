@@ -2,6 +2,7 @@
 
 #include "Albedo.h"
 #include "Panels/SceneHierarchyPanel.h"
+#include "Albedo/Cameras/EditorCamera.h"
 
 namespace Albedo {
 	class EditorLayer : public Layer
@@ -37,6 +38,8 @@ namespace Albedo {
 		Entity m_SecondCamera;
 
 		bool m_PrimaryCamera = true;
+
+		EditorCamera m_EditorCamera;
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };

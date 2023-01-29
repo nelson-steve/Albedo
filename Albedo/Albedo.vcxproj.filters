@@ -1392,7 +1392,7 @@
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Camera.h">
+    <ClInclude Include="src\Albedo\Cameras\Camera.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h">
@@ -1471,6 +1471,7 @@
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Math\Math.h" />
+    <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1585,5 +1586,6 @@
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
+    <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
   </ItemGroup>
 </Project>

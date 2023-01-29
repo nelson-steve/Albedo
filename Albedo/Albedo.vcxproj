@@ -561,6 +561,7 @@
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
     <ClInclude Include="src\Albedo.h" />
+    <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
     <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h" />
@@ -584,7 +585,7 @@
     <ClInclude Include="src\Albedo\Math\Math.h" />
     <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
-    <ClInclude Include="src\Albedo\Renderer\Camera.h" />
+    <ClInclude Include="src\Albedo\Cameras\Camera.h" />
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
@@ -616,6 +617,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
+    <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />

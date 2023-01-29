@@ -1,8 +1,10 @@
 #pragma once
 
-#include "entt.hpp"
 
+#include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
+
+#include "entt.hpp"
 
 namespace Albedo {
 
@@ -17,7 +19,9 @@ namespace Albedo {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
-		void OnUpdate(Timestep ts);
+		void OnUpdateRuntime(Timestep ts);
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
