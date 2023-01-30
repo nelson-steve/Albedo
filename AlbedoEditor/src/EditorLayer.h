@@ -52,6 +52,7 @@ namespace Albedo {
 		//std::vector<ProfileResult> m_ProfileResults;
 
 		glm::vec4 m_SquareColor = { 0.0f, 0.0f, 1.0f, 1.0f };
+		glm::vec2 m_ViewportBounds[2];
 
 		int m_GizmoType = -1;
 
