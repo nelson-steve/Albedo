@@ -6,6 +6,8 @@
 
 #include "Albedo/Scene/SceneSerializer.h"
 #include "Albedo/Utils/PlatformUtils.h"
+#include "Platform/OpenGL/OpenGLFramebuffer.h"
+
 
 #include "ImGuizmo.h"
 
@@ -26,6 +28,11 @@ namespace Albedo {
 		m_Texture1 = Texture2D::Create("TextureSample6.png");
 
 		FramebufferSpecification fbSpec;
+		fbSpec.Attachments = {
+			FramebufferTextureFormat::RGBA8,
+			FramebufferTextureFormat::RGBA8,
+			FramebufferTextureFormat::Depth
+		};
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_Framebuffer = Framebuffer::Create(fbSpec);
@@ -317,7 +324,7 @@ namespace Albedo {
 			//	m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
 			//}
 
-			uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+			uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(1);
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			// Gizmos

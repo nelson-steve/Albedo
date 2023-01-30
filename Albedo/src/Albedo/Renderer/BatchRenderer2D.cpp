@@ -50,7 +50,7 @@ namespace Albedo {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float2, "a_TexCoord" }
-			});
+		});
 		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
 
 		s_RendererData.QuadVertexBufferBase = new QuadVertex[s_RendererData.MaxVertices];
