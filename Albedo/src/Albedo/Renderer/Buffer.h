@@ -36,8 +36,8 @@ namespace Albedo {
 	{
 		std::string Name;
 		ShaderDataType Type;
-		unsigned int Size;
-		unsigned int Offset;
+		uint32_t Size;
+		uint32_t Offset;
 		bool Normalized;
 
 		BufferElement(){}

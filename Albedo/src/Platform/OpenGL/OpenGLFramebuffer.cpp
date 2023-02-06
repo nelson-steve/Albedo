@@ -35,7 +35,12 @@ namespace Albedo {
 			}
 			else
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+				if (false && format == GL_RED_INTEGER)
+				{
+					int value = -1;
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_INT, 1, 1, 0, format, GL_INT, (void *) & value);
+				}
+				else glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -77,6 +82,19 @@ namespace Albedo {
 
 			return false;
 		}
+
+		static GLenum AlbedoFBTextureFormatToGL(FramebufferTextureFormat format)
+		{
+			switch (format)
+			{
+				case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
+				case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+			}
+
+			Albedo_CORE_ASSERT(false, "error");
+			return 0;
+		}
+
 
 	}
 
@@ -175,7 +193,7 @@ namespace Albedo {
 
 		if (m_ColorAttachments.size() > 1)
 		{
-			//Albedo_CORE_ASSERT(m_ColorAttachments.size() <= 4);
+			Albedo_CORE_ASSERT(m_ColorAttachments.size() <= 4, "error");
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -211,6 +229,15 @@ namespace Albedo {
 		m_Specification.Height = height;
 
 		Invalidate();
+	}
+
+	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
+	{
+		Albedo_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "ERROR: Index out of range");
+
+		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
+		//glClearTexImage(m_ColorAttachments[attachmentIndex], 0, Utils::AlbedoFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+		glClearBufferiv(GL_COLOR, attachmentIndex, &value);
 	}
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)

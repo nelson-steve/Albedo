@@ -8,7 +8,6 @@
 #include "Albedo/Utils/PlatformUtils.h"
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 
-
 #include "ImGuizmo.h"
 
 #include "Albedo/Math/Math.h"
@@ -125,6 +124,11 @@ namespace Albedo {
 		RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 		RenderCommand::Clear();
 
+		m_Framebuffer->ClearAttachment(1, -1);
+
+		// Update scene
+		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+
 		{
 			Albedo_PROFILE_FUNCTION("Render Draw");
 
@@ -165,9 +169,6 @@ namespace Albedo {
 			#endif // !1
 
 			//BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
-
-			// Update scene
-			m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_ViewportBounds[0].x;
@@ -482,17 +483,29 @@ namespace Albedo {
 
 			// Gizmos
 			case Key::Q:
-				m_GizmoType = -1;
+			{
+				if (!ImGuizmo::IsUsing()) 
+					m_GizmoType = -1;
 				break;
+			}
 			case Key::W:
-				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
 				break;
+			}
 			case Key::E:
-				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_GizmoType = ImGuizmo::OPERATION::ROTATE;
 				break;
+			}
 			case Key::R:
-				m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			{
+				if (!ImGuizmo::IsUsing())
+					m_GizmoType = ImGuizmo::OPERATION::SCALE;
 				break;
+			}
 		}
 	}
 

@@ -17,6 +17,8 @@ namespace Albedo {
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
+		virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
+
 		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) override;
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { Albedo_CORE_ASSERT(index < m_ColorAttachments.size(), "index out of range"); return m_ColorAttachments[index]; }
