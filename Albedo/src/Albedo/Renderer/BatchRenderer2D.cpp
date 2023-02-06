@@ -16,6 +16,8 @@ namespace Albedo {
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
 		// TODO: texid
+
+		int EntityID;
 	};
 
 
@@ -49,7 +51,8 @@ namespace Albedo {
 		s_RendererData.QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
-			{ ShaderDataType::Float2, "a_TexCoord" }
+			{ ShaderDataType::Float2, "a_TexCoord" },
+			{ ShaderDataType::Int , "a_EntityID" }
 		});
 		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
 
@@ -172,7 +175,7 @@ namespace Albedo {
 		DrawQuad(transform, color);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		constexpr size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
@@ -187,6 +190,7 @@ namespace Albedo {
 			s_RendererData.QuadVertexBufferPtr->Position = transform * s_RendererData.QuadVertexPositions[i];
 			s_RendererData.QuadVertexBufferPtr->Color = color;
 			s_RendererData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			s_RendererData.QuadVertexBufferPtr->EntityID = entityID;
 			s_RendererData.QuadVertexBufferPtr++;
 		}
 
@@ -238,7 +242,7 @@ namespace Albedo {
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		s_RendererData.TextureShader->SetUniformFloat4("u_Color", tintColor);
 		s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", tilingFactor);
@@ -291,6 +295,11 @@ namespace Albedo {
 
 		s_RendererData.QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
+	}
+
+	void BatchRenderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		DrawQuad(transform, src.Color, entityID);
 	}
 
 }

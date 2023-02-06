@@ -80,7 +80,7 @@ namespace Albedo {
 			{
 				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
-				BatchRenderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+				BatchRenderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 			}
 
 			BatchRenderer2D::EndScene();
@@ -96,7 +96,7 @@ namespace Albedo {
 		{
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
-			BatchRenderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+			BatchRenderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 		}
 
 		BatchRenderer2D::EndScene();

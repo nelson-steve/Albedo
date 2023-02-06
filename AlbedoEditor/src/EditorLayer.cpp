@@ -182,6 +182,7 @@ namespace Albedo {
 			{
 				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
 				Albedo_Core_WARN("Pixel data = {0}", pixelData);
+				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
 			}
 
 			//BatchRenderer2D::EndScene();
@@ -275,7 +276,12 @@ namespace Albedo {
 
 			m_SceneHierarchyPanel.OnImGuiRender();
 
-			ImGui::Begin("Settings");
+			ImGui::Begin("Stats");
+
+			std::string name = "None";
+			if (m_HoveredEntity)
+				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
+			ImGui::Text("Hovered Entity: %s", name.c_str());
 			/*
 			auto stats = Renderer2D::GetStats();
 			ImGui::Text("Renderer2D Stats:");
