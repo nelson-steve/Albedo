@@ -25,6 +25,7 @@ namespace Albedo {
 		void NewScene();
 		void OpenScene();
 		void SaveSceneAs();
+		void OpenScene(const std::filesystem::path& path);
 	private:
 		OrthographicCameraController m_CameraController;
 
