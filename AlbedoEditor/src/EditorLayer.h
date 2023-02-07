@@ -2,6 +2,7 @@
 
 #include "Albedo.h"
 #include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ContentBrowserPanel.h"
 #include "Albedo/Cameras/EditorCamera.h"
 
 namespace Albedo {
@@ -60,6 +61,7 @@ namespace Albedo {
 		int m_GizmoType = -1;
 
 		SceneHierarchyPanel m_SceneHierarchyPanel;
+		ContentBrowserPanel m_ContentBrowserPanel;
 
 	};
 }
