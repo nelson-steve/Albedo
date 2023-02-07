@@ -280,7 +280,7 @@ namespace Albedo {
 
 			std::string name = "None";
 			if (m_HoveredEntity)
-				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
+				name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
 			/*
 			auto stats = Renderer2D::GetStats();
@@ -447,6 +447,7 @@ namespace Albedo {
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
 	}
 
 	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -507,6 +508,16 @@ namespace Albedo {
 				break;
 			}
 		}
+	}
+
+	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		if (e.GetMouseButton() == Mouse::ButtonLeft)
+		{
+			if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
+				m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+		}
+		return false;
 	}
 
 	void EditorLayer::NewScene()
