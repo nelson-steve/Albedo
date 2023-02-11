@@ -2,6 +2,8 @@
 
 #include "Albedo/Renderer/BatchRenderer2D.h"
 
+#include "Texture.h"
+
 #include "Albedo/Renderer/VertexArray.h"
 #include "Albedo/Renderer/Shader.h"
 #include "Albedo/Renderer/RenderCommand.h"
@@ -41,7 +43,7 @@ namespace Albedo {
 
 	static Renderer2DData s_RendererData;
 
-	void BatchRenderer2D::Init()
+	void Renderer2D::Init()
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -93,12 +95,12 @@ namespace Albedo {
 		s_RendererData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
-	void BatchRenderer2D::Shutdown()
+	void Renderer2D::Shutdown()
 	{
 		Albedo_PROFILE_FUNCTION();
 	}
 
-	void BatchRenderer2D::BeginScene(const OrthographicCamera& camera)
+	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -109,7 +111,7 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 	}
 
-	void BatchRenderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
+	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -122,7 +124,7 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 	}
 
-	void BatchRenderer2D::BeginScene(const EditorCamera& camera)
+	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
 		glm::mat4 viewProj = camera.GetViewProjection();
 
@@ -135,7 +137,7 @@ namespace Albedo {
 		//StartBatch();
 	}
 
-	void BatchRenderer2D::EndScene()
+	void Renderer2D::EndScene()
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -145,7 +147,7 @@ namespace Albedo {
 		Flush();
 	}
 
-	void BatchRenderer2D::FlushAndReset()
+	void Renderer2D::FlushAndReset()
 	{
 		EndScene();
 
@@ -153,7 +155,7 @@ namespace Albedo {
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 	}
 
-	void BatchRenderer2D::Flush()
+	void Renderer2D::Flush()
 	{
 		if (s_RendererData.QuadIndexCount == 0)
 			return; // Nothing to draw
@@ -161,12 +163,12 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray, s_RendererData.QuadIndexCount);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, color);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		Albedo_PROFILE_FUNCTION();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
@@ -175,7 +177,7 @@ namespace Albedo {
 		DrawQuad(transform, color);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		constexpr size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
@@ -227,12 +229,12 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);*/
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -242,7 +244,7 @@ namespace Albedo {
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		s_RendererData.TextureShader->SetUniformFloat4("u_Color", tintColor);
 		s_RendererData.TextureShader->SetUniformFloat("u_TilingFactor", tilingFactor);
@@ -254,12 +256,12 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -275,12 +277,12 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -297,7 +299,7 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
 	}
 
-	void BatchRenderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
 		DrawQuad(transform, src.Color, entityID);
 	}
@@ -338,12 +340,12 @@ namespace Albedo {
 
 		glm::vec4 QuadVertexPositions[4];
 
-		BatchRenderer2D::Statistics Stats;
+		Renderer2D::Statistics Stats;
 	};
 
 	static Renderer2DData s_RendererData;
 
-	void BatchRenderer2D::Init()
+	void Renderer2D::Init()
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -402,12 +404,12 @@ namespace Albedo {
 		s_RendererData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 
-	void BatchRenderer2D::Shutdown()
+	void Renderer2D::Shutdown()
 	{
 		Albedo_PROFILE_FUNCTION();
 	}
 
-	void BatchRenderer2D::BeginScene(const OrthographicCamera& camera)
+	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -420,7 +422,7 @@ namespace Albedo {
 		s_RendererData.TextureSlotIndex = 1;
 	}
 
-	void BatchRenderer2D::EndScene()
+	void Renderer2D::EndScene()
 	{
 Albedo_PROFILE_FUNCTION();
 
@@ -430,7 +432,7 @@ Albedo_PROFILE_FUNCTION();
 		Flush();
 	}
 
-	void BatchRenderer2D::FlushAndReset()
+	void Renderer2D::FlushAndReset()
 	{
 		EndScene();
 
@@ -440,7 +442,7 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.TextureSlotIndex = 1;
 	}
 
-	void BatchRenderer2D::Flush()
+	void Renderer2D::Flush()
 	{
 		// Bind textures
 		for (uint32_t i = 0; i < s_RendererData.TextureSlotIndex; i++)
@@ -452,12 +454,12 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.Stats.DrawCalls++;
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, color);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 Albedo_PROFILE_FUNCTION();
 
@@ -503,12 +505,12 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.Stats.QuadCount++;
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 Albedo_PROFILE_FUNCTION();
 
@@ -570,12 +572,12 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.Stats.QuadCount++;
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 Albedo_PROFILE_FUNCTION();
 
@@ -622,12 +624,12 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.Stats.QuadCount++;
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, tintColor);
 	}
 
-	void BatchRenderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		Albedo_PROFILE_FUNCTION();
 
@@ -690,12 +692,12 @@ Albedo_PROFILE_FUNCTION();
 		s_RendererData.Stats.QuadCount++;
 	}
 
-	void BatchRenderer2D::ResetStats()
+	void Renderer2D::ResetStats()
 	{
 		memset(&s_RendererData.Stats, 0, sizeof(Statistics));
 	}
 
-	BatchRenderer2D::Statistics BatchRenderer2D::GetStats()
+	Renderer2D::Statistics Renderer2D::GetStats()
 	{
 		return s_RendererData.Stats;
 	}

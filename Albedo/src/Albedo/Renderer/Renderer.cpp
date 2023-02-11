@@ -14,7 +14,7 @@ namespace Albedo {
 		Albedo_PROFILE_FUNCTION();
 		RenderCommand::Init();
 	#ifdef BATCH
-		BatchRenderer2D::Init();
+		Renderer2D::Init();
 	#endif
 
 	#ifndef BATCH
@@ -27,7 +27,7 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		#ifdef BATCH
-		BatchRenderer2D::Shutdown();
+		Renderer2D::Shutdown();
 		#endif
 
 		#ifndef BATCH

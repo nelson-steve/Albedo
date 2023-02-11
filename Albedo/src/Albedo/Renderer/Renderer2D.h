@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "Albedo/Cameras/OrthographicCamera.h"
 #include "Texture.h"
 
@@ -30,3 +32,5 @@ namespace Albedo {
 	};
 
 }
+
+#endif

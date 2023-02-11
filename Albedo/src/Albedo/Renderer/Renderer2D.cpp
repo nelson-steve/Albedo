@@ -1,5 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 
+#if 0
+
 #include "Albedo/Renderer/Renderer2D.h"
 
 #include "Albedo/Renderer/VertexArray.h"
@@ -181,3 +183,5 @@ namespace Albedo {
 		s_RendererData->QuadVertexArray->Bind();
 	}
 }
+
+#endif
