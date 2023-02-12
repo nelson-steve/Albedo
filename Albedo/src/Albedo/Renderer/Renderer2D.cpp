@@ -17,7 +17,8 @@ namespace Albedo {
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
-		// TODO: texid
+		
+		int TexID;
 
 		int EntityID;
 	};
@@ -33,6 +34,9 @@ namespace Albedo {
 		Ref<VertexBuffer> QuadVertexBuffer;
 		Ref<Shader> TextureShader;
 		Ref<Texture2D> WhiteTexture;
+
+		uint32_t TexIndex = 0;
+		std::array<Ref<Texture2D>, 32> textureSlots;
 
 		uint32_t QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
@@ -52,9 +56,10 @@ namespace Albedo {
 		s_RendererData.QuadVertexBuffer = VertexBuffer::Create(s_RendererData.MaxVertices * sizeof(QuadVertex));
 		s_RendererData.QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" },
+			{ ShaderDataType::Float4, "a_Color"	   },
 			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Int , "a_EntityID" }
+			{ ShaderDataType::Int,	  "a_TexID"    },
+			{ ShaderDataType::Int ,	  "a_EntityID" }
 		});
 		s_RendererData.QuadVertexArray->AddVertexBuffer(s_RendererData.QuadVertexBuffer);
 
@@ -85,9 +90,17 @@ namespace Albedo {
 		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 		s_RendererData.WhiteTexture->Bind();
 
+		int32_t samplers[32];
+
+		for (int i = 0; i < 32; i++)
+		{
+			samplers[i] = i;
+		}
+
 		s_RendererData.TextureShader = Shader::Create("Assets/BatchTextureShader.glsl");
 		s_RendererData.TextureShader->Bind();
-		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
+		s_RendererData.TextureShader->SetUniformIntArray("u_Textures", samplers, 32);
+		//s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
 
 		s_RendererData.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		s_RendererData.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
@@ -109,6 +122,8 @@ namespace Albedo {
 
 		s_RendererData.QuadIndexCount = 0;
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
+
+		s_RendererData.TexIndex = 1;
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -122,6 +137,8 @@ namespace Albedo {
 
 		s_RendererData.QuadIndexCount = 0;
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
+
+		s_RendererData.TexIndex = 1;
 	}
 
 	void Renderer2D::BeginScene(const EditorCamera& camera)
@@ -134,6 +151,8 @@ namespace Albedo {
 		s_RendererData.QuadIndexCount = 0;
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;
 
+		s_RendererData.TexIndex = 1;
+
 		//StartBatch();
 	}
 
@@ -141,14 +160,17 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 
-		uint32_t* i = nullptr;
-
-		uint32_t dataSize = (uint8_t*)s_RendererData.QuadVertexBufferPtr - (uint8_t*)i;
-		
-		dataSize = (uint8_t*)s_RendererData.QuadVertexBufferBase - (uint8_t*)i;
-
-		dataSize = (uint8_t*)s_RendererData.QuadVertexBufferPtr - (uint8_t*)s_RendererData.QuadVertexBufferBase;
+		uint32_t dataSize = (uint8_t*)s_RendererData.QuadVertexBufferPtr - (uint8_t*)s_RendererData.QuadVertexBufferBase;
 		s_RendererData.QuadVertexBuffer->SetData(s_RendererData.QuadVertexBufferBase, dataSize);
+
+		for (int i = 0; i < s_RendererData.TexIndex; i++)
+		{
+			if (s_RendererData.textureSlots[i])
+			{
+				s_RendererData.textureSlots[i]->Bind(i);
+
+			}
+		}
 
 		Flush();
 	}
@@ -230,12 +252,26 @@ namespace Albedo {
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
-		texture->Bind();
-		s_RendererData.TextureShader->Bind();
-		s_RendererData.TextureShader->SetUniformInt1("u_Texture", 0);
+		int textureIndex = 0;
+
+		for (int i = 1; i < s_RendererData.TexIndex; i++)
+		{
+			if (*s_RendererData.textureSlots[i] == *texture)
+			{
+				textureIndex = i;
+				break;
+			}
+		}
+
+		if (textureIndex == 0)
+		{
+			textureIndex = s_RendererData.TexIndex;
+			s_RendererData.textureSlots[s_RendererData.TexIndex] = texture;
+			s_RendererData.TexIndex++;
+		}
 
 		constexpr size_t quadVertexCount = 4;
-		const float textureIndex = 0.0f; // White Texture
+		//const float textureIndex = 0.0f; // White Texture
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		//const float tilingFactor = 1.0f;
 
@@ -247,6 +283,7 @@ namespace Albedo {
 			s_RendererData.QuadVertexBufferPtr->Position = transform * s_RendererData.QuadVertexPositions[i];
 			s_RendererData.QuadVertexBufferPtr->Color = tintColor;
 			s_RendererData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			s_RendererData.QuadVertexBufferPtr->TexID = textureIndex;
 			s_RendererData.QuadVertexBufferPtr->EntityID = entityID;
 			s_RendererData.QuadVertexBufferPtr++;
 		}

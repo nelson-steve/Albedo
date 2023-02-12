@@ -165,12 +165,6 @@ namespace Albedo {
 		Albedo_PROFILE_FUNCTION();
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, m_TextureID);
-		//glBindTextureUnit(slot, m_TextureID);
-		
-		//glBindTexture(GL_TEXTURE_2D, m_TextureID);
-		//glActiveTexture(GL_TEXTURE0 + slot);
-	//	glBindTextureUnit(slot, m_TextureID);
-		//glBindTexture(slot, m_TextureID);
 	}
 
 	void OpenGLTexture2D::Unbind() const
