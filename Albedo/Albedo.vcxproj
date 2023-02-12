@@ -583,7 +583,6 @@
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Math\Math.h" />
-    <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
     <ClInclude Include="src\Albedo\Cameras\Camera.h" />
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h" />
@@ -628,7 +627,6 @@
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
-    <ClCompile Include="src\Albedo\Renderer\BatchRenderer2D.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />

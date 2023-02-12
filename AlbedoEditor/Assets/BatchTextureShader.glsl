@@ -36,8 +36,8 @@ uniform sampler2D u_Texture;
 
 void main()
 {
-	//color = texture(u_Texture, v_TexCoord * u_TilingFactor) * u_Color;
-	color = v_Color;
+	color = texture(u_Texture, v_TexCoord);
+	//color = v_Color;
 
 	color2 = v_EntityID;
 }

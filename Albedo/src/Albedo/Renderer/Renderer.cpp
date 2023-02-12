@@ -2,7 +2,6 @@
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Albedo/Renderer/BatchRenderer2D.h"
 #include "Albedo/Renderer/Renderer2D.h"
 
 namespace Albedo {

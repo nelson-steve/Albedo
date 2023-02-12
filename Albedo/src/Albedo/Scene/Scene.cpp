@@ -4,7 +4,7 @@
 #include "Entity.h"
 
 #include "Components.h"
-#include "Albedo/Renderer/BatchRenderer2D.h"
+#include "Albedo/Renderer/Renderer2D.h"
 
 #include <glm/glm.hpp>
 
@@ -91,12 +91,15 @@ namespace Albedo {
 	{
 		Renderer2D::BeginScene(camera);
 
+		Ref<Texture2D> texture = Texture2D::Create("TextureSample5.png");
+
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 		for (auto entity : group)
 		{
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
-			Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			Renderer2D::DrawSprite(transform.GetTransform(), sprite, texture, (int)entity);
+			//Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 		}
 
 		Renderer2D::EndScene();

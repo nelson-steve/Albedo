@@ -1386,9 +1386,6 @@
     <ClInclude Include="src\Albedo\Layers\LayerStack.h">
       <Filter>src\Albedo\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\BatchRenderer2D.h">
-      <Filter>src\Albedo\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1506,9 +1503,6 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp">
       <Filter>src\Albedo\Layers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\BatchRenderer2D.cpp">
-      <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>
