@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Albedo/Renderer/Renderer2D.h"
+#include "Albedo/Renderer/Renderer3D.h"
 
 namespace Albedo {
 
@@ -13,7 +14,8 @@ namespace Albedo {
 		Albedo_PROFILE_FUNCTION();
 		RenderCommand::Init();
 	#ifdef BATCH
-		Renderer2D::Init();
+		//Renderer2D::Init();
+		Renderer3D::Init();
 	#endif
 
 	#ifndef BATCH
@@ -26,7 +28,8 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		#ifdef BATCH
-		Renderer2D::Shutdown();
+		//Renderer2D::Shutdown();
+		Renderer3D::Shutdown();
 		#endif
 
 		#ifndef BATCH

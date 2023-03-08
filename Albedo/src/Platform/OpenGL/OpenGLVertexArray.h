@@ -16,14 +16,10 @@ namespace Albedo {
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
 		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
 
-		virtual inline const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const
-		{ 
-			return m_VertexBuffers; 
-		}
-		virtual inline const Ref<IndexBuffer>& GetIndexBuffer() const
-		{
-			return m_IndexBuffer;
-		}
+		virtual inline const uint32_t GetRendererID() const override { return m_RendererID; }
+
+		virtual inline const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
+		virtual inline const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_VertexBufferIndex = 0;

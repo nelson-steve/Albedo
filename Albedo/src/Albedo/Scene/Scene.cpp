@@ -5,6 +5,7 @@
 
 #include "Components.h"
 #include "Albedo/Renderer/Renderer2D.h"
+#include "Albedo/Renderer/Renderer3D.h"
 
 #include <glm/glm.hpp>
 
@@ -87,19 +88,37 @@ namespace Albedo {
 		}
 	}
 
-	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	void Scene::OnUpdateEditor(EditorCamera& camera)
 	{
-		Renderer2D::BeginScene(camera);
+		Renderer3D::BeginScene(camera);
+		//Renderer3D::DrawCube({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
+		//Renderer3D::DrawCube({ 0.0f, 0.0f, -5.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+		float value = 5.0f;
+		for (float y = -value; y < value; y += 0.5f)
+		{
+			for (float x = -value; x < value; x += 0.5f)
+			{
+				Renderer3D::DrawCube({ x, 0.0f, y }, { 0.2f, 0.2f, 0.2f }, { (x / value + 1) / 2 , (y / value + 1) / 2, (y / value + 1) / 2, 1.0f });
+				//Renderer3D::DrawCube({ x, y, 1.0f }, { 0.2f, 0.2f, 0.2f }, { (y / value + 1) / 2 , (x / value + 1) / 2, (y / value + 1) / 2, 1.0f });
+				//Renderer3D::DrawCube({ x, y, 2.0f }, { 0.2f, 0.2f, 0.2f }, { (x / value + 1) / 2 , (y / value + 1) / 2, (x / value + 1) / 2, 1.0f });
+			}
+		}
+		Renderer3D::DrawCube({ 0.0f, -5.0f, 0.0f }, { 100.0f, 1.0f, 100.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+		Renderer3D::EndScene(camera);
+
+		//Renderer3D::Init();
+		//Renderer3D::BeginScene(camera);
+		//Renderer3D::DrawCube({ 5.0f, 5.0f, 0.0f }, { 0.5f, 0.2f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
+		//Renderer3D::EndScene();
+
+
 
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+		
 		for (auto entity : group)
 		{
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-			Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 		}
-
-		Renderer2D::EndScene();
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

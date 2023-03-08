@@ -20,4 +20,9 @@
     </ClCompile>
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\CubeShader.glsl" />
+    <None Include="Assets\Cubemap.glsl" />
+    <None Include="Assets\Skybox.glsl" />
+  </ItemGroup>
 </Project>

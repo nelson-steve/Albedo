@@ -58,7 +58,7 @@ namespace Albedo {
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		int width, height, nrChannels;
-		stbi_set_flip_vertically_on_load(1);
+		stbi_set_flip_vertically_on_load(0);
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
@@ -140,6 +140,36 @@ namespace Albedo {
 		stbi_image_free(data);
 	#endif
 	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const std::vector<std::string> faces)
+	{
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
+
+		int width, height, nrComponents;
+		stbi_set_flip_vertically_on_load(0);
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				stbi_image_free(data);
+			}
+			else
+			{
+				Albedo_Core_ERROR("Cubemap texture failed to load at path: ", faces[i]);
+				//std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+				stbi_image_free(data);
+			}
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	}
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		Albedo_PROFILE_FUNCTION();

@@ -11,8 +11,8 @@ namespace Albedo {
 	class OpenGLShader : public Shader
 	{
 	public:
-		OpenGLShader::OpenGLShader(const std::string& filePath);
 		OpenGLShader(const std::string& name, const char* vertexSrc, const char* fragmentSrc);
+		OpenGLShader(const std::string& filePath);
 		~OpenGLShader();
 
 		virtual void Bind() override;

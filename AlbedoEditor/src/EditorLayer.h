@@ -64,5 +64,7 @@ namespace Albedo {
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		ContentBrowserPanel m_ContentBrowserPanel;
 
+		float m_PrevTime = 0.0f, m_CurrentTime = 0.0f, m_ElapsedTime, m_FPS = 0.0f;
+
 	};
 }

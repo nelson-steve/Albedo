@@ -1469,6 +1469,10 @@
     </ClInclude>
     <ClInclude Include="src\Albedo\Math\Math.h" />
     <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
+    <ClInclude Include="src\Albedo\Renderer\Renderer3D.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLCubemap.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLSkybox.h" />
+    <ClInclude Include="src\Albedo\Renderer\BatchRenderer3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1581,5 +1585,9 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Renderer3D.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLCubemap.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLSkybox.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\BatchRenderer3D.cpp" />
   </ItemGroup>
 </Project>

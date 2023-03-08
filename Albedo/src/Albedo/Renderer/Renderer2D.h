@@ -36,8 +36,8 @@ namespace Albedo {
 		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-		static void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
-		static void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, const Ref<Texture2D> texture, int entityID);
+		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, const Ref<Texture2D> texture, int entityID);
 	};
 
 }

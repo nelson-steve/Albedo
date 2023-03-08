@@ -143,6 +143,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Albedo\Renderer\BatchRenderer3D.h" />
     <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="dependencies\glm\glm\common.hpp" />
     <ClInclude Include="dependencies\glm\glm\detail\_features.hpp" />
@@ -590,6 +591,7 @@
     <ClInclude Include="src\Albedo\Renderer\RenderCommand.h" />
     <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
     <ClInclude Include="src\Albedo\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Albedo\Renderer\Renderer3D.h" />
     <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Albedo\Renderer\Shader.h" />
     <ClInclude Include="src\Albedo\Renderer\Texture.h" />
@@ -604,9 +606,11 @@
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLCubemap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLSkybox.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
@@ -616,6 +620,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\BatchRenderer3D.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLCubemap.cpp" />
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
@@ -632,6 +638,7 @@
     <ClCompile Include="src\Albedo\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Renderer2D.cpp" />
+    <ClCompile Include="src\Albedo\Renderer\Renderer3D.cpp" />
     <ClCompile Include="src\Albedo\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Shader.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Texture.cpp" />
@@ -649,6 +656,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLSkybox.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />

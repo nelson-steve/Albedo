@@ -103,6 +103,10 @@ namespace Albedo {
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
+		//m_CurrentTime = ts.GetTimeMillis() - m_ElapsedTime;
+		//m_ElapsedTime = ts.GetTimeMillis();
+		//m_FPS = 1.0f / m_CurrentTime;
+
 		Albedo_PROFILE_FUNCTION();
 
 		// Resize
@@ -129,7 +133,7 @@ namespace Albedo {
 		m_Framebuffer->ClearAttachment(1, -1);
 
 		// Update scene
-		m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+		m_ActiveScene->OnUpdateEditor(m_EditorCamera);
 
 		{
 			Albedo_PROFILE_FUNCTION("Render Draw");
@@ -285,9 +289,11 @@ namespace Albedo {
 			if (m_HoveredEntity)
 				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
+			
+			//ImGui::Text("Time: %f", m_CurrentTime);
+			//ImGui::Text("FPS: %f", m_FPS);
 			/*
 			auto stats = Renderer2D::GetStats();
-			ImGui::Text("Renderer2D Stats:");
 			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 			ImGui::Text("Quads: %d", stats.QuadCount);
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
