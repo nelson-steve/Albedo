@@ -25,20 +25,48 @@ namespace Albedo {
 	void EditorLayer::OnAttach()
 	{
 		Albedo_PROFILE_FUNCTION();
-		m_Texture = Texture2D::Create("TextureSample5.png");
-		m_Texture1 = Texture2D::Create("TextureSample6.png");
+		//m_Texture = Texture2D::Create("TextureSample5.png");
+		//m_Texture1 = Texture2D::Create("TextureSample6.png");
+
+		m_ActiveScene = std::make_shared<Scene>();
+
+		Material* skybox = new Material();
+		skybox->Init(MaterialType::Skybox);
+		skybox->AddShader("Assets/SkyboxShader.glsl");
+		std::vector<std::string> skyboxTextures
+		{
+			"Assets/right.jpg",
+			"Assets/left.jpg",
+			"Assets/top.jpg",
+			"Assets/bottom.jpg",
+			"Assets/front.jpg",
+			"Assets/back.jpg"
+		};
+		skybox->AddSkyboxTexture(skyboxTextures);
+
+		m_ActiveScene->GetMaterialsInstance().push_back(skybox);
+
+		Material* cube = new Material();
+		cube->Init(MaterialType::Cube);
+		cube->AddShader("Assets/CubeShader.glsl");
+		cube->AddTexture("TextureSample5.png");
+		cube->ChangePosition(glm::vec3(1.0f, 0.0f, 0.0f));
+		cube->ChangeColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		cube->ChangeScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+		m_ActiveScene->GetMaterialsInstance().push_back(cube);
+
+		m_ActiveScene->InitScene();
 
 		FramebufferSpecification fbSpec;
-		fbSpec.Attachments = { 
-			FramebufferTextureFormat::RGBA8, 
-			FramebufferTextureFormat::RED_INTEGER, 
-			FramebufferTextureFormat::Depth 
+		fbSpec.Attachments = {
+			FramebufferTextureFormat::RGBA8,
+			FramebufferTextureFormat::RED_INTEGER,
+			FramebufferTextureFormat::Depth
 		};
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_Framebuffer = Framebuffer::Create(fbSpec);
-
-		m_ActiveScene = std::make_shared<Scene>();
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 

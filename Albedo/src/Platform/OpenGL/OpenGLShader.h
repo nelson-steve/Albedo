@@ -15,7 +15,7 @@ namespace Albedo {
 		OpenGLShader(const std::string& filePath);
 		~OpenGLShader();
 
-		virtual void Bind() override;
+		virtual void Bind()	  override;
 		virtual void Unbind() override;
 
 		const std::string& GetName() const { return m_Name; }
@@ -24,7 +24,7 @@ namespace Albedo {
 
 		virtual void SetUniformIntArray(const std::string& name, int* values, uint32_t count) override;
 
-		virtual void SetUniformFloat(const std::string& name, float value) override;
+		virtual void SetUniformFloat (const std::string& name, float value)			   override;
 		virtual void SetUniformFloat2(const std::string& name, const glm::vec2& value) override;
 		virtual void SetUniformFloat3(const std::string& name, const glm::vec3& value) override;
 		virtual void SetUniformFloat4(const std::string& name, const glm::vec4& value) override;
@@ -38,7 +38,7 @@ namespace Albedo {
 
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 
-		void UploadUniformFloat(const std::string& name, float value);
+		void UploadUniformFloat (const std::string& name, float value);
 		void UploadUniformFloat2(const std::string& name, const glm::vec2& value);
 		void UploadUniformFloat3(const std::string& name, const glm::vec3& value);
 		void UploadUniformFloat4(const std::string& name, const glm::vec4& value);

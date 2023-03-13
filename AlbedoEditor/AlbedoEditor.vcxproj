@@ -149,11 +149,6 @@
       <Project>{2C2458A7-18C6-827D-0181-96D1EDC109CE}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Assets\Cubemap.glsl" />
-    <None Include="Assets\CubeShader.glsl" />
-    <None Include="Assets\Skybox.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

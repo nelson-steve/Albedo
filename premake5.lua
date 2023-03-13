@@ -30,12 +30,14 @@ IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
+IncludeDir["assimp"]  = "%{wks.location}/Albedo/dependencies/assimp/include"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
 	include "Albedo/dependencies/Glad"
 	include "Albedo/dependencies/imgui"
 	include "Albedo/dependencies/yaml-cpp"
+	include "Albedo/dependencies/assimp"
 group ""
 
 project "Albedo"
@@ -44,6 +46,7 @@ project "Albedo"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
+
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -80,7 +83,8 @@ project "Albedo"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.assimp}"
 	}
 
 	links
@@ -89,6 +93,7 @@ project "Albedo"
 		"Glad",
 		"imgui",
 		"yaml-cpp",
+        "assimp",
 		"opengl32.lib"
 	}
 

@@ -36,7 +36,6 @@ namespace Albedo {
 		Albedo_PROFILE_FUNCTION();
 		glfwPollEvents();
 		m_GraphicsContext->SwapBuffers();
-		//glfwSwapBuffers(m_Window);
 	}
 	void WindowsWindow::SetVSync(bool enabled)
 	{

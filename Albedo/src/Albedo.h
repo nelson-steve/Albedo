@@ -23,6 +23,8 @@
 #include "Albedo/Renderer/Buffer.h"
 #include "Albedo/Renderer/VertexArray.h"
 
+#include "Albedo/Renderer/Material.h"
+
 #include "Albedo/Core/Core.h"
 
 #include "Albedo/Cameras/OrthographicCamera.h"

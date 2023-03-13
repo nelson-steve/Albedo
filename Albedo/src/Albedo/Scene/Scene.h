@@ -1,8 +1,9 @@
 #pragma once
 
-
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
+
+#include "Albedo/Renderer/Material.h"
 
 #include "entt.hpp"
 
@@ -16,6 +17,8 @@ namespace Albedo {
 		Scene();
 		~Scene();
 
+		void InitScene();
+
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
@@ -25,6 +28,9 @@ namespace Albedo {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
+
+		std::vector<Material*>& GetMaterialsInstance() { return m_Materials; }
+
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -35,6 +41,8 @@ namespace Albedo {
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
+
+		inline static std::vector<Material*> m_Materials;
 	};
 
 }

@@ -193,15 +193,15 @@
 		Albedo::RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 		Albedo::RenderCommand::Clear();
 
-		Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
-
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-		glm::vec3 pos(-0.5f, 0.0f, 0.0f);
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-
-		Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_BigColor);
-
-		Albedo::Renderer::EndScene();
+		//Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
+		//
+		//glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+		//glm::vec3 pos(-0.5f, 0.0f, 0.0f);
+		//glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+		//
+		//Albedo::Renderer::Submit(std::dynamic_pointer_cast<Albedo::OpenGLShader>(m_Shader), m_VertexArray, transform, m_BigColor);
+		//
+		//Albedo::Renderer::EndScene();
 
 		//Albedo::Renderer::BeginScene(m_CameraController.GetCamera());
 		//

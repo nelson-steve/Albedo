@@ -27,14 +27,14 @@ namespace Albedo {
 	}
 	Application::~Application() 
 	{
-		//Albedo_PROFILE_FUNCTION();
 		//Renderer::Shutdown();
 	}
 
 	void Application::OnEvent(Event& e)
 	{
-		Albedo_PROFILE_FUNCTION();
 		EventDispatcher dispatcher(e);
+		//TODO:Fix window closing on resize
+		 
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
 
@@ -100,12 +100,14 @@ namespace Albedo {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		Albedo_PROFILE_FUNCTION();
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{
 			m_Minimized = true;
 			return false;
 		}
+
+		auto x = e.GetWidth();
+		auto y = e.GetHeight();
 
 		m_Minimized = false;
 		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
@@ -115,13 +117,11 @@ namespace Albedo {
 
 	void Application::PushLayer(Layer* layer)
 	{
-		Albedo_PROFILE_FUNCTION();
 		m_LayerStack.PushLayer(layer);
 	}
 
 	void Application::PushOverlay(Layer* layer)
 	{
-		Albedo_PROFILE_FUNCTION();
 		m_LayerStack.PushOverlay(layer);
 	}
 }

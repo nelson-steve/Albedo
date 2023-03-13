@@ -2,33 +2,30 @@
 
 #include "RenderCommand.h"
 #include "Shader.h"
-#include "Albedo/Cameras/OrthographicCamera.h"
-#include "Platform/OpenGL/OpenGLShader.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Material.h"
+#include "Albedo/Cameras/EditorCamera.h"
 
 namespace Albedo {
+
 	class Renderer 
 	{
 	public:
 		static void Init();
+		static void InitMaterials(const std::vector<Material*>& materials);
+		static void Setup(const EditorCamera& camera, const Material& material);
+		static void Render(const Material& material);
 		static void Shutdown();
+
+		static void DrawModel();
 		static void OnWindowResize(uint32_t width, uint32_t height);
-		static void BeginScene(OrthographicCamera& camera);
-		static void EndScene();
-
-		static void Submit(const Ref<OpenGLShader>& shader, const Ref<OpenGLTexture2D>& texture,
-			const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color);
-		static void Submit(const Ref<OpenGLShader>& shader,
-			const Ref<VertexArray>& vertexArray, const glm::mat4& transform, glm::vec4& color);
-
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
-
 	private:
-		struct SceneData
-		{
-			glm::mat4 ProjectionViewMatrix;
-		};
+		static const std::vector<Material>& m_Materials;
 
-		static SceneData* s_SceneData;
+		inline static Ref<VertexArray> _VertexArray;
+		inline static Ref<VertexBuffer> _VertexBuffer;
+		inline static Ref<Shader> _Shader;
+		inline static Ref<Texture2D> _Texture;
 	};
+
 }

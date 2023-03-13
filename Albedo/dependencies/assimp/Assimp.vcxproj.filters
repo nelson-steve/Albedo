@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="code">
+      <UniqueIdentifier>{803E957C-6C75-960D-1562-7C100178120F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\Common">
+      <UniqueIdentifier>{B8FBBEBB-24B1-37B1-ADA5-3188195A2EB5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\assimp">
+      <UniqueIdentifier>{8526CE41-71F4-C147-5A88-326E46F59DAC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\Common\Importer.h">
+      <Filter>code\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="include\assimp\Importer.h">
+      <Filter>include\assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\assimp\postprocess.h">
+      <Filter>include\assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\assimp\scene.h">
+      <Filter>include\assimp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\Common\Importer.cpp">
+      <Filter>code\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="code\Common\scene.cpp">
+      <Filter>code\Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
