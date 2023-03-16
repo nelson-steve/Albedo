@@ -26,6 +26,8 @@ namespace Albedo {
 		inline static Ref<VertexBuffer> _VertexBuffer;
 		inline static Ref<Shader> _Shader;
 		inline static Ref<Texture2D> _Texture;
+
+		inline static glm::vec3 translations[100];
 	};
 
 }

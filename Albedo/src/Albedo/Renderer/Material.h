@@ -11,6 +11,10 @@ namespace Albedo {
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec4 Color = { 1.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
+		glm::vec4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float LineWidth = 1.0f;
+		glm::vec3 Point1 = { -0.5f, 0.0f, 0.0f };
+		glm::vec3 Point2 = {  0.5f, 0.0f, 0.0f };
 
 		std::string ShaderPath = "";
 		std::string TexturePath = "";
@@ -19,6 +23,7 @@ namespace Albedo {
 		uint32_t* IndexData;
 		Ref<VertexArray> VertexArray_;
 		Ref<VertexBuffer> VertexBuffer_;
+		Ref<IndexBuffer> IndexBuffer_;
 		Ref<Shader> Shader_;
 		Ref<Texture2D> Texture_;
 	};
@@ -50,7 +55,13 @@ namespace Albedo {
 		void AddIndexData();
 		void ChangePosition(glm::vec3& position) { m_MaterialData.Position = position; }
 		void ChangeColor(glm::vec4& color) { m_MaterialData.Color = color; }
+		void ChangeLightColor(glm::vec4& lightColor) { m_MaterialData.LightColor = lightColor; }
 		void ChangeScale(glm::vec3& scale) { m_MaterialData.Scale = scale; }
+		void ChangeLineWidth(float lineWidth) { m_MaterialData.LineWidth = lineWidth; }
+		void ChangePoint1(glm::vec3 p1) { m_MaterialData.Point1 = p1; }
+		void ChangePoint2(glm::vec3 p2) { m_MaterialData.Point2 = p2; }
+		void ChangeVisibility(bool show) { m_Show = show; }
+		void EnableTexture(bool enable) { m_TextureEnabled = enable; }
 
 		inline const std::string&				GetShaderPath()			const { return m_MaterialData.ShaderPath;			}
 		inline const std::string&				GetTexturePath()		const { return m_MaterialData.TexturePath;			}
@@ -64,11 +75,13 @@ namespace Albedo {
 		inline const Ref<Texture2D>				GetTexture()			const { return m_MaterialData.Texture_;				}
 		inline const MaterialType&				GetMaterialType()		const { return m_Type;								}
 		inline const MaterialData&				GetMaterialData()		const { return m_MaterialData;						}
+		inline const bool						Show()					const { return m_Show;								}
+		inline const bool						TextureEnabled()		const { return m_TextureEnabled;							}
 		// non const
 		inline		 MaterialData&				GetMaterialData()			  { return m_MaterialData;						}
 		inline		 Ref<VertexArray>			GetVertexArray()			  { return m_MaterialData.VertexArray_;			}
 		inline		 Ref<VertexBuffer>			GetVertexBuffer()			  { return m_MaterialData.VertexBuffer_;		}
-		inline		 Ref<Shader>				GetShader()					  { return this->m_MaterialData.Shader_;				}
+		inline		 Ref<Shader>				GetShader()					  { return this->m_MaterialData.Shader_;		}
 		inline		 Ref<Texture2D>				GetTexture()				  { return m_MaterialData.Texture_;				}
 
 		inline void Show(bool visibility) { m_Show = visibility; };
@@ -78,7 +91,8 @@ namespace Albedo {
 	private:
 		MaterialData m_MaterialData;
 		MaterialType m_Type;
-		bool m_Show;
+		bool m_Show = true;
+		bool m_TextureEnabled = false;
 	};
 
 }

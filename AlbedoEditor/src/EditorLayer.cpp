@@ -43,6 +43,7 @@ namespace Albedo {
 			"Assets/back.jpg"
 		};
 		skybox->AddSkyboxTexture(skyboxTextures);
+		skybox->ChangeVisibility(true);
 
 		m_ActiveScene->GetMaterialsInstance().push_back(skybox);
 
@@ -50,11 +51,40 @@ namespace Albedo {
 		cube->Init(MaterialType::Cube);
 		cube->AddShader("Assets/CubeShader.glsl");
 		cube->AddTexture("TextureSample5.png");
-		cube->ChangePosition(glm::vec3(1.0f, 0.0f, 0.0f));
+		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
 		cube->ChangeColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		cube->ChangeScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		float scale = 20.0f;
+		cube->ChangeScale(glm::vec3(scale, scale, scale));
+		cube->ChangeVisibility(true);
+		cube->EnableTexture(true);
 
 		m_ActiveScene->GetMaterialsInstance().push_back(cube);
+
+		Material* lightCube = new Material();
+		lightCube->Init(MaterialType::Cube);
+		lightCube->AddShader("Assets/CubeShader.glsl");
+		lightCube->ChangePosition(glm::vec3(0.0f, 2.0f, 0.0f));
+		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		scale = 2.0f;
+		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
+		lightCube->ChangeVisibility(true);
+		lightCube->EnableTexture(false);
+
+		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
+
+		Material* line = new Material();
+		line->Init(MaterialType::Line);
+		line->AddShader("Assets/LineShader.glsl");
+		line->ChangePosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+		line->ChangeColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		//scale = 1.0f;
+		//line->ChangeScale(glm::vec3(scale, scale, scale));
+		line->ChangeLineWidth(5.0f);
+		line->ChangePoint1({-0.5f, -0.5f, 0.0f});
+		line->ChangePoint2({0.5f, 0.5f, 0.0f});
+		line->ChangeVisibility(true);
+
+		//m_ActiveScene->GetMaterialsInstance().push_back(line);
 
 		m_ActiveScene->InitScene();
 

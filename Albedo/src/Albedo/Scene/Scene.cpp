@@ -99,8 +99,11 @@ namespace Albedo {
 		//for (Material* material : m_Materials)
 		for(Material* material: m_Materials)
 		{
-			Renderer::Setup(camera, (*material));
-			Renderer::Render(*material);
+			if (material->Show())
+			{
+				Renderer::Setup(camera, (*material));
+				Renderer::Render(*material);
+			}
 		}
 		//Renderer3D::RenderSkybox();
 		//Renderer3D::EndScene(camera);
@@ -138,7 +141,7 @@ namespace Albedo {
 		
 		for (auto entity : group)
 		{
-			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+			//auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 		}
 	}
 
