@@ -75,6 +75,50 @@ namespace Albedo {
 			 1.0f, -1.0f,  1.0f
 		};
 
+		float cubeVertices_[] = {
+	   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	   -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+	   -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+	   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	   -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	   -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+	   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	   -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+	   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	   -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		};
+
 		float cubeVertices[] = {
 			// positions  // texture Coords    // normals
 			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
@@ -241,10 +285,26 @@ namespace Albedo {
 				material->GetMaterialData().Shader_->SetUniformInt1("skybox", 0);
 				break;
 			}
+			case MaterialType::Light:
+			{
+				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
+				material->GetMaterialData().VertexArray_ = VertexArray::Create();
+				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
+				material->GetMaterialData().VertexBuffer_->SetLayout
+				({
+					{ShaderDataType::Float3, "a_Position"},
+					{ShaderDataType::Float2, "a_TexCoord"},
+					{ShaderDataType::Float3, "a_Normals"}
+					});
+				material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
+				material->GetMaterialData().Shader_->Bind();
+				break;
+			}
 			case MaterialType::Cube:
 			{
 				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
-				material->GetMaterialData().Texture_ = Texture2D::Create(material->GetTexturePath());
+				if(material->TextureEnabled() && material->GetMaterialData().TexturePath != "")
+					material->GetMaterialData().Texture_ = Texture2D::Create(material->GetTexturePath());
 				material->GetMaterialData().VertexArray_ = VertexArray::Create();
 				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
 				material->GetMaterialData().VertexBuffer_->SetLayout
@@ -309,20 +369,35 @@ namespace Albedo {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, material.GetMaterialData().Texture_->GetTextureID());
 		}
-		else if (material.GetMaterialType() == MaterialType::Cube)
+		else if (material.GetMaterialType() == MaterialType::Light)
 		{
 			material.GetMaterialData().Shader_->Bind();
 			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat4("u_Color", material.GetMaterialData().Color);
-			material.GetMaterialData().Shader_->SetUniformInt1("u_LightColor", material.TextureEnabled());
-			material.GetMaterialData().Shader_->SetUniformInt1("u_LightPos", material.GetMaterialData().Position);
+			material.GetMaterialData().Shader_->SetUniformFloat4("u_MaterialColor", material.GetMaterialData().Color);
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().LightPos)
+				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
+			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+
+			material.GetMaterialData().VertexArray_->Bind();
+		}
+		else if (material.GetMaterialType() == MaterialType::Cube)
+		{
+
+
+			material.GetMaterialData().Shader_->Bind();
+			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_MaterialColor", material.GetMaterialData().Color);
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_LightColor", material.GetMaterialData().LightColor);
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_LightPos", material.GetMaterialData().LightPos);
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().Position)
 				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
 			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 			material.GetMaterialData().Shader_->SetUniformInt1("u_TextureEnabled", material.TextureEnabled());
 
 			material.GetMaterialData().VertexArray_->Bind();
-			material.GetMaterialData().Texture_->Bind(0);
+			if(material.GetMaterialData().Texture_)
+				material.GetMaterialData().Texture_->Bind(0);
 		}
 		else if (material.GetMaterialType() == MaterialType::Line)
 		{
@@ -351,24 +426,15 @@ namespace Albedo {
 			glBindVertexArray(0);
 			glDepthFunc(GL_LESS);
 		}
-		else if (material.GetMaterialType() == MaterialType::Cube)
+		else if (material.GetMaterialType() == MaterialType::Light)
 		{
-			//glBindVertexArray(material.GetMaterialData().VertexArray_->GetRendererID());
-
 			material.GetMaterialData().VertexArray_->Bind();
 			glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
-			//RenderCommand::DrawIndexed(material.GetMaterialData().VertexArray_);
-			
-			//material.GetMaterialData().VertexArray_->Bind();
-			//glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100);
-			//glDrawElements(GL_TRIANGLES, 0, GL_UNSIGNED_INT, nullptr);
-			//glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr, 100);
-			//glDrawElementsInstanced();
-			//glBindVertexArray(material.GetMaterialData().VertexArray_->GetRendererID());
-			//glActiveTexture(GL_TEXTURE0);
-			//glBindTexture(GL_TEXTURE_2D, cubeTexture);
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
-			//glBindVertexArray(0);
+		}
+		else if (material.GetMaterialType() == MaterialType::Cube)
+		{
+			material.GetMaterialData().VertexArray_->Bind();
+			glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 		}
 		else if (material.GetMaterialType() == MaterialType::Line)
 		{

@@ -93,7 +93,7 @@ namespace Albedo {
 		}
 	}
 
-	void Scene::OnUpdateEditor(EditorCamera& camera)
+	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
 		//Renderer3D::BeginScene(camera);
 		//for (Material* material : m_Materials)

@@ -23,7 +23,7 @@ namespace Albedo {
 		void DestroyEntity(Entity entity);
 
 		void OnUpdateRuntime(Timestep ts);
-		void OnUpdateEditor(EditorCamera& camera);
+		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
@@ -43,6 +43,7 @@ namespace Albedo {
 		friend class SceneHierarchyPanel;
 
 		inline static std::vector<Material*> m_Materials;
+		float x = 0.001;
 	};
 
 }

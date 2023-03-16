@@ -9,9 +9,10 @@ namespace Albedo {
 	struct MaterialData
 	{
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
-		glm::vec4 Color = { 1.0f, 0.0f, 0.0f, 1.0f };
+		glm::vec4 Color = { 1.0f, 0.5f, 0.3f, 1.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 		glm::vec4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		glm::vec3 LightPos = { 0.0f, 3.0f, -10.0f };
 		float LineWidth = 1.0f;
 		glm::vec3 Point1 = { -0.5f, 0.0f, 0.0f };
 		glm::vec3 Point2 = {  0.5f, 0.0f, 0.0f };
@@ -32,6 +33,7 @@ namespace Albedo {
 	{
 		Skybox = 0,
 		Cube,
+		Light,
 		Model,
 		Sprite,
 		Sphere,
@@ -54,6 +56,7 @@ namespace Albedo {
 		void AddVertexData();
 		void AddIndexData();
 		void ChangePosition(glm::vec3& position) { m_MaterialData.Position = position; }
+		void ChangeLightPosition(glm::vec3& position) { m_MaterialData.LightPos = position; }
 		void ChangeColor(glm::vec4& color) { m_MaterialData.Color = color; }
 		void ChangeLightColor(glm::vec4& lightColor) { m_MaterialData.LightColor = lightColor; }
 		void ChangeScale(glm::vec3& scale) { m_MaterialData.Scale = scale; }
@@ -76,7 +79,7 @@ namespace Albedo {
 		inline const MaterialType&				GetMaterialType()		const { return m_Type;								}
 		inline const MaterialData&				GetMaterialData()		const { return m_MaterialData;						}
 		inline const bool						Show()					const { return m_Show;								}
-		inline const bool						TextureEnabled()		const { return m_TextureEnabled;							}
+		inline const bool						TextureEnabled()		const { return m_TextureEnabled;					}
 		// non const
 		inline		 MaterialData&				GetMaterialData()			  { return m_MaterialData;						}
 		inline		 Ref<VertexArray>			GetVertexArray()			  { return m_MaterialData.VertexArray_;			}
