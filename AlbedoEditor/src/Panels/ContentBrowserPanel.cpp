@@ -28,8 +28,8 @@ namespace Albedo {
 			}
 		}
 
-		static float padding = 16.0f;
-		static float thumbnailSize = 128.0f;
+		static float padding = 20.0f;
+		static float thumbnailSize = 35.0f;
 		float cellSize = thumbnailSize + padding;
 
 		float panelWidth = ImGui::GetContentRegionAvail().x;

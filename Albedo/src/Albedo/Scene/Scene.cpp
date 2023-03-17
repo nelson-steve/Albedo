@@ -20,7 +20,10 @@ namespace Albedo {
 
 	Scene::~Scene()
 	{
-
+		for (Material* material : m_Materials)
+		{
+			delete material;
+		}
 	}
 
 	void Scene::InitScene()
@@ -95,8 +98,6 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		//Renderer3D::BeginScene(camera);
-		//for (Material* material : m_Materials)
 		for(Material* material: m_Materials)
 		{
 			if (material->Show())
@@ -105,37 +106,22 @@ namespace Albedo {
 				Renderer::Render(*material);
 			}
 		}
-		//Renderer3D::RenderSkybox();
-		//Renderer3D::EndScene(camera);
-
-		//begin scene;
-		//for (begin end)
-		//{
-		//	materialSystem::CurrnentComponent().intantiate
-		//}
 
 #if 0
-		Renderer3D::BeginScene(camera);
-		//Renderer3D::DrawCube({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-		//Renderer3D::DrawCube({ 0.0f, 0.0f, -5.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-		float value = 5.0f;
-		for (float y = -value; y < value; y += 0.5f)
+		if (material->GetMaterialType() == MaterialType::Cube)
 		{
-			for (float x = -value; x < value; x += 0.5f)
+			float value = 100.0f;
+			for (float y = -value; y < value; y += 10.0f)
 			{
-				//Renderer3D::DrawCube({ x, 0.0f, y }, { 0.2f, 0.2f, 0.2f }, { (x / value + 1) / 2 , (y / value + 1) / 2, (y / value + 1) / 2, 1.0f });
-				//Renderer3D::DrawCube({ x, y, 1.0f }, { 0.2f, 0.2f, 0.2f }, { (y / value + 1) / 2 , (x / value + 1) / 2, (y / value + 1) / 2, 1.0f });
-				//Renderer3D::DrawCube({ x, y, 2.0f }, { 0.2f, 0.2f, 0.2f }, { (x / value + 1) / 2 , (y / value + 1) / 2, (x / value + 1) / 2, 1.0f });
+				for (float x = -value; x < value; x += 10.0f)
+				{
+					material->ChangePosition(glm::vec3(x, 0.0, y));
+
+					Renderer::Setup(camera, (*material));
+					Renderer::Render(*material);
+				}
 			}
 		}
-		//Renderer3D::DrawCube({ 0.0f, -5.0f, 0.0f }, { 100.0f, 1.0f, 100.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-		Renderer3D::DrawModel();
-		Renderer3D::EndScene(camera);
-
-		//Renderer3D::Init();
-		//Renderer3D::BeginScene(camera);
-		//Renderer3D::DrawCube({ 5.0f, 5.0f, 0.0f }, { 0.5f, 0.2f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-		//Renderer3D::EndScene();
 #endif
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 		

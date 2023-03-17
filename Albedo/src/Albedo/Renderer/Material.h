@@ -12,13 +12,14 @@ namespace Albedo {
 		glm::vec4 Color = { 1.0f, 0.5f, 0.3f, 1.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 		glm::vec4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		glm::vec3 LightPos = { 0.0f, 3.0f, -10.0f };
+		static glm::vec3 LightPos;
 		float LineWidth = 1.0f;
 		glm::vec3 Point1 = { -0.5f, 0.0f, 0.0f };
 		glm::vec3 Point2 = {  0.5f, 0.0f, 0.0f };
 
 		std::string ShaderPath = "";
 		std::string TexturePath = "";
+		std::string TexturePath2 = "";
 		std::vector<std::string> SkyboxTexturesPaths;
 		float* VertexData;
 		uint32_t* IndexData;
@@ -27,6 +28,7 @@ namespace Albedo {
 		Ref<IndexBuffer> IndexBuffer_;
 		Ref<Shader> Shader_;
 		Ref<Texture2D> Texture_;
+		Ref<Texture2D> Texture2_;
 	};
 
 	enum class MaterialType
@@ -51,6 +53,7 @@ namespace Albedo {
 		void InitSkybox();
 		void AddShader(const std::string& shaderPath) { m_MaterialData.ShaderPath = shaderPath; }
 		void AddTexture(const std::string& texturePath) { m_MaterialData.TexturePath = texturePath; }
+		void AddTexture2(const std::string& texturePath) { m_MaterialData.TexturePath2 = texturePath; }
 		void AddSkyboxTexture(const std::vector<std::string>& skyboxTexturePaths) { m_MaterialData.SkyboxTexturesPaths = skyboxTexturePaths; }
 		void ChangeTexture(const std::string& texturePath){ m_MaterialData.TexturePath = texturePath; }
 		void AddVertexData();
@@ -68,6 +71,7 @@ namespace Albedo {
 
 		inline const std::string&				GetShaderPath()			const { return m_MaterialData.ShaderPath;			}
 		inline const std::string&				GetTexturePath()		const { return m_MaterialData.TexturePath;			}
+		inline const std::string&				GetTexturePath2()		const { return m_MaterialData.TexturePath2;			}
 		inline const std::vector<std::string>&  GetSkyboxTexturePaths() const { return m_MaterialData.SkyboxTexturesPaths;  }
 		inline const float*						GetVertexData()			const { return m_MaterialData.VertexData;			}
 		inline const uint32_t*					GetIndexData()			const { return m_MaterialData.IndexData;			}

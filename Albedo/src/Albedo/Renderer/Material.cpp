@@ -4,14 +4,16 @@
 
 namespace Albedo {
 
+	glm::vec3 MaterialData::LightPos = { 0.0f, 6.0f, 0.0f };
+
 	Material::Material()
 	{
-		Albedo_Core_INFO("constructor called");
+		Albedo_Core_INFO("Material: Constructor called");
 	}
 
 	Material::~Material()
 	{
-		Albedo_Core_INFO("destructor called");
+		Albedo_Core_INFO("Material: Destructor called");
 	}
 
 	void Material::Init(MaterialType type)

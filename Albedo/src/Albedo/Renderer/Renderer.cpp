@@ -305,6 +305,8 @@ namespace Albedo {
 				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
 				if(material->TextureEnabled() && material->GetMaterialData().TexturePath != "")
 					material->GetMaterialData().Texture_ = Texture2D::Create(material->GetTexturePath());
+				if (material->TextureEnabled() && material->GetMaterialData().TexturePath2 != "")
+					material->GetMaterialData().Texture2_ = Texture2D::Create(material->GetTexturePath2());
 				material->GetMaterialData().VertexArray_ = VertexArray::Create();
 				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
 				material->GetMaterialData().VertexBuffer_->SetLayout
@@ -317,7 +319,8 @@ namespace Albedo {
 				material->GetMaterialData().IndexBuffer_ = IndexBuffer::Create(cubeIndices, sizeof(cubeIndices));
 				material->GetMaterialData().VertexArray_->SetIndexBuffer(material->GetMaterialData().IndexBuffer_);
 				material->GetMaterialData().Shader_->Bind();
-				material->GetMaterialData().Shader_->SetUniformInt1("u_Texture", 0);
+				material->GetMaterialData().Shader_->SetUniformInt1("material.u_DiffuseMap", 0);
+				material->GetMaterialData().Shader_->SetUniformInt1("material.u_SpecularMap", 1);
 				break;
 			}
 			case MaterialType::Model:
@@ -382,8 +385,24 @@ namespace Albedo {
 		}
 		else if (material.GetMaterialType() == MaterialType::Cube)
 		{
+			material.GetMaterialData().Shader_->Bind();
+			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Position", material.GetMaterialData().LightPos);
 
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
 
+			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().Position)
+				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
+			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+
+			// material properties
+			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess", 64.0f);
+
+#if 0
 			material.GetMaterialData().Shader_->Bind();
 			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 			material.GetMaterialData().Shader_->SetUniformFloat3("u_MaterialColor", material.GetMaterialData().Color);
@@ -394,10 +413,13 @@ namespace Albedo {
 				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
 			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 			material.GetMaterialData().Shader_->SetUniformInt1("u_TextureEnabled", material.TextureEnabled());
+#endif
 
 			material.GetMaterialData().VertexArray_->Bind();
 			if(material.GetMaterialData().Texture_)
 				material.GetMaterialData().Texture_->Bind(0);
+			if (material.GetMaterialData().Texture2_)
+				material.GetMaterialData().Texture2_->Bind(1);
 		}
 		else if (material.GetMaterialType() == MaterialType::Line)
 		{

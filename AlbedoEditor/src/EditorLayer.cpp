@@ -43,22 +43,35 @@ namespace Albedo {
 			"Assets/back.jpg"
 		};
 		skybox->AddSkyboxTexture(skyboxTextures);
-		skybox->ChangeVisibility(true);
+		skybox->ChangeVisibility(false);
 
 		m_ActiveScene->GetMaterialsInstance().push_back(skybox);
 
 		Material* cube = new Material();
 		cube->Init(MaterialType::Cube);
-		cube->AddShader("Assets/CubeLightingShader.glsl");
-		cube->AddTexture("TextureSample5.png");
-		cube->ChangePosition(glm::vec3(0.0f, -10.0f, -10.0f));
+		cube->AddShader("Assets/CubeLightingMapShader.glsl");
+		cube->AddTexture("Container.png");
+		cube->AddTexture2("Container_Specular.png");
+		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
 		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		float scale = 20.0f;
+		float scale = 10.0f;
 		cube->ChangeScale(glm::vec3(scale, scale, scale));
 		cube->ChangeVisibility(true);
 		cube->EnableTexture(true);
 
 		m_ActiveScene->GetMaterialsInstance().push_back(cube);
+
+		//Material* platform = new Material();
+		//platform->Init(MaterialType::Cube);
+		//platform->AddShader("Assets/CubeLightingShader.glsl");
+		//platform->AddTexture("Wood.png");
+		//platform->ChangePosition(glm::vec3(0.0f, -30.0f, 0.0f));
+		//platform->ChangeColor(glm::vec4(0.4f, 0.2f, 0.0f, 1.0f));
+		//platform->ChangeScale(glm::vec3(80, 10, 80));
+		//platform->ChangeVisibility(true);
+		//platform->EnableTexture(true);
+
+		//m_ActiveScene->GetMaterialsInstance().push_back(platform);
 
 		lightCube = new Material();
 		lightCube->Init(MaterialType::Light);
@@ -341,11 +354,20 @@ namespace Albedo {
 
 			ImGui::Begin("Stats");
 
+			static float a = 0.0;
+			static float b = 0.0;
+			static float c = 0.0;
+
 			std::string name = "None";
 			if (m_HoveredEntity)
 				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
 			
+			ImGui::DragFloat("x", &a, 0.5f, -100.0f, 100.0f);
+			ImGui::DragFloat("y", &b, 0.5f, -100.0f, 100.0f);
+			ImGui::DragFloat("z", &c, 0.5f, -100.0f, 100.0f);
+
+			lightCube->ChangeLightPosition(glm::vec3(a, b, c));
 			//ImGui::Text("Time: %f", m_CurrentTime);
 			//ImGui::Text("FPS: %f", m_FPS);
 			/*
