@@ -77,11 +77,11 @@ namespace Albedo {
 		lightCube->Init(MaterialType::Light);
 		lightCube->AddShader("Assets/CubeShader.glsl");
 		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		scale = 2.0f;
+		scale = 0.3f;
 		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
 		lightCube->ChangeVisibility(true);
 
-		//m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
+		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
 
 		Material* line = new Material();
 		line->Init(MaterialType::Line);

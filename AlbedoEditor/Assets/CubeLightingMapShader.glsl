@@ -38,11 +38,15 @@ struct Material {
 }; 
 
 struct Light {
-    vec3 u_Direction;
+    vec3 u_Position;
 
     vec3 u_Ambient;
     vec3 u_Diffuse;
     vec3 u_Specular;
+
+    float u_Constant;
+    float u_Linear;
+    float u_Quadratic;
 };
 
 in vec2 v_TexCoord;
@@ -58,14 +62,22 @@ void main()
 	vec3 ambient = light.u_Ambient * texture(material.u_DiffuseMap, v_TexCoord).rgb;
 	
 	vec3 normal = normalize(v_Normal);
-	vec3 lightDir = normalize(-light.u_Direction);
+	vec3 lightDir = normalize(light.u_Position - v_FragPos);
 	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = light.u_Diffuse * diff * texture(material.u_DiffuseMap, v_TexCoord).rgb;
 	
 	vec3 viewDir = normalize(u_CameraPos - v_FragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
-    vec3 specular = light.u_Specular * spec * texture(material.u_SpecularMap, v_TexCoord).rgb;  
+    vec3 specular = light.u_Specular * spec * texture(material.u_SpecularMap, v_TexCoord).rgb;
+	
+	// attenuation
+    float distance    = length(light.u_Position - v_FragPos);
+    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+
+    ambient   *= attenuation;  
+    diffuse   *= attenuation;
+    specular  *= attenuation; 
 	
 	vec3 result = ambient + diffuse + specular;
 	color = vec4(result, 1.0);
