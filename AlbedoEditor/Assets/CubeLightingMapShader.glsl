@@ -38,7 +38,7 @@ struct Material {
 }; 
 
 struct Light {
-    vec3 u_Position;
+    vec3 u_Direction;
 
     vec3 u_Ambient;
     vec3 u_Diffuse;
@@ -58,12 +58,12 @@ void main()
 	vec3 ambient = light.u_Ambient * texture(material.u_DiffuseMap, v_TexCoord).rgb;
 	
 	vec3 normal = normalize(v_Normal);
-	vec3 lightDir = normalize(light.u_Position - v_FragPos);
+	vec3 lightDir = normalize(-light.u_Direction);
 	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = light.u_Diffuse * diff * texture(material.u_DiffuseMap, v_TexCoord).rgb;
 	
 	vec3 viewDir = normalize(u_CameraPos - v_FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);  
+    vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
     vec3 specular = light.u_Specular * spec * texture(material.u_SpecularMap, v_TexCoord).rgb;  
 	

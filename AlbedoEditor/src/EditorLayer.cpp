@@ -54,7 +54,7 @@ namespace Albedo {
 		cube->AddTexture2("Container_Specular.png");
 		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
 		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		float scale = 10.0f;
+		float scale = 1.0f;
 		cube->ChangeScale(glm::vec3(scale, scale, scale));
 		cube->ChangeVisibility(true);
 		cube->EnableTexture(true);
@@ -81,7 +81,7 @@ namespace Albedo {
 		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
 		lightCube->ChangeVisibility(true);
 
-		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
+		//m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
 
 		Material* line = new Material();
 		line->Init(MaterialType::Line);

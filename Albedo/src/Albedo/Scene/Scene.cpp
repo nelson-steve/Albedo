@@ -8,10 +8,25 @@
 #include "Albedo/Renderer/Renderer.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define ENTT_EXAMPLE_CODE 0
 
 namespace Albedo {
+
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
 	Scene::Scene()
 	{
@@ -102,8 +117,27 @@ namespace Albedo {
 		{
 			if (material->Show())
 			{
-				Renderer::Setup(camera, (*material));
-				Renderer::Render(*material);
+				if(material->GetMaterialType() == MaterialType::Cube)
+				{
+					for (unsigned int i = 0; i < 10; i++)
+					{
+						// calculate the model matrix for each object and pass it to shader before drawing
+						glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i])
+							* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
+						float angle = material->GetMaterialData().Angle * i;
+						transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+						material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+
+						Renderer::Setup(camera, (*material));
+						Renderer::Render(*material);
+					}
+				}
+				else
+				{
+					Renderer::Setup(camera, (*material));
+					Renderer::Render(*material);
+				}
 			}
 		}
 
@@ -122,13 +156,14 @@ namespace Albedo {
 				}
 			}
 		}
-#endif
+
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		
+
 		for (auto entity : group)
 		{
 			//auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 		}
+#endif
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

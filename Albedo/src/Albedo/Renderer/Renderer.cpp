@@ -387,20 +387,16 @@ namespace Albedo {
 		{
 			material.GetMaterialData().Shader_->Bind();
 			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Position", material.GetMaterialData().LightPos);
-
+			//material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Position", material.GetMaterialData().LightPos);
+			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
 
 			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
 			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
 			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().Position)
-				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
-			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
-
 			// material properties
-			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess", 64.0f);
+			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess", 256.0f);
 
 #if 0
 			material.GetMaterialData().Shader_->Bind();
