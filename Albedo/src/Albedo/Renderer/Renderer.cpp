@@ -377,45 +377,67 @@ namespace Albedo {
 			material.GetMaterialData().Shader_->Bind();
 			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 			material.GetMaterialData().Shader_->SetUniformFloat4("u_MaterialColor", material.GetMaterialData().Color);
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().LightPos)
-				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
-			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 
 			material.GetMaterialData().VertexArray_->Bind();
 		}
 		else if (material.GetMaterialType() == MaterialType::Cube)
 		{
-			material.GetMaterialData().Shader_->Bind();
-			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Position", material.GetMaterialData().LightPos);
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
+			material.GetMaterialData().Shader_->Bind();	
+			material.GetMaterialData().Shader_->SetUniformMat4  ("u_ProjectionView"			  ,	 camera.GetViewProjection());
+			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos"				  ,	 camera.GetPosition());
 
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("light.u_Specular", glm::vec3(1.0f, 1.0f, 1.0f));
-
-			material.GetMaterialData().Shader_->SetUniformFloat("light.u_Constant", 1.0f);
-			material.GetMaterialData().Shader_->SetUniformFloat("light.u_Linear", 0.09f);
-			material.GetMaterialData().Shader_->SetUniformFloat("light.u_Quadratic", 0.032f);
-
+			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Direction"		  ,  glm::vec3(-0.20f, -1.00f, -0.03f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Ambient"		  ,  glm::vec3( 0.05f,  0.05f,  0.05f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Diffuse"		  ,  glm::vec3( 0.40f,  0.40f,  0.04f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Specular"		  ,  glm::vec3( 0.50f,  0.50f,  0.05f));
+			// point light 1
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Position"  , material.GetMaterialData().PointLightPos1);
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Constant"  ,  1.000f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Linear"    ,  0.090f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Quadratic" ,  0.032f);
+			// point light 2
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Position"  ,  material.GetMaterialData().PointLightPos2);
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Constant"  ,  1.000f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Linear"    ,  0.090f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Quadratic" ,  0.032f);
+			// point light 3
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Position"  , material.GetMaterialData().PointLightPos3);
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Constant"  ,  1.000f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Linear"    ,  0.090f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Quadratic" ,  0.032f);
+			// point light 4
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Position"  , material.GetMaterialData().PointLightPos4);
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Constant"  ,  1.000f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Linear"    ,  0.090f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Quadratic" ,  0.032f);
+			// spotLight
+			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Position"		  ,  camera.GetPosition());
+			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Direction"	  ,  camera.GetForwardDirection());
+			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Ambient"		  ,  glm::vec3(0.0f, 0.0f, 0.0f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Diffuse"		  ,  glm::vec3(1.0f, 1.0f, 1.0f));
+			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Specular"		  ,  glm::vec3(1.0f, 1.0f, 1.0f));
+			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Constant"		  ,  1.000f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Linear"		  ,  0.009f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Quadratic"	  ,  0.0032f);
+			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_CutOff"		  ,  glm::cos(glm::radians(12.5f)));
+			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_OuterCutOff"	  ,  glm::cos(glm::radians(15.0f)));
 			// material properties
-			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess", 256.0f);
-
-#if 0
-			material.GetMaterialData().Shader_->Bind();
-			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_MaterialColor", material.GetMaterialData().Color);
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_LightColor", material.GetMaterialData().LightColor);
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_LightPos", material.GetMaterialData().LightPos);
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().Position)
-				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
-			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
-			material.GetMaterialData().Shader_->SetUniformInt1("u_TextureEnabled", material.TextureEnabled());
-#endif
+			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess"		  ,  32.0f);
 
 			material.GetMaterialData().VertexArray_->Bind();
+
 			if(material.GetMaterialData().Texture_)
 				material.GetMaterialData().Texture_->Bind(0);
 			if (material.GetMaterialData().Texture2_)

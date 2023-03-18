@@ -43,18 +43,28 @@ namespace Albedo {
 			"Assets/back.jpg"
 		};
 		skybox->AddSkyboxTexture(skyboxTextures);
-		skybox->ChangeVisibility(false);
+		skybox->ChangeVisibility(true);
 
-		m_ActiveScene->GetMaterialsInstance().push_back(skybox);
+		//m_ActiveScene->GetMaterialsInstance().push_back(skybox);
+
+		lightCube = new Material();
+		lightCube->Init(MaterialType::Light);
+		lightCube->AddShader("Assets/CubeShader.glsl");
+		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		float scale = 0.3f;
+		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
+		lightCube->ChangeVisibility(true);
+
+		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
 
 		Material* cube = new Material();
 		cube->Init(MaterialType::Cube);
-		cube->AddShader("Assets/CubeLightingMapShader.glsl");
+		cube->AddShader("Assets/CubeMultipleLightsShader.glsl");
 		cube->AddTexture("Container.png");
 		cube->AddTexture2("Container_Specular.png");
 		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
 		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		float scale = 1.0f;
+		scale = 1.0f;
 		cube->ChangeScale(glm::vec3(scale, scale, scale));
 		cube->ChangeVisibility(true);
 		cube->EnableTexture(true);
@@ -70,32 +80,7 @@ namespace Albedo {
 		//platform->ChangeScale(glm::vec3(80, 10, 80));
 		//platform->ChangeVisibility(true);
 		//platform->EnableTexture(true);
-
 		//m_ActiveScene->GetMaterialsInstance().push_back(platform);
-
-		lightCube = new Material();
-		lightCube->Init(MaterialType::Light);
-		lightCube->AddShader("Assets/CubeShader.glsl");
-		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		scale = 0.3f;
-		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
-		lightCube->ChangeVisibility(true);
-
-		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
-
-		Material* line = new Material();
-		line->Init(MaterialType::Line);
-		line->AddShader("Assets/LineShader.glsl");
-		line->ChangePosition(glm::vec3(-2.0f, 0.0f, 0.0f));
-		line->ChangeColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		//scale = 1.0f;
-		//line->ChangeScale(glm::vec3(scale, scale, scale));
-		line->ChangeLineWidth(5.0f);
-		line->ChangePoint1({-0.5f, -0.5f, 0.0f});
-		line->ChangePoint2({0.5f, 0.5f, 0.0f});
-		line->ChangeVisibility(true);
-
-		//m_ActiveScene->GetMaterialsInstance().push_back(line);
 
 		m_ActiveScene->InitScene();
 
@@ -354,20 +339,57 @@ namespace Albedo {
 
 			ImGui::Begin("Stats");
 
-			static float a = 0.0;
-			static float b = 0.0;
-			static float c = 0.0;
+			static float p1X = lightCube->GetMaterialData().PointLightPos1.x;
+			static float p1Y = lightCube->GetMaterialData().PointLightPos1.y;
+			static float p1Z = lightCube->GetMaterialData().PointLightPos1.z;
+
+			static float p2X = lightCube->GetMaterialData().PointLightPos2.x;
+			static float p2Y = lightCube->GetMaterialData().PointLightPos2.y;
+			static float p2Z = lightCube->GetMaterialData().PointLightPos2.z;
+
+			static float p3X = lightCube->GetMaterialData().PointLightPos3.x;
+			static float p3Y = lightCube->GetMaterialData().PointLightPos3.y;
+			static float p3Z = lightCube->GetMaterialData().PointLightPos3.z;
+
+			static float p4X = lightCube->GetMaterialData().PointLightPos4.x;
+			static float p4Y = lightCube->GetMaterialData().PointLightPos4.y;
+			static float p4Z = lightCube->GetMaterialData().PointLightPos4.z;
 
 			std::string name = "None";
 			if (m_HoveredEntity)
 				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
 			
-			ImGui::DragFloat("x", &a, 0.5f, -100.0f, 100.0f);
-			ImGui::DragFloat("y", &b, 0.5f, -100.0f, 100.0f);
-			ImGui::DragFloat("z", &c, 0.5f, -100.0f, 100.0f);
+			ImGui::DragFloat("p1x", &p1X, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p1y", &p1Y, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p1z", &p1Z, 0.2f, -100.0f, 100.0f);
 
-			lightCube->ChangeLightPosition(glm::vec3(a, b, c));
+			lightCube->ChangePointLightPosition(glm::vec3(p1X, p1Y, p1Z), 1);
+
+			ImGui::Separator();
+
+			ImGui::DragFloat("p2x", &p2X, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p2y", &p2Y, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p2z", &p2Z, 0.2f, -100.0f, 100.0f);
+
+			lightCube->ChangePointLightPosition(glm::vec3(p2X, p2Y, p2Z), 2);
+
+			ImGui::Separator();
+
+			ImGui::DragFloat("p3x", &p3X, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p3y", &p3Y, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p3z", &p3Z, 0.2f, -100.0f, 100.0f);
+
+			lightCube->ChangePointLightPosition(glm::vec3(p3X, p3Y, p3Z), 3);
+
+			ImGui::Separator();
+
+			ImGui::DragFloat("p4x", &p4X, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p4y", &p4Y, 0.2f, -100.0f, 100.0f);
+			ImGui::DragFloat("p4z", &p4Z, 0.2f, -100.0f, 100.0f);
+
+			lightCube->ChangePointLightPosition(glm::vec3(p4X, p4Y, p4Z), 4);
+
 			//ImGui::Text("Time: %f", m_CurrentTime);
 			//ImGui::Text("FPS: %f", m_FPS);
 			/*

@@ -13,7 +13,11 @@ namespace Albedo {
 		glm::vec4 Color = { 1.0f, 0.5f, 0.3f, 1.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
 		glm::vec4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-		static glm::vec3 LightPos;
+
+		static glm::vec3 PointLightPos1;
+		static glm::vec3 PointLightPos2;
+		static glm::vec3 PointLightPos3;
+		static glm::vec3 PointLightPos4;
 		float LineWidth = 1.0f;
 		glm::vec3 Point1 = { -0.5f, 0.0f, 0.0f };
 		glm::vec3 Point2 = {  0.5f, 0.0f, 0.0f };
@@ -60,7 +64,18 @@ namespace Albedo {
 		void AddVertexData();
 		void AddIndexData();
 		void ChangePosition(glm::vec3& position) { m_MaterialData.Position = position; }
-		void ChangeLightPosition(glm::vec3& position) { m_MaterialData.LightPos = position; }
+		void ChangePointLightPosition(glm::vec3& position, uint32_t index) 
+		{
+			if(index == 1)
+				m_MaterialData.PointLightPos1 = position;
+			else if (index == 2)
+				m_MaterialData.PointLightPos2 = position;
+			else if (index == 3)
+				m_MaterialData.PointLightPos3 = position;
+			else if (index == 4)
+				m_MaterialData.PointLightPos4 = position;
+
+		}
 		void ChangeColor(glm::vec4& color) { m_MaterialData.Color = color; }
 		void ChangeLightColor(glm::vec4& lightColor) { m_MaterialData.LightColor = lightColor; }
 		void ChangeScale(glm::vec3& scale) { m_MaterialData.Scale = scale; }

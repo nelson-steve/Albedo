@@ -4,7 +4,10 @@
 
 namespace Albedo {
 
-	glm::vec3 MaterialData::LightPos = { 0.0f, 6.0f, 0.0f };
+	glm::vec3 MaterialData::PointLightPos1 = { -5.0f,  0.0f,  0.0f  };
+	glm::vec3 MaterialData::PointLightPos2 = {  5.0f,  0.0f,  0.0f  };
+	glm::vec3 MaterialData::PointLightPos3 = {  0.0f,  0.0f, -5.0f  };
+	glm::vec3 MaterialData::PointLightPos4 = {  0.0f,  0.0f,  5.0f  };
 
 	Material::Material()
 	{

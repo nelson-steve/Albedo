@@ -47,6 +47,7 @@ namespace Albedo {
 		EditorCamera m_EditorCamera;
 
 		Material* lightCube;
+
 		float x = 0.1;
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;

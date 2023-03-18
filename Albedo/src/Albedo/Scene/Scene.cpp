@@ -114,31 +114,49 @@ namespace Albedo {
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
 		for(Material* material: m_Materials)
-		{
-			if (material->Show())
+		{	
+			glm::vec3 pos;
+			if (material->GetMaterialType() == MaterialType::Light && material->Show())
 			{
-				if(material->GetMaterialType() == MaterialType::Cube)
+				for (uint32_t i = 0; i < 4; i++)
 				{
-					for (unsigned int i = 0; i < 10; i++)
-					{
-						// calculate the model matrix for each object and pass it to shader before drawing
-						glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i])
-							* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
-						float angle = material->GetMaterialData().Angle * i;
-						transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+					Albedo_Core_INFO("Scene: Light");
+						 if (i == 0) pos = material->GetMaterialData().PointLightPos1;
+					else if (i == 1) pos = material->GetMaterialData().PointLightPos2;
+					else if (i == 2) pos = material->GetMaterialData().PointLightPos3;
+					else if (i == 3) pos = material->GetMaterialData().PointLightPos4;
+	
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos)
+						* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
+					material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 
-						material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
-
-						Renderer::Setup(camera, (*material));
-						Renderer::Render(*material);
-					}
-				}
-				else
-				{
 					Renderer::Setup(camera, (*material));
 					Renderer::Render(*material);
 				}
 			}
+
+			else if(material->GetMaterialType() == MaterialType::Cube && material->Show())
+			{
+				for (uint32_t i = 0; i < 10; i++)
+				{
+					Albedo_Core_INFO("Scene: Cube");
+					// calculate the model matrix for each object and pass it to shader before drawing
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i])
+						* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
+					float angle = material->GetMaterialData().Angle * i;
+					transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+					material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+
+					Renderer::Setup(camera, (*material));
+					Renderer::Render(*material);
+				}
+			}
+			else if(material->GetMaterialType() == MaterialType::Skybox && material->Show())
+			{
+				Renderer::Setup(camera, (*material));
+				Renderer::Render(*material);
+			}
+			
 		}
 
 #if 0
