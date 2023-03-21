@@ -48,7 +48,7 @@ namespace Albedo {
 		ImGui::Begin("Properties");
 		if (m_SelectionContext)
 		{
-			//DrawComponents(m_SelectionContext);
+			DrawComponents(m_SelectionContext);
 		}
 
 		ImGui::End();

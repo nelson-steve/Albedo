@@ -44,9 +44,8 @@ namespace Albedo {
 		Model,
 		Sprite,
 		Sphere,
-		Line,
-		Quad,
-		Depthmap
+		Line
+
 	};
 
 	class Material

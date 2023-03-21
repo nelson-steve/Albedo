@@ -88,7 +88,7 @@ namespace Albedo {
 
 				if (camera.Primary)
 				{
-					mainCamera		= &camera.Camera;
+					mainCamera = &camera.Camera;
 					cameraTransform = transform.GetTransform();
 					break;
 					}
@@ -113,51 +113,50 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		glm::mat4 u_Transform = glm::mat4(1.0f);
-		for (Material* material : m_Materials)
-		{
-			//Renderer::PreRenderSetup(camera, (*material));
+		for(Material* material: m_Materials)
+		{	
+			glm::vec3 pos;
+			if (material->GetMaterialType() == MaterialType::Light && material->Show())
+			{
+				for (uint32_t i = 0; i < 4; i++)
+				{
+					Albedo_Core_INFO("Scene: Light");
+						 if (i == 0) pos = material->GetMaterialData().PointLightPos1;
+					else if (i == 1) pos = material->GetMaterialData().PointLightPos2;
+					else if (i == 2) pos = material->GetMaterialData().PointLightPos3;
+					else if (i == 3) pos = material->GetMaterialData().PointLightPos4;
+	
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos)
+						* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
+					material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(0.0f, 1.5f, 0.0));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.5f));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			//Renderer::PreRender(*material);
+					Renderer::Setup(camera, (*material));
+					Renderer::Render(*material);
+				}
+			}
 
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(2.0f, 0.0f, 1.0));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.5f));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			//Renderer::PreRender(*material);
+			else if(material->GetMaterialType() == MaterialType::Cube && material->Show())
+			{
+				for (uint32_t i = 0; i < 10; i++)
+				{
+					Albedo_Core_INFO("Scene: Cube");
+					// calculate the model matrix for each object and pass it to shader before drawing
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), cubePositions[i])
+						* glm::scale(glm::mat4(1.0f), material->GetMaterialData().Scale);
+					float angle = material->GetMaterialData().Angle * i;
+					transform = glm::rotate(transform, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+					material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
 
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(-1.0f, 0.0f, 2.0));
-			u_Transform = glm::rotate(u_Transform, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.25));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			//Renderer::PreRender(*material);
-
-
-			Renderer::Setup(camera, (*material));
-
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(0.0f, 1.5f, 0.0));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.5f));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			Renderer::Render(*material);
-
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(2.0f, 0.0f, 1.0));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.5f));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			Renderer::Render(*material);
-
-			u_Transform = glm::mat4(1.0f);
-			u_Transform = glm::translate(u_Transform, glm::vec3(-1.0f, 0.0f, 2.0));
-			u_Transform = glm::rotate(u_Transform, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-			u_Transform = glm::scale(u_Transform, glm::vec3(0.25));
-			material->GetMaterialData().Shader_->SetUniformMat4("u_Transfrom", u_Transform);
-			Renderer::Render(*material);
+					Renderer::Setup(camera, (*material));
+					Renderer::Render(*material);
+				}
+			}
+			else if(material->GetMaterialType() == MaterialType::Skybox && material->Show())
+			{
+				Renderer::Setup(camera, (*material));
+				Renderer::Render(*material);
+			}
+			
 		}
 
 #if 0
