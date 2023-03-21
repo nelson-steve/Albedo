@@ -24,63 +24,16 @@ namespace Albedo {
 
 	void EditorLayer::OnAttach()
 	{
+		float scale = 1.0f;
 		Albedo_PROFILE_FUNCTION();
-		//m_Texture = Texture2D::Create("TextureSample5.png");
-		//m_Texture1 = Texture2D::Create("TextureSample6.png");
 
 		m_ActiveScene = std::make_shared<Scene>();
 
-		Material* skybox = new Material();
-		skybox->Init(MaterialType::Skybox);
-		skybox->AddShader("Assets/SkyboxShader.glsl");
-		std::vector<std::string> skyboxTextures
-		{
-			"Assets/right.jpg",
-			"Assets/left.jpg",
-			"Assets/top.jpg",
-			"Assets/bottom.jpg",
-			"Assets/front.jpg",
-			"Assets/back.jpg"
-		};
-		skybox->AddSkyboxTexture(skyboxTextures);
-		skybox->ChangeVisibility(true);
-
-		//m_ActiveScene->GetMaterialsInstance().push_back(skybox);
-
-		lightCube = new Material();
-		lightCube->Init(MaterialType::Light);
-		lightCube->AddShader("Assets/CubeShader.glsl");
-		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		float scale = 0.3f;
-		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
-		lightCube->ChangeVisibility(true);
-
-		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
-
 		Material* cube = new Material();
-		cube->Init(MaterialType::Cube);
-		cube->AddShader("Assets/CubeMultipleLightsShader.glsl");
-		cube->AddTexture("Container.png");
-		cube->AddTexture2("Container_Specular.png");
-		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
-		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		scale = 1.0f;
-		cube->ChangeScale(glm::vec3(scale, scale, scale));
-		cube->ChangeVisibility(true);
-		cube->EnableTexture(true);
+		cube->AddTexture("Wood.png");
+		cube->AddShader("Assets/CubeShader.glsl");
 
 		m_ActiveScene->GetMaterialsInstance().push_back(cube);
-
-		//Material* platform = new Material();
-		//platform->Init(MaterialType::Cube);
-		//platform->AddShader("Assets/CubeLightingShader.glsl");
-		//platform->AddTexture("Wood.png");
-		//platform->ChangePosition(glm::vec3(0.0f, -30.0f, 0.0f));
-		//platform->ChangeColor(glm::vec4(0.4f, 0.2f, 0.0f, 1.0f));
-		//platform->ChangeScale(glm::vec3(80, 10, 80));
-		//platform->ChangeVisibility(true);
-		//platform->EnableTexture(true);
-		//m_ActiveScene->GetMaterialsInstance().push_back(platform);
 
 		m_ActiveScene->InitScene();
 
