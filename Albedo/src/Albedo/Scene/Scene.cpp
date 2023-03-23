@@ -113,8 +113,65 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		glm::mat4 transform = glm::mat4(1.0f);
+		glm::vec3 color(1.0, 0.0, 0.0);
 		for(Material* material: m_Materials)
 		{	
+#if 1
+			Renderer::PreRenderSetup(camera, *material);
+			Renderer::PreRenderShader->Bind();
+			
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(0.0f, 1.0f, 0.0));
+			transform = glm::scale(transform, glm::vec3(2.0f));
+			Renderer::PreRenderShader->SetUniformMat4("u_Transform", transform);
+			Renderer::PreRenderRender(*material);
+
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(2.5f, 4.0f, 0.0));
+			transform = glm::scale(transform, glm::vec3(1.0f));
+			Renderer::PreRenderShader->SetUniformMat4("u_Transform", transform);
+			Renderer::PreRenderRender(*material);
+			
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(0.0f, -3.0f, 0.0));
+			//transform = glm::rotate(transform, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+			transform = glm::scale(transform, glm::vec3(20.0, 1.0, 20.0));
+			Renderer::PreRenderShader->SetUniformMat4("u_Transform", transform);
+			Renderer::PreRenderRender(*material);
+
+			//Renderer::PlaneRender(*material);
+
+			Renderer::Reset();
+#endif
+#if 0
+			Renderer::DebugRender();
+#else
+			Renderer::Setup(camera, *material);
+
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(0.0f, 1.0f, 0.0));
+			transform = glm::scale(transform, glm::vec3(2.0f));
+			material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+			Renderer::Render(*material);
+
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(2.5f, 4.0f, 0.0));
+			transform = glm::scale(transform, glm::vec3(1.0f));
+			material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+			Renderer::Render(*material);
+
+			transform = glm::mat4(1.0f);
+			transform = glm::translate(transform, glm::vec3(0.0f, -3.0f, 2.0));
+			//transform = glm::rotate(transform, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+			transform = glm::scale(transform, glm::vec3(20.0, 1.0, 20.0));
+			material->GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+			Renderer::Render(*material);
+
+			//Renderer::PlaneRender(*material);
+#endif
+
+#if 0
 			glm::vec3 pos;
 			if (material->GetMaterialType() == MaterialType::Light && material->Show())
 			{
@@ -156,7 +213,7 @@ namespace Albedo {
 				Renderer::Setup(camera, (*material));
 				Renderer::Render(*material);
 			}
-			
+#endif
 		}
 
 #if 0

@@ -47,24 +47,24 @@ namespace Albedo {
 
 		//m_ActiveScene->GetMaterialsInstance().push_back(skybox);
 
-		lightCube = new Material();
-		lightCube->Init(MaterialType::Light);
-		lightCube->AddShader("Assets/CubeShader.glsl");
-		lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		float scale = 0.3f;
-		lightCube->ChangeScale(glm::vec3(scale, scale, scale));
-		lightCube->ChangeVisibility(true);
+		//lightCube = new Material();
+		//lightCube->Init(MaterialType::Light);
+		//lightCube->AddShader("Assets/CubeShader.glsl");
+		//lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		//float scale = 0.3f;
+		//lightCube->ChangeScale(glm::vec3(scale, scale, scale));
+		//lightCube->ChangeVisibility(true);
 
-		m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
+		//m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
 
 		Material* cube = new Material();
 		cube->Init(MaterialType::Cube);
-		cube->AddShader("Assets/CubeMultipleLightsShader.glsl");
-		cube->AddTexture("Container.png");
-		cube->AddTexture2("Container_Specular.png");
+		cube->AddShader("Assets/ShadowMappingShader.glsl");
+		cube->AddTexture("Wood.png");
+		//cube->AddTexture2("Container_Specular.png");
 		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
 		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		scale = 1.0f;
+		float scale = 1.0f;
 		cube->ChangeScale(glm::vec3(scale, scale, scale));
 		cube->ChangeVisibility(true);
 		cube->EnableTexture(true);
@@ -351,44 +351,49 @@ namespace Albedo {
 			static float p3Y = lightCube->GetMaterialData().PointLightPos3.y;
 			static float p3Z = lightCube->GetMaterialData().PointLightPos3.z;
 
-			static float p4X = lightCube->GetMaterialData().PointLightPos4.x;
-			static float p4Y = lightCube->GetMaterialData().PointLightPos4.y;
-			static float p4Z = lightCube->GetMaterialData().PointLightPos4.z;
+			static float p4X = Renderer::lightPos.x;
+			static float p4Y = Renderer::lightPos.y;
+			static float p4Z = Renderer::lightPos.z;
+
 
 			std::string name = "None";
 			if (m_HoveredEntity)
 				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
 			
-			ImGui::DragFloat("p1x", &p1X, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p1y", &p1Y, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p1z", &p1Z, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p1y", &p1Y, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p1x", &p1X, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p1z", &p1Z, 0.2f, -100.0f, 100.0f);
 
-			lightCube->ChangePointLightPosition(glm::vec3(p1X, p1Y, p1Z), 1);
+			//lightCube->ChangePointLightPosition(glm::vec3(p1X, p1Y, p1Z), 1);
 
-			ImGui::Separator();
+			//ImGui::Separator();
 
-			ImGui::DragFloat("p2x", &p2X, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p2y", &p2Y, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p2z", &p2Z, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p2x", &p2X, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p2y", &p2Y, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p2z", &p2Z, 0.2f, -100.0f, 100.0f);
 
-			lightCube->ChangePointLightPosition(glm::vec3(p2X, p2Y, p2Z), 2);
+			//lightCube->ChangePointLightPosition(glm::vec3(p2X, p2Y, p2Z), 2);
 
-			ImGui::Separator();
+			//ImGui::Separator();
 
-			ImGui::DragFloat("p3x", &p3X, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p3y", &p3Y, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p3z", &p3Z, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p3x", &p3X, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p3y", &p3Y, 0.2f, -100.0f, 100.0f);
+			//ImGui::DragFloat("p3z", &p3Z, 0.2f, -100.0f, 100.0f);
 
-			lightCube->ChangePointLightPosition(glm::vec3(p3X, p3Y, p3Z), 3);
+			//lightCube->ChangePointLightPosition(glm::vec3(p3X, p3Y, p3Z), 3);
 
-			ImGui::Separator();
+			//ImGui::Separator();
 
 			ImGui::DragFloat("p4x", &p4X, 0.2f, -100.0f, 100.0f);
 			ImGui::DragFloat("p4y", &p4Y, 0.2f, -100.0f, 100.0f);
 			ImGui::DragFloat("p4z", &p4Z, 0.2f, -100.0f, 100.0f);
 
-			lightCube->ChangePointLightPosition(glm::vec3(p4X, p4Y, p4Z), 4);
+			Renderer::lightPos.x = p4X;
+			Renderer::lightPos.y = p4Y;
+			Renderer::lightPos.z = p4Z;
+
+			//lightCube->ChangePointLightPosition(glm::vec3(p4X, p4Y, p4Z), 4);
 
 			//ImGui::Text("Time: %f", m_CurrentTime);
 			//ImGui::Text("FPS: %f", m_FPS);

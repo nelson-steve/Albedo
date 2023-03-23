@@ -23,6 +23,12 @@ namespace Albedo {
 		float Point2;
 	};
 
+	GLint result;
+
+	const uint32_t SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+	uint32_t depthMapFBO;
+	uint32_t depthMap;
+
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
@@ -75,417 +81,269 @@ namespace Albedo {
 			 1.0f, -1.0f,  1.0f
 		};
 
-		float cubeVertices_[] = {
-	   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	   -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-	   -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-	   -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-
-	   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	   -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	   -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	   -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	   -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-	   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	   -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	   -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-	   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	   -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 		};
 
 		float cubeVertices[] = {
-			// positions  // texture Coords    // normals
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+			// back face
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			// front face
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			// left face
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			// right face
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			 // bottom face
+			 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			  1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			  1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			  1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			 -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			 -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			 // top face
+			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			  1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			  1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			  1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			 -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+		};
 
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		float planeVertices[] = {
+			// positions           // texcoords      // normals         
+			 25.0f, -0.5f,  25.0f,  25.0f, 00.0f,  0.0f, 1.0f, 0.0f,
+			-25.0f, -0.5f,  25.0f,  00.0f, 00.0f,  0.0f, 1.0f, 0.0f,
+			-25.0f, -0.5f, -25.0f,  00.0f, 25.0f,  0.0f, 1.0f, 0.0f,
 
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-			 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-			 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
+			 25.0f, -0.5f,  25.0f,  25.0f, 00.0f,  0.0f, 1.0f, 0.0f,
+			-25.0f, -0.5f, -25.0f,  00.0f, 25.0f,  0.0f, 1.0f, 0.0f,
+			 25.0f, -0.5f, -25.0f,  25.0f, 25.0f,  0.0f, 1.0f, 0.0f,
 		};
 
 		float lineVertices[2 * 3] = {
 			-0.5f, 0.0f, 0.0f,
 			 0.5f, 0.0f, 0.0f
 		};
-#if 0
-		float vertices[] = {
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("before creating framebuffer: {}", result);
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		glGenFramebuffers(1, &depthMapFBO);
+		// create depth texture
+		glGenTextures(1, &depthMap);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		// attach depth texture as FBO's depth buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+		glDrawBuffer(GL_NONE);
+		//glReadBuffer(GL_NONE);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+			Albedo_Core_INFO("Framebuffer complete");
+		else
+			Albedo_Core_ERROR("WARNING: Framebuffer incomplete");
+		//back to default - using 2 as default
+		glBindFramebuffer(GL_FRAMEBUFFER, result);
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-		};
-
-		float cubeVertices_[] = 
-		{
-			-1.0f,-1.0f,-1.0f,
-			-1.0f,-1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-			 1.0f, 1.0f,-1.0f,
-			-1.0f,-1.0f,-1.0f,
-			-1.0f, 1.0f,-1.0f,
-			 1.0f,-1.0f, 1.0f,
-			-1.0f,-1.0f,-1.0f,
-			 1.0f,-1.0f,-1.0f,
-			 1.0f, 1.0f,-1.0f,
-			 1.0f,-1.0f,-1.0f,
-			-1.0f,-1.0f,-1.0f,
-			-1.0f,-1.0f,-1.0f,
-			-1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f,-1.0f,
-			 1.0f,-1.0f, 1.0f,
-			-1.0f,-1.0f, 1.0f,
-			-1.0f,-1.0f,-1.0f,
-			-1.0f, 1.0f, 1.0f,
-			-1.0f,-1.0f, 1.0f,
-			 1.0f,-1.0f, 1.0f,
-			 1.0f, 1.0f, 1.0f,
-			 1.0f,-1.0f,-1.0f,
-			 1.0f, 1.0f,-1.0f,
-			 1.0f,-1.0f,-1.0f,
-			 1.0f, 1.0f, 1.0f,
-			 1.0f,-1.0f, 1.0f,
-			 1.0f, 1.0f, 1.0f,
-			 1.0f, 1.0f,-1.0f,
-			-1.0f, 1.0f,-1.0f,
-			 1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f,-1.0f,
-			-1.0f, 1.0f, 1.0f,
-			 1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-			 1.0f,-1.0f, 1.0f
-		};
-
-		float cubeVertices__[8 * 3] = {
-			-0.5f, -0.5f,  0.5f,
-			-0.5f,  0.5f,  0.5f,
-			 0.5f,  0.5f,  0.5f,
-			 0.5f, -0.5f,  0.5f,
-
-			-0.5f, -0.5f, -0.5f,
-			-0.5f,  0.5f, -0.5f,
-			 0.5f,  0.5f, -0.5f,
-			 0.5f, -0.5f, -0.5f
-		};
-#endif
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("after creating framebuffer: {}", result);
 
 		for (Material* material : materials)
 		{
-			switch (material->GetMaterialType())
-			{
-			case MaterialType::Skybox:
-			{
-				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
-				material->GetMaterialData().Texture_ = Texture2D::Create(material->GetSkyboxTexturePaths());
-				material->GetMaterialData().VertexArray_ = VertexArray::Create();
-				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(skyboxVertices, sizeof(skyboxVertices));
-				material->GetMaterialData().VertexBuffer_->SetLayout
-				({
-					{ShaderDataType::Float3, "a_Position"}
-				});
-				material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
-				material->GetMaterialData().Shader_->Bind();
-				material->GetMaterialData().Shader_->SetUniformInt1("skybox", 0);
-				break;
-			}
-			case MaterialType::Light:
-			{
-				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
-				material->GetMaterialData().VertexArray_ = VertexArray::Create();
-				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
-				material->GetMaterialData().VertexBuffer_->SetLayout
-				({
-					{ShaderDataType::Float3, "a_Position"},
-					{ShaderDataType::Float2, "a_TexCoord"},
-					{ShaderDataType::Float3, "a_Normals"}
-					});
-				material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
-				material->GetMaterialData().Shader_->Bind();
-				break;
-			}
-			case MaterialType::Cube:
-			{
-				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
-				if(material->TextureEnabled() && material->GetMaterialData().TexturePath != "")
-					material->GetMaterialData().Texture_ = Texture2D::Create(material->GetTexturePath());
-				if (material->TextureEnabled() && material->GetMaterialData().TexturePath2 != "")
-					material->GetMaterialData().Texture2_ = Texture2D::Create(material->GetTexturePath2());
-				material->GetMaterialData().VertexArray_ = VertexArray::Create();
-				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
-				material->GetMaterialData().VertexBuffer_->SetLayout
-				({
-					{ShaderDataType::Float3, "a_Position"},
-					{ShaderDataType::Float2, "a_TexCoord"},
-					{ShaderDataType::Float3, "a_Normals"}
-				});
-				material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
-				material->GetMaterialData().IndexBuffer_ = IndexBuffer::Create(cubeIndices, sizeof(cubeIndices));
-				material->GetMaterialData().VertexArray_->SetIndexBuffer(material->GetMaterialData().IndexBuffer_);
-				material->GetMaterialData().Shader_->Bind();
-				material->GetMaterialData().Shader_->SetUniformInt1("material.u_DiffuseMap", 0);
-				material->GetMaterialData().Shader_->SetUniformInt1("material.u_SpecularMap", 1);
-				break;
-			}
-			case MaterialType::Model:
-				break;
-			case MaterialType::Sprite:
-				break;
-			case MaterialType::Sphere:
-				break;
-			case MaterialType::Line:
-			{
-				lineVertices[0] = material->GetMaterialData().Point1.x;
-				lineVertices[1] = material->GetMaterialData().Point1.y;
-				lineVertices[2] = material->GetMaterialData().Point1.z;
+			PlaneVertexArray = VertexArray::Create();
+			PlaneVertexBuffer = VertexBuffer::Create(planeVertices, sizeof(planeVertices));
+			PlaneVertexBuffer->SetLayout
+			({
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float2, "a_TexCoord"},
+			{ShaderDataType::Float3, "a_Normal"}
+			});
+			PlaneVertexArray->AddVertexBuffer(PlaneVertexBuffer);
 
-				lineVertices[3] = material->GetMaterialData().Point2.x;
-				lineVertices[4] = material->GetMaterialData().Point2.y;
-				lineVertices[5] = material->GetMaterialData().Point2.z;
+			DebugShader = Shader::Create("Assets/RenderToTextureShader.glsl");
+			DebugVertexArray = VertexArray::Create();
+			DebugVertexBuffer = VertexBuffer::Create(quadVertices, sizeof(quadVertices));
+			DebugVertexBuffer->SetLayout
+			({
+				{ShaderDataType::Float3, "a_Position"},
+				{ShaderDataType::Float2, "a_TexCoord"}
+			});
+			DebugVertexArray->AddVertexBuffer(DebugVertexBuffer);
+			DebugShader->Bind();
+			DebugShader->SetUniformInt1("depthMap", 0);
 
-				material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
-				material->GetMaterialData().VertexArray_ = VertexArray::Create();
-				material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(lineVertices, sizeof(lineVertices));
-				material->GetMaterialData().VertexBuffer_->SetLayout
-				({
-					{ShaderDataType::Float3, "a_Position"}
-					});
-				material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
-				break;
-			}
-			default:
-				Albedo_Core_ERROR("Error: Invalid type");
-				break;
-			}
+
+			PreRenderShader = Shader::Create("Assets/DepthMapShader.glsl");
+			PreRenderTexture = Texture2D::Create("Wood.png");
+			PreRenderVertexArray = VertexArray::Create();
+			PreRenderVertexBuffer = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
+			PreRenderVertexBuffer->SetLayout
+			({
+				{ShaderDataType::Float3, "a_Position"},
+				{ShaderDataType::Float3, "a_Normal"},
+				{ShaderDataType::Float2, "a_TexCoord"}
+			});
+			PreRenderVertexArray->AddVertexBuffer(PreRenderVertexBuffer);
+
+
+			material->GetMaterialData().Shader_ = Shader::Create(material->GetShaderPath());
+			if(material->TextureEnabled() && material->GetMaterialData().TexturePath != "")
+				material->GetMaterialData().Texture_ = Texture2D::Create(material->GetTexturePath());
+			if (material->TextureEnabled() && material->GetMaterialData().TexturePath2 != "")
+				material->GetMaterialData().Texture2_ = Texture2D::Create(material->GetTexturePath2());
+			material->GetMaterialData().VertexArray_ = VertexArray::Create();
+			material->GetMaterialData().VertexBuffer_ = VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
+			material->GetMaterialData().VertexBuffer_->SetLayout
+			({
+				{ShaderDataType::Float3, "a_Position"},
+				{ShaderDataType::Float3, "a_Normal"},
+				{ShaderDataType::Float2, "a_TexCoord"}
+			});
+			material->GetMaterialData().VertexArray_->AddVertexBuffer(material->GetMaterialData().VertexBuffer_);
+			//material->GetMaterialData().IndexBuffer_ = IndexBuffer::Create(cubeIndices, sizeof(cubeIndices));
+			//material->GetMaterialData().VertexArray_->SetIndexBuffer(material->GetMaterialData().IndexBuffer_);
+			material->GetMaterialData().Shader_->Bind();
+			material->GetMaterialData().Shader_->SetUniformInt1("diffuseTexture", 0);
+			material->GetMaterialData().Shader_->SetUniformInt1("shadowMap", 1);
+			break;
 		}
+	}
+
+	void Renderer::Reset()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 2);
+
+		glViewport(0, 0, 1366, 768);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Renderer::Setup(const EditorCamera& camera, const Material& material)
 	{
-		if (material.GetMaterialType() == MaterialType::Skybox)
-		{
-			//glDepthMask(GL_FALSE);
-			glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-			material.GetMaterialData().Shader_->Bind();
-			glm::mat4 projection = camera.GetProjection();
-			glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-			material.GetMaterialData().Shader_->SetUniformMat4("view", view);
-			material.GetMaterialData().Shader_->SetUniformMat4("projection", projection);
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("setup: {}", result);
 
-			glBindVertexArray(material.GetMaterialData().VertexArray_->GetRendererID());
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, material.GetMaterialData().Texture_->GetTextureID());
-		}
-		else if (material.GetMaterialType() == MaterialType::Light)
-		{
-			material.GetMaterialData().Shader_->Bind();
-			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat4("u_MaterialColor", material.GetMaterialData().Color);
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::ortho(-orthoValue, orthoValue, -orthoValue, orthoValue, near_plane, far_plane);
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
 
-			material.GetMaterialData().VertexArray_->Bind();
-		}
-		else if (material.GetMaterialType() == MaterialType::Cube)
-		{
-			material.GetMaterialData().Shader_->Bind();	
-			material.GetMaterialData().Shader_->SetUniformMat4  ("u_ProjectionView"			  ,	 camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos"				  ,	 camera.GetPosition());
-
-			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Direction"		  ,  glm::vec3(-0.20f, -1.00f, -0.03f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Ambient"		  ,  glm::vec3( 0.05f,  0.05f,  0.05f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Diffuse"		  ,  glm::vec3( 0.40f,  0.40f,  0.04f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("dirLight.u_Specular"		  ,  glm::vec3( 0.50f,  0.50f,  0.05f));
-			// point light 1
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Position"  , material.GetMaterialData().PointLightPos1);
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[0].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Constant"  ,  1.000f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Linear"    ,  0.090f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[0].u_Quadratic" ,  0.032f);
-			// point light 2
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Position"  ,  material.GetMaterialData().PointLightPos2);
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[1].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Constant"  ,  1.000f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Linear"    ,  0.090f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[1].u_Quadratic" ,  0.032f);
-			// point light 3
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Position"  , material.GetMaterialData().PointLightPos3);
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[2].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Constant"  ,  1.000f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Linear"    ,  0.090f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[2].u_Quadratic" ,  0.032f);
-			// point light 4
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Position"  , material.GetMaterialData().PointLightPos4);
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Ambient"   ,  glm::vec3(0.05f, 0.05f, 0.05f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Diffuse"   ,  glm::vec3(0.80f, 0.80f, 0.80f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("pointLights[3].u_Specular"  ,  glm::vec3(1.00f, 1.00f, 1.00f));
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Constant"  ,  1.000f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Linear"    ,  0.090f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("pointLights[3].u_Quadratic" ,  0.032f);
-			// spotLight
-			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Position"		  ,  camera.GetPosition());
-			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Direction"	  ,  camera.GetForwardDirection());
-			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Ambient"		  ,  glm::vec3(0.0f, 0.0f, 0.0f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Diffuse"		  ,  glm::vec3(1.0f, 1.0f, 1.0f));
-			material.GetMaterialData().Shader_->SetUniformFloat3("spotLight.u_Specular"		  ,  glm::vec3(1.0f, 1.0f, 1.0f));
-			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Constant"		  ,  1.000f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Linear"		  ,  0.009f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_Quadratic"	  ,  0.0032f);
-			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_CutOff"		  ,  glm::cos(glm::radians(12.5f)));
-			material.GetMaterialData().Shader_->SetUniformFloat ("spotLight.u_OuterCutOff"	  ,  glm::cos(glm::radians(15.0f)));
-			// material properties
-			material.GetMaterialData().Shader_->SetUniformFloat("material.u_Shininess"		  ,  32.0f);
-
-			material.GetMaterialData().VertexArray_->Bind();
-
-			if(material.GetMaterialData().Texture_)
-				material.GetMaterialData().Texture_->Bind(0);
-			if (material.GetMaterialData().Texture2_)
-				material.GetMaterialData().Texture2_->Bind(1);
-		}
-		else if (material.GetMaterialType() == MaterialType::Line)
-		{
-			glEnable(GL_LINE_SMOOTH);
-
-			material.GetMaterialData().Shader_->Bind();
-			material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-			material.GetMaterialData().Shader_->SetUniformFloat4("u_Color", material.GetMaterialData().Color);
-			glm::mat4 transform = glm::translate(glm::mat4(1.0f), material.GetMaterialData().Position)
-				* glm::scale(glm::mat4(1.0f), material.GetMaterialData().Scale);
-			material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
-
-			material.GetMaterialData().VertexArray_->Bind();
-		}
-
-		//s_RendererData.ModelShader = Shader::Create("Assets/ModelShader.glsl");
-		//s_RendererData.SuzzaneModel = new Model("Assets/backpack/backpack.obj");
+		material.GetMaterialData().Shader_->Bind();
+		material.GetMaterialData().Shader_->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		material.GetMaterialData().Shader_->SetUniformFloat3("u_CameraPos", camera.GetPosition());
+		material.GetMaterialData().Shader_->SetUniformFloat3("u_LightPos", lightPos);
+		material.GetMaterialData().Shader_->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+		material.GetMaterialData().Texture_->Bind(0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
 	}
 
 	void Renderer::Render(const Material& material)
 	{
-		if (material.GetMaterialType() == MaterialType::Skybox)
-		{
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			glDepthMask(GL_TRUE);
-			glBindVertexArray(0);
-			glDepthFunc(GL_LESS);
-		}
-		else if (material.GetMaterialType() == MaterialType::Light)
-		{
-			material.GetMaterialData().VertexArray_->Bind();
-			glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
-		}
-		else if (material.GetMaterialType() == MaterialType::Cube)
-		{
-			material.GetMaterialData().VertexArray_->Bind();
-			glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
-		}
-		else if (material.GetMaterialType() == MaterialType::Line)
-		{
-			material.GetMaterialData().VertexArray_->Bind();
-			glLineWidth(material.GetMaterialData().LineWidth);
-			glDrawArrays(GL_LINES, 0, 2);
-		}
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("render: {}", result);
+
+		material.GetMaterialData().VertexArray_->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+		material.GetMaterialData().VertexArray_->UnBind();
+	}
+
+	void Renderer::PreRenderSetup(const EditorCamera& camera, const Material& material)
+	{
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("Prerender setup: {}", result);
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		PreRenderTexture->Bind();
+
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("Prerender setup: {}", result);
+
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::ortho(-orthoValue, orthoValue, -orthoValue, orthoValue, near_plane, far_plane);
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		// render scene from light's point of view
+		PreRenderShader->Bind();
+		PreRenderShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+	}
+
+	void Renderer::PreRenderRender(const Material& material)
+	{
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		Albedo_Core_INFO("Prerender render: {}", result);
+
+		PreRenderVertexArray->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		PreRenderVertexArray->UnBind();
+	}
+
+	void Renderer::DebugRender()
+	{
+		DebugVertexArray->Bind();
+		DebugShader->Bind();
+		DebugShader->SetUniformFloat("near_plane", near_plane);
+		DebugShader->SetUniformFloat("far_plane", far_plane);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		
+		DebugVertexArray->Bind();
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	}
+
+	void Renderer::PlaneRender(const Material& material)
+	{
+		glm::mat4 transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(0.0f, -11.0f, 0.0));
+		transform = glm::rotate(transform, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+		transform = glm::scale(transform, glm::vec3(20.0, 20.0, 20.0));
+
+		material.GetMaterialData().Shader_->Bind();
+		material.GetMaterialData().Shader_->SetUniformMat4("u_Transform", transform);
+		material.GetMaterialData().VertexArray_->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		//PreRenderVertexArray->UnBind();
+		//glBindFramebuffer(GL_FRAMEBUFFER, 2);
+		//
+		//glViewport(0, 0, 1280, 720);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	}
 
 	void Renderer::Shutdown()
@@ -501,6 +359,5 @@ namespace Albedo {
 
 	void Renderer::DrawModel()
 	{
-		//s_RendererData.SuzzaneModel->Draw(s_RendererData.ModelShader);
 	}
 }

@@ -30,7 +30,7 @@ namespace Albedo {
 		Entity GetPrimaryCameraEntity();
 
 		std::vector<Material*>& GetMaterialsInstance() { return m_Materials; }
-
+		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);

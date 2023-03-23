@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\assimp\Importer.h" />
+    <ClInclude Include="include\assimp\Importer.hpp" />
     <ClInclude Include="include\assimp\postprocess.h" />
     <ClInclude Include="include\assimp\scene.h" />
   </ItemGroup>
