@@ -1,14 +1,10 @@
 #pragma once
+#if 0
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 #include "Mesh.h"
-#include "Platform/OpenGL/OpenGLShader.h"
-
-#include <vector>
-#include <string>
-
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
 
 namespace Albedo {
 
@@ -34,3 +30,4 @@ namespace Albedo {
     };
 
 }
+#endif

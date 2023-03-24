@@ -113,11 +113,12 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		Renderer::DrawModel(camera);
 		glm::mat4 transform = glm::mat4(1.0f);
 		glm::vec3 color(1.0, 0.0, 0.0);
 		for(Material* material: m_Materials)
 		{	
-#if 1
+#if 0
 			Renderer::PreRenderSetup(camera, *material);
 			Renderer::PreRenderShader->Bind();
 			
@@ -144,8 +145,8 @@ namespace Albedo {
 
 			Renderer::Reset();
 #endif
-#if 0
-			Renderer::DebugRender();
+#if 1
+			//Renderer::DebugRender();
 #else
 			Renderer::Setup(camera, *material);
 

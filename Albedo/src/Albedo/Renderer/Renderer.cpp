@@ -4,7 +4,8 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Albedo {
@@ -32,6 +33,8 @@ namespace Albedo {
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
+
+		LoadModel("Assets/suzanne/suzanne.obj");
 	}
 
 	void Renderer::InitMaterials(const std::vector<Material*>& materials)
@@ -149,9 +152,6 @@ namespace Albedo {
 			-0.5f, 0.0f, 0.0f,
 			 0.5f, 0.0f, 0.0f
 		};
-		
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("before creating framebuffer: {}", result);
 
 		glGenFramebuffers(1, &depthMapFBO);
 		// create depth texture
@@ -173,14 +173,14 @@ namespace Albedo {
 			Albedo_Core_INFO("Framebuffer complete");
 		else
 			Albedo_Core_ERROR("WARNING: Framebuffer incomplete");
-		//back to default - using 2 as default
+		//back to default
 		glBindFramebuffer(GL_FRAMEBUFFER, result);
-
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("after creating framebuffer: {}", result);
 
 		for (Material* material : materials)
 		{
+			//Model_ = std::make_shared<Model>("Assets/suzanne/suzzane.obj");
+
+
 			PlaneVertexArray = VertexArray::Create();
 			PlaneVertexBuffer = VertexBuffer::Create(planeVertices, sizeof(planeVertices));
 			PlaneVertexBuffer->SetLayout
@@ -250,9 +250,6 @@ namespace Albedo {
 
 	void Renderer::Setup(const EditorCamera& camera, const Material& material)
 	{
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("setup: {}", result);
-
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
@@ -272,9 +269,6 @@ namespace Albedo {
 
 	void Renderer::Render(const Material& material)
 	{
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("render: {}", result);
-
 		material.GetMaterialData().VertexArray_->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 		material.GetMaterialData().VertexArray_->UnBind();
@@ -282,16 +276,10 @@ namespace Albedo {
 
 	void Renderer::PreRenderSetup(const EditorCamera& camera, const Material& material)
 	{
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("Prerender setup: {}", result);
-
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		PreRenderTexture->Bind();
-
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("Prerender setup: {}", result);
 
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
@@ -306,9 +294,6 @@ namespace Albedo {
 
 	void Renderer::PreRenderRender(const Material& material)
 	{
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-		Albedo_Core_INFO("Prerender render: {}", result);
-
 		PreRenderVertexArray->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		PreRenderVertexArray->UnBind();
@@ -357,7 +342,170 @@ namespace Albedo {
 		RenderCommand::SetViewPort(720, 1280, width, height);
 	}
 
-	void Renderer::DrawModel()
+	void Renderer::LoadModel(const std::string& file, uint32_t mesh)
 	{
+		mesh_ = new Mesh;
+
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec2> uv;
+		std::vector<uint32_t> indices;
+
+		std::string inputfile = file;
+		tinyobj::ObjReaderConfig reader_config;
+		reader_config.mtl_search_path = "./"; // Path to material files
+
+		tinyobj::ObjReader reader;
+
+		if (!reader.ParseFromFile(inputfile, reader_config)) {
+			if (!reader.Error().empty()) {
+				std::cerr << "TinyObjReader: " << reader.Error();
+			}
+			exit(1);
+		}
+
+		if (!reader.Warning().empty()) {
+			std::cout << "TinyObjReader: " << reader.Warning();
+		}
+
+		auto& attrib = reader.GetAttrib();
+		auto& shapes = reader.GetShapes();
+		auto& materials = reader.GetMaterials();
+
+		uint32_t s = 0;
+		size_t index_offset = 0;
+		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++)
+		{
+			size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+
+			// Loop over vertices in the face.
+			for (size_t v = 0; v < fv; v++)
+			{
+				// access to vertex
+				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+				tinyobj::real_t vx = attrib.vertices[3 * size_t(idx.vertex_index) + 0];
+				tinyobj::real_t vy = attrib.vertices[3 * size_t(idx.vertex_index) + 1];
+				tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
+				vertices.push_back(glm::vec3(vx, vy, vz));
+
+				// Check if `normal_index` is zero or positive. negative = no normal data
+				if (idx.normal_index >= 0) {
+					tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
+					tinyobj::real_t ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
+					tinyobj::real_t nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
+					normals.push_back(glm::vec3(nx, ny, nz));
+				}
+
+				// Check if `texcoord_index` is zero or positive. negative = no texcoord data
+				if (idx.texcoord_index >= 0) {
+					tinyobj::real_t tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
+					tinyobj::real_t ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
+					uv.push_back(glm::vec2(tx, ty));
+				}
+
+				// Optional: vertex colors
+				// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
+				// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
+				// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
+			}
+			index_offset += fv;
+
+			// per-face material
+			shapes[s].mesh.material_ids[f];
+		}
+
+		mesh_->SetVertices(vertices);
+		//mesh_->SetIndices(indices);
+		mesh_->SetUV(uv);
+		mesh_->SetNormals(normals);
+
+		mesh_->InitMesh();
+#if 0
+		
+
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t>	 shapes;
+		std::vector<tinyobj::material_t> materials;
+
+		std::string warn;
+		std::string err;
+
+		std::string name = file;
+		std::string path = name.substr(0, name.find_last_of("/") + 1);
+
+		bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
+
+		if (!err.empty())
+		{
+			std::vector<glm::vec3> vertices;
+			std::vector<glm::vec3> normals;
+			std::vector<glm::vec2> uv;
+			std::vector<uint32_t> indices;
+
+			//for (uint32_t i = 0; i < shapes[mesh].mesh.indices.size(); ++i)
+			{
+				//indices.push_back(shapes[mesh].mesh.indices[i].normal_index);
+				//vertices.push_back(shapes[mesh].mesh.indices[i].vertex_index);
+			}
+
+			//for (uint32_t i = 0; i < shapes[mesh].mesh.positions.size(); i += 3)
+			{
+				//vertices.push_back(glm::vec3(shapes[mesh].mesh.positions[i], shapes[mesh].mesh.positions[i + 1], shapes[mesh].mesh.positions[i + 2]));
+			}
+
+			//for (uint32_t i = 0; i < shapes[mesh].mesh.normals.size(); i += 3)
+			{
+				//normals.push_back(glm::vec3(shapes[mesh].mesh.normals[i], shapes[mesh].mesh.normals[i + 1], shapes[mesh].mesh.normals[i + 2]));
+			}
+
+			//for (uint32_t i = 0; i < shapes[mesh].mesh.texcoords.size(); i += 2)
+			{
+				//uv.push_back(glm::vec2(shapes[mesh].mesh.texcoords[i], 1.0f - shapes[mesh].mesh.texcoords[i + 1]));
+			}
+
+			shapes.clear();
+			materials.clear();
+
+			//mesh->SetIndices(indices);
+			//mesh->SetVertices(vertices);
+			//mesh->SetNormals(normals);	
+			//mesh->SetUV(uv);
+		}
+		else
+		{
+			Albedo_Core_ERROR("Could not load mesh: {}", err.c_str());
+		}
+#endif
+
+	}
+
+	void Renderer::DrawModel(const EditorCamera& camera)
+	{
+		ModelShader->Bind();
+		glm::mat4 transform(1.0);
+		transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0));
+		transform = glm::scale(transform, glm::vec3(1.0f));
+		ModelShader->SetUniformMat4  ("u_Transform", transform);
+		ModelShader->SetUniformMat4  ("u_ProjectionView", camera.GetViewProjection());
+		ModelShader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+
+		ModelShader->SetUniformInt1("u_AlbedoMap", 0);
+		ModelShader->SetUniformInt1("u_AOMap", 1);
+		ModelShader->SetUniformInt1("u_MetallicMap", 2);
+		ModelShader->SetUniformInt1("u_NormalMap", 3);
+		ModelShader->SetUniformInt1("u_RoughnessMap", 4);
+
+		ModelShader->SetUniformFloat ("u_RoughnessScale", 1.0);
+		ModelShader->SetUniformFloat3("u_LightPosition", lightPos);
+		ModelShader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
+		ModelShader->SetUniformFloat ("u_Exposure", 3.5);
+
+		for (int i = 0; i < mesh_->GetTextures().size(); i++)
+		{
+			mesh_->GetTextures()[i]->Bind(i);
+		}
+
+		mesh_->Render(ModelShader);
+
 	}
 }

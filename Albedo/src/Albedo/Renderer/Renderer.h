@@ -2,6 +2,8 @@
 
 #include "RenderCommand.h"
 #include "Shader.h"
+#include "Model.h"
+#include "Mesh.h"
 #include "Material.h"
 #include "Albedo/Cameras/EditorCamera.h"
 
@@ -20,8 +22,8 @@ namespace Albedo {
 		static void Reset();
 		static void PlaneRender(const Material& material);
 		static void Shutdown();
-
-		static void DrawModel();
+		static void LoadModel(const std::string& file, uint32_t mesh = 0);
+		static void DrawModel(const EditorCamera& camera);
 		static void OnWindowResize(uint32_t width, uint32_t height);
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 
@@ -38,7 +40,11 @@ namespace Albedo {
 		inline static Ref<VertexArray>  PlaneVertexArray;
 		inline static Ref<VertexBuffer> PlaneVertexBuffer;
 
-		inline static glm::vec3 lightPos = glm::vec3(-3.0f, 10.0f, -1.0f);
+		inline static Ref<Shader> ModelShader;
+		inline static Mesh* mesh_;
+		//inline static Ref<Model> Model_;
+
+		inline static glm::vec3 lightPos = glm::vec3(0.0f, 10.0f, 0.0f);
 		inline static float near_plane = 1.0f, far_plane = 50.0f;
 		inline static float orthoValue = 10.0f;
 	private:

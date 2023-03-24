@@ -1,5 +1,5 @@
 #include "AlbedoPreCompiledHeader.h"
-
+#if 0
 #include "Model.h"
 
 #include <glad/glad.h>
@@ -8,7 +8,7 @@
 namespace Albedo {
 
     void Model::loadModel(const std::string& path)
-    {
+    {   
         // read file via ASSIMP
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -213,3 +213,4 @@ namespace Albedo {
     }
 
 }
+#endif
