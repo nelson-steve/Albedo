@@ -20,7 +20,7 @@ namespace Albedo {
 		//m_Window = Window::Create();
 		m_Window->SetEventCallBack(BIND_EVENT_FN(Application::OnEvent));
 
-		Renderer::Init();
+		RenderCommand::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

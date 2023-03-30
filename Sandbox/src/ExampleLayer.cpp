@@ -78,7 +78,7 @@
 		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		Albedo::Ref<Albedo::VertexBuffer> vertexBuffer;
-		vertexBuffer = Albedo::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
+		//vertexBuffer = Albedo::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices));
 
 		Albedo::BufferLayout layout =
 		{

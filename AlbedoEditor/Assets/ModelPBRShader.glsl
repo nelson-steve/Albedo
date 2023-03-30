@@ -4,10 +4,14 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec3 a_Normal;
 layout(location = 2) in vec2 a_UV;
+//layout(location = 3) in mat4 a_Offset;
 
 //precision highp float;
 uniform mat4 u_ProjectionView;
 uniform mat4 u_Transform;
+
+//uniform mat4 offsets[100];
+
 //uniform mat4 modelViewMatrix;
 //uniform mat3 normalMatrix;
 //uniform mat4 textureRotation;
@@ -19,11 +23,12 @@ out vec3 v_Normal;
 
 void main()
 {
-  v_WorldPos  = vec3(u_Transform * vec4(a_Position, 1.0));
-  v_Normal    = normalize(a_Normal);
-  //v_TexCoords = mat2(textureRotation)*(uv*textureRepeat);  
-  v_TexCoords = a_UV;  
-  gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+    //mat4 offset = offsets[gl_InstanceID];
+    v_WorldPos  = vec3(u_Transform * vec4(a_Position, 1.0));
+    v_Normal    = normalize(a_Normal);
+    //v_TexCoords = mat2(textureRotation)*(uv*textureRepeat);  
+    v_TexCoords = a_UV;  
+    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
 }
 
 

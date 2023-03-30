@@ -4,6 +4,7 @@
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Albedo/Cameras/EditorCamera.h"
+#include <Albedo/Utils/AssetSystem.h>
 
 namespace Albedo {
 	class EditorLayer : public Layer
@@ -28,6 +29,8 @@ namespace Albedo {
 		void OpenScene(const std::filesystem::path& path);
 	private:
 		OrthographicCameraController m_CameraController;
+
+		inline static Scope<AssetSystem> m_AssetManager = std::make_unique<AssetSystem>();
 
 		Ref<VertexArray> m_VertexArray;
 		Ref<Shader> m_Shader;

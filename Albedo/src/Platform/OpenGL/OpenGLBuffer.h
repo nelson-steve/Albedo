@@ -8,13 +8,17 @@ namespace Albedo {
 	{
 	public:
 		OpenGLVertexBuffer(uint32_t size);
-		OpenGLVertexBuffer(float* vertices, uint32_t size);
+		OpenGLVertexBuffer(const float* vertices, uint32_t size);
+		OpenGLVertexBuffer(const std::vector<float>& vertices, uint32_t size);
+		OpenGLVertexBuffer(const std::vector<glm::vec3>& vertices, uint32_t size);
+		OpenGLVertexBuffer(const std::vector<glm::vec2>& vertices, uint32_t size);
 		virtual ~OpenGLVertexBuffer();
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
 
 		virtual inline const BufferLayout& GetLayout() const override { return m_Layout; }
+		virtual inline const uint32_t GetRendererID() const override { return m_RendererID; }
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
 		virtual void SetData(const void* data, uint32_t size) override;

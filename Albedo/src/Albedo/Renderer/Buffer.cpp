@@ -18,13 +18,49 @@ namespace Albedo {
 		return nullptr;
 	}
 
-	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(const float* vertices, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<float>& vertices, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None: //assert
 			//case RendererAPI::API::Direct3d: //assert
 			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<glm::vec3>& vertices, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<glm::vec2>& vertices, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
 		}
 		//assert();
 		return nullptr;

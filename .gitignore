@@ -1,6 +1,7 @@
 .vs/
 bin/
 bin-int/
+**Albedo/AlbedoEditor/Assets
 
 # Files
 *.user

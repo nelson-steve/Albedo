@@ -601,6 +601,7 @@
     <ClInclude Include="src\Albedo\Scene\Entity.h" />
     <ClInclude Include="src\Albedo\Scene\Scene.h" />
     <ClInclude Include="src\Albedo\Scene\SceneCamera.h" />
+    <ClInclude Include="src\Albedo\Scene\SceneObject.h" />
     <ClInclude Include="src\Albedo\Scene\SceneSerializer.h" />
     <ClInclude Include="src\Albedo\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h" />
@@ -649,6 +650,7 @@
     <ClCompile Include="src\Albedo\Scene\GraphicsContext.cpp" />
     <ClCompile Include="src\Albedo\Scene\Scene.cpp" />
     <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp" />
+    <ClCompile Include="src\Albedo\Scene\SceneObject.cpp" />
     <ClCompile Include="src\Albedo\Scene\SceneSerializer.cpp" />
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp" />
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">

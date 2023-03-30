@@ -24,63 +24,33 @@ namespace Albedo {
 
 	void EditorLayer::OnAttach()
 	{
-		Albedo_PROFILE_FUNCTION();
-		//m_Texture = Texture2D::Create("TextureSample5.png");
-		//m_Texture1 = Texture2D::Create("TextureSample6.png");
-
 		m_ActiveScene = std::make_shared<Scene>();
 
-		Material* skybox = new Material();
-		skybox->Init(MaterialType::Skybox);
-		skybox->AddShader("Assets/SkyboxShader.glsl");
-		std::vector<std::string> skyboxTextures
-		{
-			"Assets/right.jpg",
-			"Assets/left.jpg",
-			"Assets/top.jpg",
-			"Assets/bottom.jpg",
-			"Assets/front.jpg",
-			"Assets/back.jpg"
-		};
-		skybox->AddSkyboxTexture(skyboxTextures);
-		skybox->ChangeVisibility(true);
+		Ref<SceneObject> obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/suzanne/suzanne.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ 3.0, 0.0, 0.0 });
 
-		//m_ActiveScene->GetMaterialsInstance().push_back(skybox);
+		m_ActiveScene->AddSceneObject(obj);
+		obj.reset();
 
-		//lightCube = new Material();
-		//lightCube->Init(MaterialType::Light);
-		//lightCube->AddShader("Assets/CubeShader.glsl");
-		//lightCube->ChangeColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		//float scale = 0.3f;
-		//lightCube->ChangeScale(glm::vec3(scale, scale, scale));
-		//lightCube->ChangeVisibility(true);
+		obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/FA/FA.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ 0.0, 0.0, 0.0 });
 
-		//m_ActiveScene->GetMaterialsInstance().push_back(lightCube);
+		m_ActiveScene->AddSceneObject(obj);
+		obj.reset();
 
-		Material* cube = new Material();
-		cube->Init(MaterialType::Cube);
-		cube->AddShader("Assets/ShadowMappingShader.glsl");
-		cube->AddTexture("Wood.png");
-		//cube->AddTexture2("Container_Specular.png");
-		cube->ChangePosition(glm::vec3(0.0f, -10.0f, 0.0f));
-		cube->ChangeColor(glm::vec4(1.0f, 0.5f, 0.3f, 1.0f));
-		float scale = 1.0f;
-		cube->ChangeScale(glm::vec3(scale, scale, scale));
-		cube->ChangeVisibility(true);
-		cube->EnableTexture(true);
+		obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/material_sphere/material_sphere.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ -3.0, 0.0, 0.0 });
 
-		m_ActiveScene->GetMaterialsInstance().push_back(cube);
-
-		//Material* platform = new Material();
-		//platform->Init(MaterialType::Cube);
-		//platform->AddShader("Assets/CubeLightingShader.glsl");
-		//platform->AddTexture("Wood.png");
-		//platform->ChangePosition(glm::vec3(0.0f, -30.0f, 0.0f));
-		//platform->ChangeColor(glm::vec4(0.4f, 0.2f, 0.0f, 1.0f));
-		//platform->ChangeScale(glm::vec3(80, 10, 80));
-		//platform->ChangeVisibility(true);
-		//platform->EnableTexture(true);
-		//m_ActiveScene->GetMaterialsInstance().push_back(platform);
+		m_ActiveScene->AddSceneObject(obj);
 
 		m_ActiveScene->InitScene();
 
@@ -190,31 +160,7 @@ namespace Albedo {
 		m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
 
 		{
-			Albedo_PROFILE_FUNCTION("Render Draw");
-
-			//_Renderer2D::BeginScene(m_CameraController.GetCamera());
-			//_Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-			//_Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_Texture);
-			//_Renderer2D::EndScene();
-			#ifdef BATCH____
-			BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
-			//BatchRenderer2D::DrawQuad({ 5.0f, 5.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
-			float value = 10.0f;
-			for (float y = -value; y < value; y += 0.5f)
-			{
-				for (float x = -value; x < value; x += 0.5f)
-				{
-					glm::vec4 color = { (x + value) / 10.0f, 0.4f, (y + value) / 10.0f, 0.7f };
-					BatchRenderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
-				}
-			}
-			//BatchRenderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 2.5f, 2.5f }, m_Texture);
-			BatchRenderer2D::EndScene();
-			m_Framebuffer->Unbind();
-			#endif
-
-			#ifndef BATCH
-			Renderer2D::BeginScene(m_CameraController.GetCamera());
+			#if 0
 			float value = 10.0f;
 			for (float y = -value; y < value; y += 0.5f)
 			{
@@ -224,11 +170,7 @@ namespace Albedo {
 					Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
 				}
 			}
-			//Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f });
-			Renderer2D::EndScene();
 			#endif // !1
-
-			//BatchRenderer2D::BeginScene(m_CameraController.GetCamera());
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_ViewportBounds[0].x;
@@ -245,18 +187,7 @@ namespace Albedo {
 				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
 			}
 
-			//BatchRenderer2D::EndScene();
-
 			m_Framebuffer->Unbind();
-
-			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 2.5f, 2.5f }, m_Texture1);
-			//Renderer2D::DrawQuad({ 0.5f, 0.3f }, { 0.5f, 0.2f }, { 1.0f, 0.0f, 0.0f, 1.0f });
-			//Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, m_SquareColor);
-			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.2f }, { 5.0f, 5.0f }, m_Texture1);
-			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_Texture);
-			//Renderer2D::DrawQuad({ 0.8f, 0.5f }, { 0.2f, 1.0f }, m_SquareColor);
-			//Renderer2D::DrawRotatedQuad({ 0.5f, 0.3f }, { 0.5f, 0.2f }, glm::radians(40.0f), { 0.8f, 0.0f, 0.0f, 1.0f });
-			//Renderer2D::EndScene();
 		}
 	}
 
@@ -338,63 +269,10 @@ namespace Albedo {
 			m_ContentBrowserPanel.OnImGuiRender();
 
 			ImGui::Begin("Stats");
-
-			static float p1X = lightCube->GetMaterialData().PointLightPos1.x;
-			static float p1Y = lightCube->GetMaterialData().PointLightPos1.y;
-			static float p1Z = lightCube->GetMaterialData().PointLightPos1.z;
-
-			static float p2X = lightCube->GetMaterialData().PointLightPos2.x;
-			static float p2Y = lightCube->GetMaterialData().PointLightPos2.y;
-			static float p2Z = lightCube->GetMaterialData().PointLightPos2.z;
-
-			static float p3X = lightCube->GetMaterialData().PointLightPos3.x;
-			static float p3Y = lightCube->GetMaterialData().PointLightPos3.y;
-			static float p3Z = lightCube->GetMaterialData().PointLightPos3.z;
-
-			static float p4X = Renderer::lightPos.x;
-			static float p4Y = Renderer::lightPos.y;
-			static float p4Z = Renderer::lightPos.z;
-
-
 			std::string name = "None";
 			if (m_HoveredEntity)
 				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
 			ImGui::Text("Hovered Entity: %s", name.c_str());
-			
-			//ImGui::DragFloat("p1y", &p1Y, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p1x", &p1X, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p1z", &p1Z, 0.2f, -100.0f, 100.0f);
-
-			//lightCube->ChangePointLightPosition(glm::vec3(p1X, p1Y, p1Z), 1);
-
-			//ImGui::Separator();
-
-			//ImGui::DragFloat("p2x", &p2X, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p2y", &p2Y, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p2z", &p2Z, 0.2f, -100.0f, 100.0f);
-
-			//lightCube->ChangePointLightPosition(glm::vec3(p2X, p2Y, p2Z), 2);
-
-			//ImGui::Separator();
-
-			//ImGui::DragFloat("p3x", &p3X, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p3y", &p3Y, 0.2f, -100.0f, 100.0f);
-			//ImGui::DragFloat("p3z", &p3Z, 0.2f, -100.0f, 100.0f);
-
-			//lightCube->ChangePointLightPosition(glm::vec3(p3X, p3Y, p3Z), 3);
-
-			//ImGui::Separator();
-
-			ImGui::DragFloat("p4x", &p4X, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p4y", &p4Y, 0.2f, -100.0f, 100.0f);
-			ImGui::DragFloat("p4z", &p4Z, 0.2f, -100.0f, 100.0f);
-
-			Renderer::lightPos.x = p4X;
-			Renderer::lightPos.y = p4Y;
-			Renderer::lightPos.z = p4Z;
-
-			//lightCube->ChangePointLightPosition(glm::vec3(p4X, p4Y, p4Z), 4);
-
 			//ImGui::Text("Time: %f", m_CurrentTime);
 			//ImGui::Text("FPS: %f", m_FPS);
 			/*

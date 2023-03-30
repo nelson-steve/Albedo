@@ -2,6 +2,7 @@
 
 #include "Albedo/Core/Core.h"
 #include <vector>
+#include <glm/glm.hpp>
 
 namespace Albedo {
 	enum class ShaderDataType
@@ -112,10 +113,14 @@ namespace Albedo {
 		virtual void SetData(const void* data, uint32_t size) = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
+		virtual const uint32_t GetRendererID() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
 		static Ref<VertexBuffer> Create(uint32_t size);
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const std::vector<float>& vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const std::vector<glm::vec3>& vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const std::vector<glm::vec2>& vertices, uint32_t size);
 	};
 
 	class IndexBuffer

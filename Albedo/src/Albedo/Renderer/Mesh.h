@@ -1,64 +1,64 @@
 #pragma once
 
 #include "Texture.h"
+#include "Buffer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Albedo/Core/Core.h"
+#include "VertexArray.h"
 
 #define MAX_BONE_INFLUENCE 4
 
 namespace Albedo {
 
-    struct Vertex 
+    struct MeshBufferData
     {
-        glm::vec3 Position;
-        glm::vec3 Normal;
-        glm::vec2 TexCoords;
-        //glm::vec3 Tangent;
-        //glm::vec3 Bitangent;
-        //int m_BoneIDs[MAX_BONE_INFLUENCE];
-        //float m_Weights[MAX_BONE_INFLUENCE];
-
-        auto operator= (const std::vector<Vertex> other)
-        {
-            return other;
-        }
+        std::vector<uint32_t> m_TextureIDs;
+        Ref<VertexArray>  m_VertexArray;
+        Ref<VertexBuffer> m_VertexBuffer;
+        Ref<VertexBuffer> m_UVBuffer;
+        Ref<VertexBuffer> m_NormalBuffer;
+        Ref<VertexBuffer> m_InstanceBuffer;
     };
 
-    struct MeshTexture
+    class Mesh
     {
-        uint32_t id;
-        std::string type;
-        std::string path;
-    };
+    public:
+        void InitMesh();
+        const std::string&    GetName()           const { return m_Name;           }
+        const std::string&    GetPath()           const { return m_Path;           }
+        const MeshBufferData& GetMeshBufferData() const { return m_MeshBufferData; }
+		const std::vector<glm::vec3> GetVertices() const { return m_Vertices;	   }
 
-	class Mesh 
-    {
-	public:
-        Mesh() = default;
-		Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<MeshTexture> textures);
-		~Mesh();
+        void SetName                  (const std::string& name)                { m_Name             = name;     }
+        void SetUV                    (const std::vector<glm::vec2>& uv)       { m_UV               = uv;       }
+        void SetIndices               (const std::vector<uint32_t>& indices)   { m_Indices          = indices;  }
+        void SetVertices              (const std::vector<glm::vec3>& vertices) { m_Vertices         = vertices; }
+        void SetNormals               (const std::vector<glm::vec3>& normals)  { m_Normals          = normals;  }
+		void SetSingularMeshData	  (const std::vector<float>& data)		   { m_SingularMeshData = data;		}
+        void SetVerticesDataLayout    (const BufferLayout& layout)             { m_Layout           = layout;   }
+        void SetDataSingularityStatus (bool status)                            { m_SingularData     = status;   }
 
-		void InitMesh();
-        void Render(Ref<Shader> shader);
-
-        const std::vector<Ref<Texture2D>>& GetTextures() const { return m_textures; }
-
-        void SetIndices(const std::vector<uint32_t>& indices) { m_indices = indices; }
-        void SetVertices(const std::vector<glm::vec3>& vertices) { m_vertices = vertices; }
-        void SetNormals(const std::vector<glm::vec3>& normals) { m_normals = normals; }
-        void SetUV(const std::vector<glm::vec2>& uv) { m_uv = uv; }
+        bool IsSingularData() const { return m_SingularData; }
 	private:
-        std::vector<Ref<Texture2D>> m_textures;
-        std::vector<glm::vec3> m_vertices;
-        std::vector<glm::vec3> m_normals;
-        std::vector<glm::vec2> m_uv;
-        std::vector<uint32_t>  m_indices;
-
-		uint32_t m_VAO;
-		uint32_t m_VBO;
-		uint32_t m_TBO;
-		uint32_t m_NBO;
-		uint32_t m_EBO;
-	};
+		//Get the size of the vertex data for the Vertex Buffer
+		template<typename T>
+		uint32_t GetVertexSize(const std::vector<T> data)
+		{
+			return data.size() * sizeof(T);
+		}
+    private:
+        std::string m_Name = "Mesh"; //default
+        std::string m_Path;
+        std::vector<glm::vec3> m_Vertices;
+        std::vector<glm::vec3> m_Normals;
+        std::vector<glm::vec2> m_UV;
+        std::vector<uint32_t>  m_Indices;
+        //Contains all the mesh data in one variable (vertices, normals, uvs...)
+		std::vector<float> m_SingularMeshData;
+        //Layout for singular vertices data
+        BufferLayout m_Layout;
+        bool m_SingularData = true;
+        MeshBufferData m_MeshBufferData;
+    };
 
 }

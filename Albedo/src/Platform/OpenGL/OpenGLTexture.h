@@ -4,6 +4,19 @@
 
 namespace Albedo {
 
+	enum class TextureType
+	{
+		NomralMap = 0,
+		HeightMap,
+		ShadowMap,
+		LightMap,
+		AOMap,
+		AlbedoMap,
+		DiffuseMap,
+		RoughnessMap,
+		SpecularMap
+	};
+
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
@@ -14,6 +27,7 @@ namespace Albedo {
 
 		virtual unsigned int getWidth() const override { return m_Width; }
 		virtual unsigned int getHeight() const override { return m_Height; }
+		virtual const std::string& GetPath() const override { return m_Path; }
 
 		virtual void SetData(void* data, unsigned int size) override;
 
