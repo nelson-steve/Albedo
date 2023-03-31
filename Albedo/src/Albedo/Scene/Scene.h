@@ -40,6 +40,7 @@ namespace Albedo {
 
 		Entity GetPrimaryCameraEntity();
 
+		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
 	private:
 		template<typename T>

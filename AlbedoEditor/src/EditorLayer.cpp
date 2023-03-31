@@ -26,8 +26,25 @@ namespace Albedo {
 	{
 		m_ActiveScene = std::make_shared<Scene>();
 
+		entt::entity suzanne = m_ActiveScene->CreateEntity();
+		m_ActiveScene->Reg().emplace<MeshComponent>(suzanne).AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
+		m_ActiveScene->Reg().emplace<TextureComponent>(suzanne).AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		m_ActiveScene->Reg().emplace<ShaderComponent>(suzanne).AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+
+		entt::entity cerberus = m_ActiveScene->CreateEntity();
+		m_ActiveScene->Reg().emplace<MeshComponent>(cerberus).AddMesh(m_AssetManager->LoadModel("Assets/models/cerberus/cerberus.obj"));
+		m_ActiveScene->Reg().emplace<TextureComponent>(cerberus).AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		m_ActiveScene->Reg().emplace<ShaderComponent>(cerberus).AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+
+		//Entity suzanneMesh = m_ActiveScene->CreateEntity();
+		//suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
+		//suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		//suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		//suzanneMesh.AddComponent<TransformComponent>(glm::vec3{ 3.0, 0.0, 0.0 });
+#if 0
+
 		Ref<SceneObject> obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/suzanne/suzanne.obj"));
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
 		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
 		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		obj->AddPostion({ 3.0, 0.0, 0.0 });
@@ -36,7 +53,7 @@ namespace Albedo {
 		obj.reset();
 
 		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/FA/FA.obj"));
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/FA/FA.obj"));
 		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
 		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		obj->AddPostion({ 0.0, 0.0, 0.0 });
@@ -45,12 +62,40 @@ namespace Albedo {
 		obj.reset();
 
 		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/material_sphere/material_sphere.obj"));
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/material_sphere/material_sphere.obj"));
 		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
 		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		obj->AddPostion({ -3.0, 0.0, 0.0 });
 
 		m_ActiveScene->AddSceneObject(obj);
+		obj.reset();
+
+		obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/cerberus/cerberus.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ 0.0, 0.0, -5.0 });
+
+		m_ActiveScene->AddSceneObject(obj);
+		obj.reset();
+
+		obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ 15.0, 0.0, -25.0 });
+
+		m_ActiveScene->AddSceneObject(obj);
+		obj.reset();
+
+		obj = std::make_shared<SceneObject>();
+		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/rounded_cube/rounded_cube.obj"));
+		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		obj->AddPostion({ -5.0, 0.0, -25.0 });
+
+		m_ActiveScene->AddSceneObject(obj);
+#endif
 
 		m_ActiveScene->InitScene();
 
@@ -397,7 +442,7 @@ namespace Albedo {
 					Math::DecomposeTransform(transform, translation, rotation, scale);
 
 					glm::vec3 deltaRotation = rotation - tc.Rotation;
-					tc.Translation = translation;
+					tc.Position= translation;
 					tc.Rotation += deltaRotation;
 					tc.Scale = scale;
 				}

@@ -18,6 +18,26 @@ namespace Albedo {
 		}
 	}
 
+	void Renderer::Init(const entt::registry& reg)
+	{
+		auto group = reg.view<MeshComponent>();
+
+		for (auto view : group)
+		{
+			group.get<MeshComponent>(view).m_Mesh->InitMesh();
+		}
+		
+	}
+
+	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform)
+	{
+		shader.m_Shader->Bind();
+		glm::mat4 transform_(1.0);
+		shader.m_Shader->SetUniformMat4("u_Transform", transform_);
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+
+	}
+
 	void Renderer::Setup(const EditorCamera& camera, const Ref<SceneObject> scnObj)
 	{
 		scnObj->GetShader()->Bind();
@@ -52,6 +72,12 @@ namespace Albedo {
 		scnObj->GetMesh()->GetMeshBufferData().m_VertexArray->Bind();
 		auto c = scnObj->GetMesh()->GetVertices().size();
 		glDrawArrays(GL_TRIANGLES, 0, scnObj->GetMesh()->GetVertices().size());
+	}
+
+	void Renderer::Render(const MeshComponent& mesh)
+	{
+		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, mesh.m_Mesh->GetVertices().size());
 	}
 
 	void Renderer::Shutdown()

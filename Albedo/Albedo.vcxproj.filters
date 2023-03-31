@@ -1449,6 +1449,9 @@
     <ClInclude Include="src\Albedo\Scene\SceneCamera.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Scene\SceneObject.h">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Scene\SceneSerializer.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
@@ -1581,6 +1584,9 @@
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Scene\SceneCamera.cpp">
+      <Filter>src\Albedo\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Scene\SceneObject.cpp">
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Scene\SceneSerializer.cpp">

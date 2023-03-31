@@ -10,7 +10,7 @@ namespace Albedo{
 		void AddTexture  (const Ref<Texture>  texture)  { m_Textures.push_back(texture);   }
 		void AddShader   (const Ref<Shader>   shader)   { m_Shader = shader;			   }
 		void AddMaterial (const Ref<Material> material) { m_Material = material;		   }
-		void AddPostion  (const glm::vec3& pos)			{ m_Position = pos;		   }
+		void AddPostion  (const glm::vec3& pos)			{ m_Position = pos;				   }
 
 		Ref<Mesh>					     GetMesh()	   const { return m_Mesh;			   }
 		const std::vector<Ref<Texture>>& GetTextures() const { return m_Textures;		   }

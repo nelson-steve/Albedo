@@ -28,7 +28,8 @@ namespace Albedo {
 	{
 		//Renderer::InitSkybox();
 
-		Renderer::Init(m_SceneObjects);
+		Renderer::Init(m_Registry);
+		//Renderer::Init(m_SceneObjects);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -69,13 +70,13 @@ namespace Albedo {
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
 			for (auto entity : view)
 			{
-				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
+				//auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
 
-				if (camera.Primary)
+				//if (camera.Primary)
 				{
-					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetTransform();
-					break;
+					//mainCamera = &camera.Camera;
+					//cameraTransform = transform.GetTransform();
+					//break;
 				}
 			}
 		}
@@ -84,13 +85,13 @@ namespace Albedo {
 		{
 			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
-			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			for (auto entity : group)
-			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
-			}
+			//auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			//for (auto entity : group)
+			//{
+			//	auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+			//
+			//	Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			//}
 
 			Renderer2D::EndScene();
 		}
@@ -98,10 +99,24 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		for (auto scnObj : m_SceneObjects)
-		{	
-			Renderer::Setup(camera, scnObj);
-			Renderer::Render(scnObj);
+		//for (auto scnObj : m_SceneObjects)
+		//{	
+		//	Renderer::Setup(camera, scnObj);
+		//	Renderer::Render(scnObj);
+		//}
+
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent>();
+
+		for (auto group : view)
+		{
+			auto& shader = view.get<ShaderComponent>(group);
+			auto& transform = view.get<TransformComponent>(group);
+			auto& mesh = view.get<MeshComponent>(group);
+
+
+			Renderer::Setup(camera, shader, transform);
+			Renderer::Render(mesh);
+
 		}
 	}
 
@@ -136,12 +151,14 @@ namespace Albedo {
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
-		static_assert(false);
+		Albedo_Core_INFO("nothing");
+		//static_assert(false);
 	}
 
 	template<>
 	void Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
+		Albedo_Core_INFO("nothing");
 	}
 
 	template<>
@@ -162,6 +179,21 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ShaderComponent>(Entity entity, ShaderComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<TextureComponent>(Entity entity, TextureComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
 	}
 }

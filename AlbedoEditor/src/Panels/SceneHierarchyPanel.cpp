@@ -247,7 +247,7 @@ namespace Albedo {
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
-				DrawVec3Control("Translation", component.Translation);
+				DrawVec3Control("Translation", component.Position);
 				glm::vec3 rotation = glm::degrees(component.Rotation);
 				DrawVec3Control("Rotation", rotation);
 				component.Rotation = glm::radians(rotation);

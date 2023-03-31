@@ -334,16 +334,16 @@ namespace Albedo {
 		RenderCommand::DrawIndexed(s_RendererData.QuadVertexArray);
 	}
 
-	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
-	{
-		DrawQuad(transform, src.Color, entityID);
-	}
+	//void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	//{
+	//	DrawQuad(transform, src.Color, entityID);
+	//}
 
-	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, const Ref<Texture2D> texture, int entityID)
-	{
-		DrawQuad(transform, texture, entityID);
-
-	}
+	//void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, const Ref<Texture2D> texture, int entityID)
+	//{
+	//	DrawQuad(transform, texture, entityID);
+	//
+	//}
 
 }
 /*
