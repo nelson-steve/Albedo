@@ -34,12 +34,12 @@ namespace Albedo {
 			}
 			else
 			{
-				if (false && format == GL_RED_INTEGER)
-				{
-					int value = -1;
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_INT, 1, 1, 0, format, GL_INT, (void *) & value);
-				}
-				else glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+				//if (format == GL_RED_INTEGER)
+				//{
+				//	int value = -1;
+				//	glTexImage2D(GL_TEXTURE_2D, 0, GL_INT, 1, 1, 0, format, GL_INT, (void *) & value);
+				//}
+				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -186,6 +186,11 @@ namespace Albedo {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
+
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+		//	Albedo_Core_INFO("Framebuffer complete");
+		//else
+		//	Albedo_Core_ERROR("WARNING: Framebuffer incomplete");
 	}
 
 	void OpenGLFramebuffer::Unbind()

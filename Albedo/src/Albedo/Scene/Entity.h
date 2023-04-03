@@ -10,14 +10,14 @@ namespace Albedo {
 	{
 	public:
 		Entity() = default;
-		Entity(entt::entity handle, Scene* scene);	
+		Entity(entt::entity handle, Scene* scene);
 		Entity(const Entity& other) = default;
 
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
 			//Albedo_CORE_ASSERT(!HasComponent<T>(), "Entity already has a component!");
-			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
 			m_Scene->OnComponentAdded<T>(*this, component);
 			return component;
 		}
@@ -32,9 +32,9 @@ namespace Albedo {
 		template<typename T>
 		bool HasComponent()
 		{
-			//return m_Scene->m_Registry.valid(m_EntityHandle);
-			//m_Scene->m_Registry.valid(m_EntityHandle)
-			return true;
+			if (m_Scene->m_Registry.try_get<T>(m_EntityHandle))
+				return true;
+			return false;
 		}
 
 		template<typename T>

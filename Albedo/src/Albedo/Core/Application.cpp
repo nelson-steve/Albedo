@@ -3,11 +3,14 @@
 #include "Log.h"
 #include "Input.h"
 #include "Albedo/Renderer/Renderer.h"
+#include "Albedo/Utils/AssetSystem.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 namespace Albedo {
+
+	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager = std::make_unique<Albedo::AssetSystem>();
 
 	Application* Application::s_Instance = nullptr;
 

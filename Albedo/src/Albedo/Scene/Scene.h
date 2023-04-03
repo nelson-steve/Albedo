@@ -6,7 +6,6 @@
 #include "Albedo/Renderer/Material.h"
 
 #include "entt.hpp"
-#include "SceneObject.h"
 
 namespace Albedo {
 
@@ -23,16 +22,6 @@ namespace Albedo {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
-		void AddSceneObject(Ref<SceneObject> scnObj) 
-		{
-			if (scnObj->GetMesh() == nullptr || scnObj->GetTextures().empty() || scnObj->GetShader() == nullptr)
-			{
-				Albedo_Core_WARN("Warning: Incomplete scene object");
-				return;
-			}
-			m_SceneObjects.push_back(scnObj);
-		}
-
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
 
@@ -48,7 +37,6 @@ namespace Albedo {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
-		inline static std::vector<Ref<SceneObject>> m_SceneObjects;
 
 		friend class Entity;
 		friend class SceneSerializer;

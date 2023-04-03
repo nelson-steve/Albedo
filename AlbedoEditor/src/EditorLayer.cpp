@@ -15,9 +15,10 @@
 namespace Albedo {
 
 	extern const std::filesystem::path g_AssetPath;
+	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager;
 
 	EditorLayer::EditorLayer()
-		:Layer("Editor Layer"), m_CameraController(1280.0f / 720.0f), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
+		:Layer("Editor Layer"), m_CameraController(1280.0f / 720.0f)
 	{
 
 	}
@@ -25,79 +26,23 @@ namespace Albedo {
 	void EditorLayer::OnAttach()
 	{
 		m_ActiveScene = std::make_shared<Scene>();
+		
+		Entity sceneCamera = m_ActiveScene->CreateEntity("SceneCamera");
+		sceneCamera.AddComponent<CameraComponent>();
+		sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"));
+		sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
+		sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
 
-		entt::entity suzanne = m_ActiveScene->CreateEntity();
-		m_ActiveScene->Reg().emplace<MeshComponent>(suzanne).AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
-		m_ActiveScene->Reg().emplace<TextureComponent>(suzanne).AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		m_ActiveScene->Reg().emplace<ShaderComponent>(suzanne).AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-
-		entt::entity cerberus = m_ActiveScene->CreateEntity();
-		m_ActiveScene->Reg().emplace<MeshComponent>(cerberus).AddMesh(m_AssetManager->LoadModel("Assets/models/cerberus/cerberus.obj"));
-		m_ActiveScene->Reg().emplace<TextureComponent>(cerberus).AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		m_ActiveScene->Reg().emplace<ShaderComponent>(cerberus).AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-
-		//Entity suzanneMesh = m_ActiveScene->CreateEntity();
-		//suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
-		//suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		//suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		//suzanneMesh.AddComponent<TransformComponent>(glm::vec3{ 3.0, 0.0, 0.0 });
-#if 0
-
-		Ref<SceneObject> obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ 3.0, 0.0, 0.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-		obj.reset();
-
-		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/FA/FA.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ 0.0, 0.0, 0.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-		obj.reset();
-
-		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/material_sphere/material_sphere.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ -3.0, 0.0, 0.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-		obj.reset();
-
-		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/cerberus/cerberus.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ 0.0, 0.0, -5.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-		obj.reset();
-
-		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ 15.0, 0.0, -25.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-		obj.reset();
-
-		obj = std::make_shared<SceneObject>();
-		obj->AddMesh(m_AssetManager->LoadModel("Assets/models/rounded_cube/rounded_cube.obj"));
-		obj->AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-		obj->AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		obj->AddPostion({ -5.0, 0.0, -25.0 });
-
-		m_ActiveScene->AddSceneObject(obj);
-#endif
+		Entity suzanneMesh = m_ActiveScene->CreateEntity("Mesh");
+		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/McLaren/McLaren.obj"));
+		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/McLaren/Exterior_720s.png"));
+		suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 
 		m_ActiveScene->InitScene();
+
+		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
 
 		FramebufferSpecification fbSpec;
 		fbSpec.Attachments = {
@@ -112,24 +57,8 @@ namespace Albedo {
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
 #if 0
-		// Entity
-		auto square = m_ActiveScene->CreateEntity("Green Square");
-		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
-
-		auto redSquare = m_ActiveScene->CreateEntity("Red Square");
-		redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });
-
-		m_SquareEntity = square;
-
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");
-		m_CameraEntity.AddComponent<CameraComponent>();
-
-		m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
-		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
-		cc.Primary = false;
-
 		class CameraController : public ScriptableEntity
-		{
+	
 		public:
 			virtual void OnCreate() override
 			{
@@ -172,12 +101,7 @@ namespace Albedo {
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
-		//m_CurrentTime = ts.GetTimeMillis() - m_ElapsedTime;
-		//m_ElapsedTime = ts.GetTimeMillis();
-		//m_FPS = 1.0f / m_CurrentTime;
-
-		Albedo_PROFILE_FUNCTION();
-
+		//Albedo_Core_INFO("Time: {}", ts.GetTime());
 		// Resize
 		if (Albedo::FramebufferSpecification spec = m_Framebuffer->GetSpecification();
 			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
@@ -190,50 +114,60 @@ namespace Albedo {
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		}
 
-		if (m_ViewportFocused)
-			m_CameraController.OnUpdate(ts);
-
-		m_EditorCamera.OnUpdate(ts);
-
 		m_Framebuffer->Bind();
 		RenderCommand::ClearColor({ 0.2f, 0.2f, 0.2f, 0.2f });
 		RenderCommand::Clear();
 
 		m_Framebuffer->ClearAttachment(1, -1);
 
-		// Update scene
-		m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
-
+		switch (m_SceneState)
 		{
-			#if 0
-			float value = 10.0f;
-			for (float y = -value; y < value; y += 0.5f)
-			{
-				for (float x = -value; x < value; x += 0.5f)
-				{
-					glm::vec4 color = { (x + value) / 10.0f, 0.4f, (y + value) / 10.0f, 0.7f };
-					Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
-				}
-			}
-			#endif // !1
+		case SceneState::Edit:
+		{
+			//Albedo_Core_INFO("Scene: Edit Mode");
+			if (m_ViewportFocused)
+				m_CameraController.OnUpdate(ts);
 
-			auto [mx, my] = ImGui::GetMousePos();
-			mx -= m_ViewportBounds[0].x;
-			my -= m_ViewportBounds[0].y;
-			glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-			my = viewportSize.y - my;
-			int mouseX = (int)mx;
-			int mouseY = (int)my;
+			m_EditorCamera.OnUpdate(ts);
 
-			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-			{
-				int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-				//Albedo_Core_WARN("Pixel data = {0}", pixelData);
-				m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
-			}
-
-			m_Framebuffer->Unbind();
+			m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
+			break;
+	}
+		case SceneState::Play:
+		{
+			//Albedo_Core_INFO("Scene: Play Mode");
+			m_ActiveScene->OnUpdateRuntime(ts);
+			break;
 		}
+		}
+
+		#if 0
+		float value = 10.0f;
+		for (float y = -value; y < value; y += 0.5f)
+		{
+			for (float x = -value; x < value; x += 0.5f)
+			{
+				glm::vec4 color = { (x + value) / 10.0f, 0.4f, (y + value) / 10.0f, 0.7f };
+				Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
+			}
+		}
+		#endif // !1
+
+		//auto [mx, my] = ImGui::GetMousePos();
+		//mx -= m_ViewportBounds[0].x;
+		//my -= m_ViewportBounds[0].y;
+		//glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		//my = viewportSize.y - my;
+		//int mouseX = (int)mx;
+		//int mouseY = (int)my;
+		//
+		//if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		//{
+		//	int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+		//	//Albedo_Core_WARN("Pixel data = {0}", pixelData);
+		//	m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
+		//}
+		m_Framebuffer->Unbind();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -281,7 +215,7 @@ namespace Albedo {
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuiStyle& style = ImGui::GetStyle();
 			float minWinSizeX = style.WindowMinSize.x;
-			style.WindowMinSize.x = 370.0f;
+			style.WindowMinSize.x = 310.0f;
 			if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 			{
 				ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
@@ -313,51 +247,6 @@ namespace Albedo {
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
 
-			ImGui::Begin("Stats");
-			std::string name = "None";
-			if (m_HoveredEntity)
-				//name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
-			ImGui::Text("Hovered Entity: %s", name.c_str());
-			//ImGui::Text("Time: %f", m_CurrentTime);
-			//ImGui::Text("FPS: %f", m_FPS);
-			/*
-			auto stats = Renderer2D::GetStats();
-			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-			ImGui::Text("Quads: %d", stats.QuadCount);
-			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-			*/
-			/*
-			if (m_SquareEntity)
-			{
-				ImGui::Separator();
-				auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;
-				ImGui::Text("%s", tag.c_str());
-
-				auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-				ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-				ImGui::Separator();
-			}
-
-			ImGui::DragFloat3("Camera Transform",
-				glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
-
-			if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
-			{
-				m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-				m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
-			}
-
-			{
-				auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;
-				float orthoSize = camera.GetOrthographicSize();
-				if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
-					camera.SetOrthographicSize(orthoSize);
-			}
-			*/
-
-			ImGui::End();
-
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");
 			auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
@@ -372,22 +261,8 @@ namespace Albedo {
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-			//if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0)
-			//{
-			//	m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-			//
-			//	m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
-			//}
-			
-			//if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
-			//{
-			//	m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-			//	m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-			//
-			//	m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
-			//}
 
-			uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+			uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			if (ImGui::BeginDragDropTarget())
@@ -451,38 +326,42 @@ namespace Albedo {
 			ImGui::End();
 			ImGui::PopStyleVar();
 
+			UI_Toolbar();
+
 			ImGui::End();
 		}
 		else
 		{
-			ImGui::Begin("Settings");
-
-			//auto stats = Hazel::Renderer2D::GetStats();
-			//ImGui::Text("Renderer2D Stats:");
-			//ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-			//ImGui::Text("Quads: %d", stats.QuadCount);
-			//ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-			//ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
-
-			uint32_t textureID = m_Texture->GetTextureID();
-			ImGui::Image((void*)textureID, ImVec2{ 1280, 720 }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-			ImGui::End();
+			Albedo_Core_ERROR("Docking disabled");
 		}
-		//ImGui::Begin("Settings");
-		//ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+	}
 
-		//for (auto& result : m_ProfileResults)
-		//{
-		//	char label[50];
-		//	strcpy(label, "%.3fms ");
-		//	strcat(label, result.Name);
-		//	ImGui::Text(label, result.Time);
-		//}
-		//m_ProfileResults.clear();
+	void EditorLayer::UI_Toolbar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];	
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
-		//ImGui::End();
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconPlay : m_IconStop;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+		if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0, 0.0, 0.0, 0.0), ImVec4(0.5, 0.5, 0.5, 1.0)))
+		{
+			if (m_SceneState == SceneState::Edit)
+				OnScenePlay();
+			else if (m_SceneState == SceneState::Play)
+				OnSceneStop();
+		}
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+		ImGui::End();
 	}
 
 	void EditorLayer::OnEvent(Event& e)
@@ -571,6 +450,16 @@ namespace Albedo {
 		m_ActiveScene = std::make_shared<Scene>();
 		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+	}
+
+	void EditorLayer::OnScenePlay()
+	{
+		m_SceneState = SceneState::Play;
+	}
+
+	void EditorLayer::OnSceneStop()
+	{
+		m_SceneState = SceneState::Edit;
 	}
 
 	void EditorLayer::OpenScene()

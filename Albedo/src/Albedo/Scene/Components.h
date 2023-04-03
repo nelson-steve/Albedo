@@ -7,7 +7,9 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "Albedo/Scene/SceneCamera.h"
+#include"Albedo/Cameras/OrthographicCamera.h"
 #include "ScriptableEntity.h"
+#include "Albedo/Renderer/Mesh.h"
 
 namespace Albedo {
 
@@ -23,8 +25,9 @@ namespace Albedo {
 
 	struct MeshComponent
 	{
-		void AddMesh(const Ref<Mesh> mesh) { m_Mesh = mesh; }
+		void AddMesh(const Ref<Mesh> mesh) { m_Mesh = mesh; mesh->SetInitializationStatus(true); }
 
+		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Mesh> m_Mesh;
 
 		MeshComponent() = default;
@@ -33,9 +36,9 @@ namespace Albedo {
 
 	struct TextureComponent
 	{
-		void AddTexture(const Ref<Texture>  texture) { m_Textures.push_back(texture); }
+		void AddTexture(const Ref<Texture2D>  texture) { m_Textures.push_back(texture); }
 
-		std::vector<Ref<Texture>>  m_Textures;
+		std::vector<Ref<Texture2D>> m_Textures;
 
 		TextureComponent() = default;
 		TextureComponent(const TextureComponent&) = default;
@@ -45,6 +48,7 @@ namespace Albedo {
 	{
 		void AddShader(const Ref<Shader> shader) { m_Shader = shader; }
 
+		std::string m_Path = std::string();
 		Ref<Shader> m_Shader;
 
 		ShaderComponent() = default;
@@ -63,6 +67,20 @@ namespace Albedo {
 
 	struct TransformComponent
 	{
+		void AddTranform(const glm::mat4 tranform) { Transform = tranform; }
+		const glm::vec3& GetPosition() const { return Position; }
+		const glm::vec3& GetRotation() const { return Rotation; }
+		const glm::vec3& GetScale() const { return Scale; }
+
+		void AddTranform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale) 
+		{ 
+			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
+			Transform =  glm::translate(glm::mat4(1.0f), pos) * rotation * glm::scale(glm::mat4(1.0f), scale);
+			Position = pos;
+			Rotation = rot;
+			Scale = scale;
+		}
+
 		glm::mat4 Transform{ 1.0f };
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
@@ -70,8 +88,10 @@ namespace Albedo {
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::vec3& translation)
-			: Position(translation) {}
+		TransformComponent(const glm::vec3& position)
+			: Position(position) {}
+
+		//void SetPosition(const glm::mat4& pos) { Position = pos; }
 
 		glm::mat4 GetTransform() const
 		{
@@ -81,38 +101,6 @@ namespace Albedo {
 				* glm::scale(glm::mat4(1.0f), Scale);
 		}
 	};
-
-#if 1
-	//struct TagComponent
-	//{
-	//	std::string Tag;
-	//
-	//	TagComponent() = default;
-	//	TagComponent(const TagComponent&) = default;
-	//	TagComponent(const std::string& tag)
-	//		: Tag(tag) {}
-	//};
-
-	//struct TransformComponent
-	//{
-	//	glm::mat4 Transform{ 1.0f };
-	//	glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };
-	//	glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
-	//	glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-	//
-	//	TransformComponent() = default;
-	//	TransformComponent(const TransformComponent&) = default;
-	//	TransformComponent(const glm::vec3& translation)
-	//		: Translation(translation) {}
-	//
-	//	glm::mat4 GetTransform() const
-	//	{
-	//		glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
-	//		return glm::translate(glm::mat4(1.0f), Translation)
-	//			* rotation
-	//			* glm::scale(glm::mat4(1.0f), Scale);
-	//	}
-	//};
 
 	struct SpriteRendererComponent
 	{
@@ -148,6 +136,5 @@ namespace Albedo {
 			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
 	};
-#endif
 
 }

@@ -27,9 +27,11 @@ namespace Albedo {
         const std::string&    GetName()           const { return m_Name;           }
         const std::string&    GetPath()           const { return m_Path;           }
         const MeshBufferData& GetMeshBufferData() const { return m_MeshBufferData; }
+        const std::vector<float>& GetSingularMeshData() const { return m_SingularMeshData; }
 		const std::vector<glm::vec3> GetVertices() const { return m_Vertices;	   }
 
         void SetName                  (const std::string& name)                { m_Name             = name;     }
+        void SetPath                  (const std::string& path)                { m_Path             = path;     }
         void SetUV                    (const std::vector<glm::vec2>& uv)       { m_UV               = uv;       }
         void SetIndices               (const std::vector<uint32_t>& indices)   { m_Indices          = indices;  }
         void SetVertices              (const std::vector<glm::vec3>& vertices) { m_Vertices         = vertices; }
@@ -39,7 +41,13 @@ namespace Albedo {
         void SetDataSingularityStatus (bool status)                            { m_SingularData     = status;   }
 
         bool IsSingularData() const { return m_SingularData; }
+
+        void SetInitializationStatus(bool status) { m_InitializationStatus = status; }
+        bool GetInitializationStatus() const { return m_InitializationStatus; }
+
+
 	private:
+        bool m_InitializationStatus = true;
 		//Get the size of the vertex data for the Vertex Buffer
 		template<typename T>
 		uint32_t GetVertexSize(const std::vector<T> data)

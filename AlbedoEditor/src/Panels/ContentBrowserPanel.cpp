@@ -12,8 +12,8 @@ namespace Albedo {
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_CurrentDirectory(g_AssetPath)
 	{
-		m_DirectoryIcon = Texture2D::Create("Assets/DirectoryIcon.png");
-		m_FileIcon = Texture2D::Create("Assets/FileIcon.png");
+		m_DirectoryIcon = Texture2D::Create("Assets/Textures/UI/FolderBlue.png", true);
+		m_FileIcon = Texture2D::Create("Assets/Textures/UI/File2.png", true);
 	}
 
 	void ContentBrowserPanel::OnImGuiRender()
@@ -47,9 +47,7 @@ namespace Albedo {
 
 			ImGui::PushID(filenameString.c_str());
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			ImGui::ImageButton((ImTextureID)icon->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
-
+			ImGui::ImageButton((ImTextureID)icon->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.0, 0.0, 0.0, 0.0), ImVec4(0.5, 0.5, 0.5, 1.0));
 			if (ImGui::BeginDragDropSource())
 			{
 				const wchar_t* itemPath = relativePath.c_str();
@@ -57,7 +55,6 @@ namespace Albedo {
 				ImGui::EndDragDropSource();
 			}
 
-			ImGui::PopStyleColor();
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
 				if (directoryEntry.is_directory())

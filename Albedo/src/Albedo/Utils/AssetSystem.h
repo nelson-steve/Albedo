@@ -12,7 +12,7 @@ namespace Albedo {
 		~AssetSystem();
 
 		const Ref<Mesh>		 LoadModel(const std::string& path);
-		const Ref<Texture2D> LoadTexture(const std::string& path);
+		const Ref<Texture2D> LoadTexture(const std::string& path, bool flipped = true);
 		const Ref<Shader>	 LoadShader(const std::string& path);
 		const Ref<Mesh>		 LoadDefaultCube();
 		const Ref<Mesh>		 LoadDefaultQuad();

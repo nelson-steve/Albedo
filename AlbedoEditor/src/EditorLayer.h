@@ -26,52 +26,37 @@ namespace Albedo {
 		void NewScene();
 		void OpenScene();
 		void SaveSceneAs();
+		void OnScenePlay();
+		void OnSceneStop();
+
+		// UI Panels
+		void UI_Toolbar();
 		void OpenScene(const std::filesystem::path& path);
 	private:
 		OrthographicCameraController m_CameraController;
+		Ref<Scene>					 m_ActiveScene;
+		Ref<Framebuffer>			 m_Framebuffer;
+		Ref<Texture2D>				 m_IconPlay;
+		Ref<Texture2D>				 m_IconStop;
+		EditorCamera				 m_EditorCamera;
+		Entity						 m_HoveredEntity;
+		glm::vec2					 m_ViewportSize = { 0.0f, 0.0f };
+		glm::vec2					 m_ViewportBounds[2];
+		bool						 m_PrimaryCamera = true;
+		bool						 m_ViewportFocused = false;
+		bool						 m_ViewportHovered = false;
+		int							 m_GizmoType = -1;
+		SceneHierarchyPanel			 m_SceneHierarchyPanel;
+		ContentBrowserPanel			 m_ContentBrowserPanel;
 
-		inline static Scope<AssetSystem> m_AssetManager = std::make_unique<AssetSystem>();
+		enum class SceneState
+		{
+			Edit = 0, Play = 1
+		};
 
-		Ref<VertexArray> m_VertexArray;
-		Ref<Shader> m_Shader;
-		Ref<Texture2D> m_Texture;
-		Ref<Texture2D> m_Texture1;
-		Ref<Framebuffer> m_Framebuffer;
+		SceneState m_SceneState = SceneState::Edit;
 
-		Ref<Scene> m_ActiveScene;
-		Entity m_SquareEntity;
-		Entity m_CameraEntity;
-		Entity m_SecondCamera;
-
-		Entity m_HoveredEntity;
-
-		bool m_PrimaryCamera = true;
-
-		EditorCamera m_EditorCamera;
-
-		Material* lightCube;
-
-		float x = 0.1;
-
-		bool m_ViewportFocused = false, m_ViewportHovered = false;
-		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
-		//struct ProfileResult
-		//{
-		//	const char* Name;
-		//	float Time;
-		//};
-
-		//std::vector<ProfileResult> m_ProfileResults;
-
-		glm::vec4 m_SquareColor = { 0.0f, 0.0f, 1.0f, 1.0f };
-		glm::vec2 m_ViewportBounds[2];
-
-		int m_GizmoType = -1;
-
-		SceneHierarchyPanel m_SceneHierarchyPanel;
-		ContentBrowserPanel m_ContentBrowserPanel;
-
-		float m_PrevTime = 0.0f, m_CurrentTime = 0.0f, m_ElapsedTime, m_FPS = 0.0f;
+		friend class SceneHierarchyPanel;
 
 	};
 }

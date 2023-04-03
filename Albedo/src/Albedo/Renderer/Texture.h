@@ -29,7 +29,7 @@ namespace Albedo {
 	class Texture2D : public Texture
 	{
 	public:
-		static Ref<Texture2D> Create(const std::string& path);
+		static Ref<Texture2D> Create(const std::string& path, bool flipped);
 		static Ref<Texture2D> Create(const std::vector<std::string> faces);
 		static Ref<Texture2D> Create(unsigned int width, unsigned int height);
 	};

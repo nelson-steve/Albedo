@@ -36,6 +36,7 @@ namespace Albedo {
 		}
 
 		Ref<Mesh> tempMesh = std::make_shared<Mesh>();
+		tempMesh->SetPath(path);
 
 		tempMesh->SetDataSingularityStatus(false);
 
@@ -68,8 +69,8 @@ namespace Albedo {
 		for (uint32_t s = 0; s < shapes.size(); s++)
 		{
 			size_t index_offset = 0;
-			if (shapes[s].mesh.num_face_vertices.size() == 0)
-				continue;
+			//if (shapes[s].mesh.num_face_vertices.size() == 0)
+			//	continue;
 			for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++)
 			{
 				size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
@@ -120,7 +121,7 @@ namespace Albedo {
 		return tempMesh;
 	}
 
-	const Ref<Texture2D> AssetSystem::LoadTexture(const std::string& path)
+	const Ref<Texture2D> AssetSystem::LoadTexture(const std::string& path, bool flipped)
 	{
 		if (path == "")
 		{
@@ -132,7 +133,7 @@ namespace Albedo {
 			if (tex->GetPath() == path && tex->GetPath() != "" && tex != nullptr) return tex;
 		}
 
-		Ref<Texture2D> tempTexture = Texture2D::Create(path);
+		Ref<Texture2D> tempTexture = Texture2D::Create(path, flipped);
 		m_Textures.push_back(tempTexture);
 		return tempTexture;
 	}
@@ -140,6 +141,7 @@ namespace Albedo {
 	const Ref<Shader> AssetSystem::LoadShader(const std::string& path)
 	{
 		Ref<Shader> tempShader = Shader::Create(path);
+		tempShader->SetPath(path);
 		m_Shaders.push_back(tempShader);
 
 		return tempShader;
@@ -159,7 +161,7 @@ namespace Albedo {
 			({
 				{ShaderDataType::Float3, "a_Position"},
 				{ShaderDataType::Float3, "a_Normal"},
-				{ShaderDataType::Float2, "a_TexCoord"}
+				{ShaderDataType::Float2, "a_UV"}
 			});
 			m_Meshes.resize(1);
 			m_Meshes[0] = tempMesh;

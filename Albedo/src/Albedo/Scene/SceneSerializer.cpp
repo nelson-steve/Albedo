@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include <yaml-cpp/yaml.h>
+#include <Albedo/Core/Application.cpp>
 
 
 namespace YAML {
@@ -103,6 +104,58 @@ namespace Albedo {
 			out << YAML::EndMap; // TagComponent
 		}
 
+		if (entity.HasComponent<MeshComponent>())
+		{
+			out << YAML::Key << "MeshComponent";
+			out << YAML::BeginMap;
+			auto& mc = entity.GetComponent<MeshComponent>();
+			out << YAML::Key << "Color" << YAML::Value << mc.Color;
+
+			auto& mesh = mc.m_Mesh;
+			out << YAML::Key << "Mesh" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "Name" << YAML::Value << mesh->GetName();
+			out << YAML::Key << "Path" << YAML::Value << mesh->GetPath();
+			out << YAML::EndMap;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<TextureComponent>())
+		{
+			out << YAML::Key << "TextureComponent";
+			out << YAML::BeginMap;
+			auto& tc = entity.GetComponent<TextureComponent>();
+
+			auto& texture = tc.m_Textures;
+			out << YAML::Key << "Texture" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "Path" << YAML::Value << texture[0]->GetPath();
+			out << YAML::EndMap;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<ShaderComponent>())
+		{
+			out << YAML::Key << "ShaderComponent";
+			out << YAML::BeginMap;
+			auto& sc = entity.GetComponent<ShaderComponent>();
+			auto& shader = sc.m_Shader;
+
+			out << YAML::Key << "Shader" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "Path" << YAML::Value << shader->GetPath();
+			out << YAML::EndMap;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<MaterialComponent>())
+		{
+
+		}
+
 		if (entity.HasComponent<TransformComponent>())
 		{
 			out << YAML::Key << "TransformComponent";
@@ -116,31 +169,6 @@ namespace Albedo {
 			out << YAML::EndMap; // TransformComponent
 		}
 
-		if (entity.HasComponent<CameraComponent>())
-		{
-			out << YAML::Key << "CameraComponent";
-			out << YAML::BeginMap; // CameraComponent
-
-			auto& cameraComponent = entity.GetComponent<CameraComponent>();
-			auto& camera = cameraComponent.Camera;
-
-			out << YAML::Key << "Camera" << YAML::Value;
-			out << YAML::BeginMap; // Camera
-			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
-			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
-			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
-			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
-			out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
-			out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOrthographicNearClip();
-			out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFarClip();
-			out << YAML::EndMap; // Camera
-
-			out << YAML::Key << "Primary" << YAML::Value << cameraComponent.Primary;
-			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameraComponent.FixedAspectRatio;
-
-			out << YAML::EndMap; // CameraComponent
-		}
-
 		if (entity.HasComponent<SpriteRendererComponent>())
 		{
 			out << YAML::Key << "SpriteRendererComponent";
@@ -152,9 +180,32 @@ namespace Albedo {
 			out << YAML::EndMap; // SpriteRendererComponent
 		}
 
+		if (false && entity.HasComponent<CameraComponent>())
+		{
+			out << YAML::Key << "CameraComponent";
+			out << YAML::BeginMap; // CameraComponent
+
+			auto& cameraComponent = entity.GetComponent<CameraComponent>();
+			auto& camera = cameraComponent.Camera;
+
+			out << YAML::Key << "Camera" << YAML::Value;
+			out << YAML::BeginMap; // Camera
+			//out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
+			//out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
+			//out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
+			//out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
+			//out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
+			//out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOrthographicNearClip();
+			//out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFarClip();
+			out << YAML::EndMap; // Camera
+
+			out << YAML::Key << "Primary" << YAML::Value << cameraComponent.Primary;
+			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameraComponent.FixedAspectRatio;
+
+			out << YAML::EndMap; // CameraComponent
+		}
 		out << YAML::EndMap; // Entity
 	}
-
 
 	void SceneSerializer::Serialize(const std::string& filepath)
 	{
@@ -202,6 +253,39 @@ namespace Albedo {
 
 				Entity deserializedEntity = m_Scene->CreateEntity(name);
 
+				auto meshComponent = entity["MeshComponent"];
+				if (meshComponent)
+				{
+					//auto& mc = deserializedEntity.GetComponent<MeshComponent>();
+					//mc.Color = meshComponent["Color"].as<glm::vec4>();
+					auto& mesh = meshComponent["Mesh"];
+					std::string& name = mesh["Name"].as<std::string>();
+					std::string& path = mesh["Path"].as<std::string>();
+					deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel(path));
+				}
+
+				auto textureComponent = entity["TextureComponent"];
+				if (textureComponent)
+				{
+					auto& texture = textureComponent["Texture"];
+					std::string& path = texture["Path"].as<std::string>();
+					deserializedEntity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture(path));
+				}
+
+				auto shaderComponent = entity["ShaderComponent"];
+				if (shaderComponent)
+				{
+					auto& shader = shaderComponent["Shader"];
+					std::string& path = shader["Path"].as<std::string>();
+					deserializedEntity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader(path));
+				}
+
+				auto materialComponent = entity["MaterialComponent"];
+				if (materialComponent)
+				{
+
+				}
+
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent)
 				{
@@ -212,31 +296,39 @@ namespace Albedo {
 					tc.Scale = transformComponent["Scale"].as<glm::vec3>();
 				}
 
-				auto cameraComponent = entity["CameraComponent"];
-				if (cameraComponent)
-				{
-					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-
-					auto& cameraProps = cameraComponent["Camera"];
-					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
-
-					cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
-					cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-					cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
-
-					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-					cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-					cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
-
-					cc.Primary = cameraComponent["Primary"].as<bool>();
-					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
-				}
-
 				auto spriteRendererComponent = entity["SpriteRendererComponent"];
 				if (spriteRendererComponent)
 				{
 					auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+				}
+
+				auto cameraComponent = entity["CameraComponent"];
+#if 0
+				if (cameraComponent)
+				{
+					//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+					//
+					//auto& cameraProps = cameraComponent["Camera"];
+					//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+					//
+					//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+					//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+					//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+					//
+					//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+					//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+					//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+
+					//cc.Primary = cameraComponent["Primary"].as<bool>();
+					//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+				}
+#endif
+
+				auto nativeScriptComponent = entity["NativeScriptComponent"];
+				if (nativeScriptComponent)
+				{
+
 				}
 			}
 		}

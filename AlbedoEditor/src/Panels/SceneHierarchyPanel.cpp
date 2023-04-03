@@ -2,6 +2,9 @@
 
 #include "SceneHierarchyPanel.h"	
 #include "Albedo/Scene/Components.h"
+#include "Albedo/Utils/AssetSystem.h"
+
+#include <filesystem>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
@@ -9,6 +12,8 @@
 
 
 namespace Albedo {
+
+	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager;
 
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
@@ -37,8 +42,29 @@ namespace Albedo {
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
 		{
+			if (ImGui::MenuItem("MESHES"))
+			{
+				for(int i = 0; i < 5; i++)
+				{
+					std::string& index = std::to_string(i);
+					std::string tag = "Cube" + i;
+					Entity e = m_Context->CreateEntity(tag);
+					e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube());
+					e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+					e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+				}
+			}
+
 			if (ImGui::MenuItem("Create Empty Entity"))
 				m_Context->CreateEntity("Empty Entity");
+
+			if (ImGui::MenuItem("Create Mesh Entity"))
+			{
+				Entity e = m_Context->CreateEntity("Cube");
+				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube());
+				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+			}
 
 			ImGui::EndPopup();
 		}
@@ -48,7 +74,7 @@ namespace Albedo {
 		ImGui::Begin("Properties");
 		if (m_SelectionContext)
 		{
-			//DrawComponents(m_SelectionContext);
+			DrawComponents(m_SelectionContext);
 		}
 
 		ImGui::End();
@@ -222,12 +248,26 @@ namespace Albedo {
 
 		if (ImGui::BeginPopup("AddComponent"))
 		{
-			if (ImGui::MenuItem("Camera"))
+			char* Tag = "Default Tag";
+			ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+			static char str0[128] = "Hello, world!";
+			if (ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0), input_text_flags, [](ImGuiInputTextCallbackData* data) ->int
+				{
+					//ExampleAppConsole* console = (ExampleAppConsole*)data->UserData;
+					char* out = (char*)(data->UserData);
+					//Tag = out;
+					return 1;
+				}));
 			{
-				if (!m_SelectionContext.HasComponent<CameraComponent>())
-					m_SelectionContext.AddComponent<CameraComponent>();
-				else
-					Albedo_Core_WARN("This entity already has the Camera Component!");
+				Tag = str0;
+			}
+
+			if (ImGui::MenuItem("Tag"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+					m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -247,13 +287,30 @@ namespace Albedo {
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
-				DrawVec3Control("Translation", component.Position);
+ 				DrawVec3Control("Translation", component.Position, 0, 70);
 				glm::vec3 rotation = glm::degrees(component.Rotation);
-				DrawVec3Control("Rotation", rotation);
+				DrawVec3Control("Rotation", rotation, 0, 70);
 				component.Rotation = glm::radians(rotation);
-				DrawVec3Control("Scale", component.Scale, 1.0f);
+				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
 			});
 
+		DrawComponent<MeshComponent>("Mesh Renderer", entity, [&](auto& component)
+			{
+				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+
+				ImGui::Button("Mesh", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()));
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+#if 0
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
 			{
 				auto& camera = component.Camera;
@@ -312,12 +369,7 @@ namespace Albedo {
 					ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
 				}
 			});
-
-		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
-			{
-				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-			});
-
+#endif
 	}
 
 }

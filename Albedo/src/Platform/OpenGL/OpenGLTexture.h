@@ -21,7 +21,7 @@ namespace Albedo {
 	{
 	public:
 		OpenGLTexture2D(unsigned int width, unsigned int height);
-		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(const std::string& path, bool flipped);
 		OpenGLTexture2D(const std::vector<std::string> faces);
 		virtual ~OpenGLTexture2D();
 
