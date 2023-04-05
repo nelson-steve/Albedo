@@ -231,4 +231,5 @@ namespace Albedo {
 		return pixelData;
 
 	}
+
 }

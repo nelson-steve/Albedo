@@ -25,11 +25,11 @@ namespace Albedo {
 
 	struct MeshComponent
 	{
-		void AddMesh(const Ref<Mesh> mesh) { m_Mesh = mesh; mesh->SetInitializationStatus(true); }
+		void AddMesh(const Ref<Mesh> mesh, int id) { m_Mesh = mesh; mesh->SetInitializationStatus(true); ID = id; }
 
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Mesh> m_Mesh;
-
+		int ID = -1;
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
 	};

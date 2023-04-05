@@ -17,13 +17,14 @@ namespace Albedo {
         Ref<VertexBuffer> m_VertexBuffer;
         Ref<VertexBuffer> m_UVBuffer;
         Ref<VertexBuffer> m_NormalBuffer;
+        Ref<VertexBuffer> m_ID;
         Ref<VertexBuffer> m_InstanceBuffer;
     };
 
     class Mesh
     {
     public:
-        void InitMesh();
+        void InitMesh(int id);
         const std::string&    GetName()           const { return m_Name;           }
         const std::string&    GetPath()           const { return m_Path;           }
         const MeshBufferData& GetMeshBufferData() const { return m_MeshBufferData; }

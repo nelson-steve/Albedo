@@ -66,6 +66,18 @@ namespace Albedo {
 		return nullptr;
 	}
 
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<int>& ids, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(ids, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
 	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
 	{
 		switch (Renderer::GetAPI())

@@ -52,6 +52,14 @@ namespace Albedo {
 		glBufferData(GL_ARRAY_BUFFER, size, &vertices[0], GL_STATIC_DRAW);
 	}
 
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const std::vector<int>& ids, uint32_t size)
+	{
+		Albedo_PROFILE_FUNCTION();
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, &ids[0], GL_STATIC_DRAW);
+	}
+
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		Albedo_PROFILE_FUNCTION();

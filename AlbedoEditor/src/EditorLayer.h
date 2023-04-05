@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo.h"
+#include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Albedo/Cameras/EditorCamera.h"

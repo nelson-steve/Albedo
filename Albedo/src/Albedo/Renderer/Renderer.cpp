@@ -16,10 +16,12 @@ namespace Albedo {
 		{
 			if (group.get<MeshComponent>(view).m_Mesh->GetInitializationStatus())
 			{
-				group.get<MeshComponent>(view).m_Mesh->InitMesh();
+				group.get<MeshComponent>(view).m_Mesh->InitMesh(group.get<MeshComponent>(view).ID);
 				group.get<MeshComponent>(view).m_Mesh->SetInitializationStatus(false);
 			}
-		}	
+		}
+
+
 	}
 
 	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform, const TextureComponent& texture)

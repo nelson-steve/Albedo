@@ -29,13 +29,13 @@ namespace Albedo {
 		
 		Entity sceneCamera = m_ActiveScene->CreateEntity("SceneCamera");
 		sceneCamera.AddComponent<CameraComponent>();
-		sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"));
+		sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
 		sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
 		sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
 
 		Entity suzanneMesh = m_ActiveScene->CreateEntity("Mesh");
-		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/McLaren/McLaren.obj"));
+		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/McLaren/McLaren.obj"), (uint32_t)suzanneMesh);
 		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/McLaren/Exterior_720s.png"));
 		suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 
@@ -109,7 +109,7 @@ namespace Albedo {
 		{
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
-
+		
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		}
@@ -153,20 +153,20 @@ namespace Albedo {
 		}
 		#endif // !1
 
-		//auto [mx, my] = ImGui::GetMousePos();
-		//mx -= m_ViewportBounds[0].x;
-		//my -= m_ViewportBounds[0].y;
-		//glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-		//my = viewportSize.y - my;
-		//int mouseX = (int)mx;
-		//int mouseY = (int)my;
-		//
-		//if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-		//{
-		//	int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-		//	//Albedo_Core_WARN("Pixel data = {0}", pixelData);
-		//	m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
-		//}
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		my = viewportSize.y - my;
+		int mouseX = (int)mx;
+		int mouseY = (int)my;
+		
+		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+		{
+			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
+			Albedo_Core_WARN("Pixel data = {0}", pixelData);
+			m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
+		}
 		m_Framebuffer->Unbind();
 	}
 

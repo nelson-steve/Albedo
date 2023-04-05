@@ -49,7 +49,7 @@ namespace Albedo {
 					std::string& index = std::to_string(i);
 					std::string tag = "Cube" + i;
 					Entity e = m_Context->CreateEntity(tag);
-					e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube());
+					e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube(), (uint32_t)e);
 					e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
 					e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 				}
@@ -61,8 +61,9 @@ namespace Albedo {
 			if (ImGui::MenuItem("Create Mesh Entity"))
 			{
 				Entity e = m_Context->CreateEntity("Cube");
-				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube());
-				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
+				auto temp = (uint32_t)e;
+				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube(), (uint32_t)e);
+				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Xiao.png"));
 				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 			}
 
@@ -305,7 +306,7 @@ namespace Albedo {
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()));
+						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}

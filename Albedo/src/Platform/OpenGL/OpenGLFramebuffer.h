@@ -3,7 +3,6 @@
 #include "Albedo/Renderer/Framebuffer.h"
 
 namespace Albedo {
-
 	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
