@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "Entity.h"
 
+#include "Albedo/Physics/PhysicsWorld.h"
 #include "Components.h"
 #include "Albedo/Renderer/Renderer2D.h"
 #include "Albedo/Renderer/Renderer.h"
@@ -19,13 +20,16 @@ namespace Albedo {
 
 	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager;
 
+	Ref<PhysicsWorld> m_PhysicsWorld;
+
 	Scene::Scene()
 	{
-
+		m_PhysicsWorld = std::make_shared<PhysicsWorld>();
 	}
 
 	Scene::~Scene()
 	{
+
 	}
 
 	void Scene::InitScene()
@@ -56,14 +60,15 @@ namespace Albedo {
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
 		//collision update
-
+	
 		//position update
 		auto view = m_Registry.view<PhysicsComponent, TransformComponent>();
 		for (auto entity : view)
 		{
-			//m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity));
+			if(view.get<PhysicsComponent>(entity).physicsEnabled)
+				m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity));
 		}
-
+	
 		//validation
 	}
 
@@ -127,6 +132,7 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		OnUpdatePhysics(ts);
 		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
 
 		for (auto entity : view)

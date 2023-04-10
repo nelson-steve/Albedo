@@ -311,6 +311,11 @@ namespace Albedo {
 					ImGui::EndDragDropTarget();
 				}
 			});
+
+		DrawComponent<PhysicsComponent>("Mesh Renderer", entity, [&](auto& component)
+			{
+				ImGui::Checkbox("Physics", &component.physicsEnabled);
+			});
 #if 0
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
 			{

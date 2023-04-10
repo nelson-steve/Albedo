@@ -32,12 +32,13 @@ namespace Albedo {
 		sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
 		sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
 		sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
-
+		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 100.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
+		
 		Entity suzanneMesh = m_ActiveScene->CreateEntity("Mesh");
-		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/McLaren/McLaren.obj"), (uint32_t)suzanneMesh);
-		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/McLaren/Exterior_720s.png"));
+		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh);
+		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
 		suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		suzanneMesh.AddComponent<PhysicsComponent>();
 
 		m_ActiveScene->InitScene();
 

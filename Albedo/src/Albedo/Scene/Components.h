@@ -13,17 +13,6 @@
 
 namespace Albedo {
 
-	//struct PhysicsComponent
-	//{
-	//	glm::vec3 Position;
-	//	glm::vec3 Velocity;
-	//	glm::vec3 Force;
-	//	float Mass;
-	//
-	//	PhysicsComponent() = default;
-	//	PhysicsComponent(const PhysicsComponent&) = default;;
-	//};
-
 	struct TagComponent
 	{
 		std::string Tag;
@@ -113,6 +102,18 @@ namespace Albedo {
 				* rotation
 				* glm::scale(glm::mat4(1.0f), Scale);
 		}
+	};
+
+	struct PhysicsComponent
+	{
+		glm::vec3 Position = glm::vec3(0);
+		glm::vec3 Velocity = glm::vec3(1);
+		glm::vec3 Force = glm::vec3(1);
+		float Mass = 1;
+		bool physicsEnabled = false;
+
+		PhysicsComponent() = default;
+		PhysicsComponent(const PhysicsComponent&) = default;
 	};
 
 	struct SpriteRendererComponent

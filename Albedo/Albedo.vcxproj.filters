@@ -1401,7 +1401,16 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\Collider.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PlaneCollider.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\SphererCollider.h">
       <Filter>src\Albedo\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
@@ -1500,9 +1509,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\Collider.h" />
-    <ClInclude Include="src\Albedo\Physics\SphererCollider.h" />
-    <ClInclude Include="src\Albedo\Physics\PlaneCollider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">

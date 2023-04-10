@@ -2,7 +2,6 @@
 
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
-#include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Renderer/Material.h"
 
 #include "entt.hpp"
@@ -38,7 +37,6 @@ namespace Albedo {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
-		//Ref<PhysicsWorld> m_PhysicsWorld;
 
 		friend class Entity;
 		friend class SceneSerializer;
