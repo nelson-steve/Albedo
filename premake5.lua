@@ -31,14 +31,12 @@ IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["tinyobj"] 		= "%{wks.location}/Albedo/dependencies/tinyobj/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
--- IncludeDir["assimp"]  = "%{wks.location}/Albedo/dependencies/assimp/include"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
 	include "Albedo/dependencies/Glad"
 	include "Albedo/dependencies/imgui"
 	include "Albedo/dependencies/yaml-cpp"
-	-- include "Albedo/dependencies/assimp"
 group ""
 
 project "Albedo"
@@ -95,7 +93,6 @@ project "Albedo"
 		"Glad",
 		"imgui",
 		"yaml-cpp",
-        -- "assimp",
 		"opengl32.lib"
 	}
 
@@ -119,17 +116,17 @@ project "Albedo"
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
-		buildoptions "/MDd"
+		buildoptions "/MTd"
 		symbols "on"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
-		buildoptions "/MDd"
+		buildoptions "/MT"
 		optimize "on"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
-		buildoptions "/MDd"
+		buildoptions "/MT"
 		optimize "on"
 
 project "AlbedoEditor"
@@ -174,18 +171,18 @@ project "AlbedoEditor"
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		buildoptions "/MTd"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
-		buildoptions "/MDd"
-		optimize "On"
+		buildoptions "/MT"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
-		buildoptions "/MDd"
-		optimize "On"
+		buildoptions "/MT"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
@@ -227,15 +224,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		buildoptions "/MTd"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "Albedo_RELEASE"
-		buildoptions "/MDd"
-		optimize "On"
+		buildoptions "/MT"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "Albedo_DIST"
-		buildoptions "/MDd"
-		optimize "On"
+		buildoptions "/MT"
+		optimize "on"

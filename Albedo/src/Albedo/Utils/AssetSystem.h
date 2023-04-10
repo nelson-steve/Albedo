@@ -135,7 +135,6 @@ namespace Albedo {
 	inline static bool m_DefaultCubeLoaded = false;
 	inline static bool m_DefaultQuadLoaded = false;
 
-	friend class SceneObject;
 	friend class Mesh;
 	};
 

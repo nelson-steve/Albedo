@@ -13,6 +13,17 @@
 
 namespace Albedo {
 
+	//struct PhysicsComponent
+	//{
+	//	glm::vec3 Position;
+	//	glm::vec3 Velocity;
+	//	glm::vec3 Force;
+	//	float Mass;
+	//
+	//	PhysicsComponent() = default;
+	//	PhysicsComponent(const PhysicsComponent&) = default;;
+	//};
+
 	struct TagComponent
 	{
 		std::string Tag;
@@ -88,6 +99,8 @@ namespace Albedo {
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
+
+
 		TransformComponent(const glm::vec3& position)
 			: Position(position) {}
 

@@ -53,8 +53,23 @@ namespace Albedo {
 		m_Registry.destroy(entity);
 	}
 
+	void Scene::OnUpdatePhysics(Timestep ts)
+	{
+		//collision update
+
+		//position update
+		auto view = m_Registry.view<PhysicsComponent, TransformComponent>();
+		for (auto entity : view)
+		{
+			//m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity));
+		}
+
+		//validation
+	}
+
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
+		OnUpdatePhysics(ts);
 		// Update scripts
 		{
 			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
@@ -104,7 +119,7 @@ namespace Albedo {
 			{
 				if(m_Registry.any_of<CameraComponent>(entity)) continue;
 
-				Renderer::Setup(*mainCamera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
 				Renderer::Render(view.get<MeshComponent>(entity));
 			}
 		}
@@ -204,5 +219,10 @@ namespace Albedo {
 	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
 		Albedo_Core_INFO("mesh added");
+	}
+
+	template<>
+	void Scene::OnComponentAdded<PhysicsComponent>(Entity entity, PhysicsComponent& component)
+	{
 	}
 }

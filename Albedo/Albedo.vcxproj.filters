@@ -55,6 +55,9 @@
     <Filter Include="src\Albedo\Math">
       <UniqueIdentifier>{1C380A7A-88C3-773E-91D4-FA32FDDED33E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\Physics">
+      <UniqueIdentifier>{D5B333CC-C197-F421-2AF8-EE7416FBDEA3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Albedo\Renderer">
       <UniqueIdentifier>{69008529-D561-6237-5ECF-A8E9CA2F99F6}</UniqueIdentifier>
     </Filter>
@@ -1398,6 +1401,9 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1494,6 +1500,9 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\Collider.h" />
+    <ClInclude Include="src\Albedo\Physics\SphererCollider.h" />
+    <ClInclude Include="src\Albedo\Physics\PlaneCollider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1534,6 +1543,9 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Math\Math.cpp">
       <Filter>src\Albedo\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp">
+      <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>

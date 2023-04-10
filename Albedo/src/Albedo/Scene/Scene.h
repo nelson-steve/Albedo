@@ -2,7 +2,7 @@
 
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
-
+#include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Renderer/Material.h"
 
 #include "entt.hpp"
@@ -22,6 +22,7 @@ namespace Albedo {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
+		void OnUpdatePhysics(Timestep ts);
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
 
@@ -37,11 +38,12 @@ namespace Albedo {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+		//Ref<PhysicsWorld> m_PhysicsWorld;
 
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
-		//inline static Ref<Skybox> m_Skybox;
+		//inline static Ref<Skybox> m_Skybox; //TODO: Add Skybox
 	};
 
 }

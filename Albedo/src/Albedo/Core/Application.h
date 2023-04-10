@@ -10,10 +10,10 @@
 
 namespace Albedo {
 
-	class Albedo_API Application
+	class Application
 	{
 	public:
-		Application(const std::string& name = "Hazel App");
+		Application(const std::string& name = "Albedo App");
 		virtual ~Application();
 
 		void Run();
