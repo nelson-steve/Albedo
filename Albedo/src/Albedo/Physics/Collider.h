@@ -1,4 +1,5 @@
 #pragma once
+#include "Albedo/Core/Core.h"
 
 #include <glm/glm.hpp>
 
@@ -27,11 +28,11 @@ enum class Type
 class Collider
 {
 public:
-	//virtual bool operator==(Collider& c);
-	//
-	//virtual const glm::vec3& GetCenter() const;
-	//virtual const float GetRadius() const;
-	//virtual const Type GetType() const;
+	virtual bool operator==(Collider& c);
+	
+	virtual const glm::vec3& GetCenter() const;
+	virtual const float GetRadius() const;
+	virtual const Type GetType() const;
 protected:
 	Type m_Type;
 };

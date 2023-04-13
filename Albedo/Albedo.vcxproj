@@ -632,6 +632,7 @@
     <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Albedo\Core\Application.cpp" />
     <ClCompile Include="src\Albedo\Core\Log.cpp" />
+    <ClCompile Include="src\Albedo\Core\tinyobj.cc" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />

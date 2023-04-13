@@ -37,7 +37,7 @@ namespace Albedo {
         void SetIndices               (const std::vector<uint32_t>& indices)   { m_Indices          = indices;  }
         void SetVertices              (const std::vector<glm::vec3>& vertices) { m_Vertices         = vertices; }
         void SetNormals               (const std::vector<glm::vec3>& normals)  { m_Normals          = normals;  }
-		void SetSingularMeshData	  (const std::vector<float>& data)		   { m_SingularMeshData = data;		}
+        void SetSingularMeshData      (const std::vector<float>& data)         { m_SingularMeshData = data;     }
         void SetVerticesDataLayout    (const BufferLayout& layout)             { m_Layout           = layout;   }
         void SetDataSingularityStatus (bool status)                            { m_SingularData     = status;   }
 

@@ -3,15 +3,14 @@
 #include "AssetSystem.h"
 #include "Albedo/Renderer/Buffer.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 namespace Albedo {
 
 	AssetSystem::AssetSystem()
 	{
-		//LoadDefaultCube();
-		//LoadDefaultQuad();
+		LoadDefaultCube();
+		LoadDefaultQuad();
 	}
 
 	AssetSystem::~AssetSystem()
@@ -153,18 +152,17 @@ namespace Albedo {
 		else m_DefaultCubeLoaded = true;
 
 		{
-			Ref<Mesh> tempMesh = std::make_shared<Mesh>();
-			tempMesh->SetDataSingularityStatus(true);
-			tempMesh->SetName("Default Cube");
-			tempMesh->SetSingularMeshData(quadVertices);
-			tempMesh->SetVerticesDataLayout
+			m_Meshes.resize(1);
+			m_Meshes[0] = std::make_shared<Mesh>();
+			m_Meshes[0]->SetDataSingularityStatus(true);
+			m_Meshes[0]->SetName("Default Cube");
+			m_Meshes[0]->SetSingularMeshData(quadVertices);
+			m_Meshes[0]->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},
 				{ShaderDataType::Float3, "a_Normal"},
 				{ShaderDataType::Float2, "a_UV"}
 			});
-			m_Meshes.resize(1);
-			m_Meshes[0] = tempMesh;
 		}
 			return m_Meshes[0];
 	}
@@ -175,18 +173,16 @@ namespace Albedo {
 		else m_DefaultQuadLoaded = true;
 
 		{
-			Ref<Mesh> tempMesh = std::make_shared<Mesh>();
-			tempMesh->SetDataSingularityStatus(true);
-			tempMesh->SetSingularMeshData(quadVertices);		
-			tempMesh->SetVerticesDataLayout
+			m_Meshes.resize(2);
+			m_Meshes[1] = std::make_shared<Mesh>();
+			m_Meshes[1]->SetDataSingularityStatus(true);
+			m_Meshes[1]->SetSingularMeshData(triangleVertices);
+			m_Meshes[1]->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},
 				{ShaderDataType::Float3, "a_Normal"},
 				{ShaderDataType::Float2, "a_TexCoord"}
 			});
-			m_Meshes.resize(2);
-			m_Meshes[1] = tempMesh;
-
 		}
 			return m_Meshes[1];
 

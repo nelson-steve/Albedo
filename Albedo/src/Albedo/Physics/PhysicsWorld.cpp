@@ -21,19 +21,19 @@ namespace Albedo {
 
 	void PhysicsWorld::CheckCollision()
 	{
-		//for (auto& collider1 : m_Colliders)
+		for (auto& collider1 : m_Colliders)
 		{
-			//for (auto& collider2 : m_Colliders)
+			for (auto& collider2 : m_Colliders)
 			{
-				//if (collider2 == collider1) continue;
-#if 0
+				if (collider2 == collider1) continue;
+#if 1
 				switch (collider1.GetType())
 				{
 					case Type::Sphere:
 					{
-						//float distance = glm::dot((collider1.GetCenter() - collider2.GetCenter()), (collider1.GetCenter() - collider2.GetCenter()));
-						//if (distance < (collider1.GetRadius() + collider2.GetRadius()) * (collider1.GetRadius() + collider2.GetRadius()))
-						//	Albedo_Core_INFO("Collision");
+						float distance = glm::dot((collider1.GetCenter() - collider2.GetCenter()), (collider1.GetCenter() - collider2.GetCenter()));
+						if (distance < (collider1.GetRadius() + collider2.GetRadius()) * (collider1.GetRadius() + collider2.GetRadius()))
+							Albedo_Core_INFO("Collision");
 						break;
 					}
 					case Type::Cube:

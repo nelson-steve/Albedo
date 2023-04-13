@@ -24,7 +24,7 @@ namespace Albedo {
 	private:
 		void CheckCollision();
 		glm::vec3 m_Gravity = glm::vec3(0, -9.8, 0);
-		//std::vector<Collider> m_Colliders;
+		std::vector<Collider> m_Colliders;
 	};
 
 }
