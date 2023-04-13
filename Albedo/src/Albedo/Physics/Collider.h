@@ -1,8 +1,6 @@
 #pragma once
 
-#include "SphererCollider.h"
-
-#include "PhysicsImpl.h"
+#include <glm/glm.hpp>
 
 struct CollisionPoints
 {
@@ -20,20 +18,20 @@ struct Transform
 	float Rotation; // TODO: use quaternion
 };
 
+enum class Type
+{
+	Sphere = 0,
+	Cube
+};
+
 class Collider
 {
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const Collider& collider,
-		const Transform& colliderTransform) const = 0;
-
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const SphereCollider& sphereCollider,
-		const Transform& sphereTransform) const = 0;
-
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const PlaneCollider& planeCollider,
-		const Transform& planeTransform) const = 0;
+public:
+	//virtual bool operator==(Collider& c);
+	//
+	//virtual const glm::vec3& GetCenter() const;
+	//virtual const float GetRadius() const;
+	//virtual const Type GetType() const;
+protected:
+	Type m_Type;
 };

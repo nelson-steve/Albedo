@@ -1553,6 +1553,9 @@
     <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp">
       <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\SphereCollider.cpp">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>

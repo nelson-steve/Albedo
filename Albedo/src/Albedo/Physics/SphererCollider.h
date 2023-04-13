@@ -1,35 +1,30 @@
 #pragma once
 
 #include "Collider.h"
-#include "PlaneCollider.h"
 
-class SphereCollider : public Collider
-{
-public:
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const Collider& collider,
-		const Transform& colliderTransform) const override
+#include <glm/glm.hpp>
+
+namespace Albedo {
+
+	class SphereCollider : public Collider
 	{
+	public:
+		//virtual bool operator==(Collider& c) override
+		//{
+		//	//auto* sphere = dynamic_cast<SphereCollider*>(&c);
+		//	//if (this->m_Center == sphere->m_Center && this->m_Radius == sphere->m_Radius) return true;
+		//	//else return false;
+		//	//
+		//	Albedo_Core_ERROR("Error: SphereColliders unknown");
+		//	return false;
+		//}
+		//
+		//virtual const glm::vec3& GetCenter() const override { return m_Center; }
+		//virtual const float GetRadius() const override { return m_Radius; }
+		//virtual const Type GetType() const override { return m_Type; }
+	private:
+		glm::vec3 m_Center;
+		float m_Radius;
+	};
 
-	}
-
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const SphereCollider& sphereCollider,
-		const Transform& sphereTransform) const override
-	{
-
-	}
-
-	virtual CollisionPoints TestCollisions(
-		const Transform& transform,
-		const PlaneCollider& planeCollider,
-		const Transform& planeTransform) const
-	{
-
-	}
-private:
-	glm::vec3 m_Center;
-	float Radius;
-};
+}

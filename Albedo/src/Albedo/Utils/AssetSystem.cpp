@@ -10,8 +10,8 @@ namespace Albedo {
 
 	AssetSystem::AssetSystem()
 	{
-		LoadDefaultCube();
-		LoadDefaultQuad();
+		//LoadDefaultCube();
+		//LoadDefaultQuad();
 	}
 
 	AssetSystem::~AssetSystem()
@@ -156,7 +156,7 @@ namespace Albedo {
 			Ref<Mesh> tempMesh = std::make_shared<Mesh>();
 			tempMesh->SetDataSingularityStatus(true);
 			tempMesh->SetName("Default Cube");
-			tempMesh->SetSingularMeshData(cubeVertices);
+			tempMesh->SetSingularMeshData(quadVertices);
 			tempMesh->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},

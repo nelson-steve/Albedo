@@ -638,6 +638,7 @@
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
     <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="src\Albedo\Physics\SphereCollider.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Material.cpp" />

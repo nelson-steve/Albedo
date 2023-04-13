@@ -35,7 +35,7 @@ namespace Albedo {
 		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 100.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
 		
 		Entity suzanneMesh = m_ActiveScene->CreateEntity("Mesh");
-		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh);
+		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/bowling_ball/bowling_ball.obj"), (uint32_t)suzanneMesh);
 		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
 		suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		suzanneMesh.AddComponent<PhysicsComponent>();

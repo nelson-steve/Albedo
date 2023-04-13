@@ -36,6 +36,7 @@ namespace Albedo {
 	private:
 		OrthographicCameraController m_CameraController;
 		Ref<Scene>					 m_ActiveScene;
+		//Ref<PhysicsWorld>			 m_PhysicsWorld;
 		Ref<Framebuffer>			 m_Framebuffer;
 		Ref<Texture2D>				 m_IconPlay;
 		Ref<Texture2D>				 m_IconStop;

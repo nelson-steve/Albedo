@@ -106,9 +106,9 @@ namespace Albedo {
 
 	struct PhysicsComponent
 	{
-		glm::vec3 Position = glm::vec3(0);
-		glm::vec3 Velocity = glm::vec3(1);
-		glm::vec3 Force = glm::vec3(1);
+		glm::vec3 Position = glm::vec3(0.0);
+		glm::vec3 Velocity = glm::vec3(0.0, 10.0, 0.0);
+		glm::vec3 Force = glm::vec3(1.0);
 		float Mass = 1;
 		bool physicsEnabled = false;
 
