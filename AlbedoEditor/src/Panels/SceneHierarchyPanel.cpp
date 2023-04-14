@@ -312,9 +312,15 @@ namespace Albedo {
 				}
 			});
 
-		DrawComponent<PhysicsComponent>("Mesh Renderer", entity, [&](auto& component)
+		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
 				ImGui::Checkbox("Physics", &component.physicsEnabled);
+			});
+
+		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
+			{
+				ImGui::DragFloat("Collider Size", &(std::dynamic_pointer_cast<SphereCollider>(component.collider)->m_Radius), 0.1f, 0.0f);
+				ImGui::Checkbox("Collider Show", &component.ShowCollider);
 			});
 #if 0
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)

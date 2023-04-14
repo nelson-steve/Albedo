@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Texture.h"
-#include "Buffer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Albedo/Core/Core.h"
 #include "VertexArray.h"
+#include "RendererConfig.h"
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -45,6 +45,8 @@ namespace Albedo {
 
         void SetInitializationStatus(bool status) { m_InitializationStatus = status; }
         bool GetInitializationStatus() const { return m_InitializationStatus; }
+        RendererConfig& GetRendererConfig() { return m_RendererConfiguration; }
+        const RendererConfig& GetRendererConfig() const { return m_RendererConfiguration; }
 
 
 	private:
@@ -62,6 +64,7 @@ namespace Albedo {
         std::vector<glm::vec3> m_Normals;
         std::vector<glm::vec2> m_UV;
         std::vector<uint32_t>  m_Indices;
+        RendererConfig m_RendererConfiguration;
         //Contains all the mesh data in one variable (vertices, normals, uvs...)
 		std::vector<float> m_SingularMeshData;
         //Layout for singular vertices data

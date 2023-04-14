@@ -28,11 +28,11 @@ enum class Type
 class Collider
 {
 public:
-	virtual bool operator==(Collider& c);
+	virtual bool operator==(Collider& c) = 0;
 	
-	virtual const glm::vec3& GetCenter() const;
-	virtual const float GetRadius() const;
-	virtual const Type GetType() const;
+	virtual const glm::vec3& GetCenter() const = 0;
+	virtual const float GetRadius() const = 0;
+	virtual const Type GetType() const = 0;
 protected:
 	Type m_Type;
 };

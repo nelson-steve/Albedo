@@ -20,11 +20,14 @@ namespace Albedo {
 	{
 	public:
 		void Update();
-		void Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp);
+		void Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp, ColliderComponent& colliderComp);
+
+		const std::vector<Ref<Collider>>& GetColliderList() const { return m_Colliders; }
+		std::vector<Ref<Collider>>& GetColliderList() { return m_Colliders; }
+		std::vector<Ref<Collider>> m_Colliders;
 	private:
 		void CheckCollision();
 		glm::vec3 m_Gravity = glm::vec3(0, -9.8, 0);
-		std::vector<Collider> m_Colliders;
 	};
 
 }

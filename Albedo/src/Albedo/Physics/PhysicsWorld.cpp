@@ -4,14 +4,15 @@
 
 namespace Albedo {
 
-	void PhysicsWorld::Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp)
+	void PhysicsWorld::Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp, ColliderComponent& colliderComp)
 	{
 		phyCmp.Force += phyCmp.Mass * m_Gravity;
 		phyCmp.Velocity += phyCmp.Force / phyCmp.Mass * ts.GetTime();
-		phyCmp.Position += phyCmp.Velocity * ts.GetTime();
+		transformComp.Position += phyCmp.Velocity * ts.GetTime();
 		phyCmp.Force = glm::vec3(0);
+		std::dynamic_pointer_cast<SphereCollider>(colliderComp.collider)->SetCenter(transformComp.Position);
 		
-		transformComp.Position = phyCmp.Position;
+		Update();
 	}
 
 	void PhysicsWorld::Update()
@@ -27,12 +28,12 @@ namespace Albedo {
 			{
 				if (collider2 == collider1) continue;
 #if 1
-				switch (collider1.GetType())
+				switch (collider1->GetType())
 				{
 					case Type::Sphere:
 					{
-						float distance = glm::dot((collider1.GetCenter() - collider2.GetCenter()), (collider1.GetCenter() - collider2.GetCenter()));
-						if (distance < (collider1.GetRadius() + collider2.GetRadius()) * (collider1.GetRadius() + collider2.GetRadius()))
+						float distance = glm::dot((collider1->GetCenter() - collider2->GetCenter()), (collider1->GetCenter() - collider2->GetCenter()));
+						if (distance < (collider1->GetRadius() + collider2->GetRadius()) * (collider1->GetRadius() + collider2->GetRadius()))
 							Albedo_Core_INFO("Collision");
 						break;
 					}

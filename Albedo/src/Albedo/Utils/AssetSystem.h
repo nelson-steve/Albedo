@@ -16,6 +16,7 @@ namespace Albedo {
 		const Ref<Shader>	 LoadShader(const std::string& path);
 		const Ref<Mesh>		 LoadDefaultCube();
 		const Ref<Mesh>		 LoadDefaultQuad();
+		const Ref<Mesh>		 LoadDefaultCircle();
 
 		const Ref<Mesh> GetMesh(uint32_t index) const 
 		{
@@ -85,9 +86,9 @@ namespace Albedo {
 		};
 
 		std::vector<float> triangleVertices = {
-			-0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-			 0.5f, -0.5f,  0.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-			 0.0f,  0.5f,  0.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f  // top-right
+			-0.5f, -0.5f,  0.0f,
+			 0.5f, -0.5f,  0.0f,
+			 0.0f,  0.5f,  0.0f
 		};
 
 		std::vector<float> cubeVertices = {

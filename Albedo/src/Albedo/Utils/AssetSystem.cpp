@@ -11,6 +11,7 @@ namespace Albedo {
 	{
 		LoadDefaultCube();
 		LoadDefaultQuad();
+		LoadDefaultCircle();
 	}
 
 	AssetSystem::~AssetSystem()
@@ -156,7 +157,7 @@ namespace Albedo {
 			m_Meshes[0] = std::make_shared<Mesh>();
 			m_Meshes[0]->SetDataSingularityStatus(true);
 			m_Meshes[0]->SetName("Default Cube");
-			m_Meshes[0]->SetSingularMeshData(quadVertices);
+			m_Meshes[0]->SetSingularMeshData(cubeVertices);
 			m_Meshes[0]->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},
@@ -176,7 +177,7 @@ namespace Albedo {
 			m_Meshes.resize(2);
 			m_Meshes[1] = std::make_shared<Mesh>();
 			m_Meshes[1]->SetDataSingularityStatus(true);
-			m_Meshes[1]->SetSingularMeshData(triangleVertices);
+			m_Meshes[1]->SetSingularMeshData(quadVertices);
 			m_Meshes[1]->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},
@@ -186,5 +187,32 @@ namespace Albedo {
 		}
 			return m_Meshes[1];
 
+	}
+
+	const Ref<Mesh> AssetSystem::LoadDefaultCircle()
+	{
+		Ref<Mesh> tempMesh = std::make_shared<Mesh>();
+		tempMesh->SetDataSingularityStatus(false);
+		std::vector<glm::vec3> vertices;
+		float cx = 0.0;
+		float cy = 0.0;
+		uint32_t radius = 1;
+		uint32_t num_segments = 50;
+		for (uint32_t i = 0; i < num_segments; i++) {
+			float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);//get the current angle 
+			float x = radius * cosf(theta);//calculate the x component 
+			float y = radius * sinf(theta);//calculate the y component 
+			vertices.push_back(glm::vec3(x + cx, y + cy, 0.0));
+		}
+		for (uint32_t i = 0; i < num_segments; i++) {
+			float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);//get the current angle 
+			float x = radius * cosf(theta);//calculate the x component 
+			float y = radius * sinf(theta);//calculate the y component 
+			vertices.push_back(glm::vec3(x + cx, 0.0, y + cy));
+		}
+		tempMesh->SetVertices(vertices);
+		m_Meshes.push_back(tempMesh);
+
+		return tempMesh;
 	}
 }

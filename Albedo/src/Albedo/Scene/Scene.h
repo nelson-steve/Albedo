@@ -3,6 +3,7 @@
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
 #include "Albedo/Renderer/Material.h"
+#include "Albedo/Renderer/Mesh.h"
 
 #include "entt.hpp"
 
@@ -37,6 +38,10 @@ namespace Albedo {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+
+		Ref<Mesh> m_Collider;
+		Ref<Shader> m_Shader;
+		glm::mat4 m_Transform = glm::mat4(1.0);
 
 		friend class Entity;
 		friend class SceneSerializer;

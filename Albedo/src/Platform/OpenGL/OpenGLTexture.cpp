@@ -25,7 +25,7 @@ namespace Albedo {
 		m_InternalFormat = GL_RGBA8;
 		m_DataFormat = GL_RGBA;
 
-		//glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+		//glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);	
 		glGenTextures(1, &m_TextureID);
 		glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Width, m_Height);
 

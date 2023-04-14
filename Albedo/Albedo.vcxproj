@@ -598,6 +598,7 @@
     <ClInclude Include="src\Albedo\Renderer\Renderer.h" />
     <ClInclude Include="src\Albedo\Renderer\Renderer2D.h" />
     <ClInclude Include="src\Albedo\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\Albedo\Renderer\RendererConfig.h" />
     <ClInclude Include="src\Albedo\Renderer\Shader.h" />
     <ClInclude Include="src\Albedo\Renderer\Texture.h" />
     <ClInclude Include="src\Albedo\Renderer\VertexArray.h" />

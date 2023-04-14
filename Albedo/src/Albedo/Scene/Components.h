@@ -10,6 +10,7 @@
 #include"Albedo/Cameras/OrthographicCamera.h"
 #include "ScriptableEntity.h"
 #include "Albedo/Renderer/Mesh.h"
+#include <Albedo/Physics/SphererCollider.h>
 
 namespace Albedo {
 
@@ -114,6 +115,16 @@ namespace Albedo {
 
 		PhysicsComponent() = default;
 		PhysicsComponent(const PhysicsComponent&) = default;
+	};
+
+	struct ColliderComponent
+	{
+		Ref<Collider> collider;
+		
+		bool ShowCollider = true;
+
+		ColliderComponent() = default;
+		ColliderComponent(const ColliderComponent&) = default;
 	};
 
 	struct SpriteRendererComponent

@@ -34,19 +34,37 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
-		//Renderer::InitSkybox();
+		m_Collider = m_AssetManager->LoadDefaultCircle();
+		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
+		m_Shader = m_AssetManager->LoadShader("Assets/ModelShader.glsl");
+
+		m_Collider->InitMesh(-1);
 
 		Renderer::Init(m_Registry);
-		//Renderer::Init(m_SceneObjects);
+
+		auto view = m_Registry.view<ColliderComponent>();
+		for (auto entity : view)
+		{
+			bool exists = false;
+			for (auto c : m_PhysicsWorld->GetColliderList())
+			{
+				if (c == view.get<ColliderComponent>(entity).collider)
+					exists = true;
+			}
+			if(!exists)
+				m_PhysicsWorld->GetColliderList().push_back(view.get<ColliderComponent>(entity).collider);
+		}
+		//Renderer::InitSkybox();
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
-		Entity entity = { m_Registry.create(), this };
+		Entity entity = { m_Registry.create(), this };	
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg"));
+		entity.AddComponent<ColliderComponent>().collider = std::make_shared<SphereCollider>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -59,14 +77,22 @@ namespace Albedo {
 
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
-		//collision update
-	
-		//position update
-		auto view = m_Registry.view<PhysicsComponent, TransformComponent>();
-		for (auto entity : view)
+		//m_PhysicsWorld->Update();
+
 		{
-			if(view.get<PhysicsComponent>(entity).physicsEnabled)
-				m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity));
+			//collision update
+			auto view = m_Registry.view<ColliderComponent>();
+
+		}
+
+		{
+			//position update
+			auto view = m_Registry.view<PhysicsComponent, TransformComponent, ColliderComponent>();
+			for (auto entity : view)
+			{
+				if (view.get<PhysicsComponent>(entity).physicsEnabled)
+					m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity), view.get<ColliderComponent>(entity));
+			}
 		}
 	
 		//validation
@@ -109,9 +135,7 @@ namespace Albedo {
 		}
 
 		if (mainCamera)
-		{
-			Albedo_Core_INFO("main camera rendering");
-			
+		{	
 			auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
 
 			for (auto entity : view)
@@ -125,27 +149,42 @@ namespace Albedo {
 				if(m_Registry.any_of<CameraComponent>(entity)) continue;
 
 				Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-				Renderer::Render(view.get<MeshComponent>(entity));
+				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 		}
 	}
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		OnUpdatePhysics(ts);
-		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent, ColliderComponent>();
 
-		for (auto entity : view)
+		for (auto& entity : view)
 		{
 			auto& mesh = view.get<MeshComponent>(entity);
 			if (mesh.m_Mesh->GetInitializationStatus())
 				InitScene();
+				//mesh.m_Mesh->InitMesh(view.get<MeshComponent>(entity).ID);
 		}
 
-		for (auto entity : view)
+		for (auto& entity : view)
 		{
 			Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-			Renderer::Render(view.get<MeshComponent>(entity));
+			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+		}
+
+		for (auto& entity : view)
+		{
+			auto& collider = view.get<ColliderComponent>(entity);
+			auto& transform = view.get<TransformComponent>(entity);
+			std::dynamic_pointer_cast<SphereCollider>(collider.collider)->SetCenter(transform.GetPosition());
+			glm::mat4& m_Transform = glm::translate(glm::mat4(1.0), collider.collider->GetCenter()) *
+				glm::scale(glm::mat4(1.0), (collider.collider->GetRadius() * glm::vec3(1.0)));
+			
+			if (view.get<ColliderComponent>(entity).ShowCollider)
+			{
+				Renderer::Setup(camera, m_Shader, m_Transform);
+				Renderer::RenderOverlay(m_Collider);
+			}
 		}
 	}
 
@@ -229,6 +268,11 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<PhysicsComponent>(Entity entity, PhysicsComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ColliderComponent>(Entity entity, ColliderComponent& component)
 	{
 	}
 }

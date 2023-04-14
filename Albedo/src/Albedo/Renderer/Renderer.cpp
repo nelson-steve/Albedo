@@ -12,6 +12,7 @@ namespace Albedo {
 	{
 		auto group = reg.view<MeshComponent>();
 
+		
 		for (auto view : group)
 		{
 			if (group.get<MeshComponent>(view).m_Mesh->GetInitializationStatus())
@@ -21,7 +22,28 @@ namespace Albedo {
 			}
 		}
 
+	}
 
+	GLenum Renderer::AlbedoDrawTypeToGLType(DrawType type)
+	{
+		switch (type)
+		{
+			case Albedo::DrawType::Albedo_POINTS:					return GL_POINTS;
+			case Albedo::DrawType::Albedo_LINE_STRIP:				return GL_LINE_STRIP;
+			case Albedo::DrawType::Albedo_LINE_LOOP:				return GL_LINE_LOOP;
+			case Albedo::DrawType::Albedo_LINES:					return GL_LINES;
+			case Albedo::DrawType::Albedo_LINE_STRIP_ADJACENCY:		return GL_LINE_STRIP_ADJACENCY;
+			case Albedo::DrawType::Albedo_LINES_ADJACENCY:			return GL_LINES_ADJACENCY;
+			case Albedo::DrawType::Albedo_TRIANGLE_STRIP:			return GL_TRIANGLE_STRIP;
+			case Albedo::DrawType::Albedo_TRIANGLE_FAN:				return GL_TRIANGLE_FAN;
+			case Albedo::DrawType::Albedo_TRIANGLES:				return GL_TRIANGLES;
+			case Albedo::DrawType::Albedo_TRIANGLE_STRIP_ADJACENCY:	return GL_TRIANGLE_STRIP_ADJACENCY;
+			case Albedo::DrawType::Albedo_TRIANGLES_ADJACENCY:		return GL_TRIANGLES_ADJACENCY;
+			case Albedo::DrawType::Albedo_PATCHES:					return GL_PATCHES;
+			default: 
+				Albedo_Core_ERROR("Error: Unknown Rendering Type");
+				return GL_TRIANGLES;
+		}
 	}
 
 	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform, const TextureComponent& texture)
@@ -56,13 +78,32 @@ namespace Albedo {
 		texture.m_Textures[0]->Bind();
 	}
 
-	void Renderer::Render(const MeshComponent& mesh)
+	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
+		shader->Bind();
+		shader->SetUniformMat4("u_Transform", transform);
+		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+	}
+
+	void Renderer::RenderOverlay(const Ref<Mesh> mesh)
+	{
+		mesh->GetMeshBufferData().m_VertexArray->Bind();
+		glDrawArrays(AlbedoDrawTypeToGLType(mesh->GetRendererConfig().Type), 0, mesh->GetVertices().size());
+		mesh->GetMeshBufferData().m_VertexArray->UnBind();
+	}
+
+	void Renderer::Render(const MeshComponent& mesh, RendererConfig config)
+	{
+		if(config.PolygonMode)	
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
 		if(mesh.m_Mesh->IsSingularData())
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
+			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
 		else
-			glDrawArrays(GL_TRIANGLES, 0, mesh.m_Mesh->GetVertices().size());
+			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
+		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
+		if(config.PolygonMode) 
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	void Renderer::Shutdown()
