@@ -319,7 +319,34 @@ namespace Albedo {
 
 		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
 			{
-				ImGui::DragFloat("Collider Size", &(std::dynamic_pointer_cast<SphereCollider>(component.collider)->m_Radius), 0.1f, 0.0f);
+				if (component.collider->GetType() == Type::Sphere)
+				{
+					Ref<SphereCollider> c = std::dynamic_pointer_cast<SphereCollider>(component.collider);
+					float r = c->GetRadius();
+					ImGui::DragFloat("Collider Size", &r, 0.1f, 0.0f);
+					c->SetRadius(r);
+				}
+				else if (component.collider->GetType() == Type::BoxAABB)
+				{
+					Ref<BoxCollider> c = std::dynamic_pointer_cast<BoxCollider>(component.collider);
+					glm::vec3& size = glm::vec3(c->GetWidth(), c->GetHeight(), c->GetDepth());
+					DrawVec3Control("Size ", size);
+					c->SetWidth(size.x);
+					c->SetHeight(size.y);
+					c->SetDepth(size.z);
+					ImGui::Begin("stats");
+					auto min = c->GetMin();
+					auto max = c->GetMax();
+						ImGui::DragFloat("MinX", &min.x);
+						ImGui::DragFloat("MinY", &min.y);
+						ImGui::DragFloat("MinZ", &min.z);
+
+						ImGui::DragFloat("MaxX", &max.x);
+						ImGui::DragFloat("MaxY", &max.y);
+						ImGui::DragFloat("MaxZ", &max.z);
+					ImGui::End();
+				}
+
 				ImGui::Checkbox("Collider Show", &component.ShowCollider);
 			});
 #if 0

@@ -28,7 +28,9 @@ IncludeDir["imgui"] 	= "%{wks.location}/Albedo/dependencies/imgui"
 IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
-IncludeDir["tinyobj"] 		= "%{wks.location}/Albedo/dependencies/tinyobj/include"
+IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
+IncludeDir["cpm_aabb"] 	= "%{wks.location}/Albedo/dependencies/cpm_aabb/include"
+IncludeDir["vhacd"] 	= "%{wks.location}/Albedo/dependencies/v-hacd/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 
@@ -61,8 +63,14 @@ project "Albedo"
 		"%{prj.name}/dependencies/glm/glm/**.inl",
 		"%{prj.name}/dependencies/stb_image/**.h",
 		"%{prj.name}/dependencies/stb_image/**.cpp",
+		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
+		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
-		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp"
+		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp",
+		"%{prj.name}/dependencies/v-hacd/include/VHACD.h",
+		"%{prj.name}/dependencies/v-hacd/include/VHACD.cpp",
+		"%{prj.name}/dependencies/cpm_aabb/include/AABB.hpp",
+		"%{prj.name}/dependencies/cpm_aabb/include/AABB.cpp"
 	}
 
 	defines
@@ -81,6 +89,8 @@ project "Albedo"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.vhacd}",
+		"%{IncludeDir.cpm_aabb}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}"
@@ -97,6 +107,12 @@ project "Albedo"
 	}
 
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
+	flags { "NoPCH" }
+	filter "files:Albedo/dependencies/tinyobj/include/tiny_obj_loader.cpp"
+	flags { "NoPCH" }
+	filter "files:Albedo/dependencies/v-hacd/include/VHACD.cpp"
+	flags { "NoPCH" }
+	filter "files:Albedo/dependencies/cpm_aabb/include/AABB.cpp"
 	flags { "NoPCH" }
 
 	filter "system:windows"

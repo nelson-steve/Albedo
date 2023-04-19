@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -98,7 +98,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -123,7 +123,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h" />
+    <ClInclude Include="dependencies\cpm_aabb\include\AABB.hpp" />
     <ClInclude Include="dependencies\glm\glm\common.hpp" />
     <ClInclude Include="dependencies\glm\glm\detail\_features.hpp" />
     <ClInclude Include="dependencies\glm\glm\detail\_fixes.hpp" />
@@ -560,6 +561,8 @@
     <ClInclude Include="dependencies\glm\glm\vec4.hpp" />
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
+    <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h" />
+    <ClInclude Include="dependencies\v-hacd\include\VHACD.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Cameras\Camera.h" />
     <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
@@ -584,6 +587,7 @@
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Math\Math.h" />
+    <ClInclude Include="src\Albedo\Physics\BoxCollider.h" />
     <ClInclude Include="src\Albedo\Physics\Collider.h" />
     <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h" />
     <ClInclude Include="src\Albedo\Physics\PlaneCollider.h" />
@@ -626,19 +630,28 @@
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="dependencies\cpm_aabb\include\AABB.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
+    <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="dependencies\v-hacd\include\VHACD.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Albedo\Core\Application.cpp" />
     <ClCompile Include="src\Albedo\Core\Log.cpp" />
-    <ClCompile Include="src\Albedo\Core\tinyobj.cc" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
+    <ClCompile Include="src\Albedo\Physics\BoxCollider.cpp" />
     <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="src\Albedo\Physics\SphereCollider.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />

@@ -22,17 +22,15 @@ struct Transform
 enum class Type
 {
 	Sphere = 0,
-	Cube
+	BoxAABB
 };
 
 class Collider
 {
 public:
 	virtual bool operator==(Collider& c) = 0;
-	
-	virtual const glm::vec3& GetCenter() const = 0;
-	virtual const float GetRadius() const = 0;
+	virtual void SetType(const Type& type) = 0;
 	virtual const Type GetType() const = 0;
 protected:
-	Type m_Type;
+	Type m_Type = Type::Sphere;
 };
