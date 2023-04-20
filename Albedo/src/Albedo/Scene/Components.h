@@ -40,7 +40,10 @@ namespace Albedo {
 
 	struct RigidBodyComponent
 	{
+		//Ref<RigidBody> rigidBody;
 
+		RigidBodyComponent() = default;
+		RigidBodyComponent(const RigidBodyComponent&) = default;
 	};
 
 	struct TextureComponent
@@ -133,6 +136,7 @@ namespace Albedo {
 			else return false;
 		}
 
+		Ref<RigidBody> rigidBody;
 		Ref<Collider> collider;
 
 		bool ShowCollider;

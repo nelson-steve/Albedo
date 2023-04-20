@@ -16,7 +16,7 @@ namespace Albedo {
 	//	float Mass;
 	//};
 
-	class RigidBody;
+	//class RigidBody;
 
 	struct Contact
 	{
@@ -110,24 +110,70 @@ namespace Albedo {
 	class RigidBody
 	{
 	public:
+
+		void CalculateDerivedData();
+		void Integrate();
+
+		void CanSleep(bool sleep) { m_CanSleep = sleep; }
+		void Awake(bool awake) { m_IsAwake = awake; }
 		void EnableGravity(bool g) { m_UseGravity = g; }
+		void SetLinearDamping(float damping) { m_LinearDamping = damping; }
+		void SetAngularDamping(float angularDamping) { m_AngularDamping = angularDamping; }
+		void SetMotion(float motion) { m_Motion = motion; }
 		void SetMass(float mass) { m_Mass = mass; }
 		void SetInverseMass(float invMass) { m_InverseMass = invMass; }
 		void SetRestitution(float restitution) { m_Restitution = restitution; }
+		void SetPosition(const glm::vec3& pos) { m_Position = pos; }
+		void SetTotalTorque(const glm::vec3& torque) { m_TotalTorque = torque; }
+		void SetAcceleration(const glm::vec3& acceleration) { m_Acceleration = acceleration; }
+		void SetLastFrameAcceleration(const glm::vec3& lastAcceleration) { m_LastFrameAcceleration = lastAcceleration; }
+		void SetVelocity(const glm::vec3& velocity) { m_Velocity = velocity; }
+		void SetTotalForce(const glm::vec3& totalForce) { m_TotalForce = totalForce; }
+		void SetInverseInertiaTensorWorld(const glm::mat3& inertiaTensorWorld) { m_InverseIntertiaTensor = inertiaTensorWorld; }
+		void SetInverseInertiaTensor(const glm::mat3& inertiaTensor) { m_InverseIntertiaTensor = inertiaTensor; }
+		void SetTransform(const glm::mat4 transform) { m_Transform = transform; }
+		void SetOrientation(const glm::quat& orientation) { m_Orientation = orientation; }
 
+		bool CanSleep() const { return m_CanSleep; }
+		bool IsAwake() const { return m_IsAwake; }
 		bool GetGravityStatus() const { return m_UseGravity; }
-		const glm::vec3& GetVelocity() const { return m_Velocity; }
+		float GetLinearDamping() const { return m_LinearDamping; }
+		float GetAngularDamping() const { return m_AngularDamping; }
+		float GetMotion() const { return m_Motion; }
 		float GetMass() const { return m_Mass; }
 		float GetInverseMass() const { return m_InverseMass; }
 		float GetRestitution() const { return m_Restitution; }
+		const glm::vec3& GetPosition() const { return m_Position; }
+		const glm::vec3& GetTotalTorque() const { return m_TotalTorque; }
+		const glm::vec3& GetAcceleration() const { return m_Acceleration; }
+		const glm::vec3& GetLastFrameAcceleration() const { return m_LastFrameAcceleration; }
+		const glm::vec3& GetVelocity() const { return m_Velocity; }
 		const glm::vec3& GetTotalForce() const { return m_TotalForce; }
+		const glm::mat3& GetInverseInertiaTensorWorld() const { return m_InverseInertiaTensorWorld; }
+		const glm::mat3& GetInverseInertiaTensor() const { return m_InverseIntertiaTensor; }
+		const glm::mat4& GetTransform() const { return m_Transform; }
+		const glm::quat& GetOrientation() const { return m_Orientation; }
+		const glm::vec3& GetAxis(uint32_t index) const { return m_Transform[index]; }
 	private:
-		bool m_UseGravity = true;
-		glm::vec3 m_Velocity = glm::vec3(0.0f);
+		bool  m_CanSleep = false;
+		bool  m_IsAwake = true;
+		bool  m_UseGravity = true;
+		float m_LinearDamping = 0.0f;
+		float m_AngularDamping = 0.0f;
+		float m_Motion = 0.0f;
 		float m_Mass = 1.0f;
-		float m_InverseMass;
+		float m_InverseMass = 0.0f;
 		float m_Restitution = 0.5f;
+		glm::vec3 m_Position = glm::vec3(0.0f);
+		glm::vec3 m_TotalTorque = glm::vec3(0.0f);
+		glm::vec3 m_Acceleration = glm::vec3(0.0f);
+		glm::vec3 m_LastFrameAcceleration = glm::vec3(0.0f);
+		glm::vec3 m_Velocity = glm::vec3(0.0f);
 		glm::vec3 m_TotalForce = glm::vec3(0.0f);
+		glm::mat3 m_InverseInertiaTensorWorld = glm::mat3(1.0f);
+		glm::mat3 m_InverseIntertiaTensor = glm::mat3(1.0f);
+		glm::mat4 m_Transform = glm::mat4(1.0f);
+		glm::quat m_Orientation;
 	};
 
 	class PhysicsWorld
@@ -136,13 +182,13 @@ namespace Albedo {
 		void Update();
 		void Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp, ColliderComponent& colliderComp);
 
-		const std::vector<ColliderComponent&>& GetColliderList() const { return m_Colliders; }
-		std::vector<ColliderComponent&>& GetColliderList() { return m_Colliders; }
+		const std::vector<ColliderComponent>& GetColliderList() const { return m_Colliders; }
+		std::vector<ColliderComponent>& GetColliderList() { return m_Colliders; }
 	private:
-		std::vector<ColliderComponent&> m_Colliders;
-		std::vector<std::pair<ColliderComponent&, ColliderComponent&>> m_IntersectingColliders;
-		void CheckCollision();
-		glm::vec3 m_Gravity = glm::vec3(0, -9.8, 0);
+		std::vector<ColliderComponent> m_Colliders;
+		std::vector<std::pair<ColliderComponent, ColliderComponent>> m_IntersectingColliders;
+		void CheckIntersections();
+		void CheckCollisions();
 	};
 
 }

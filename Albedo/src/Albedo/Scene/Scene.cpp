@@ -46,7 +46,7 @@ namespace Albedo {
 		for (auto entity : view)
 		{
 			bool exists = false;
-			for (auto c : m_PhysicsWorld->GetColliderList())
+			for (auto& c : m_PhysicsWorld->GetColliderList())
 			{
 				if (c == view.get<ColliderComponent>(entity))
 					exists = true;
@@ -94,6 +94,8 @@ namespace Albedo {
 				if (view.get<PhysicsComponent>(entity).physicsEnabled)
 					m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity), view.get<ColliderComponent>(entity));
 			}
+
+
 		}
 
 		//validation
