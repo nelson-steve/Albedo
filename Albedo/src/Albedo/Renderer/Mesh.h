@@ -29,7 +29,8 @@ namespace Albedo {
         const std::string&    GetPath()           const { return m_Path;           }
         const MeshBufferData& GetMeshBufferData() const { return m_MeshBufferData; }
         const std::vector<float>& GetSingularMeshData() const { return m_SingularMeshData; }
-		const std::vector<glm::vec3> GetVertices() const { return m_Vertices;	   }
+		const std::vector<glm::vec3>& GetVertices() const { return m_Vertices;	   }
+		const std::vector<uint32_t>& GetIndices() const { return m_Indices;	   }
 
         void SetName                  (const std::string& name)                { m_Name             = name;     }
         void SetPath                  (const std::string& path)                { m_Path             = path;     }

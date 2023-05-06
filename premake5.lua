@@ -8,16 +8,10 @@ workspace "Albedo"
 		"Release",
 		"Dist"
 	}
-
-	-- solution_items
-	-- {
-	-- 	".editorconfig"
-	-- }
-
-	-- flags
-	-- {
-	-- 	"MultiProcessorCompile"
-	-- }
+	flags
+	{
+		"MultiProcessorCompile"
+	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -29,10 +23,22 @@ IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
-IncludeDir["cpm_aabb"] 	= "%{wks.location}/Albedo/dependencies/cpm_aabb/include"
-IncludeDir["vhacd"] 	= "%{wks.location}/Albedo/dependencies/v-hacd/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
+IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
+
+LibraryDir = {}
+LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
+
+Library = {}
+Library["Physx"] 				   = "%{LibraryDir.Physx}/PhysX_static_64.lib"
+Library["PhysXPvdSDK"] 			   = "%{LibraryDir.Physx}/PhysXPvdSDK_static_64.lib"
+Library["PhysXCommon"] 			   = "%{LibraryDir.Physx}/PhysXCommon_static_64.lib"
+Library["PhysXCooking"] 		   = "%{LibraryDir.Physx}/PhysXCooking_static_64.lib"
+Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
+Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
+Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
+Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -63,18 +69,15 @@ project "Albedo"
 		"%{prj.name}/dependencies/glm/glm/**.inl",
 		"%{prj.name}/dependencies/stb_image/**.h",
 		"%{prj.name}/dependencies/stb_image/**.cpp",
-		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
-		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp",
-		"%{prj.name}/dependencies/v-hacd/include/VHACD.h",
-		"%{prj.name}/dependencies/v-hacd/include/VHACD.cpp",
-		"%{prj.name}/dependencies/cpm_aabb/include/AABB.hpp",
-		"%{prj.name}/dependencies/cpm_aabb/include/AABB.cpp"
+		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
+		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp"
 	}
 
 	defines
 	{
+		"PX_PHYSX_STATIC_LIB",
 		"_CRT_SECURE_NO_WARNINGS",
 		"Albedo_DEBUG"
 	}
@@ -82,37 +85,43 @@ project "Albedo"
 	includedirs
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/dependencies/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.imgui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobj}",
-		"%{IncludeDir.vhacd}",
-		"%{IncludeDir.cpm_aabb}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
-		"%{IncludeDir.ImGuizmo}"
-		-- "%{IncludeDir.assimp}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Physx}",
+		"%{prj.name}/dependencies/spdlog/include"
 	}
 
 	links
 	{
-		"GLFW",
-		"Glad",
-		"imgui",
+		-- YAML
 		"yaml-cpp",
-		"opengl32.lib"
+		-- ImGUI
+		"imgui",
+		-- OpenGL
+		"Glad",
+		"GLFW",
+		"opengl32.lib",
+		-- Physx
+		"%{Library.Physx}",
+		"%{Library.PhysXPvdSDK}",
+		"%{Library.PhysXCommon}",
+		"%{Library.PhysXCooking}",
+		"%{Library.PhysXVehicle}",
+		"%{Library.PhysXExtensions}",
+		"%{Library.PhysXFoundation}",
+		"%{Library.PhysXCharacterKinematic}"
 	}
 
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
 	flags { "NoPCH" }
 	filter "files:Albedo/dependencies/tinyobj/include/tiny_obj_loader.cpp"
-	flags { "NoPCH" }
-	filter "files:Albedo/dependencies/v-hacd/include/VHACD.cpp"
-	flags { "NoPCH" }
-	filter "files:Albedo/dependencies/cpm_aabb/include/AABB.cpp"
 	flags { "NoPCH" }
 
 	filter "system:windows"
@@ -168,6 +177,7 @@ project "AlbedoEditor"
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.Physx}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.ImGuizmo}"
 	}
@@ -222,6 +232,7 @@ project "Sandbox"
 		"Albedo/src",
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.Physx}",
 		"%{IncludeDir.entt}"
 	}
 

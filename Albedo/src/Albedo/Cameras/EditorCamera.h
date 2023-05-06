@@ -5,6 +5,7 @@
 #include "Albedo/Events/Event.h"
 #include "Albedo/Events/MouseEvent.h"
 
+#include <glm/gtc/quaternion.hpp>
 #include <glm/glm.hpp>
 
 namespace Albedo {

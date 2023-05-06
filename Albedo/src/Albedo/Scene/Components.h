@@ -11,10 +11,6 @@
 #include "ScriptableEntity.h"
 #include "Albedo/Renderer/Mesh.h"
 
-#include "Albedo/Physics/Collider.h"
-#include "Albedo/Physics/BoxCollider.h"
-#include "Albedo/Physics/SphererCollider.h"
-
 namespace Albedo {
 
 	struct TagComponent
@@ -36,14 +32,6 @@ namespace Albedo {
 		int ID = -1;
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
-	};
-
-	struct RigidBodyComponent
-	{
-		//Ref<RigidBody> rigidBody;
-
-		RigidBodyComponent() = default;
-		RigidBodyComponent(const RigidBodyComponent&) = default;
 	};
 
 	struct TextureComponent
@@ -84,6 +72,12 @@ namespace Albedo {
 		const glm::vec3& GetRotation() const { return Rotation; }
 		const glm::vec3& GetScale() const { return Scale; }
 
+		void AddTranform(const glm::vec3& pos)
+		{
+			Transform = glm::translate(glm::mat4(1.0f), pos);
+			Position = pos;
+		}
+
 		void AddTranform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale) 
 		{ 
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
@@ -118,32 +112,113 @@ namespace Albedo {
 
 	struct PhysicsComponent
 	{
-		glm::vec3 Position = glm::vec3(0.0);
-		glm::vec3 Velocity = glm::vec3(0.0, 10.0, 0.0);
-		glm::vec3 Force = glm::vec3(1.0);
+		void Create()
+		{
+			CreateMaterial();
+			CreatePhysicsBody();
+			CreatePhysicsCollider();
+		}
+
+		enum BodyType
+		{
+			Dynamic = 0,
+			Static
+		};
+
+		enum ColliderType
+		{
+			Box = 0,
+			Sphere,
+			Mesh,
+			ConvexMesh
+		};
+
+		void CreatePhysicsBody()
+		{
+			if (_BodyType == BodyType::Dynamic)
+			{
+				dynamicBody = std::make_shared<RigidBodyDynamicComponent>(BodyPosition, BodyOrientation, Mass);
+				dynamicBody->GetRigidActor()->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, !PhysicsEnabled);
+			}
+			else if (_BodyType == BodyType::Static)
+				staticBody = std::make_shared<RigidBodyStaticComponent>(BodyPosition, BodyOrientation);
+		}
+
+		void CreateMaterial()
+		{
+			//physicsMaterial = std::make_shared<PhysicsMaterial>(0.5f, 0.5f, 0.1f);
+			physicsMaterial = std::make_shared<PhysicsMaterial>(0.05, 0.005, 0);
+		}
+
+		void CreatePhysicsCollider()
+		{
+			if (_BodyType == BodyType::Dynamic)
+			{
+				if (_ColliderType == ColliderType::Box)
+				{
+					collider = std::make_shared<BoxCollider>(dynamicBody.get(), ColliderSize, physicsMaterial, ColliderPosition, ColliderOrientation);
+				}
+				else if (_ColliderType == ColliderType::Sphere)
+				{
+					collider = std::make_shared<SphereCollider>(dynamicBody.get(), ColliderRadius, physicsMaterial, ColliderPosition, ColliderOrientation);
+				}
+				else if (_ColliderType == ColliderType::Mesh)
+				{
+					Albedo_Core_INFO("invalid collider type");
+					//collider = std::make_shared<MeshCollider>();
+				}
+				else if (_ColliderType == ColliderType::ConvexMesh)
+				{
+					Albedo_Core_INFO("invalid collider type");
+					//collider = std::make_shared<ConvexMeshCollider>();
+				}
+			}
+			else if (_BodyType == BodyType::Static)
+			{
+				if (_ColliderType == ColliderType::Box)
+				{
+					collider = std::make_shared<BoxCollider>(staticBody.get(), ColliderSize, physicsMaterial, ColliderPosition, ColliderOrientation);
+				}
+				else if (_ColliderType == ColliderType::Sphere)
+				{
+					collider = std::make_shared<SphereCollider>(staticBody.get(), ColliderRadius, physicsMaterial, ColliderPosition, ColliderOrientation);
+				}
+				else if (_ColliderType == ColliderType::Mesh)
+				{
+					Albedo_Core_INFO("invalid collider type");
+					//collider = std::make_shared<MeshCollider>();
+				}
+				else if (_ColliderType == ColliderType::ConvexMesh)
+				{
+					Albedo_Core_INFO("invalid collider type");
+					//collider = std::make_shared<ConvexMeshCollider>();
+				}
+			}
+		}
+
+		// Rigid Body
+		glm::vec3 BodyPosition = glm::vec3(0.0);
+		glm::quat BodyOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+		glm::vec3 Force = glm::vec3(0.0);
+		glm::vec3 Velocity = glm::vec3(0.0, 0.0, 0.0);
 		float Mass = 1;
-		bool physicsEnabled = false;
+		// Collider
+		glm::vec3 ColliderPosition = glm::vec3(0.0);
+		glm::vec3 ColliderSize = glm::vec3(1.0f, 1.0f, 1.0f);
+		glm::quat ColliderOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+		float ColliderRadius = 1.0f;
+
+		bool PhysicsEnabled = true;
+		BodyType _BodyType = BodyType::Dynamic;
+		ColliderType _ColliderType = ColliderType::Box;
+
+		Ref<PhysicsMaterial> physicsMaterial;
+		Ref<RigidBodyDynamicComponent> dynamicBody;	
+		Ref<RigidBodyStaticComponent> staticBody;
+		Ref<PhysicsCollider> collider;
 
 		PhysicsComponent() = default;
 		PhysicsComponent(const PhysicsComponent&) = default;
-	};
-
-	struct ColliderComponent
-	{
-		bool operator ==(ColliderComponent& c)
-		{
-			if (c.collider == this->collider) return true;
-			else return false;
-		}
-
-		Ref<RigidBody> rigidBody;
-		Ref<Collider> collider;
-
-		bool ShowCollider;
-
-
-		ColliderComponent() = default;
-		ColliderComponent(const ColliderComponent&) = default;
 	};
 
 	struct SpriteRendererComponent

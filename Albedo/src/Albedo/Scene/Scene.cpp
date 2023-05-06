@@ -6,11 +6,9 @@
 #include "Components.h"
 #include "Albedo/Utils/AssetSystem.h"
 #include "Albedo/Core/Application.h"
-#include "Albedo/Renderer/Renderer2D.h"
 #include "Albedo/Renderer/Renderer.h"
+#include "Albedo/Physics/PhysicsSolver.h"
 #include "Albedo/Physics/PhysicsWorld.h"
-#include "Albedo/Physics/BoxCollider.h"
-#include "Albedo/Physics/SphererCollider.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,43 +16,40 @@
 
 namespace Albedo {
 
-	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager;
+	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
-	Ref<PhysicsWorld> m_PhysicsWorld;
+	//Ref<PhysicsWorld> m_PhysicsWorld;
 
 	Scene::Scene()
 	{
-		m_PhysicsWorld = std::make_shared<PhysicsWorld>();
+		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
+		//m_PhysicsWorld = std::make_shared<PhysicsWorld>();
 	}
 
 	Scene::~Scene()
 	{
-
+		m_PhysicsSolver->Deallocate();
+		//m_PhysicsWorld.reset();
 	}
 
 	void Scene::InitScene()
 	{
+		//m_PhysicsWorld->Init();
+
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/ModelShader.glsl");
 
 		m_Collider->InitMesh(-1);
 
-		Renderer::Init(m_Registry);
+		auto view = m_Registry.view<PhysicsComponent>();
 
-		auto view = m_Registry.view<ColliderComponent>();
 		for (auto entity : view)
 		{
-			bool exists = false;
-			for (auto& c : m_PhysicsWorld->GetColliderList())
-			{
-				if (c == view.get<ColliderComponent>(entity))
-					exists = true;
-			}
-			if (!exists)
-				m_PhysicsWorld->GetColliderList().push_back(view.get<ColliderComponent>(entity));
+			view.get<PhysicsComponent>(entity).Create();
 		}
-		//Renderer::InitSkybox();
+
+		Renderer::Init(m_Registry);
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -78,27 +73,43 @@ namespace Albedo {
 
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
-		//m_PhysicsWorld->Update();
+		//m_PhysicsWorld->Update(ts);
+		m_PhysicsSolver->UpdatePhysics(ts);
 
+		auto view = m_Registry.view<TransformComponent, PhysicsComponent>();
+
+		for (auto entity : view)
 		{
-			//collision update
-			auto view = m_Registry.view<ColliderComponent>();
 
-		}
-
-		{
-			//position update
-			auto view = m_Registry.view<PhysicsComponent, TransformComponent, ColliderComponent>();
-			for (auto entity : view)
+			if (view.get<PhysicsComponent>(entity)._BodyType == view.get<PhysicsComponent>(entity).BodyType::Dynamic)
 			{
-				if (view.get<PhysicsComponent>(entity).physicsEnabled)
-					m_PhysicsWorld->Update(ts, view.get<PhysicsComponent>(entity), view.get<TransformComponent>(entity), view.get<ColliderComponent>(entity));
+				auto p = view.get<PhysicsComponent>(entity).dynamicBody->GetRigidActor()->getGlobalPose().p;
+				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
 			}
-
-
+			else if (view.get<PhysicsComponent>(entity)._BodyType == view.get<PhysicsComponent>(entity).BodyType::Static)
+			{
+				auto p = view.get<PhysicsComponent>(entity).staticBody->GetRigidActor()->getGlobalPose().p;
+				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
+			}
+			else
+				Albedo_Core_ERROR("Invalid Body Type");
 		}
 
-		//validation
+		//m_PhysicsSolver->Update(ts);
+		//
+		//// retrieve array of actors that moved
+		//physx::PxU32 nbActiveActors;
+		//physx::PxActor** activeActors = m_PhysicsSolver->scene->getActiveActors(nbActiveActors);
+		//if (activeActors == nullptr || nbActiveActors == 0) return;
+		//const physx::PxRigidActor* s = dynamic_cast<physx::PxRigidActor*>(*activeActors);
+		//
+		//// update each render object with the new transform
+		//for (physx::PxU32 i = 0; i < nbActiveActors; ++i)
+		//{
+		//	Mesh* renderObject = static_cast<Mesh*>(activeActors[i]->userData);
+		//	const auto& t = s[i].getGlobalPose().p;
+		//	Albedo_Core_INFO("pos: {0} {1} {2}", t.x, t.y, t.z);
+		//}
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
@@ -161,7 +172,7 @@ namespace Albedo {
 	{
 		OnUpdatePhysics(ts);
 
-		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent, ColliderComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
 
 		for (auto& entity : view)
 		{
@@ -178,27 +189,11 @@ namespace Albedo {
 
 		for (auto& entity : view)
 		{
-			auto& collider = view.get<ColliderComponent>(entity);
-			auto& transform = view.get<TransformComponent>(entity);
-			if (collider.collider->GetType() == Type::Sphere)
-			{
-				Ref<SphereCollider> c = std::dynamic_pointer_cast<SphereCollider>(collider.collider);
-				c->SetCenter(transform.GetPosition());
-				m_Transform = glm::translate(glm::mat4(1.0), c->GetCenter()) *
-					glm::scale(glm::mat4(1.0), (c->GetRadius() * glm::vec3(1.0)));
-			}
-			else if (collider.collider->GetType() == Type::BoxAABB)
-			{
-				Ref<BoxCollider> c = std::dynamic_pointer_cast<BoxCollider>(collider.collider);
+			auto& phy = view.get<PhysicsComponent>(entity);
 
-				const glm::vec3& pos = transform.GetPosition();
-				c->SetCenter(transform.GetPosition());
-				c->SetMin(pos - glm::vec3(c->GetWidth()/2, c->GetHeight()/2, c->GetDepth()/2));
-				c->SetMax(pos + glm::vec3(c->GetWidth()/2, c->GetHeight()/2, c->GetDepth()/2));
-				glm::vec3& s = glm::vec3(c->GetWidth(), c->GetHeight(), c->GetDepth());
-				m_Transform = glm::translate(glm::mat4(1.0), transform.GetPosition()) * glm::scale(glm::mat4(1.0), s);
-			}
-			//if (view.get<ColliderComponent>(entity).ShowCollider)
+			m_Transform = glm::translate(glm::mat4(1.0f), phy.ColliderPosition) * glm::scale(glm::mat4(1.0f), phy.ColliderSize);
+			glm::vec3 offset = glm::vec3(2.0);
+			m_Transform = glm::scale(m_Transform, offset);
 			{
 				Renderer::Setup(camera, m_Shader, m_Transform);
 				Renderer::RenderOverlay(m_Collider);
@@ -238,7 +233,6 @@ namespace Albedo {
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
 		Albedo_Core_INFO("invalid type");
-		//static_assert(false);
 	}
 
 	template<>
@@ -250,7 +244,6 @@ namespace Albedo {
 	template<>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
-		//component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
 	template<>
@@ -289,8 +282,4 @@ namespace Albedo {
 	{
 	}
 
-	template<>
-	void Scene::OnComponentAdded<ColliderComponent>(Entity entity, ColliderComponent& component)
-	{
-	}
 }

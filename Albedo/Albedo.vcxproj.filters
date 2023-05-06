@@ -7,12 +7,6 @@
     <Filter Include="dependencies\ImGuizmo">
       <UniqueIdentifier>{6C1DA30B-D889-5E06-A17D-F6630DA9806E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="dependencies\cpm_aabb">
-      <UniqueIdentifier>{80905248-ECFC-0D43-B5F0-A5A0211C30AB}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dependencies\cpm_aabb\include">
-      <UniqueIdentifier>{F337A8B2-5F50-8FDC-28FD-1E7694D42376}</UniqueIdentifier>
-    </Filter>
     <Filter Include="dependencies\glm">
       <UniqueIdentifier>{DB1DAFD4-C716-CE26-F048-B3ABDCA0AD32}</UniqueIdentifier>
     </Filter>
@@ -40,12 +34,6 @@
     <Filter Include="dependencies\tinyobj\include">
       <UniqueIdentifier>{4DE8279E-39A3-174A-E25A-9094CEF461DA}</UniqueIdentifier>
     </Filter>
-    <Filter Include="dependencies\v-hacd">
-      <UniqueIdentifier>{8E593679-FABA-1387-8328-5A39EF884A46}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dependencies\v-hacd\include">
-      <UniqueIdentifier>{012F132A-6D3C-4110-F622-3DFB622F0DC7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
@@ -54,6 +42,9 @@
     </Filter>
     <Filter Include="src\Albedo\Cameras">
       <UniqueIdentifier>{4ED449D2-3AB8-0A28-A318-057B8F1BF5A9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Albedo\Components">
+      <UniqueIdentifier>{98DE88B5-044B-44B0-CD3E-DC0D396A6618}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Albedo\Core">
       <UniqueIdentifier>{9BF7047A-0783-723E-1094-F5327C9ECE3E}</UniqueIdentifier>
@@ -98,9 +89,6 @@
   <ItemGroup>
     <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h">
       <Filter>dependencies\ImGuizmo</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\cpm_aabb\include\AABB.hpp">
-      <Filter>dependencies\cpm_aabb\include</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\glm\glm\common.hpp">
       <Filter>dependencies\glm\glm</Filter>
@@ -1353,9 +1341,6 @@
     <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h">
       <Filter>dependencies\tinyobj\include</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\v-hacd\include\VHACD.h">
-      <Filter>dependencies\v-hacd\include</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1428,19 +1413,19 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\BoxCollider.h">
+    <ClInclude Include="src\Albedo\Physics\PhysicsCollider.h">
       <Filter>src\Albedo\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\Collider.h">
+    <ClInclude Include="src\Albedo\Physics\PhysicsMaterial.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsSolver.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsTaskDispatcher.h">
       <Filter>src\Albedo\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PlaneCollider.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\SphererCollider.h">
       <Filter>src\Albedo\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
@@ -1542,22 +1527,20 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\Conversions.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyComponent.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyConfig.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
       <Filter>dependencies\ImGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\cpm_aabb\include\AABB.cpp">
-      <Filter>dependencies\cpm_aabb\include</Filter>
     </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
       <Filter>dependencies\stb_image</Filter>
     </ClCompile>
     <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
       <Filter>dependencies\tinyobj\include</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\v-hacd\include\VHACD.cpp">
-      <Filter>dependencies\v-hacd\include</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp">
       <Filter>src\Albedo\Cameras</Filter>
@@ -1592,13 +1575,16 @@
     <ClCompile Include="src\Albedo\Math\Math.cpp">
       <Filter>src\Albedo\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\BoxCollider.cpp">
+    <ClCompile Include="src\Albedo\Physics\PhysicsCollider.cpp">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsSolver.cpp">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsTaskDispatcher.cpp">
       <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\SphereCollider.cpp">
       <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
@@ -1694,5 +1680,7 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsMaterial.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsBodyComponent.cpp" />
   </ItemGroup>
 </Project>

@@ -76,11 +76,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
+      <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/MTd %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -89,7 +91,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Debug\PhysX_static_64.lib;dependencies\Physx\lib\Debug\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Debug\PhysXCommon_static_64.lib;dependencies\Physx\lib\Debug\PhysXCooking_static_64.lib;dependencies\Physx\lib\Debug\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Debug\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Debug\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Debug\PhysXCharacterKinematic_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,14 +99,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/MT %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -114,7 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Release\PhysX_static_64.lib;dependencies\Physx\lib\Release\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Release\PhysXCommon_static_64.lib;dependencies\Physx\lib\Release\PhysXCooking_static_64.lib;dependencies\Physx\lib\Release\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Release\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Release\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Release\PhysXCharacterKinematic_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -122,14 +125,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\spdlog\include;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\v-hacd\include;dependencies\cpm_aabb\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/MT %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -139,12 +143,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Dist\PhysX_static_64.lib;dependencies\Physx\lib\Dist\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Dist\PhysXCommon_static_64.lib;dependencies\Physx\lib\Dist\PhysXCooking_static_64.lib;dependencies\Physx\lib\Dist\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Dist\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Dist\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Dist\PhysXCharacterKinematic_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h" />
-    <ClInclude Include="dependencies\cpm_aabb\include\AABB.hpp" />
     <ClInclude Include="dependencies\glm\glm\common.hpp" />
     <ClInclude Include="dependencies\glm\glm\detail\_features.hpp" />
     <ClInclude Include="dependencies\glm\glm\detail\_fixes.hpp" />
@@ -562,13 +565,14 @@
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
     <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h" />
-    <ClInclude Include="dependencies\v-hacd\include\VHACD.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Cameras\Camera.h" />
     <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
     <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h" />
+    <ClInclude Include="src\Albedo\Physics\Conversions.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyComponent.h" />
     <ClInclude Include="src\Albedo\Core\Application.h" />
     <ClInclude Include="src\Albedo\Core\Core.h" />
     <ClInclude Include="src\Albedo\Core\EntryPoint.h" />
@@ -587,11 +591,13 @@
     <ClInclude Include="src\Albedo\Layers\Layer.h" />
     <ClInclude Include="src\Albedo\Layers\LayerStack.h" />
     <ClInclude Include="src\Albedo\Math\Math.h" />
-    <ClInclude Include="src\Albedo\Physics\BoxCollider.h" />
-    <ClInclude Include="src\Albedo\Physics\Collider.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyConfig.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsCollider.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsConfig.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsMaterial.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsSolver.h" />
+    <ClInclude Include="src\Albedo\Physics\PhysicsTaskDispatcher.h" />
     <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h" />
-    <ClInclude Include="src\Albedo\Physics\PlaneCollider.h" />
-    <ClInclude Include="src\Albedo\Physics\SphererCollider.h" />
     <ClInclude Include="src\Albedo\Renderer\Buffer.h" />
     <ClInclude Include="src\Albedo\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Albedo\Renderer\GraphicsContext.h" />
@@ -630,20 +636,15 @@
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="dependencies\cpm_aabb\include\AABB.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
     <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\v-hacd\include\VHACD.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsBodyComponent.cpp" />
     <ClCompile Include="src\Albedo\Core\Application.cpp" />
     <ClCompile Include="src\Albedo\Core\Log.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />
@@ -651,9 +652,11 @@
     <ClCompile Include="src\Albedo\Layers\Layer.cpp" />
     <ClCompile Include="src\Albedo\Layers\LayerStack.cpp" />
     <ClCompile Include="src\Albedo\Math\Math.cpp" />
-    <ClCompile Include="src\Albedo\Physics\BoxCollider.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsCollider.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsMaterial.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsSolver.cpp" />
+    <ClCompile Include="src\Albedo\Physics\PhysicsTaskDispatcher.cpp" />
     <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp" />
-    <ClCompile Include="src\Albedo\Physics\SphereCollider.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Albedo\Renderer\Material.cpp" />
@@ -689,17 +692,17 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="dependencies\GLFW\GLFW.vcxproj">
-      <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
-    </ProjectReference>
-    <ProjectReference Include="dependencies\Glad\Glad.vcxproj">
-      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    <ProjectReference Include="dependencies\yaml-cpp\yaml-cpp.vcxproj">
+      <Project>{88F1A057-74BE-FB62-9DD7-E90A890331F1}</Project>
     </ProjectReference>
     <ProjectReference Include="dependencies\imgui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
-    <ProjectReference Include="dependencies\yaml-cpp\yaml-cpp.vcxproj">
-      <Project>{88F1A057-74BE-FB62-9DD7-E90A890331F1}</Project>
+    <ProjectReference Include="dependencies\Glad\Glad.vcxproj">
+      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="dependencies\GLFW\GLFW.vcxproj">
+      <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

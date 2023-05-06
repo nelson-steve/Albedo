@@ -4,12 +4,14 @@
 #include "Albedo/Core/Timestep.h"
 #include "Albedo/Renderer/Material.h"
 #include "Albedo/Renderer/Mesh.h"
+#include "Albedo/Physics/PhysicsCollider.h"
 
 #include "entt.hpp"
 
 namespace Albedo {
 
 	class Entity;
+	class PhysicsSolver;
 
 	class Scene
 	{
@@ -41,8 +43,10 @@ namespace Albedo {
 
 		Ref<Mesh> m_Collider;
 		Ref<Shader> m_Shader;
+		Ref<PhysicsSolver> m_PhysicsSolver;
+		//Ref<PhysicsWorld> m_PhysicsWorld;
 		glm::mat4 m_Transform = glm::mat4(1.0);
-
+		std::vector<Ref<PhysicsCollider>> m_ColliderList;
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;

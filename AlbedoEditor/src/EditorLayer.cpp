@@ -11,7 +11,6 @@
 #include "Albedo/Renderer/RendererConfig.h"
 
 #include "ImGuizmo.h"
-#include <Albedo/Physics/BoxCollider.h>
 
 
 namespace Albedo {
@@ -29,14 +28,14 @@ namespace Albedo {
 	{
 		m_ActiveScene = std::make_shared<Scene>();
 
-		Entity sceneCamera = m_ActiveScene->CreateEntity("SceneCamera");
-		sceneCamera.AddComponent<CameraComponent>();
-		sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
-		sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
-		sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
-		sceneCamera.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-		sceneCamera.GetComponent<TransformComponent>().Position = glm::vec3(0.0, 0.0, 75.0);
+		//Entity sceneCamera = m_ActiveScene->CreateEntity("SceneCamera");
+		//sceneCamera.AddComponent<CameraComponent>();
+		//sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
+		//sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
+		//sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		//sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
+		//sceneCamera.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+		//sceneCamera.GetComponent<TransformComponent>().Position = glm::vec3(0.0, 0.0, 75.0);
 
 		//Entity cerberus = m_ActiveScene->CreateEntity("Mesh");
 		//cerberus.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)cerberus);
@@ -48,24 +47,51 @@ namespace Albedo {
 		//cerberus.GetComponent<TransformComponent>().Scale = glm::vec3(10.0, 1.0, 10.0);
 		//cerberus.GetComponent<TransformComponent>().Position = glm::vec3(0.0, -30.0, 0.0);
 
-		Entity suzanneMesh = m_ActiveScene->CreateEntity("Mesh");
-		suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh);
-		suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
-		suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		suzanneMesh.AddComponent<PhysicsComponent>();
-		suzanneMesh.AddComponent<ColliderComponent>().collider = std::make_shared<BoxCollider>();
-		suzanneMesh.GetComponent<ColliderComponent>().collider->SetType(Type::BoxAABB);
-		suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-
-		Entity suzanneMesh1 = m_ActiveScene->CreateEntity("Mesh");
-		suzanneMesh1.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh1);
-		suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
-		suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		suzanneMesh1.AddComponent<PhysicsComponent>();
-		suzanneMesh1.AddComponent<ColliderComponent>().collider = std::make_shared<BoxCollider>();
-		suzanneMesh1.GetComponent<ColliderComponent>().collider->SetType(Type::BoxAABB);
-		suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-
+		{
+			Entity suzanneMesh = m_ActiveScene->CreateEntity("Sphere");
+			suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere_wrong_tangents.obj"), (uint32_t)suzanneMesh);
+			suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
+			suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+			suzanneMesh.AddComponent<PhysicsComponent>();
+			glm::vec3 pos(0.0f, 400.0f, 0.0f);
+			glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
+			suzanneMesh.GetComponent<TransformComponent>().Position = pos;
+			//suzanneMesh.GetComponent<TransformComponent>().Scale = size;
+			suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+			suzanneMesh.GetComponent<PhysicsComponent>().BodyPosition = pos;
+			//suzanneMesh.GetComponent<PhysicsComponent>().ColliderRadius = 20.0f;
+			suzanneMesh.GetComponent<PhysicsComponent>().ColliderSize = size;
+			suzanneMesh.GetComponent<PhysicsComponent>().ColliderPosition = pos;
+			suzanneMesh.GetComponent<PhysicsComponent>()._ColliderType = suzanneMesh.GetComponent<PhysicsComponent>().ColliderType::Box;
+			suzanneMesh.GetComponent<PhysicsComponent>()._BodyType = suzanneMesh.GetComponent<PhysicsComponent>().BodyType::Dynamic;
+			suzanneMesh.GetComponent<PhysicsComponent>().Mass = 1.0f;
+			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
+		}
+		{
+			Entity suzanneMesh1 = m_ActiveScene->CreateEntity("Plane");
+			suzanneMesh1.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh1);
+			suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/concrete/dirty_concrete_metall_1k.png"));
+			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+			suzanneMesh1.AddComponent<PhysicsComponent>();
+			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
+			glm::vec3 size = glm::vec3(3.0, 3.0f, 3.0f);
+			glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
+			suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+			suzanneMesh1.GetComponent<TransformComponent>().Position = pos;
+			//suzanneMesh1.GetComponent<TransformComponent>().Scale = size;
+			suzanneMesh1.GetComponent<TransformComponent>().Rotation = rot;
+			suzanneMesh1.GetComponent<PhysicsComponent>();
+			suzanneMesh1.GetComponent<PhysicsComponent>().BodyPosition = pos;
+			suzanneMesh1.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
+			suzanneMesh1.GetComponent<PhysicsComponent>()._BodyType = suzanneMesh1.GetComponent<PhysicsComponent>().BodyType::Dynamic;
+			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderPosition = pos;
+			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderSize = size;
+			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderOrientation = glm::quat(rot);
+			suzanneMesh1.GetComponent<PhysicsComponent>()._ColliderType = suzanneMesh1.GetComponent<PhysicsComponent>().ColliderType::Box;
+			suzanneMesh1.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
+			suzanneMesh1.GetComponent<PhysicsComponent>().Mass = 0.f;
+	}
 		m_ActiveScene->InitScene();
 
 		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);

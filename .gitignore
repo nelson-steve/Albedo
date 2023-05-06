@@ -2,7 +2,7 @@
 bin/
 bin-int/
 **Albedo/AlbedoEditor/Assets
-
+**Albedo/Albedo/dependencies/Physx
 # Files
 *.user
 *.json

@@ -1,279 +1,184 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "PhysicsWorld.h"
-#include "SphererCollider.h"
 
-#include <VHACD.h>
+#include <PxPhysicsAPI.h>
+
+#define PVD_HOST "127.0.0.1"
+#define STATIC(a) decltype(a) a
+
+STATIC(Albedo::PhysicsWorld::phys);
+STATIC(Albedo::PhysicsWorld::pvd);
+STATIC(Albedo::PhysicsWorld::cooking);
+STATIC(Albedo::PhysicsWorld::scene);
+STATIC(Albedo::PhysicsWorld::gDefaultErrorCallback);
+STATIC(Albedo::PhysicsWorld::gDefaultAllocatorCallback);
+STATIC(Albedo::PhysicsWorld::foundation);
 
 namespace Albedo {
 
-    static inline bool tryAxis(
-        const ColliderComponent& one,
-        const ColliderComponent& two,
-        const glm::vec3& axis,
-        const glm::vec3& toCentre,
-        uint32_t index,
-
-        // These values may be updated
-        float& smallestPenetration,
-        uint32_t& smallestCase
-    )
+    physx::PxFilterFlags _FilterShader(physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0, physx::PxFilterObjectAttributes attributes1, physx::PxFilterData filterData1, physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize)
     {
-        // Make sure we have a normalized axis, and don't check almost parallel axes
-        if (axis.squareMagnitude() < 0.0001) return true;
-        axis.normalise();
-
-        real penetration = penetrationOnAxis(one, two, axis, toCentre);
-
-        if (penetration < 0) return false;
-        if (penetration < smallestPenetration) {
-            smallestPenetration = penetration;
-            smallestCase = index;
+        // let triggers through
+        if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
+        {
+            pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
+            return physx::PxFilterFlag::eDEFAULT;
         }
-        return true;
+        // generate contacts for all that were not filtered above
+        pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+
+        // trigger the contact callback for pairs (A,B) where
+        // the filtermask of A contains the ID of B and vice versa.
+        if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+            pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+
+        return physx::PxFilterFlag::eDEFAULT;
     }
 
-    void RigidBody::CalculateDerivedData()
-    {
-
-    }
-
-    void RigidBody::Integrate()
-    {
-
-    }
-
-
-	void PhysicsWorld::Update(const Timestep& ts, PhysicsComponent& phyCmp, TransformComponent& transformComp, ColliderComponent& colliderComp)
+	PhysicsWorld::PhysicsWorld()
 	{
-		//phyCmp.Force += phyCmp.Mass * m_Gravity;
-		//phyCmp.Velocity += phyCmp.Force / phyCmp.Mass * ts.GetTime();
-		//transformComp.Position += phyCmp.Velocity * ts.GetTime();
-		//phyCmp.Force = glm::vec3(0);
-		//std::dynamic_pointer_cast<SphereCollider>(colliderComp.collider)->SetCenter(transformComp.Position);
-		
-		Update();
+        if (foundation == nullptr)
+        {
+            foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
+        }
+        if (foundation == nullptr)
+        {
+            Albedo_CORE_ASSERT(false, "PhysX foundation failed to create");
+        }
+        bool recordMemoryAllocations = true;
+        if (pvd == nullptr)
+        {
+            pvd = physx::PxCreatePvd(*foundation);
+            physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+            pvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+            if (phys == nullptr)
+            {
+                phys = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, physx::PxTolerancesScale(), recordMemoryAllocations, pvd);
+            }
+            if (phys == nullptr)
+            {
+                Albedo_CORE_ASSERT(false, "PhysX Physics initialization failed");
+            }
+        }
+
+        //create PhysX scene
+        physx::PxSceneDesc desc(phys->getTolerancesScale());
+        desc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+
+        //set the dispatcher
+        desc.cpuDispatcher = &taskDispatcher;
+
+        desc.filterShader = &_FilterShader;
+        desc.simulationEventCallback = this;
+
+        // initialize cooking library with defaults
+        if (foundation)
+            cooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, physx::PxCookingParams(physx::PxTolerancesScale()));
+        if (!cooking)
+        {
+            Albedo_CORE_ASSERT(false, "PhysX Cooking initialization failed");
+        }
+
+        // setup cooking parameters (used for all subsequent calls to cooking)
+        physx::PxTolerancesScale scale;
+        physx::PxCookingParams params(scale);
+        // disable mesh cleaning - perform mesh validation on development configurations
+        //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+        // disable edge precompute, edges are set for each triangle, slows contact generation
+        //params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+
+        cooking->setParams(params);
+
+        // initialize extensions (can be omitted, these are optional components)
+        if (!PxInitExtensions(*phys, pvd))
+        {
+            Albedo_CORE_ASSERT(false, "Unable to initialize PhysX");
+        }
+
+        //create the scene
+        scene = phys->createScene(desc);
+        if (!scene)
+        {
+            Albedo_CORE_ASSERT(false, "PhysX Scene failed to create");
+        }
 	}
 
-	void PhysicsWorld::Update()
+	PhysicsWorld::~PhysicsWorld()
 	{
-		CheckIntersections();
+
 	}
 
-	void PhysicsWorld::CheckIntersections()
+	void PhysicsWorld::Init()
 	{
-		for (auto& collider1 : m_Colliders)
-		{
-			for (auto& collider2 : m_Colliders)
-			{
-				if (collider2 == collider1) continue;
-				switch (collider1.collider->GetType())
-				{
-					case Type::Sphere:
-					{
-						const auto& c1 = std::dynamic_pointer_cast<SphereCollider>(collider1.collider);
-						const auto& c2 = std::dynamic_pointer_cast<SphereCollider>(collider2.collider);
-						auto a = c1->GetCenter();
-						auto b = c2->GetRadius();
-						float distance = glm::dot((c1->GetCenter() - c1->GetCenter()), (c1->GetCenter() - c1->GetCenter()));
-						if (distance < (c2->GetRadius() + c2->GetRadius()) * (c2->GetRadius() + c2->GetRadius()))
-							Albedo_Core_INFO("Collision");
-						break;
-					}
-					case Type::BoxAABB:
-					{
-						const auto& c1 = std::dynamic_pointer_cast<BoxCollider>(collider1.collider);
-						const auto& c2 = std::dynamic_pointer_cast<BoxCollider>(collider2.collider);
-						if (c1->GetMin().x > c2->GetMax().x || c1->GetMax().x < c2->GetMin().x)
-							break;
-						else if (c1->GetMin().y > c2->GetMax().y || c1->GetMax().y < c2->GetMin().y)
-							break;
-						else if (c1->GetMin().z > c2->GetMax().z || c1->GetMax().z < c2->GetMin().z)
-							break;
-						else
-						{
-							m_IntersectingColliders.push_back(std::pair<ColliderComponent, ColliderComponent>(collider1, collider2));
-							Albedo_Core_INFO("Collision");
-							break;
-						}
-					}
-					default:
-						Albedo_Core_ERROR("Error: unkown collider type");
-						break;
-				}
-			}
-		}
+        m_ColliderConfig = std::make_shared<ColliderConfig>();
+        m_RigidBodyConfig = std::make_shared<RigidBodyConfig>();
+        
+        {
+            mat = phys->createMaterial(m_ColliderConfig->width, m_ColliderConfig->height, 0);
+            rigidActor = phys->createRigidDynamic(physx::PxTransform(physx::PxVec3(0, 0, 0)));
+            collider = physx::PxRigidActorExt::createExclusiveShape(*rigidActor, physx::PxBoxGeometry(m_ColliderConfig->width, m_ColliderConfig->height, m_ColliderConfig->depth), *(mat));
+            rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, true);
+            rigidActor->setMass(.0f);
+            physx::PxQuat rot(1.0, physx::PxVec3(0, 0, 0));
+            physx::PxTransform transform(physx::PxVec3(0, 0, 0), rot);
+            rigidActor->setGlobalPose(transform);
+        }
 
-#if 0
-			auto v = VHACD::CreateVHACD();
-			VHACD::IVHACD::Parameters p;
-
-			//load obj and save count
-			//e.g. uint32_t tcount = w.loadObj(inputFile);
-
-			p.m_maxConvexHulls = 32;
-
-			p.m_minimumVolumePercentErrorAllowed = false;
-
-			p.m_maxRecursionDepth = 20;
+        {
+            mat2 = phys->createMaterial(m_ColliderConfig->width, m_ColliderConfig->height, -1);
+            rigidActor2 = phys->createRigidDynamic(physx::PxTransform(physx::PxVec3(0, 100, 0)));
+            collider2 = physx::PxRigidActorExt::createExclusiveShape(*rigidActor2, physx::PxBoxGeometry(m_ColliderConfig->width, m_ColliderConfig->height, m_ColliderConfig->depth), *(mat2));
+            rigidActor2->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
+            rigidActor2->setMass(0.1f);
+            physx::PxQuat rot2(physx::PxHalfPi, physx::PxVec3(0, 0, 1));
+            physx::PxTransform transform2(physx::PxVec3(0, 100, 0), rot2);
+            rigidActor2->setGlobalPose(transform2);
+        }
+        
+        //rigidActor->setMassSpaceInertiaTensor(physx::PxVec3(1.0f));
+        //rigidActor->setAngularVelocity(physx::PxVec3(2.0f, 0.0f, 0.0f), true);
+        
+        scene->addActor(*rigidActor);
+        scene->addActor(*rigidActor2);
 
 
-			p.m_shrinkWrap = false;
-			if (p.m_shrinkWrap)
-			{
-				if (p.m_shrinkWrap)
-				{
-					printf("Shrinkwrap enabled.\n");
-				}
-				else
-				{
-					printf("Shrinkwrap disabled.\n");
-				}
-			}
-
-			p.m_fillMode = VHACD::FillMode::FLOOD_FILL;
-
-			p.m_maxNumVerticesPerCH = 23;
-
-			p.m_asyncACD = false;
-
-			p.m_findBestPlane = false;
-
-			VHACD::IVHACD* iface = VHACD::CreateVHACD();
-
-			//double* points = new double[w.mVertexCount * 3];
-			//for (uint32_t i = 0; i < w.mVertexCount * 3; i++)
-			//{
-			//	points[i] = w.mVertices[i];
-			//}
-			//bool canceled = false;
-			//
-			//iface->Compute(points, w.mVertexCount, w.mIndices, w.mTriCount, p);
-#endif
+        // create simulation
+        //mat = phys->createMaterial(0.5f, 0.5f, 0.6f);
+        //physx::PxRigidStatic* groundPlane = PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 50), *mat);
+        //scene->addActor(*groundPlane);
+        //
+        //float halfExtent = .5f;
+        //physx::PxShape* shape = phys->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *mat);
+        //physx::PxU32 size = 30;
+        //physx::PxTransform t(physx::PxVec3(0));
+        //for (physx::PxU32 i = 0; i < size; i++) {
+        //    for (physx::PxU32 j = 0; j < size - i; j++) {
+        //        physx::PxTransform localTm(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), 0) * halfExtent);
+        //        rigidActor = phys->createRigidDynamic(t.transform(localTm));
+        //        rigidActor->attachShape(*shape);
+        //        physx::PxRigidBodyExt::updateMassAndInertia(*rigidActor, 10.0f);
+        //        scene->addActor(*rigidActor);
+        //    }
+        //}
+        //shape->release();
 	}
 
-	void PhysicsWorld::CheckCollisions()
+	void PhysicsWorld::Update(Timestep ts)
 	{
-		for (auto& i : m_IntersectingColliders)
-		{
-            //if (!IntersectionTests::boxAndBox(one, two)) return 0;
+        scene->lockWrite();
+        //for (int i = 0; i < nsteps; i++)
+        {
+            scene->simulate(ts.GetTime());
+            scene->fetchResults(true);      //simulate is async, this blocks until the results have been calculated
+        }
+        scene->unlockWrite();
+        auto pos = rigidActor->getGlobalPose();
+        auto pos2 = rigidActor2->getGlobalPose();
+        //auto pos = rigidActor->getGlobalPose();
+        
+        Albedo_Core_INFO("pos : {0} {1} {2}", pos.p.x, pos.p.y, pos.p.z);
+        Albedo_Core_INFO("pos2: {0} {1} {2}", pos2.p.x, pos2.p.y, pos2.p.z);
 
-            // Find the vector between the two centres
-            glm::mat4 t;
-            glm::vec3 s = t[3];
-            glm::vec3 toCentre = i.first.rigidBody->GetAxis(3) - i.second.rigidBody->GetAxis(3);
-            
-            #define DBL_MAX          1.7976931348623158e+308 // max value
-            // We start assuming there is no contact
-            float pen = DBL_MAX;
-            uint32_t best = 0xffffff;
-
-            // Now we check each axes, returning if it gives us
-            // a separating axis, and keeping track of the axis with
-            // the smallest penetration otherwise.
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(0), toCentre, 0, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(1), toCentre, 1, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(2), toCentre, 2, pen, best)) return;
-
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(0), toCentre, 3, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(1), toCentre, 4, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(2), toCentre, 5, pen, best)) return;
-
-            // Store the best axis-major, in case we run into almost
-            // parallel edge collisions later
-            unsigned bestSingleAxis = best;
-
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(0) % i.second.rigidBody->GetAxis(0), toCentre, 6, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(0) % i.second.rigidBody->GetAxis(1), toCentre, 7, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(0) % i.second.rigidBody->GetAxis(2), toCentre, 8, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(1) % i.second.rigidBody->GetAxis(0), toCentre, 9, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(1) % i.second.rigidBody->GetAxis(1), toCentre, 10, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(1) % i.second.rigidBody->GetAxis(2), toCentre, 11, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(2) % i.second.rigidBody->GetAxis(0), toCentre, 12, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(2) % i.second.rigidBody->GetAxis(1), toCentre, 13, pen, best)) return;
-            if (!tryAxis(i.first, i.second, i.first.rigidBody->GetAxis(2) % i.second.rigidBody->GetAxis(2), toCentre, 14, pen, best)) return;
-
-            // Make sure we've got a result.
-            Albedo_CORE_ASSERT(best != 0xffffff, "error");
-
-            // We now know there's a collision, and we know which
-            // of the axes gave the smallest penetration. We now
-            // can deal with it in different ways depending on
-            // the case.
-            if (best < 3)
-            {
-                // We've got a vertex of box two on a face of box one.
-                fillPointFaceBoxBox(one, two, toCentre, data, best, pen);
-                data->addContacts(1);
-                return 1;
-            }
-            else if (best < 6)
-            {
-                // We've got a vertex of box one on a face of box two.
-                // We use the same algorithm as above, but swap around
-                // one and two (and therefore also the vector between their
-                // centres).
-                fillPointFaceBoxBox(two, one, toCentre * -1.0f, data, best - 3, pen);
-                data->addContacts(1);
-                return 1;
-            }
-            else
-            {
-                // We've got an edge-edge contact. Find out which axes
-                best -= 6;
-                unsigned oneAxisIndex = best / 3;
-                unsigned twoAxisIndex = best % 3;
-                Vector3 oneAxis = one.getAxis(oneAxisIndex);
-                Vector3 twoAxis = two.getAxis(twoAxisIndex);
-                Vector3 axis = oneAxis % twoAxis;
-                axis.normalise();
-
-                // The axis should point from box one to box two.
-                if (axis * toCentre > 0) axis = axis * -1.0f;
-
-                // We have the axes, but not the edges: each axis has 4 edges parallel
-                // to it, we need to find which of the 4 for each object. We do
-                // that by finding the point in the centre of the edge. We know
-                // its component in the direction of the box's collision axis is zero
-                // (its a mid-point) and we determine which of the extremes in each
-                // of the other axes is closest.
-                Vector3 ptOnOneEdge = one.halfSize;
-                Vector3 ptOnTwoEdge = two.halfSize;
-                for (unsigned i = 0; i < 3; i++)
-                {
-                    if (i == oneAxisIndex) ptOnOneEdge[i] = 0;
-                    else if (one.getAxis(i) * axis > 0) ptOnOneEdge[i] = -ptOnOneEdge[i];
-
-                    if (i == twoAxisIndex) ptOnTwoEdge[i] = 0;
-                    else if (two.getAxis(i) * axis < 0) ptOnTwoEdge[i] = -ptOnTwoEdge[i];
-                }
-
-                // Move them into world coordinates (they are already oriented
-                // correctly, since they have been derived from the axes).
-                ptOnOneEdge = one.transform * ptOnOneEdge;
-                ptOnTwoEdge = two.transform * ptOnTwoEdge;
-
-                // So we have a point and a direction for the colliding edges.
-                // We need to find out point of closest approach of the two
-                // line-segments.
-                Vector3 vertex = contactPoint(
-                    ptOnOneEdge, oneAxis, one.halfSize[oneAxisIndex],
-                    ptOnTwoEdge, twoAxis, two.halfSize[twoAxisIndex],
-                    bestSingleAxis > 2
-                );
-
-                // We can fill the contact.
-                Contact* contact = data->contacts;
-
-                contact->penetration = pen;
-                contact->contactNormal = axis;
-                contact->contactPoint = vertex;
-                contact->setBodyData(one.body, two.body,
-                    data->friction, data->restitution);
-                data->addContacts(1);
-                return 1;
-            }
-            return 0;
-		}
 	}
 }

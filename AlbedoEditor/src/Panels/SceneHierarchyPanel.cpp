@@ -314,9 +314,10 @@ namespace Albedo {
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("Physics", &component.physicsEnabled);
+				ImGui::Checkbox("Physics", &component.PhysicsEnabled);
 			});
 
+#if 0
 		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
 			{
 				if (component.collider->GetType() == Type::Sphere)
@@ -349,7 +350,6 @@ namespace Albedo {
 
 				ImGui::Checkbox("Collider Show", &component.ShowCollider);
 			});
-#if 0
 		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
 			{
 				auto& camera = component.Camera;

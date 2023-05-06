@@ -25,9 +25,8 @@
 
 #include "Albedo/Renderer/Material.h"
 
-#include "Albedo/Physics/SphererCollider.h"
-#include "Albedo/Physics/BoxCollider.h"
 #include "Albedo/Physics/PhysicsWorld.h"
+#include "Albedo/Physics/PhysicsMaterial.h"
 
 #include "Albedo/Core/Core.h"
 
