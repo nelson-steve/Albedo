@@ -59,6 +59,7 @@ namespace Albedo {
 			//suzanneMesh.GetComponent<TransformComponent>().Scale = size;
 			suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh.GetComponent<PhysicsComponent>().BodyPosition = pos;
+			suzanneMesh.GetComponent<PhysicsComponent>().ColliderRadius = 1.0f;
 			//suzanneMesh.GetComponent<PhysicsComponent>().ColliderRadius = 20.0f;
 			suzanneMesh.GetComponent<PhysicsComponent>().ColliderSize = size;
 			suzanneMesh.GetComponent<PhysicsComponent>().ColliderPosition = pos;
@@ -75,8 +76,8 @@ namespace Albedo {
 			suzanneMesh1.AddComponent<PhysicsComponent>();
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
-			glm::vec3 size = glm::vec3(3.0, 3.0f, 3.0f);
-			glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
+			glm::vec3 size = glm::vec3(50.0, 50.0f, 50.0f);
+			glm::vec3 rot = glm::vec3(0.0, 0.0f, 10.0f);
 			suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh1.GetComponent<TransformComponent>().Position = pos;
 			//suzanneMesh1.GetComponent<TransformComponent>().Scale = size;

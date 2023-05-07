@@ -23,12 +23,14 @@ IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
+IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
 
 LibraryDir = {}
 LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
+LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
 
 Library = {}
 Library["Physx"] 				   = "%{LibraryDir.Physx}/PhysX_static_64.lib"
@@ -39,6 +41,17 @@ Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
 Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
 Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
 Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
+-- Library["mono2sgen"] 				   = "%{LibraryDir.mono}/mono-2-sgen.lib"
+Library["mono"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+-- Library["monoeg"] 				   = "%{LibraryDir.mono}/eglib.lib"
+-- Library["monolibgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
+-- Library["monolibmini"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
+-- Library["monolibruntime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
+-- Library["monolibstatic"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+-- Library["monolibtest"] 				   = "%{LibraryDir.mono}/libtest.lib"
+-- Library["mono2dac"] 				   = "%{LibraryDir.mono}/mono-2.0-dac-sgen.lib"
+-- Library["monopos"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
+
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -95,6 +108,7 @@ project "Albedo"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Physx}",
+		"%{IncludeDir.mono}",
 		"%{prj.name}/dependencies/spdlog/include"
 	}
 
@@ -116,7 +130,20 @@ project "Albedo"
 		"%{Library.PhysXVehicle}",
 		"%{Library.PhysXExtensions}",
 		"%{Library.PhysXFoundation}",
-		"%{Library.PhysXCharacterKinematic}"
+		"%{Library.PhysXCharacterKinematic}",
+		-- mono
+		"%{Library.mono}",
+		-- "%{Library.monolibgc}",
+		-- "%{Library.monolibmini}",
+		-- "%{Library.monolibruntime}",
+		-- "%{Library.monolibstatic}",
+		-- "%{Library.monolibtest}",
+		-- "%{Library.mono2dac}",
+		-- "%{Library.mono2sgen}"
+		-- "%{Library.monopos}",
+
+		-- "mono-2.0-sgen.dll",
+		-- "MonoPosixHelper.dll"
 	}
 
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
@@ -179,6 +206,7 @@ project "AlbedoEditor"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.mono}",
 		"%{IncludeDir.ImGuizmo}"
 	}
 
@@ -233,6 +261,7 @@ project "Sandbox"
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.Physx}",
+		"%{IncludeDir.mono}",
 		"%{IncludeDir.entt}"
 	}
 

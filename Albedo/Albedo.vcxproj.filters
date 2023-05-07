@@ -43,9 +43,6 @@
     <Filter Include="src\Albedo\Cameras">
       <UniqueIdentifier>{4ED449D2-3AB8-0A28-A318-057B8F1BF5A9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Albedo\Components">
-      <UniqueIdentifier>{98DE88B5-044B-44B0-CD3E-DC0D396A6618}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Albedo\Core">
       <UniqueIdentifier>{9BF7047A-0783-723E-1094-F5327C9ECE3E}</UniqueIdentifier>
     </Filter>
@@ -72,6 +69,9 @@
     </Filter>
     <Filter Include="src\Albedo\Scene">
       <UniqueIdentifier>{C0A8BEBB-ACA1-DD0D-D5D3-C292C12BBD19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Albedo\Scripting">
+      <UniqueIdentifier>{25CA7836-1159-0200-BA77-16FBA6E512A6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Albedo\Utils">
       <UniqueIdentifier>{033DECBB-EF35-0B0E-1868-F09204C0EA19}</UniqueIdentifier>
@@ -1413,7 +1413,19 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\Conversions.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyComponent.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsBodyConfig.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Physics\PhysicsCollider.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsConfig.h">
       <Filter>src\Albedo\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Physics\PhysicsMaterial.h">
@@ -1488,6 +1500,9 @@
     <ClInclude Include="src\Albedo\Scene\ScriptableEntity.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Scripting\ScriptEngine.h">
+      <Filter>src\Albedo\Scripting</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h">
       <Filter>src\Albedo\Utils</Filter>
     </ClInclude>
@@ -1527,10 +1542,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\Conversions.h" />
-    <ClInclude Include="src\Albedo\Physics\PhysicsBodyComponent.h" />
-    <ClInclude Include="src\Albedo\Physics\PhysicsBodyConfig.h" />
-    <ClInclude Include="src\Albedo\Physics\PhysicsConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1575,7 +1586,13 @@
     <ClCompile Include="src\Albedo\Math\Math.cpp">
       <Filter>src\Albedo\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsBodyComponent.cpp">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Physics\PhysicsCollider.cpp">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsMaterial.cpp">
       <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Physics\PhysicsSolver.cpp">
@@ -1638,6 +1655,9 @@
     <ClCompile Include="src\Albedo\Scene\SceneSerializer.cpp">
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Scripting\ScriptEngine.cpp">
+      <Filter>src\Albedo\Scripting</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp">
       <Filter>src\Albedo\Utils</Filter>
     </ClCompile>
@@ -1680,7 +1700,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsMaterial.cpp" />
-    <ClCompile Include="src\Albedo\Physics\PhysicsBodyComponent.cpp" />
   </ItemGroup>
 </Project>

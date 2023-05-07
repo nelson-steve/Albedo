@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Utils/AssetSystem.h"
+#include "Albedo/Scripting/ScriptEngine.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -24,6 +25,7 @@ namespace Albedo {
 		m_Window->SetEventCallBack(BIND_EVENT_FN(Application::OnEvent));
 
 		RenderCommand::Init();
+		ScriptEngine::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
