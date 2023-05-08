@@ -1,0 +1,6 @@
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\Intermediates\Debug\AlbedoScripting.csproj.AssemblyReference.cache
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\Intermediates\Debug\AlbedoScripting.csproj.CoreCompileInputs.cache
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\Intermediates\Debug\AlbedoScripting.dll
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\Intermediates\Debug\AlbedoScripting.pdb
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\AlbedoScripting.dll
+C:\dev\Albedo\AlbedoEditor\Resources\Scripts\AlbedoScripting.pdb

@@ -2,9 +2,6 @@
 
 #include "ScriptEngine.h"
 #if 1
-#include "mono/jit/jit.h"
-#include "mono/metadata/assembly.h"
-#include "mono/metadata/object.h"
 
 namespace Albedo {
 
@@ -31,7 +28,7 @@ namespace Albedo {
 		delete s_Data;
 	}
 
-	char* ReadBytes(const std::string& filepath, uint32_t* outSize)
+	char* ScriptEngine::ReadBytes(const std::string& filepath, uint32_t* outSize)
 	{
 		std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
 
@@ -59,7 +56,7 @@ namespace Albedo {
 		return buffer;
 	}
 
-	MonoAssembly* LoadCSharpAssembly(const std::string& assemblyPath)
+	MonoAssembly* ScriptEngine::LoadCSharpAssembly(const std::string& assemblyPath)
 	{
 		uint32_t fileSize = 0;
 		char* fileData = ReadBytes(assemblyPath, &fileSize);
@@ -84,7 +81,7 @@ namespace Albedo {
 		return assembly;
 	}
 
-	void PrintAssemblyTypes(MonoAssembly* assembly)
+	void ScriptEngine::PrintAssemblyTypes(MonoAssembly* assembly)
 	{
 		MonoImage* image = mono_assembly_get_image(assembly);
 		const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
@@ -117,11 +114,11 @@ namespace Albedo {
 		mono_domain_set(s_Data->AppDomain, true);
 
 		// Move this maybe
-		s_Data->CoreAssembly = LoadCSharpAssembly("Resources/Scripts/Hazel-ScriptCore.dll");
+		s_Data->CoreAssembly = LoadCSharpAssembly("Resources/Scripts/AlbedoScripting.dll");
 		PrintAssemblyTypes(s_Data->CoreAssembly);
 
 		MonoImage* assemblyImage = mono_assembly_get_image(s_Data->CoreAssembly);
-		MonoClass* monoClass = mono_class_from_name(assemblyImage, "Hazel", "Main");
+		MonoClass* monoClass = mono_class_from_name(assemblyImage, "Albedo", "Main");
 
 		// 1. create an object (and call constructor)
 		MonoObject* instance = mono_object_new(s_Data->AppDomain, monoClass);

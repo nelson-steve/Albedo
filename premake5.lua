@@ -41,17 +41,19 @@ Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
 Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
 Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
 Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
--- Library["mono2sgen"] 				   = "%{LibraryDir.mono}/mono-2-sgen.lib"
-Library["mono"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
--- Library["monoeg"] 				   = "%{LibraryDir.mono}/eglib.lib"
--- Library["monolibgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
--- Library["monolibmini"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
--- Library["monolibruntime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
--- Library["monolibstatic"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
--- Library["monolibtest"] 				   = "%{LibraryDir.mono}/libtest.lib"
--- Library["mono2dac"] 				   = "%{LibraryDir.mono}/mono-2.0-dac-sgen.lib"
--- Library["monopos"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
-
+Library["mono1"] 				   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
+Library["mono2"] 				   = "%{LibraryDir.mono}/eglib.lib"
+Library["mono3"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
+Library["mono4"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
+Library["mono5"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
+Library["mono6"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
+Library["mono7"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
+-- Library["mono"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+-- Windows
+Library["WinSock"] = "Ws2_32.lib"
+Library["WinMM"] = "Winmm.lib"
+Library["WinVersion"] = "Version.lib"
+Library["BCrypt"] = "Bcrypt.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -132,18 +134,22 @@ project "Albedo"
 		"%{Library.PhysXFoundation}",
 		"%{Library.PhysXCharacterKinematic}",
 		-- mono
-		"%{Library.mono}",
-		-- "%{Library.monolibgc}",
-		-- "%{Library.monolibmini}",
-		-- "%{Library.monolibruntime}",
-		-- "%{Library.monolibstatic}",
-		-- "%{Library.monolibtest}",
-		-- "%{Library.mono2dac}",
-		-- "%{Library.mono2sgen}"
-		-- "%{Library.monopos}",
+		"%{Library.mono1}",
+		"%{Library.mono2}",
+		"%{Library.mono3}",
+		"%{Library.mono4}",
+		"%{Library.mono5}",
+		"%{Library.mono6}",
+		"%{Library.mono7}",
+		-- "%{Library.mono}",
 
-		-- "mono-2.0-sgen.dll",
-		-- "MonoPosixHelper.dll"
+		"%{Library.WinSock}",
+		"%{Library.WinMM}",
+		"%{Library.WinVersion}",
+		"%{Library.BCrypt}",
+
+		"mono-2.0-sgen.dll",
+		"MonoPosixHelper.dll"
 	}
 
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
@@ -292,3 +298,30 @@ project "Sandbox"
 		defines "Albedo_DIST"
 		buildoptions "/MT"
 		optimize "on"
+
+project "AlbedoScripting"
+	location "AlbedoScripting" 
+	kind "SharedLib"
+	language "C#"
+	dotnetframework "4.7.2"
+
+	targetdir ("%{wks.location}/AlbedoEditor/Resources/Scripts")
+	objdir ("%{wks.location}/AlbedoEditor/Resources/Scripts/Intermediates")
+
+	files 
+	{
+		"Source/**.cs",
+		"Properties/**.cs"
+	}
+
+	filter "configurations:Debug"
+		optimize "Off"
+		symbols "Default"
+
+	filter "configurations:Release"
+		optimize "On"
+		symbols "Default"
+
+	filter "configurations:Dist"
+		optimize "Full"
+		symbols "Off"
