@@ -1,4 +1,6 @@
-﻿namespace Albedo
+﻿using System.Dynamic;
+
+namespace Albedo
 {
     public abstract class Component
     {
@@ -34,6 +36,11 @@
             InternalCalls.Rigidbody2DComponent_ApplyLinearImpulseToCenter(Entity.ID, ref impulse, wake);
         }
 
+    }
+
+    public class ScriptComponent : Component
+    { 
+        
     }
 
 }
