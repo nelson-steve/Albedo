@@ -24,9 +24,18 @@ namespace Albedo {
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
-		void OnUpdatePhysics(Timestep ts);
+		void OnRuntimeStart(Timestep ts);
+		void OnRuntimeStop();
+
+		void OnSimulationStart(Timestep ts);
+		void OnSimulationStop();
+
 		void OnUpdateRuntime(Timestep ts);
+		void OnUpdateSimulation(Timestep ts, EditorCamera& camera);
 		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
+		void OnUpdateResize(uint32_t width, uint32_t height);
+
+		void OnUpdatePhysics(Timestep ts);
 
 		void OnViewportResize(uint32_t width, uint32_t height);
 
@@ -44,7 +53,6 @@ namespace Albedo {
 		Ref<Mesh> m_Collider;
 		Ref<Shader> m_Shader;
 		Ref<PhysicsSolver> m_PhysicsSolver;
-		//Ref<PhysicsWorld> m_PhysicsWorld;
 		glm::mat4 m_Transform = glm::mat4(1.0);
 		std::vector<Ref<PhysicsCollider>> m_ColliderList;
 		friend class Entity;

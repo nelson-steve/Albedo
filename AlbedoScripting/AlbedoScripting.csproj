@@ -60,7 +60,15 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Source\Main.cs" />
+    <Compile Include="Source\Albedo\Input.cs" />
+    <Compile Include="Source\Albedo\InternalCalls.cs" />
+    <Compile Include="Source\Albedo\KeyCode.cs" />
+    <Compile Include="Source\Albedo\Scene\Components.cs" />
+    <Compile Include="Source\Albedo\Scene\Entity.cs" />
+    <Compile Include="Source\Albedo\Vector2.cs" />
+    <Compile Include="Source\Albedo\Vector3.cs" />
+    <Compile Include="Source\Camera.cs" />
+    <Compile Include="Source\Player.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

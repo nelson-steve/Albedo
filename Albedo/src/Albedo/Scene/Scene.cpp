@@ -9,6 +9,7 @@
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Physics/PhysicsSolver.h"
 #include "Albedo/Physics/PhysicsWorld.h"
+#include "Albedo/Scripting/ScriptEngine.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -71,6 +72,51 @@ namespace Albedo {
 		m_Registry.destroy(entity);
 	}
 
+	void Scene::OnRuntimeStart(Timestep ts)
+	{
+		OnUpdatePhysics(ts);
+
+		// Scripting
+		{
+			ScriptEngine::OnRuntimeStart(this);
+			// Instantiate all script entities
+
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnCreateEntity(entity);
+			}
+		}
+	}
+
+	void Scene::OnRuntimeStop()
+	{
+		//OnPhysics2DStop();
+
+		ScriptEngine::OnRuntimeStop();
+	}
+
+	void Scene::OnSimulationStart(Timestep ts)
+	{
+		OnUpdatePhysics(ts);
+	}
+
+	void Scene::OnSimulationStop()
+	{
+		//OnPhysics2DStop();
+	}
+
+	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
+	{
+
+	}
+
+	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
+	{
+
+	}
+
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
 		//m_PhysicsWorld->Update(ts);
@@ -115,7 +161,20 @@ namespace Albedo {
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		OnUpdatePhysics(ts);
+
 		// Update scripts
+		{
+			ScriptEngine::OnRuntimeStart(this);
+			// Instantiate all script entities
+
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnCreateEntity(entity);
+			}
+		}
+
 		{
 			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 				{
@@ -123,10 +182,10 @@ namespace Albedo {
 					{
 						nsc.Instance = nsc.InstantiateScript();
 						nsc.Instance->m_Entity = Entity{ entity, this };
-
+		
 						nsc.Instance->OnCreate();
 					}
-
+		
 					nsc.Instance->OnUpdate(ts);
 				});
 		}
@@ -253,6 +312,11 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
 	{
 	}
 

@@ -3,6 +3,7 @@
 #include "SceneHierarchyPanel.h"	
 #include "Albedo/Scene/Components.h"
 #include "Albedo/Utils/AssetSystem.h"
+#include "Albedo/Scripting/ScriptEngine.h"
 
 #include <filesystem>
 
@@ -315,6 +316,23 @@ namespace Albedo {
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
 				ImGui::Checkbox("Physics", &component.PhysicsEnabled);
+			});
+
+		DrawComponent<ScriptComponent>("Script", entity, [](auto& component)
+			{
+				bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);
+
+				static char buffer[64];
+				strcpy(buffer, component.ClassName.c_str());
+
+				if (!scriptClassExists)
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+
+				if (ImGui::InputText("Class", buffer, sizeof(buffer)))
+					component.ClassName = buffer;
+
+				if (!scriptClassExists)
+					ImGui::PopStyleColor();
 			});
 
 #if 0

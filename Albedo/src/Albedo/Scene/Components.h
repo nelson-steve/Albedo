@@ -241,6 +241,14 @@ namespace Albedo {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
+	struct ScriptComponent
+	{
+		std::string ClassName;
+
+		ScriptComponent() = default;
+		ScriptComponent(const ScriptComponent&) = default;
+	};
+
 	struct NativeScriptComponent
 	{
 		ScriptableEntity* Instance = nullptr;
@@ -255,5 +263,16 @@ namespace Albedo {
 			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
 	};
+
+	template<typename... Component>
+	struct ComponentGroup
+	{
+	};
+
+	using AllComponents =
+		ComponentGroup<TransformComponent, SpriteRendererComponent,
+		NativeScriptComponent, CameraComponent, ScriptComponent>;
+		//CircleRendererComponent, Rigidbody2DComponent, BoxCollider2DComponent,
+		//CircleCollider2DComponent>;
 
 }

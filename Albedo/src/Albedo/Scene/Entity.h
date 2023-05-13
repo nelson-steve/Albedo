@@ -30,9 +30,24 @@ namespace Albedo {
 		}
 
 		template<typename T>
+		static T& GetComponent(entt::entity entity)
+		{
+			//Albedo_CORE_ASSERT(m_Scene->m_Registry.try_get<T>(m_EntityHandle), "Entity does not have component!");
+			return m_Scene->m_Registry.get<T>(entity);
+		}
+
+		template<typename T>
 		bool HasComponent()
 		{
 			if (m_Scene->m_Registry.try_get<T>(m_EntityHandle))
+				return true;
+			return false;
+		}
+
+		template<typename T>
+		static bool HasComponent(entt::entity entity)
+		{
+			if (m_Scene->m_Registry.try_get<T>(entity))
 				return true;
 			return false;
 		}
@@ -42,6 +57,13 @@ namespace Albedo {
 		{
 			Albedo_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
+		}
+
+		template<typename T>
+		static void RemoveComponent(entt::entity entity)
+		{
+			//Albedo_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			m_Scene->m_Registry.remove<T>(entity);
 		}
 
 		operator bool() const { return m_EntityHandle != entt::null; }
@@ -59,7 +81,7 @@ namespace Albedo {
 		}
 	private:
 		entt::entity m_EntityHandle{ entt::null };
-		Scene* m_Scene = nullptr;
+		static Scene* m_Scene;
 	};
 
 }
