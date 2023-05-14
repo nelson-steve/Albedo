@@ -1,0 +1,9 @@
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Binaries\Sandbox.dll
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Binaries\Sandbox.pdb
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Binaries\AlbedoScripting.dll
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Binaries\AlbedoScripting.pdb
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Intermediates\Debug\Sandbox.csproj.AssemblyReference.cache
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Intermediates\Debug\Sandbox.csproj.CoreCompileInputs.cache
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Intermediates\Debug\Sandbox.csproj.CopyComplete
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Intermediates\Debug\Sandbox.dll
+C:\dev\Albedo\AlbedoEditor\SandboxProject\Assets\Intermediates\Debug\Sandbox.pdb

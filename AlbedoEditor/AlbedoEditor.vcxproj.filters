@@ -24,4 +24,8 @@
       <Filter>Panels</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SandboxProject\Assets\Source\Camera.cs" />
+    <None Include="SandboxProject\Assets\Source\Player.cs" />
+  </ItemGroup>
 </Project>

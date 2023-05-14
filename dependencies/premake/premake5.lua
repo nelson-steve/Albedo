@@ -16,7 +16,7 @@ workspace "Albedo"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
-IncludeDir["GLFW"] 		= "%{wks.location}/Albedo/dependencies/GLFW/include"
+IncludeDir["GLFW"] 		= "../../Albedo/dependencies/GLFW/include"
 IncludeDir["Glad"] 		= "%{wks.location}/Albedo/dependencies/Glad/include"
 IncludeDir["imgui"] 	= "%{wks.location}/Albedo/dependencies/imgui"
 IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
@@ -41,19 +41,13 @@ Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
 Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
 Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
 Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
-Library["mono1"] 				   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
-Library["mono2"] 				   = "%{LibraryDir.mono}/eglib.lib"
-Library["mono3"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
-Library["mono4"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
-Library["mono5"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
-Library["mono6"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
-Library["mono7"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
--- Library["mono"] 				   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
--- Windows
-Library["WinSock"] = "Ws2_32.lib"
-Library["WinMM"] = "Winmm.lib"
-Library["WinVersion"] = "Version.lib"
-Library["BCrypt"] = "Bcrypt.lib"
+Library["mono_sgen"] 				   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
+Library["mono_eglib"] 				   = "%{LibraryDir.mono}/eglib.lib"
+Library["mono_libgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
+Library["mono_libmini"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
+Library["mono_runtime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
+Library["mono_utils"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
+Library["mono_posix"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -133,21 +127,15 @@ project "Albedo"
 		"%{Library.PhysXExtensions}",
 		"%{Library.PhysXFoundation}",
 		"%{Library.PhysXCharacterKinematic}",
-		-- mono
-		"%{Library.mono1}",
-		"%{Library.mono2}",
-		"%{Library.mono3}",
-		"%{Library.mono4}",
-		"%{Library.mono5}",
-		"%{Library.mono6}",
-		"%{Library.mono7}",
-		-- "%{Library.mono}",
-
-		"%{Library.WinSock}",
-		"%{Library.WinMM}",
-		"%{Library.WinVersion}",
-		"%{Library.BCrypt}",
-
+		-- mono libs
+		"%{Library.mono_sgen}",
+		"%{Library.mono_eglib}",
+		"%{Library.mono_libgc}",
+		"%{Library.mono_libmini}",
+		"%{Library.mono_runtime}",
+		"%{Library.mono_utils}",
+		"%{Library.mono_posix}",
+		-- mono DLLs
 		"mono-2.0-sgen.dll",
 		"MonoPosixHelper.dll"
 	}
@@ -166,11 +154,6 @@ project "Albedo"
 			"Albedo_Build_DLL",
 			"GLFW_INCLUDE_NONE",
 		}
-
-		--postbuildcommands
-		--{
-		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		--}
 
 	filter "configurations:Debug"
 		defines "Albedo_DEBUG"
