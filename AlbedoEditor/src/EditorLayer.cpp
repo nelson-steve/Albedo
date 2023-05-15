@@ -93,10 +93,18 @@ namespace Albedo {
 			suzanneMesh1.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 			suzanneMesh1.GetComponent<PhysicsComponent>().Mass = 0.f;
 	}
-		m_ActiveScene->InitScene();
-
 		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
 		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
+
+		m_ActiveScene->InitScene();
+
+		//auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
+		//if (commandLineArgs.Count > 1)
+		//{
+		//	auto sceneFilePath = commandLineArgs[1];
+		//	OpenScene(sceneFilePath);
+		//}
+
 
 		FramebufferSpecification fbSpec;
 		fbSpec.Attachments = {
@@ -311,7 +319,7 @@ namespace Albedo {
 
 			m_ViewportFocused = ImGui::IsWindowFocused();
 			m_ViewportHovered = ImGui::IsWindowHovered();
-			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
@@ -502,7 +510,7 @@ namespace Albedo {
 	void EditorLayer::NewScene()
 	{
 		m_ActiveScene = std::make_shared<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		//m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
@@ -527,12 +535,31 @@ namespace Albedo {
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
 	{
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
+
+		if (path.extension().string() != ".albedo")
+		{
+			Albedo_WARN("Could not load {0} - not a scene file", path.filename().string());
+			return;
+		}
+
 		m_ActiveScene = std::make_shared<Scene>();
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		//m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 		SceneSerializer serializer(m_ActiveScene);
 		serializer.Deserialize(path.string());
+
+		//if (serializer.Deserialize(path.string()))
+		//{
+		//	m_EditorScene = newScene;
+		//	//m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		//	m_SceneHierarchyPanel.SetContext(m_EditorScene);
+		//
+		//	m_ActiveScene = m_EditorScene;
+		//	m_EditorScenePath = path;
+		//}
 	}
 
 	void EditorLayer::SaveSceneAs()
