@@ -1503,6 +1503,9 @@
     <ClInclude Include="src\Albedo\Scripting\ScriptEngine.h">
       <Filter>src\Albedo\Scripting</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Scripting\ScriptGlue.h">
+      <Filter>src\Albedo\Scripting</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h">
       <Filter>src\Albedo\Utils</Filter>
     </ClInclude>
@@ -1542,7 +1545,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Scripting\ScriptGlue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1659,6 +1661,9 @@
     <ClCompile Include="src\Albedo\Scripting\ScriptEngine.cpp">
       <Filter>src\Albedo\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\Scripting\ScriptGlue.cpp">
+      <Filter>src\Albedo\Scripting</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp">
       <Filter>src\Albedo\Utils</Filter>
     </ClCompile>
@@ -1701,6 +1706,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Scripting\ScriptGlue.cpp" />
   </ItemGroup>
 </Project>

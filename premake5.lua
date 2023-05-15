@@ -23,13 +23,13 @@ IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
-IncludeDir["mono"] 	    = "%{wks.location}/Albedo/dependencies/mono/include"
+IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
 
 LibraryDir = {}
-LibraryDir["Physx"] 	= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
+LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
 LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
 
 Library = {}
@@ -41,13 +41,13 @@ Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
 Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
 Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
 Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
-Library["mono_sgen"] 			   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
-Library["mono_eglib"] 			   = "%{LibraryDir.mono}/eglib.lib"
-Library["mono_libgc"] 			   = "%{LibraryDir.mono}/libgcmonosgen.lib"
-Library["mono_libmini"] 		   = "%{LibraryDir.mono}/libmini-sgen.lib"
-Library["mono_runtime"] 		   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
-Library["mono_utils"] 			   = "%{LibraryDir.mono}/libmonoutils.lib"
-Library["mono_posix"] 			   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
+Library["mono_sgen"] 				   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
+Library["mono_eglib"] 				   = "%{LibraryDir.mono}/eglib.lib"
+Library["mono_libgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
+Library["mono_libmini"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
+Library["mono_runtime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
+Library["mono_utils"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
+Library["mono_posix"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -295,11 +295,6 @@ project "AlbedoScripting"
 	{
 		"Source/**.cs",
 		"Properties/**.cs"
-	}
-
-	includedirs
-	{
-		"Source"
 	}
 
 	filter "configurations:Debug"
