@@ -40,6 +40,8 @@ namespace Albedo {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
+		
+			bool IsRunning() const { return m_IsRunning; }
 
 		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
@@ -49,6 +51,7 @@ namespace Albedo {
 	private:
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+		bool m_IsRunning = false;
 
 		Ref<Mesh> m_Collider;
 		Ref<Shader> m_Shader;

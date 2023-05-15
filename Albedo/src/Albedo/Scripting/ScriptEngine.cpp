@@ -161,6 +161,7 @@ namespace Albedo {
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
 		std::unordered_map<uint32_t, Ref<ScriptInstance>> EntityInstances;
+		std::unordered_map<uint32_t, ScriptFieldMap> EntityScriptFields;
 
 		// Runtime
 		Scene* SceneContext = nullptr;
@@ -281,8 +282,18 @@ namespace Albedo {
 		const auto& sc = entity.GetComponent<ScriptComponent>();
 		if (ScriptEngine::EntityClassExists(sc.ClassName))
 		{
+			uint32_t entityID = (uint32_t)entity.GetEntityHandle();
+
 			Ref<ScriptInstance> instance = std::make_shared<ScriptInstance>(s_Data->EntityClasses[sc.ClassName], entity);
-			s_Data->EntityInstances[entity] = instance;
+			s_Data->EntityInstances[entityID] = instance;
+
+			// Copy field values
+			if (s_Data->EntityScriptFields.find(entityID) != s_Data->EntityScriptFields.end())
+			{
+				const ScriptFieldMap& fieldMap = s_Data->EntityScriptFields.at(entityID);
+				for (const auto& [name, fieldInstance] : fieldMap)
+					instance->SetFieldValueInternal(name, fieldInstance.m_Buffer);
+			}
 			instance->InvokeOnCreate();
 		}
 	}
@@ -311,6 +322,14 @@ namespace Albedo {
 		return it->second;
 	}
 
+	Ref<ScriptClass> ScriptEngine::GetEntityClass(const std::string& name)
+	{
+		if (s_Data->EntityClasses.find(name) == s_Data->EntityClasses.end())
+			return nullptr;
+
+		return s_Data->EntityClasses.at(name);
+	}
+
 	void ScriptEngine::OnRuntimeStop()
 	{
 		s_Data->SceneContext = nullptr;
@@ -322,6 +341,15 @@ namespace Albedo {
 	{
 		return s_Data->EntityClasses;
 	}
+
+	ScriptFieldMap& ScriptEngine::GetScriptFieldMap(Entity entity)
+	{
+		Albedo_CORE_ASSERT(entity, "invalid entity");
+
+		uint32_t entityID = (uint32_t)entity.GetEntityHandle();
+		return s_Data->EntityScriptFields[entityID];
+	}
+
 
 	void ScriptEngine::LoadAssemblyClasses()
 	{

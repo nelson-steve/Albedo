@@ -74,6 +74,8 @@ namespace Albedo {
 
 	void Scene::OnRuntimeStart(Timestep ts)
 	{
+		m_IsRunning = true;
+
 		OnUpdatePhysics(ts);
 
 		// Scripting
@@ -92,6 +94,8 @@ namespace Albedo {
 
 	void Scene::OnRuntimeStop()
 	{
+		m_IsRunning = false;
+
 		//OnPhysics2DStop();
 
 		ScriptEngine::OnRuntimeStop();

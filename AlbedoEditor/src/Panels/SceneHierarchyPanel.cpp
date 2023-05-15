@@ -45,7 +45,7 @@ namespace Albedo {
 		{
 			if (ImGui::MenuItem("MESHES"))
 			{
-				for(int i = 0; i < 5; i++)
+				for (int i = 0; i < 5; i++)
 				{
 					std::string& index = std::to_string(i);
 					std::string tag = "Cube" + i;
@@ -235,7 +235,7 @@ namespace Albedo {
 
 			char buffer[256];
 			memset(buffer, 0, sizeof(buffer));
-			std::strncpy(buffer, tag.c_str(), sizeof(buffer));
+			strncpy_s(buffer, sizeof(buffer), tag.c_str(), sizeof(buffer));
 			if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))
 			{
 				tag = std::string(buffer);
@@ -267,7 +267,7 @@ namespace Albedo {
 			if (ImGui::MenuItem("Tag"))
 			{
 				//if (!m_SelectionContext.HasComponent<TagComponent>())
-					m_SelectionContext.AddComponent<TagComponent>(Tag);
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
 				//else
 				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
 				ImGui::CloseCurrentPopup();
@@ -289,7 +289,7 @@ namespace Albedo {
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
- 				DrawVec3Control("Translation", component.Position, 0, 70);
+				DrawVec3Control("Translation", component.Position, 0, 70);
 				glm::vec3 rotation = glm::degrees(component.Rotation);
 				DrawVec3Control("Rotation", rotation, 0, 70);
 				component.Rotation = glm::radians(rotation);
@@ -318,18 +318,74 @@ namespace Albedo {
 				ImGui::Checkbox("Physics", &component.PhysicsEnabled);
 			});
 
-		DrawComponent<ScriptComponent>("Script", entity, [](auto& component)
+		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
 				bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);
 
 				static char buffer[64];
-				strcpy(buffer, component.ClassName.c_str());
+				strcpy_s(buffer, sizeof(buffer), component.ClassName.c_str());
 
-				if (!scriptClassExists)
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+				// Fields
+				bool sceneRunning = scene->IsRunning();
+				if (sceneRunning)
+				{
+					Ref<ScriptInstance> scriptInstance = ScriptEngine::GetEntityScriptInstance((uint32_t)entity.GetEntityHandle());
+					if (scriptInstance)
+					{
+						const auto& fields = scriptInstance->GetScriptClass()->GetFields();
+						for (const auto& [name, field] : fields)
+						{
+							if (field.Type == ScriptFieldType::Float)
+							{
+								float data = scriptInstance->GetFieldValue<float>(name);
+								if (ImGui::DragFloat(name.c_str(), &data))
+								{
+									scriptInstance->SetFieldValue(name, data);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					if (scriptClassExists)
+					{
+						Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(component.ClassName);
+						const auto& fields = entityClass->GetFields();
 
-				if (ImGui::InputText("Class", buffer, sizeof(buffer)))
-					component.ClassName = buffer;
+						auto& entityFields = ScriptEngine::GetScriptFieldMap(entity);
+						for (const auto& [name, field] : fields)
+						{
+							// Field has been set in editor
+							if (entityFields.find(name) != entityFields.end())
+							{
+								ScriptFieldInstance& scriptField = entityFields.at(name);
+
+								// Display control to set it maybe
+								if (field.Type == ScriptFieldType::Float)
+								{
+									float data = scriptField.GetValue<float>();
+									if (ImGui::DragFloat(name.c_str(), &data))
+										scriptField.SetValue(data);
+								}
+							}
+							else
+							{
+								// Display control to set it maybe
+								if (field.Type == ScriptFieldType::Float)
+								{
+									float data = 0.0f;
+									if (ImGui::DragFloat(name.c_str(), &data))
+									{
+										ScriptFieldInstance& fieldInstance = entityFields[name];
+										fieldInstance.Field = field;
+										fieldInstance.SetValue(data);
+									}
+								}
+							}
+						}
+					}
+				}
 
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
@@ -356,13 +412,13 @@ namespace Albedo {
 					ImGui::Begin("stats");
 					auto min = c->GetMin();
 					auto max = c->GetMax();
-						ImGui::DragFloat("MinX", &min.x);
-						ImGui::DragFloat("MinY", &min.y);
-						ImGui::DragFloat("MinZ", &min.z);
+					ImGui::DragFloat("MinX", &min.x);
+					ImGui::DragFloat("MinY", &min.y);
+					ImGui::DragFloat("MinZ", &min.z);
 
-						ImGui::DragFloat("MaxX", &max.x);
-						ImGui::DragFloat("MaxY", &max.y);
-						ImGui::DragFloat("MaxZ", &max.z);
+					ImGui::DragFloat("MaxX", &max.x);
+					ImGui::DragFloat("MaxY", &max.y);
+					ImGui::DragFloat("MaxZ", &max.z);
 					ImGui::End();
 				}
 
