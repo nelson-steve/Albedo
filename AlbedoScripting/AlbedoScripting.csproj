@@ -56,13 +56,6 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Dist|x64' ">
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Albedo\Input.cs" />
-    <Compile Include="Source\Albedo\InternalCalls.cs" />
-    <Compile Include="Source\Albedo\KeyCode.cs" />
-    <Compile Include="Source\Albedo\Scene\Components.cs" />
-    <Compile Include="Source\Albedo\Scene\Entity.cs" />
-    <Compile Include="Source\Albedo\Vector2.cs" />
-    <Compile Include="Source\Albedo\Vector3.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

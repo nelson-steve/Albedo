@@ -22,6 +22,7 @@ IncludeDir["imgui"] 	= "%{wks.location}/Albedo/dependencies/imgui"
 IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
+IncludeDir["FileWatch"] = "%{wks.location}/Albedo/dependencies/FileWatch/include"
 IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
 IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
@@ -78,6 +79,7 @@ project "Albedo"
 		"%{prj.name}/dependencies/glm/glm/**.inl",
 		"%{prj.name}/dependencies/stb_image/**.h",
 		"%{prj.name}/dependencies/stb_image/**.cpp",
+		"%{prj.name}/dependencies/FileWatch/include/**.hpp",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp",
 		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
@@ -101,6 +103,7 @@ project "Albedo"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.FileWatch}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Physx}",
@@ -143,6 +146,8 @@ project "Albedo"
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
 	flags { "NoPCH" }
 	filter "files:Albedo/dependencies/tinyobj/include/tiny_obj_loader.cpp"
+	flags { "NoPCH" }
+	filter "files:Albedo/dependencies/stb_image/stb_image.cpp"
 	flags { "NoPCH" }
 
 	filter "system:windows"

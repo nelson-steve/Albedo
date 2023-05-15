@@ -4,6 +4,12 @@
     <Filter Include="dependencies">
       <UniqueIdentifier>{8CAD9F58-7810-2FFD-2196-67B30DD8FA7F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dependencies\FileWatch">
+      <UniqueIdentifier>{52100F6B-3E0A-38BD-2777-CECD13109E29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dependencies\FileWatch\include">
+      <UniqueIdentifier>{C569881B-B18F-5282-9AD5-D74D869A774E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="dependencies\ImGuizmo">
       <UniqueIdentifier>{6C1DA30B-D889-5E06-A17D-F6630DA9806E}</UniqueIdentifier>
     </Filter>
@@ -87,6 +93,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dependencies\FileWatch\include\FileWatch.hpp">
+      <Filter>dependencies\FileWatch\include</Filter>
+    </ClInclude>
     <ClInclude Include="dependencies\ImGuizmo\ImGuizmo.h">
       <Filter>dependencies\ImGuizmo</Filter>
     </ClInclude>

@@ -16,6 +16,8 @@ namespace Albedo {
 		Application(const std::string& name = "Albedo App");
 		virtual ~Application();
 
+		void SubmitToMainThread(const std::function<void()>& function);
+
 		void Run();
 		void Close();
 		void OnEvent(Event& e);
@@ -28,6 +30,7 @@ namespace Albedo {
 
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 	private:
+		void ExecuteMainThreadQueue();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
@@ -36,6 +39,9 @@ namespace Albedo {
 		bool m_Running = true;
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;
+
+		std::vector<std::function<void()>> m_MainThreadQueue;
+		std::mutex m_MainThreadQueueMutex;
 
 		static Application* s_Instance;
 

@@ -3,6 +3,10 @@
 
 #include "ScriptGlue.h"
 #include "Albedo/Scene/Components.h"
+#include "Albedo/Core/Application.h"
+#include "Albedo/Core/Timestep.h"
+
+#include "FileWatch.hpp"
 
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -142,11 +146,28 @@ namespace Albedo {
 		std::unordered_map<uint32_t, Ref<ScriptInstance>> EntityInstances;
 		std::unordered_map<uint32_t, ScriptFieldMap> EntityScriptFields;
 
+		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
+		bool AssemblyReloadPending = false;
+
 		// Runtime
 		Scene* SceneContext = nullptr;
 	};
 
 	static ScriptEngineData* s_Data = nullptr;
+
+	static void OnAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
+	{
+		if (!s_Data->AssemblyReloadPending && change_type == filewatch::Event::modified)
+		{
+			s_Data->AssemblyReloadPending = true;
+
+			Application::Get().SubmitToMainThread([]()
+				{
+					s_Data->AppAssemblyFileWatcher.reset();
+					ScriptEngine::ReloadAssembly();
+				});
+		}
+	}
 
 	void ScriptEngine::Init()
 	{
@@ -248,6 +269,11 @@ namespace Albedo {
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
 		auto assembi = s_Data->AppAssemblyImage;
 		// Utils::PrintAssemblyTypes(s_Data->AppAssembly);
+
+		filewatch::Event f;
+
+		s_Data->AppAssemblyFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
+		s_Data->AssemblyReloadPending = false;
 	}
 
 	void ScriptEngine::ReloadAssembly()
