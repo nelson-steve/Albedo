@@ -392,6 +392,12 @@ namespace Albedo {
 		return s_Data->CoreAssemblyImage;
 	}
 
+	MonoObject* ScriptEngine::GetManagedInstance(uint32_t uuid)
+	{
+		Albedo_CORE_ASSERT(s_Data->EntityInstances.find(uuid) != s_Data->EntityInstances.end(), "entity not found");
+		return s_Data->EntityInstances.at(uuid)->GetManagedObject();
+	}
+
 	MonoObject* ScriptEngine::InstantiateClass(MonoClass* monoClass)
 	{
 		MonoObject* instance = mono_object_new(s_Data->AppDomain, monoClass);

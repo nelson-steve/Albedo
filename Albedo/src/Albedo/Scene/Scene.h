@@ -40,8 +40,9 @@ namespace Albedo {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
+		Entity FindEntityByName(std::string_view name);
 		
-			bool IsRunning() const { return m_IsRunning; }
+		bool IsRunning() const { return m_IsRunning; }
 
 		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);

@@ -37,6 +37,11 @@ namespace Albedo {
 		return glm::dot(*parameter, *parameter);
 	}
 
+	static MonoObject* GetScriptInstance(uint32_t entityID)
+	{
+		return ScriptEngine::GetManagedInstance(entityID);
+	}
+
 	static bool Entity_HasComponent(uint32_t entityID, MonoReflectionType* componentType)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
@@ -48,6 +53,21 @@ namespace Albedo {
 		MonoType* managedType = mono_reflection_type_get_type(componentType);
 		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end(), "failed");
 		return s_EntityHasComponentFuncs.at(managedType)(entity);
+	}
+
+	static uint64_t Entity_FindEntityByName(MonoString* name)
+	{
+		char* nameCStr = mono_string_to_utf8(name);
+
+		Scene* scene = ScriptEngine::GetSceneContext();
+		Albedo_CORE_ASSERT(scene, "failed to load scene");
+		Entity entity = scene->FindEntityByName(nameCStr);
+		mono_free(nameCStr);
+
+		if (!entity)
+			return 0;
+
+		return (uint64_t)entity.GetEntityHandle();
 	}
 
 	static void TransformComponent_GetTranslation(uint32_t entityID, glm::vec3* outTranslation)
@@ -136,7 +156,11 @@ namespace Albedo {
 		HZ_ADD_INTERNAL_CALL(NativeLog_Vector);
 		HZ_ADD_INTERNAL_CALL(NativeLog_VectorDot);
 
+		HZ_ADD_INTERNAL_CALL(GetScriptInstance);
+
 		HZ_ADD_INTERNAL_CALL(Entity_HasComponent);
+		HZ_ADD_INTERNAL_CALL(Entity_FindEntityByName);
+
 		HZ_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		HZ_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 
