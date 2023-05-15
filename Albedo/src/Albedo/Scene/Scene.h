@@ -19,15 +19,17 @@ namespace Albedo {
 		Scene();
 		~Scene();
 
+		static Ref<Scene> Copy(Ref<Scene> other);
+
 		void InitScene();
 
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
-		void OnRuntimeStart(Timestep ts);
+		void OnRuntimeStart();
 		void OnRuntimeStop();
 
-		void OnSimulationStart(Timestep ts);
+		void OnSimulationStart();
 		void OnSimulationStop();
 
 		void OnUpdateRuntime(Timestep ts);
@@ -43,6 +45,11 @@ namespace Albedo {
 		Entity FindEntityByName(std::string_view name);
 		
 		bool IsRunning() const { return m_IsRunning; }
+		bool IsPaused() const { return m_IsPaused; }
+
+		void SetPaused(bool paused) { m_IsPaused = paused; }
+
+		void Step(int frames = 1);
 
 		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
@@ -53,6 +60,8 @@ namespace Albedo {
 		entt::registry m_Registry;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 		bool m_IsRunning = false;
+		bool m_IsPaused = false;
+		int m_StepFrames = 0;
 
 		Ref<Mesh> m_Collider;
 		Ref<Shader> m_Shader;

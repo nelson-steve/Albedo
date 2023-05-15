@@ -72,11 +72,45 @@ namespace Albedo {
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::OnRuntimeStart(Timestep ts)
+	Ref<Scene> Scene::Copy(Ref<Scene> other)
+	{
+		//TODO:: Fix copying the scene
+		
+		//Ref<Scene> newScene = std::make_shared<Scene>();
+		//
+		//newScene->m_ViewportWidth = other->m_ViewportWidth;
+		//newScene->m_ViewportHeight = other->m_ViewportHeight;
+		//
+		//auto& srcSceneRegistry = other->m_Registry;
+		//auto& dstSceneRegistry = newScene->m_Registry;
+		//std::unordered_map<uint32_t, entt::entity> enttMap;
+		//
+		//// Create entities in new scene
+		//auto idView = srcSceneRegistry.view<IDComponent>();
+		//for (auto e : idView)
+		//{
+		//	UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
+		//	const auto& name = srcSceneRegistry.get<TagComponent>(e).Tag;
+		//	Entity newEntity = newScene->CreateEntityWithUUID(uuid, name);
+		//	enttMap[uuid] = (entt::entity)newEntity;
+		//}
+		//
+		//// Copy components (except IDComponent and TagComponent)
+		//CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		return nullptr;
+	}
+
+	void Scene::Step(int frames)
+	{
+		m_StepFrames = frames;
+	}
+
+	void Scene::OnRuntimeStart()
 	{
 		m_IsRunning = true;
 
-		OnUpdatePhysics(ts);
+		//OnUpdatePhysics(ts);
 
 		// Scripting
 		{
@@ -101,9 +135,10 @@ namespace Albedo {
 		ScriptEngine::OnRuntimeStop();
 	}
 
-	void Scene::OnSimulationStart(Timestep ts)
+	void Scene::OnSimulationStart()
 	{
-		OnUpdatePhysics(ts);
+		//TODO: get Timestep here somehow
+		//OnUpdatePhysics(ts);
 	}
 
 	void Scene::OnSimulationStop()

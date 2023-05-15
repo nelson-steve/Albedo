@@ -26,20 +26,27 @@ namespace Albedo {
 
 		void NewScene();
 		void OpenScene();
+		void OpenScene(const std::filesystem::path& path);
+		void SaveScene();
 		void SaveSceneAs();
+
+		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
+
 		void OnScenePlay();
+		void OnSceneSimulate();
 		void OnSceneStop();
+		void OnScenePause();
 
 		// UI Panels
 		void UI_Toolbar();
-		void OpenScene(const std::filesystem::path& path);
 	private:
 		OrthographicCameraController m_CameraController;
 		Ref<Scene>					 m_ActiveScene;
-		//Ref<PhysicsWorld>			 m_PhysicsWorld;
+		Ref<Scene>					 m_EditorScene;
 		Ref<Framebuffer>			 m_Framebuffer;
-		Ref<Texture2D>				 m_IconPlay;
-		Ref<Texture2D>				 m_IconStop;
+
+		Ref<Texture2D> m_IconPlay, m_IconPause, m_IconStep, m_IconSimulate, m_IconStop;
+
 		EditorCamera				 m_EditorCamera;
 		Entity						 m_HoveredEntity;
 		glm::vec2					 m_ViewportSize = { 0.0f, 0.0f };
@@ -53,7 +60,7 @@ namespace Albedo {
 
 		enum class SceneState
 		{
-			Edit = 0, Play = 1
+			Edit = 0, Play = 1, Simulate = 2
 		};
 
 		SceneState m_SceneState = SceneState::Edit;
