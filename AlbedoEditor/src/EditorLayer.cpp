@@ -9,6 +9,7 @@
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Albedo/Math/Math.h"
 #include "Albedo/Renderer/RendererConfig.h"
+#include "Albedo/Scripting/ScriptEngine.h"
 
 #include "ImGuizmo.h"
 
@@ -303,7 +304,16 @@ namespace Albedo {
 
 					if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) SaveSceneAs();
 
-					if (ImGui::MenuItem("Exit")) Application::Get().Close();
+					if (ImGui::MenuItem("Exit"))
+						Application::Get().Close();
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Script"))
+				{
+					if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
+						ScriptEngine::ReloadAssembly();
 					ImGui::EndMenu();
 				}
 				ImGui::EndMenuBar();
@@ -493,8 +503,15 @@ namespace Albedo {
 			}
 			case Key::R:
 			{
-				if (!ImGuizmo::IsUsing())
-					m_GizmoType = ImGuizmo::OPERATION::SCALE;
+				if (control)
+				{
+					ScriptEngine::ReloadAssembly();
+				}
+				else
+				{
+					if (!ImGuizmo::IsUsing())
+						m_GizmoType = ImGuizmo::OPERATION::SCALE;
+				}
 				break;
 			}
 		}
