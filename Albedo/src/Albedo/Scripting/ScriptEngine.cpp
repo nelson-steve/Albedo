@@ -175,7 +175,18 @@ namespace Albedo {
 
 		InitMono();
 		ScriptGlue::RegisterFunctions();
-
+		bool status = LoadAssembly("Resources/Scripts/AlbedoScripting.dll");
+		if (!status)
+		{
+			Albedo_Core_ERROR("[ScriptEngine] Could not load AlbedoScripting assembly.");
+			return;
+		}
+		status = LoadAppAssembly("SandboxProject/Assets/Binaries/Sandbox.dll");
+		if (!status)
+		{
+			Albedo_Core_ERROR("[ScriptEngine] Could not load app assembly.");
+			return;
+		}
 		LoadAssembly("Resources/Scripts//AlbedoScripting.dll");
 		LoadAppAssembly("SandboxProject/Assets/Binaries/Sandbox.dll");
 		LoadAssemblyClasses();
@@ -185,38 +196,6 @@ namespace Albedo {
 
 		// Retrieve and instantiate class
 		s_Data->EntityClass = ScriptClass("Albedo", "Entity", true);
-#if 0
-
-		MonoObject* instance = s_Data->EntityClass.Instantiate();
-
-		// Call method
-		MonoMethod* printMessageFunc = s_Data->EntityClass.GetMethod("PrintMessage", 0);
-		s_Data->EntityClass.InvokeMethod(instance, printMessageFunc);
-
-		// Call method with param
-		MonoMethod* printIntFunc = s_Data->EntityClass.GetMethod("PrintInt", 1);
-
-		int value = 5;
-		void* param = &value;
-
-		s_Data->EntityClass.InvokeMethod(instance, printIntFunc, &param);
-
-		MonoMethod* printIntsFunc = s_Data->EntityClass.GetMethod("PrintInts", 2);
-		int value2 = 508;
-		void* params[2] =
-		{
-			&value,
-			&value2
-		};
-		s_Data->EntityClass.InvokeMethod(instance, printIntsFunc, params);
-
-		MonoString* monoString = mono_string_new(s_Data->AppDomain, "Hello World from C++!");
-		MonoMethod* printCustomMessageFunc = s_Data->EntityClass.GetMethod("PrintCustomMessage", 1);
-		void* stringParam = monoString;
-		s_Data->EntityClass.InvokeMethod(instance, printCustomMessageFunc, &stringParam);
-
-		HZ_CORE_ASSERT(false);
-#endif
 	}
 
 	void ScriptEngine::Shutdown()
@@ -247,7 +226,7 @@ namespace Albedo {
 		s_Data->RootDomain = nullptr;
 	}
 
-	void ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
 	{
 		// Create an App Domain
 		s_Data->AppDomain = mono_domain_create_appdomain("AlbedoScriptRuntime", nullptr);
@@ -256,24 +235,28 @@ namespace Albedo {
 		// Move this maybe
 		s_Data->CoreAssemblyFilepath = filepath;
 		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
+		if (s_Data->CoreAssembly == nullptr)
+			return false;
 		s_Data->CoreAssemblyImage = mono_assembly_get_image(s_Data->CoreAssembly);
+		return true;
 		// Utils::PrintAssemblyTypes(s_Data->CoreAssembly);
 	}
 
-	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
 	{
 		// Move this maybe
 		s_Data->CoreAssemblyFilepath = filepath;
 		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
 		auto assemb = s_Data->AppAssembly;
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
-		auto assembi = s_Data->AppAssemblyImage;
+		if (s_Data->AppAssembly == nullptr)
+			return false;
+		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
 		// Utils::PrintAssemblyTypes(s_Data->AppAssembly);
-
-		filewatch::Event f;
 
 		s_Data->AppAssemblyFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
 		s_Data->AssemblyReloadPending = false;
+		return true;
 	}
 
 	void ScriptEngine::ReloadAssembly()
@@ -327,10 +310,17 @@ namespace Albedo {
 	{
 		//UUID entityUUID = entity.GetUUID();
 		
-		Albedo_CORE_ASSERT(s_Data->EntityInstances.find(entity) != s_Data->EntityInstances.end(), "entity instance failed");
+		uint32_t entityID = (uint32_t)entity.GetEntityHandle();
 
-		Ref<ScriptInstance> instance = s_Data->EntityInstances[entity];
-		instance->InvokeOnUpdate((float)ts);
+		if (s_Data->EntityInstances.find((uint32_t)entity.GetEntityHandle()) != s_Data->EntityInstances.end())
+		{
+			Ref<ScriptInstance> instance = s_Data->EntityInstances[entityID];
+			instance->InvokeOnUpdate((float)ts);
+		}
+		else
+		{
+			Albedo_Core_ERROR("Could not find ScriptInstance for entity {}", entityID);
+		}
 	}
 
 	Scene* ScriptEngine::GetSceneContext()

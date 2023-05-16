@@ -9,6 +9,7 @@
 #include <yaml-cpp/yaml.h>
 #include <Albedo/Core/Application.cpp>
 
+#include <yaml-cpp/yaml.h>
 
 namespace YAML {
 
@@ -68,6 +69,19 @@ namespace YAML {
 
 namespace Albedo {
 
+#define WRITE_SCRIPT_FIELD(FieldType, Type)           \
+			case ScriptFieldType::FieldType:          \
+				out << scriptField.GetValue<Type>();  \
+				break
+
+#define READ_SCRIPT_FIELD(FieldType, Type)             \
+	case ScriptFieldType::FieldType:                   \
+	{                                                  \
+		Type data = scriptField["Data"].as<Type>();    \
+		fieldInstance.SetValue(data);                  \
+		break;                                         \
+	}
+
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v)
 	{
 		out << YAML::Flow;
@@ -83,7 +97,7 @@ namespace Albedo {
 	}
 
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
-		:m_Scene(scene) 
+		:m_Scene(scene)
 	{
 
 	}
@@ -176,6 +190,51 @@ namespace Albedo {
 			out << YAML::Key << "ScriptComponent";
 			out << YAML::BeginMap; // ScriptComponent
 			out << YAML::Key << "ClassName" << YAML::Value << scriptComponent.ClassName;
+#if 0
+			// Fields
+			Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(scriptComponent.ClassName);
+			const auto& fields = entityClass->GetFields();
+			if (fields.size() > 0)
+			{
+				out << YAML::Key << "ScriptFields" << YAML::Value;
+				auto& entityFields = ScriptEngine::GetScriptFieldMap(entity);
+				out << YAML::BeginSeq;
+				for (const auto& [name, field] : fields)
+				{
+					if (entityFields.find(name) == entityFields.end())
+						continue;
+
+					out << YAML::BeginMap; // ScriptField
+					out << YAML::Key << "Name" << YAML::Value << name;
+					out << YAML::Key << "Type" << YAML::Value << Utils::ScriptFieldTypeToString(field.Type);
+
+					out << YAML::Key << "Data" << YAML::Value;
+					ScriptFieldInstance& scriptField = entityFields.at(name);
+
+					switch (field.Type)
+					{
+						WRITE_SCRIPT_FIELD(Float, float);
+						WRITE_SCRIPT_FIELD(Double, double);
+						WRITE_SCRIPT_FIELD(Bool, bool);
+						WRITE_SCRIPT_FIELD(Char, char);
+						WRITE_SCRIPT_FIELD(Byte, int8_t);
+						WRITE_SCRIPT_FIELD(Short, int16_t);
+						WRITE_SCRIPT_FIELD(Int, int32_t);
+						WRITE_SCRIPT_FIELD(Long, int64_t);
+						WRITE_SCRIPT_FIELD(UByte, uint8_t);
+						WRITE_SCRIPT_FIELD(UShort, uint16_t);
+						WRITE_SCRIPT_FIELD(UInt, uint32_t);
+						WRITE_SCRIPT_FIELD(ULong, uint64_t);
+						//WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+						WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+						WRITE_SCRIPT_FIELD(Vector4, glm::vec4);
+						WRITE_SCRIPT_FIELD(Entity, uint32_t);
+					}
+					out << YAML::EndMap; // ScriptFields
+				}
+				out << YAML::EndSeq;
+			}
+#endif
 			out << YAML::EndMap; // ScriptComponent
 		}
 
@@ -309,48 +368,97 @@ namespace Albedo {
 				auto scriptComponent = entity["ScriptComponent"];
 				if (scriptComponent)
 				{
+#if 0
 					auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
 					sc.ClassName = scriptComponent["ClassName"].as<std::string>();
+
+					auto scriptFields = scriptComponent["ScriptFields"];
+					if (scriptFields)
+					{
+						Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(sc.ClassName);
+						if (entityClass)
+						{
+							const auto& fields = entityClass->GetFields();
+							auto& entityFields = ScriptEngine::GetScriptFieldMap(deserializedEntity);
+
+							for (auto scriptField : scriptFields)
+							{
+								std::string name = scriptField["Name"].as<std::string>();
+								std::string typeString = scriptField["Type"].as<std::string>();
+								ScriptFieldType type = Utils::ScriptFieldTypeFromString(typeString);
+
+								ScriptFieldInstance& fieldInstance = entityFields[name];
+
+								// TODO(Yan): turn this assert into Hazelnut log warning
+								Albedo_CORE_ASSERT(fields.find(name) != fields.end(), "field not found");
+
+								if (fields.find(name) == fields.end())
+									continue;
+
+								fieldInstance.Field = fields.at(name);
+
+								switch (type)
+								{
+									READ_SCRIPT_FIELD(Float, float);
+									READ_SCRIPT_FIELD(Double, double);
+									READ_SCRIPT_FIELD(Bool, bool);
+									READ_SCRIPT_FIELD(Char, char);
+									READ_SCRIPT_FIELD(Byte, int8_t);
+									READ_SCRIPT_FIELD(Short, int16_t);
+									READ_SCRIPT_FIELD(Int, int32_t);
+									READ_SCRIPT_FIELD(Long, int64_t);
+									READ_SCRIPT_FIELD(UByte, uint8_t);
+									READ_SCRIPT_FIELD(UShort, uint16_t);
+									READ_SCRIPT_FIELD(UInt, uint32_t);
+									READ_SCRIPT_FIELD(ULong, uint64_t);
+									READ_SCRIPT_FIELD(Vector2, glm::vec2);
+									READ_SCRIPT_FIELD(Vector3, glm::vec3);
+									READ_SCRIPT_FIELD(Vector4, glm::vec4);
+									READ_SCRIPT_FIELD(Entity, uint32_t);
+							}
+						}
+					}
+#endif
 				}
 
-				auto spriteRendererComponent = entity["SpriteRendererComponent"];
-				if (spriteRendererComponent)
-				{
-					auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
-					src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-				}
+					auto spriteRendererComponent = entity["SpriteRendererComponent"];
+					if (spriteRendererComponent)
+					{
+						auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
+						src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+					}
 
-				auto cameraComponent = entity["CameraComponent"];
+					auto cameraComponent = entity["CameraComponent"];
 #if 0
-				if (cameraComponent)
-				{
-					//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-					//
-					//auto& cameraProps = cameraComponent["Camera"];
-					//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
-					//
-					//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
-					//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-					//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
-					//
-					//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-					//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-					//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+					if (cameraComponent)
+					{
+						//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+						//
+						//auto& cameraProps = cameraComponent["Camera"];
+						//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+						//
+						//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+						//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+						//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+						//
+						//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+						//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+						//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 
-					//cc.Primary = cameraComponent["Primary"].as<bool>();
-					//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
-				}
+						//cc.Primary = cameraComponent["Primary"].as<bool>();
+						//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+					}
 #endif
 
-				auto nativeScriptComponent = entity["NativeScriptComponent"];
-				if (nativeScriptComponent)
-				{
+					auto nativeScriptComponent = entity["NativeScriptComponent"];
+					if (nativeScriptComponent)
+					{
 
-				}
+					}
 			}
 		}
 
-		return true;
+			return true;
 	}
 
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
