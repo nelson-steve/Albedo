@@ -48,6 +48,7 @@ namespace Albedo {
 		//cerberus.GetComponent<TransformComponent>().Scale = glm::vec3(10.0, 1.0, 10.0);
 		//cerberus.GetComponent<TransformComponent>().Position = glm::vec3(0.0, -30.0, 0.0);
 
+#if 1
 		{
 			Entity suzanneMesh = m_ActiveScene->CreateEntity("Sphere");
 			suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere_wrong_tangents.obj"), (uint32_t)suzanneMesh);
@@ -69,15 +70,17 @@ namespace Albedo {
 			suzanneMesh.GetComponent<PhysicsComponent>().Mass = 1.0f;
 			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 		}
+#endif
 		{
 			Entity suzanneMesh1 = m_ActiveScene->CreateEntity("Plane");
 			suzanneMesh1.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh1);
 			suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/concrete/dirty_concrete_metall_1k.png"));
 			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 			suzanneMesh1.AddComponent<PhysicsComponent>();
+			suzanneMesh1.AddComponent<ColliderComponent>();
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
-			glm::vec3 size = glm::vec3(50.0, 50.0f, 50.0f);
+			glm::vec3 size = glm::vec3(5.0, 5.0f, 5.0f);
 			glm::vec3 rot = glm::vec3(0.0, 0.0f, 10.0f);
 			suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh1.GetComponent<TransformComponent>().Position = pos;
@@ -121,7 +124,7 @@ namespace Albedo {
 		fbSpec.Height = 720;
 		m_Framebuffer = Framebuffer::Create(fbSpec);
 
-		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 10000.0f);
 
 #if 0
 		class CameraController : public ScriptableEntity
@@ -192,23 +195,23 @@ namespace Albedo {
 
 		switch (m_SceneState)
 		{
-		case SceneState::Edit:
-		{
-			//Albedo_Core_INFO("Scene: Edit Mode");
-			if (m_ViewportFocused)
-				m_CameraController.OnUpdate(ts);
+			case SceneState::Edit:
+			{
+				//Albedo_Core_INFO("Scene: Edit Mode");
+				if (m_ViewportFocused)
+					m_CameraController.OnUpdate(ts);
 
-			m_EditorCamera.OnUpdate(ts);
+				m_EditorCamera.OnUpdate(ts);
 
-			m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
-			break;
-	}
-		case SceneState::Play:
-		{
-			//Albedo_Core_INFO("Scene: Play Mode");
-			m_ActiveScene->OnUpdateRuntime(ts);
-			break;
-		}
+				m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
+				break;
+			}
+			case SceneState::Play:
+			{
+				//Albedo_Core_INFO("Scene: Play Mode");
+				m_ActiveScene->OnUpdateRuntime(ts);
+				break;
+			}
 		}
 
 		#if 0
@@ -285,7 +288,7 @@ namespace Albedo {
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuiStyle& style = ImGui::GetStyle();
 			float minWinSizeX = style.WindowMinSize.x;
-			style.WindowMinSize.x = 310.0f;
+			style.WindowMinSize.x = 250.0f;
 			if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 			{
 				ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
@@ -325,6 +328,7 @@ namespace Albedo {
 
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
+			m_ConfigurationPanel.OnImGuiRender();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");

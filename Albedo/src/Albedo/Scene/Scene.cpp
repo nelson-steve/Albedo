@@ -19,24 +19,18 @@ namespace Albedo {
 
 	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
-	//Ref<PhysicsWorld> m_PhysicsWorld;
-
 	Scene::Scene()
 	{
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
-		//m_PhysicsWorld = std::make_shared<PhysicsWorld>();
 	}
 
 	Scene::~Scene()
 	{
 		m_PhysicsSolver->Deallocate();
-		//m_PhysicsWorld.reset();
 	}
 
 	void Scene::InitScene()
 	{
-		//m_PhysicsWorld->Init();
-
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/ModelShader.glsl");
@@ -361,6 +355,11 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ColliderComponent>(Entity entity, ColliderComponent& component)
 	{
 	}
 

@@ -13,6 +13,7 @@
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h">
       <Filter>Panels</Filter>
     </ClInclude>
+    <ClInclude Include="src\Panels\ConfigurationPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlbedoEditorApp.cpp" />
@@ -23,5 +24,6 @@
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
+    <ClCompile Include="src\Panels\ConfigurationPanel.cpp" />
   </ItemGroup>
 </Project>

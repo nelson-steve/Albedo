@@ -6,6 +6,7 @@
 #include "Panels/ContentBrowserPanel.h"
 #include "Albedo/Cameras/EditorCamera.h"
 #include <Albedo/Utils/AssetSystem.h>
+#include "Panels/ConfigurationPanel.h"
 
 namespace Albedo {
 	class EditorLayer : public Layer
@@ -57,6 +58,7 @@ namespace Albedo {
 		int							 m_GizmoType = -1;
 		SceneHierarchyPanel			 m_SceneHierarchyPanel;
 		ContentBrowserPanel			 m_ContentBrowserPanel;
+		ConfigurationPanel			 m_ConfigurationPanel;
 
 		enum class SceneState
 		{

@@ -15,6 +15,7 @@ namespace Albedo {
 
 	struct TagComponent
 	{
+		std::string name = "Tag Component";
 		std::string Tag;
 
 		TagComponent() = default;
@@ -25,6 +26,8 @@ namespace Albedo {
 
 	struct MeshComponent
 	{
+		std::string name = "Mesh Compnent";
+
 		void AddMesh(const Ref<Mesh> mesh, int id) { m_Mesh = mesh; mesh->SetInitializationStatus(true); ID = id; }
 
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -36,6 +39,8 @@ namespace Albedo {
 
 	struct TextureComponent
 	{
+		std::string name = "Texture Compnent";
+
 		void AddTexture(const Ref<Texture2D>  texture) { m_Textures.push_back(texture); }
 
 		std::vector<Ref<Texture2D>> m_Textures;
@@ -46,6 +51,8 @@ namespace Albedo {
 
 	struct ShaderComponent
 	{
+		std::string name = "Shader Compnent";
+
 		void AddShader(const Ref<Shader> shader) { m_Shader = shader; }
 
 		std::string m_Path = std::string();
@@ -57,6 +64,8 @@ namespace Albedo {
 
 	struct MaterialComponent
 	{
+		std::string name = "Material Compnent";
+
 		void AddMaterial(const Ref<Material> material) { m_Material = material; }
 
 		Ref<Material> m_Material;
@@ -67,6 +76,8 @@ namespace Albedo {
 
 	struct TransformComponent
 	{
+		std::string name = "Transform Compnent";
+
 		void AddTranform(const glm::mat4 tranform) { Transform = tranform; }
 		const glm::vec3& GetPosition() const { return Position; }
 		const glm::vec3& GetRotation() const { return Rotation; }
@@ -79,7 +90,7 @@ namespace Albedo {
 		}
 
 		void AddTranform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale) 
-		{ 
+		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
 			Transform =  glm::translate(glm::mat4(1.0f), pos) * rotation * glm::scale(glm::mat4(1.0f), scale);
 			Position = pos;
@@ -112,6 +123,8 @@ namespace Albedo {
 
 	struct PhysicsComponent
 	{
+		std::string name = "Physics Compnent";
+
 		void Create()
 		{
 			CreateMaterial();
@@ -223,6 +236,8 @@ namespace Albedo {
 
 	struct SpriteRendererComponent
 	{
+		std::string name = "Sprite Renderer Compnent";
+
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 
 		SpriteRendererComponent() = default;
@@ -233,6 +248,8 @@ namespace Albedo {
 
 	struct CameraComponent
 	{
+		std::string name = "Camera Compnent";
+
 		SceneCamera Camera;
 		bool Primary = true; // TODO: think about moving to Scene
 		bool FixedAspectRatio = false;
@@ -241,8 +258,18 @@ namespace Albedo {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
+	struct ColliderComponent
+	{
+		std::string name = "Collider Component";
+
+		ColliderComponent() = default;
+		ColliderComponent(const ColliderComponent&) = default;
+	};
+
 	struct ScriptComponent
 	{
+		std::string name = "Script Compnent";
+
 		std::string ClassName;
 
 		ScriptComponent() = default;
@@ -251,6 +278,8 @@ namespace Albedo {
 
 	struct NativeScriptComponent
 	{
+		std::string name = "Native Script Compnent";
+
 		ScriptableEntity* Instance = nullptr;
 
 		ScriptableEntity* (*InstantiateScript)();

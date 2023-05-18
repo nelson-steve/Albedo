@@ -6,6 +6,8 @@
 
 namespace Albedo {
 
+
+
 	class Entity
 	{
 	public:

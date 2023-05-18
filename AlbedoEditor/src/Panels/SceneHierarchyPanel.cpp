@@ -30,7 +30,6 @@ namespace Albedo {
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
-
 		m_Context->m_Registry.each([&](auto entityID)
 			{
 				Entity entity{ entityID , m_Context.get() };
@@ -43,19 +42,6 @@ namespace Albedo {
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
 		{
-			if (ImGui::MenuItem("MESHES"))
-			{
-				for (int i = 0; i < 5; i++)
-				{
-					std::string& index = std::to_string(i);
-					std::string tag = "Cube" + i;
-					Entity e = m_Context->CreateEntity(tag);
-					e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube(), (uint32_t)e);
-					e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Xiao.png"));
-					e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-				}
-			}
-
 			if (ImGui::MenuItem("Create Empty Entity"))
 				m_Context->CreateEntity("Empty Entity");
 
@@ -105,10 +91,79 @@ namespace Albedo {
 
 		if (opened)
 		{
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
-			if (opened)
-				ImGui::TreePop();
+			int i = 0;
+ 			if (entity.HasComponent<TagComponent>())
+			{
+				auto e = entity.GetComponent<TagComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<MeshComponent>())
+			{
+				auto e = entity.GetComponent<MeshComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<TextureComponent>())
+			{
+				auto e = entity.GetComponent<TextureComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<ShaderComponent>())
+			{
+				auto e = entity.GetComponent<ShaderComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<MaterialComponent>())
+			{
+				auto e = entity.GetComponent<MaterialComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<PhysicsComponent>())
+			{
+				auto e = entity.GetComponent<PhysicsComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<SpriteRendererComponent>())
+			{
+				auto e = entity.GetComponent<SpriteRendererComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<CameraComponent>())
+			{
+				auto e = entity.GetComponent<CameraComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<ScriptComponent>())
+			{
+				auto e = entity.GetComponent<ScriptComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+			if (entity.HasComponent<NativeScriptComponent>())
+			{
+				auto e = entity.GetComponent<NativeScriptComponent>();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+					ImGui::TreePop();
+			}
+
+
 			ImGui::TreePop();
 		}
 
@@ -287,16 +342,7 @@ namespace Albedo {
 
 		ImGui::PopItemWidth();
 
-		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
-			{
-				DrawVec3Control("Translation", component.Position, 0, 70);
-				glm::vec3 rotation = glm::degrees(component.Rotation);
-				DrawVec3Control("Rotation", rotation, 0, 70);
-				component.Rotation = glm::radians(rotation);
-				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
-			});
-
-		DrawComponent<MeshComponent>("Mesh Renderer", entity, [&](auto& component)
+		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
 			{
 				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 
@@ -313,9 +359,64 @@ namespace Albedo {
 				}
 			});
 
+		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
+			{
+				ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+
+		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
+			{
+				ImGui::Button("Shader", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+
+		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
+			{
+				ImGui::Button("Mesh", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+
+		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+			{
+				DrawVec3Control("Translation", component.Position, 0, 70);
+				glm::vec3 rotation = glm::degrees(component.Rotation);
+				DrawVec3Control("Rotation", rotation, 0, 70);
+				component.Rotation = glm::radians(rotation);
+				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
+			});
+
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("Physics", &component.PhysicsEnabled);
+				float value = 3;
+				ImGui::DragFloat("stats", &value);
 			});
 
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
@@ -391,98 +492,13 @@ namespace Albedo {
 					ImGui::PopStyleColor();
 			});
 
-#if 0
 		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
 			{
-				if (component.collider->GetType() == Type::Sphere)
-				{
-					Ref<SphereCollider> c = std::dynamic_pointer_cast<SphereCollider>(component.collider);
-					float r = c->GetRadius();
-					ImGui::DragFloat("Collider Size", &r, 0.1f, 0.0f);
-					c->SetRadius(r);
-				}
-				else if (component.collider->GetType() == Type::BoxAABB)
-				{
-					Ref<BoxCollider> c = std::dynamic_pointer_cast<BoxCollider>(component.collider);
-					glm::vec3& size = glm::vec3(c->GetWidth(), c->GetHeight(), c->GetDepth());
-					DrawVec3Control("Size ", size);
-					c->SetWidth(size.x);
-					c->SetHeight(size.y);
-					c->SetDepth(size.z);
-					ImGui::Begin("stats");
-					auto min = c->GetMin();
-					auto max = c->GetMax();
-					ImGui::DragFloat("MinX", &min.x);
-					ImGui::DragFloat("MinY", &min.y);
-					ImGui::DragFloat("MinZ", &min.z);
-
-					ImGui::DragFloat("MaxX", &max.x);
-					ImGui::DragFloat("MaxY", &max.y);
-					ImGui::DragFloat("MaxZ", &max.z);
-					ImGui::End();
-				}
-
-				ImGui::Checkbox("Collider Show", &component.ShowCollider);
+				float value = 3;
+				ImGui::DragFloat("stats", &value);
 			});
-		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
-			{
-				auto& camera = component.Camera;
 
-				ImGui::Checkbox("Primary", &component.Primary);
 
-				const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
-				const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
-				if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
-				{
-					for (int i = 0; i < 2; i++)
-					{
-						bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
-						if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
-						{
-							currentProjectionTypeString = projectionTypeStrings[i];
-							camera.SetProjectionType((SceneCamera::ProjectionType)i);
-						}
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-
-					ImGui::EndCombo();
-				}
-
-				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
-				{
-					float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());
-					if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))
-						camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));
-
-					float perspectiveNear = camera.GetPerspectiveNearClip();
-					if (ImGui::DragFloat("Near", &perspectiveNear))
-						camera.SetPerspectiveNearClip(perspectiveNear);
-
-					float perspectiveFar = camera.GetPerspectiveFarClip();
-					if (ImGui::DragFloat("Far", &perspectiveFar))
-						camera.SetPerspectiveFarClip(perspectiveFar);
-				}
-
-				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
-				{
-					float orthoSize = camera.GetOrthographicSize();
-					if (ImGui::DragFloat("Size", &orthoSize))
-						camera.SetOrthographicSize(orthoSize);
-
-					float orthoNear = camera.GetOrthographicNearClip();
-					if (ImGui::DragFloat("Near", &orthoNear))
-						camera.SetOrthographicNearClip(orthoNear);
-
-					float orthoFar = camera.GetOrthographicFarClip();
-					if (ImGui::DragFloat("Far", &orthoFar))
-						camera.SetOrthographicFarClip(orthoFar);
-
-					ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
-				}
-			});
-#endif
 	}
 
 }
