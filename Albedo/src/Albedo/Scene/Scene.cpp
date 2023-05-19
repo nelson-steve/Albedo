@@ -41,10 +41,25 @@ namespace Albedo {
 
 		for (auto entity : view)
 		{
-			view.get<PhysicsComponent>(entity).Create();
+			if(view.get<PhysicsComponent>(entity).dirty)
+				view.get<PhysicsComponent>(entity).Create();
 		}
 
 		Renderer::Init(m_Registry);
+	}
+
+	void Scene::ReInitScene()
+	{
+		auto view = m_Registry.view<PhysicsComponent>();
+
+		for (auto entity : view)
+		{
+			if (view.get<PhysicsComponent>(entity).dirty)
+			{
+				view.get<PhysicsComponent>(entity).Create();
+				view.get<PhysicsComponent>(entity).dirty = false;
+			}
+		}
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -193,6 +208,7 @@ namespace Albedo {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
+		ReInitScene();
 		OnUpdatePhysics(ts);
 
 		// Update scripts
@@ -262,6 +278,7 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		ReInitScene();
 		OnUpdatePhysics(ts);
 
 		auto view = m_Registry.view<PhysicsComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();

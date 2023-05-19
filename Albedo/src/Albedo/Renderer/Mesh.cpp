@@ -37,6 +37,7 @@ namespace Albedo {
 
             if (m_Vertices.size() != 0)
             {
+                m_TotalVertices = GetVertexSize(m_Vertices);
                 m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_Vertices, GetVertexSize(m_Vertices));
                 m_MeshBufferData.m_VertexBuffer->SetLayout({ {ShaderDataType::Float3, "a_Position"} });
                 m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_VertexBuffer);

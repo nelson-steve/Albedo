@@ -12,9 +12,6 @@ namespace Albedo {
 			//PushLayer(new ExampleLayer());
 			PushLayer(new EditorLayer());
 		}
-		~AlbedoEditor()
-		{
-		}
 	};
 
 	Application* CreateApplication()

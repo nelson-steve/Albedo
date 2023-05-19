@@ -141,10 +141,9 @@ namespace Albedo {
 			out << YAML::BeginMap;
 			auto& tc = entity.GetComponent<TextureComponent>();
 
-			auto& texture = tc.m_Textures;
 			out << YAML::Key << "Texture" << YAML::Value;
 			out << YAML::BeginMap;
-			out << YAML::Key << "Path" << YAML::Value << texture[0]->GetPath();
+			out << YAML::Key << "Path" << YAML::Value << tc.m_Texture->GetPath();
 			out << YAML::EndMap;
 
 			out << YAML::EndMap;

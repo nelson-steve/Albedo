@@ -16,8 +16,14 @@ namespace Albedo {
 
 	extern std::unique_ptr<Albedo::AssetSystem> m_AssetManager;
 
+	SceneHierarchyPanel::SceneHierarchyPanel()
+	{
+		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
+	}
+
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
+		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
 		SetContext(context);
 	}
 
@@ -33,11 +39,16 @@ namespace Albedo {
 		m_Context->m_Registry.each([&](auto entityID)
 			{
 				Entity entity{ entityID , m_Context.get() };
+				if (!default) 
+				{
+					m_SelectionContext = entity;
+					default = true;
+				}
 				DrawEntityNode(entity);
 			});
 
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-			m_SelectionContext = {};
+		//if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) //No entity selected
+		//	m_SelectionContext = {};
 
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
@@ -306,18 +317,11 @@ namespace Albedo {
 		if (ImGui::BeginPopup("AddComponent"))
 		{
 			char* Tag = "Default Tag";
-			ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-			static char str0[128] = "Hello, world!";
-			if (ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0), input_text_flags, [](ImGuiInputTextCallbackData* data) ->int
-				{
-					//ExampleAppConsole* console = (ExampleAppConsole*)data->UserData;
-					char* out = (char*)(data->UserData);
-					//Tag = out;
-					return 1;
-				}));
-			{
-				Tag = str0;
-			}
+			ImGuiInputTextFlags input_text_flags =
+				ImGuiInputTextFlags_EnterReturnsTrue   | 
+				ImGuiInputTextFlags_EscapeClearsAll    | 
+				ImGuiInputTextFlags_CallbackCompletion | 
+				ImGuiInputTextFlags_CallbackHistory;
 
 			if (ImGui::MenuItem("Tag"))
 			{
@@ -327,13 +331,68 @@ namespace Albedo {
 				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
 				ImGui::CloseCurrentPopup();
 			}
-
-			if (ImGui::MenuItem("Sprite Renderer"))
+			else if (ImGui::MenuItem("Mesh"))
 			{
-				if (!m_SelectionContext.HasComponent<SpriteRendererComponent>())
-					m_SelectionContext.AddComponent<SpriteRendererComponent>();
-				else
-					Albedo_Core_WARN("This entity already has the Sprite Renderer Component!");
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Texture"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Shader"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Material"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Transform"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Physics"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Collider"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Script"))
+			{
+				//if (!m_SelectionContext.HasComponent<TagComponent>())
+				m_SelectionContext.AddComponent<TagComponent>(Tag);
+				//else
+				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -341,68 +400,6 @@ namespace Albedo {
 		}
 
 		ImGui::PopItemWidth();
-
-		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
-			{
-				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-
-				ImGui::Button("Mesh", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
-					}
-					ImGui::EndDragDropTarget();
-				}
-			});
-
-		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
-			{
-				ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
-					}
-					ImGui::EndDragDropTarget();
-				}
-			});
-
-		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
-			{
-				ImGui::Button("Shader", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
-					}
-					ImGui::EndDragDropTarget();
-				}
-			});
-
-		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
-			{
-				ImGui::Button("Mesh", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
-					}
-					ImGui::EndDragDropTarget();
-				}
-			});
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
 			{
@@ -413,10 +410,224 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
 			});
 
+		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
+			{
+				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				//ImGui::SameLine(65.0f, 1.0f);
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+					}
+					ImGui::EndDragDropTarget();
+				}
+				if (component.m_Mesh)
+				{
+					const std::string& s = "Vertices: " + std::to_string(component.m_Mesh->GetTotalVertices());
+					ImGui::Text(s.c_str());
+				}
+				const std::string& s = "Name: " + component.m_Mesh->GetPath();
+				ImGui::Text(s.c_str());
+			});
+
+		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
+			{
+				std::string items[] = {"Albedo", "Ambient Occlusion", "Metallic", "Normal", "Roughness"};
+				if (ImGui::BeginCombo("##textures", m_CurrentShader.c_str()))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					{
+						bool is_selected = (m_CurrentShader == items[n]);
+						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						{
+							m_CurrentShader = items[n];
+							switch (n)
+							{
+							case 0: // Albedo
+								component.type = component.TextureType::Albedo;
+								break;
+							case 1: // Ambient Occlusion
+								component.type = component.TextureType::AmbientOcclusion;
+								break;
+							case 2: // Metallic
+								component.type = component.TextureType::Metallic;
+								break;
+							case 3: // Normal
+								component.type = component.TextureType::Normal;
+								break;
+							case 4: // Roughness
+								component.type = component.TextureType::Roughness;
+								break;
+							default:
+								break;
+							}
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::SameLine();
+				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()));
+					}
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::Separator();
+
+				ImGui::Checkbox("Albedo", &m_Albedo);
+				ImGui::SameLine();
+				ImGui::Button("ao.tga");
+
+				ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
+				ImGui::SameLine();
+				ImGui::Button("ao.tga");
+
+				ImGui::Checkbox("Metallic", &m_Metallic);
+				ImGui::SameLine();
+				ImGui::Button("ao.tga");
+
+				ImGui::Checkbox("Normal", &m_Normal);
+				ImGui::SameLine();
+				ImGui::Button("ao.tga");
+
+				ImGui::Checkbox("Roughness", &m_Roughness);
+				ImGui::SameLine();
+				ImGui::Button("ao.tga");
+			});
+
+		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
+			{
+				std::string items[] = { "Vertex", "Fragment", "Compute", "Geometry"};
+				if (ImGui::BeginCombo("##shaders", m_CurrentTexture.c_str()))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					{
+						bool is_selected = (m_CurrentTexture == items[n]);
+						if (ImGui::Selectable(items[n].c_str(), is_selected))
+							m_CurrentTexture = items[n];
+						if(is_selected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::SameLine();
+				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+					}
+					ImGui::EndDragDropTarget();
+				}
+				ImGui::Separator();
+				ImGui::Text("Current Shaders");
+				ImGui::Button("vertex.glsl");
+			});
+
+		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
+			{
+				ImGui::Text("Irradiance");
+				ImGui::Text("Roughness");
+				ImGui::Text("Reflecion");
+				ImGui::Text("Specular");
+			});
+
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				float value = 3;
-				ImGui::DragFloat("stats", &value);
+				ImGui::Checkbox("Enable Physics: ", &m_PhysicsEnabled);
+
+				ImGui::Text("Body Type");
+				ImGui::SameLine();
+				std::string items[] = { "Static", "Dynamic" };
+				if (ImGui::BeginCombo("##physics", m_CurrentPhysicsType.c_str()))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					{
+						bool is_selected = (m_CurrentPhysicsType == items[n]);
+						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						{
+							m_CurrentPhysicsType = items[n];
+							m_CurrentShader = items[n];
+							switch (n)
+							{
+							case 0: // Static
+								component._BodyType = component.BodyType::Static;
+								break;
+							case 1: // Dynamic
+								component._BodyType = component.BodyType::Dynamic;
+								break;
+							default:
+								break;
+							}
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+
+				ImGui::Text("Collider Type");
+				ImGui::SameLine();
+				std::string items2[] = { "Box", "Sphere", "Mesh", "ConvexMesh" };
+				if (ImGui::BeginCombo("##collider", m_CurrentColliderType.c_str()))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					{
+						bool is_selected = (m_CurrentColliderType == items[n]);
+						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						{
+							m_CurrentColliderType = items[n];
+							m_CurrentShader = items[n];
+							switch (n)
+							{
+							case 0: // Box
+								component._ColliderType = component.ColliderType::Box;
+								break;
+							case 1: // Sphere
+								component._ColliderType = component.ColliderType::Sphere;
+								break;
+							case 2: // Mesh
+								component._ColliderType = component.ColliderType::Mesh;
+								break;
+							case 3: // Convex Mesh
+								component._ColliderType = component.ColliderType::ConvexMesh;
+								break;
+							default:
+								break;
+							}
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::Separator();
+				DrawVec3Control("Translation", component.ColliderPosition, 0, 70);
+				//DrawVec3Control("Rotation", g, 0, 70);
+				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
+				ImGui::Separator();
+				if (ImGui::Button("Initialize", ImVec2{ 50.0f, 15.0f }))
+				{
+					component.dirty = true;
+				}
+				
+
+
 			});
 
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
@@ -491,14 +702,6 @@ namespace Albedo {
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
 			});
-
-		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
-			{
-				float value = 3;
-				ImGui::DragFloat("stats", &value);
-			});
-
-
 	}
 
 }

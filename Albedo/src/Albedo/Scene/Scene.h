@@ -22,6 +22,7 @@ namespace Albedo {
 		static Ref<Scene> Copy(Ref<Scene> other);
 
 		void InitScene();
+		void ReInitScene();
 
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);

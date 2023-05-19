@@ -10,7 +10,7 @@ namespace Albedo {
 	class SceneHierarchyPanel
 	{
 	public:
-		SceneHierarchyPanel() = default;
+		SceneHierarchyPanel();
 		SceneHierarchyPanel(const Ref<Scene>& scene);
 
 		void SetContext(const Ref<Scene>& scene);
@@ -23,6 +23,16 @@ namespace Albedo {
 		void DrawEntityNode(Entity entity);
 		void DrawComponents(Entity entity);
 	private:
+		bool default = false;
+		bool m_Albedo = false, m_AmbientOcclusion = false, 
+			m_Metallic = false, m_Normal = false, m_Roughness = false;
+		std::string m_CurrentShader = "Vertex";
+		std::string m_CurrentTexture = "Albedo";
+		std::string m_CurrentPhysicsType = "Static";
+		std::string m_CurrentColliderType = "Sphere";
+		bool m_PhysicsEnabled;
+		float offset = 0;
+		Ref<Texture2D> m_MeshIcon;
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;
 	};

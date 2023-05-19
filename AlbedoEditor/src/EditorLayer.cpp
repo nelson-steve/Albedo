@@ -80,7 +80,7 @@ namespace Albedo {
 			suzanneMesh1.AddComponent<ColliderComponent>();
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
-			glm::vec3 size = glm::vec3(5.0, 5.0f, 5.0f);
+			glm::vec3 size = glm::vec3(50.0, 5.0f, 50.0f);
 			glm::vec3 rot = glm::vec3(0.0, 0.0f, 10.0f);
 			suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh1.GetComponent<TransformComponent>().Position = pos;
@@ -584,7 +584,7 @@ namespace Albedo {
 	{
 		if (e.GetMouseButton() == Mouse::ButtonLeft)
 		{
-			if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
+			if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt) && m_HoveredEntity)
 				m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
 		}
 		return false;

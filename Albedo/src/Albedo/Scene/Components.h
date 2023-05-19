@@ -41,10 +41,22 @@ namespace Albedo {
 	{
 		std::string name = "Texture Compnent";
 
-		void AddTexture(const Ref<Texture2D>  texture) { m_Textures.push_back(texture); }
+		static enum TextureType
+		{
+			Albedo = 0,
+			AmbientOcclusion, 
+			Metallic, 
+			Normal,
+			Roughness
+		};
 
-		std::vector<Ref<Texture2D>> m_Textures;
-
+		void AddTexture(const Ref<Texture2D>  texture)
+		{
+			m_Textures[type] = texture;
+		}
+		TextureType type;
+		Ref<Texture2D> m_Texture;
+		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
 		TextureComponent() = default;
 		TextureComponent(const TextureComponent&) = default;
 	};
@@ -219,8 +231,10 @@ namespace Albedo {
 		glm::vec3 ColliderPosition = glm::vec3(0.0);
 		glm::vec3 ColliderSize = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::quat ColliderOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+		
 		float ColliderRadius = 1.0f;
-
+		
+		bool dirty = true;
 		bool PhysicsEnabled = true;
 		BodyType _BodyType = BodyType::Dynamic;
 		ColliderType _ColliderType = ColliderType::Box;
