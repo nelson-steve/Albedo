@@ -11,9 +11,9 @@ namespace Albedo {
 	{
 	public:
 		SceneHierarchyPanel();
-		SceneHierarchyPanel(const Ref<Scene>& scene);
+		SceneHierarchyPanel(const Ref<Scene> scene);
 
-		void SetContext(const Ref<Scene>& scene);
+		void SetContext(const Ref<Scene> scene);
 
 		void OnImGuiRender();
 

@@ -38,16 +38,6 @@ namespace Albedo {
 		//sceneCamera.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 		//sceneCamera.GetComponent<TransformComponent>().Position = glm::vec3(0.0, 0.0, 75.0);
 
-		//Entity cerberus = m_ActiveScene->CreateEntity("Mesh");
-		//cerberus.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)cerberus);
-		//cerberus.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
-		//cerberus.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-		//cerberus.AddComponent<PhysicsComponent>();
-		//cerberus.AddComponent<ColliderComponent>().collider = std::make_shared<SphereCollider>();
-		//cerberus.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-		//cerberus.GetComponent<TransformComponent>().Scale = glm::vec3(10.0, 1.0, 10.0);
-		//cerberus.GetComponent<TransformComponent>().Position = glm::vec3(0.0, -30.0, 0.0);
-
 #if 1
 		{
 			Entity suzanneMesh = m_ActiveScene->CreateEntity("Sphere");
@@ -77,7 +67,6 @@ namespace Albedo {
 			suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/concrete/dirty_concrete_metall_1k.png"));
 			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 			suzanneMesh1.AddComponent<PhysicsComponent>();
-			suzanneMesh1.AddComponent<ColliderComponent>();
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
 			glm::vec3 size = glm::vec3(50.0, 5.0f, 50.0f);
@@ -617,22 +606,18 @@ namespace Albedo {
 			return;
 		}
 
-		m_ActiveScene = std::make_shared<Scene>();
-		//m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		Ref<Scene> newScene = std::make_shared<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(path.string()))
+		{
+			//m_TempScene = m_ActiveScene;	
+			m_EditorScene = newScene;
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
 
-		SceneSerializer serializer(m_ActiveScene);
-		serializer.Deserialize(path.string());
-
-		//if (serializer.Deserialize(path.string()))
-		//{
-		//	m_EditorScene = newScene;
-		//	//m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		//	m_SceneHierarchyPanel.SetContext(m_EditorScene);
-		//
-		//	m_ActiveScene = m_EditorScene;
-		//	m_EditorScenePath = path;
-		//}
+			m_ActiveScene = m_EditorScene;
+			m_ActiveScene->InitScene();
+			m_EditorScenePath = path;
+		}
 	}
 
 	void EditorLayer::SaveSceneAs()

@@ -21,13 +21,13 @@ namespace Albedo {
 		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
 	}
 
-	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
+	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene> context)
 	{
 		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
 		SetContext(context);
 	}
 
-	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
+	void SceneHierarchyPanel::SetContext(const Ref<Scene> context)
 	{
 		m_Context = context;
 		m_SelectionContext = {};
@@ -47,24 +47,40 @@ namespace Albedo {
 				DrawEntityNode(entity);
 			});
 
-		//if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) //No entity selected
-		//	m_SelectionContext = {};
+		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) //No entity selected
+			m_SelectionContext = {};
 
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
 		{
-			if (ImGui::MenuItem("Create Empty Entity"))
-				m_Context->CreateEntity("Empty Entity");
-
-			if (ImGui::MenuItem("Create Mesh Entity"))
+			if (ImGui::MenuItem("Create Default Entity"))
 			{
-				Entity e = m_Context->CreateEntity("Cube");
-				auto temp = (uint32_t)e;
-				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultCube(), (uint32_t)e);
-				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Xiao.png"));
-				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
-			}
+				Entity e = m_Context->CreateEntity("Default Entity");
 
+				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
+				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzann/albedo.png"));
+				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+				e.AddComponent<PhysicsComponent>();
+				glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+				glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
+				glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
+				e.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+				e.GetComponent<TransformComponent>().Position = pos;
+				e.GetComponent<TransformComponent>().Scale = size;
+				e.GetComponent<TransformComponent>().Rotation = rot;
+				e.GetComponent<PhysicsComponent>();
+				e.GetComponent<PhysicsComponent>().BodyPosition = pos;
+				e.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
+				e.GetComponent<PhysicsComponent>()._BodyType = e.GetComponent<PhysicsComponent>().BodyType::Static;
+				e.GetComponent<PhysicsComponent>().ColliderPosition = pos;
+				e.GetComponent<PhysicsComponent>().ColliderSize = size;
+				e.GetComponent<PhysicsComponent>().ColliderOrientation = glm::quat(rot);
+				e.GetComponent<PhysicsComponent>()._ColliderType = e.GetComponent<PhysicsComponent>().ColliderType::Box;
+				e.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
+				e.GetComponent<PhysicsComponent>().Mass = 0.f;
+
+				m_SelectionContext = e;
+			}
 			ImGui::EndPopup();
 		}
 
@@ -325,77 +341,52 @@ namespace Albedo {
 
 			if (ImGui::MenuItem("Tag"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<TagComponent>())
+					m_SelectionContext.AddComponent<TagComponent>(Tag);
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Mesh"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<MeshComponent>())
+					m_SelectionContext.AddComponent<MeshComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Texture"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<TextureComponent>())
+					m_SelectionContext.AddComponent<TextureComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Shader"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<ShaderComponent>())
+					m_SelectionContext.AddComponent<ShaderComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Material"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<MaterialComponent>())
+					m_SelectionContext.AddComponent<MaterialComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Transform"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<TransformComponent>())
+					m_SelectionContext.AddComponent<TransformComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Physics"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
-				ImGui::CloseCurrentPopup();
-			}
-			else if (ImGui::MenuItem("Collider"))
-			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<PhysicsComponent>())
+					m_SelectionContext.AddComponent<PhysicsComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Script"))
 			{
-				//if (!m_SelectionContext.HasComponent<TagComponent>())
-				m_SelectionContext.AddComponent<TagComponent>(Tag);
-				//else
-				//	Albedo_Core_WARN("This entity already has the Tag Renderer Component!");
+				if (!m_SelectionContext.HasComponent<ScriptComponent>())
+					m_SelectionContext.AddComponent<ScriptComponent>();
 				ImGui::CloseCurrentPopup();
 			}
-
 			ImGui::EndPopup();
 		}
 
@@ -536,7 +527,7 @@ namespace Albedo {
 				}
 				ImGui::Separator();
 				ImGui::Text("Current Shaders");
-				ImGui::Button("vertex.glsl");
+				ImGui::Button(component.m_Shader->GetPath().c_str(), ImVec2{60, 15});
 			});
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
@@ -617,7 +608,6 @@ namespace Albedo {
 					ImGui::EndCombo();
 				}
 				ImGui::Separator();
-				DrawVec3Control("Translation", component.ColliderPosition, 0, 70);
 				//DrawVec3Control("Rotation", g, 0, 70);
 				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
 				ImGui::Separator();
@@ -625,9 +615,6 @@ namespace Albedo {
 				{
 					component.dirty = true;
 				}
-				
-
-
 			});
 
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
@@ -698,7 +685,6 @@ namespace Albedo {
 						}
 					}
 				}
-
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
 			});

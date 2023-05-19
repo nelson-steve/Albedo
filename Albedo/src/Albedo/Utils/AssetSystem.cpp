@@ -3,8 +3,6 @@
 #include "AssetSystem.h"
 #include "Albedo/Renderer/Buffer.h"
 
-#include <tiny_obj_loader.h>
-
 namespace Albedo {
 
 	AssetSystem::AssetSystem()
@@ -47,7 +45,9 @@ namespace Albedo {
 
 		std::string inputfile = path;
 		tinyobj::ObjReaderConfig reader_config;
-		reader_config.mtl_search_path = "./"; // Path to material files
+		size_t pos = path.find_last_of('/');
+		std::string mtl_path = path.substr(0, pos + 1);
+		reader_config.mtl_search_path = mtl_path; // Path to material files
 
 		tinyobj::ObjReader reader;
 
@@ -61,7 +61,7 @@ namespace Albedo {
 		if (!reader.Warning().empty()) {
 			std::cout << "TinyObjReader: " << reader.Warning();
 		}
-
+		
 		auto& attrib = reader.GetAttrib();
 		auto& shapes = reader.GetShapes();
 		auto& materials = reader.GetMaterials();
@@ -111,7 +111,8 @@ namespace Albedo {
 				shapes[s].mesh.material_ids[f];
 			}
 		}
-
+		if(!materials.empty())
+			tempMesh->SetMaterials(materials);
 		tempMesh->SetVertices(vertices);
 		tempMesh->SetUV(uv);
 		tempMesh->SetNormals(normals);

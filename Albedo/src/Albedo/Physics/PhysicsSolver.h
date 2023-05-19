@@ -15,8 +15,10 @@ namespace Albedo {
         friend class PhysicsCollider;
         PhysicsTaskDispatcher taskDispatcher;
     public:
-        PhysicsSolver();
+        PhysicsSolver() = default;
         ~PhysicsSolver();
+
+        void Init();
 
         void AddActor(const RigidBodyDynamicComponent& rg);
         void UpdatePhysics(Timestep ts);

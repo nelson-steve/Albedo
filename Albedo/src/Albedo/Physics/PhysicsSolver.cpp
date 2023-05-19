@@ -46,23 +46,23 @@ namespace Albedo {
         return physx::PxFilterFlag::eDEFAULT;
     }
 
-    PhysicsSolver::PhysicsSolver() 
+    void PhysicsSolver::Init()
     {
-        if (foundation == nullptr) 
+        if (foundation == nullptr)
         {
             foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
         }
-        if (foundation == nullptr) 
+        if (foundation == nullptr)
         {
             Albedo_CORE_ASSERT(false, "PhysX foundation failed to create");
         }
         bool recordMemoryAllocations = true;
-        if (pvd == nullptr) 
+        if (pvd == nullptr)
         {
             pvd = PxCreatePvd(*foundation);
             physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
             pvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
-            if (phys == nullptr) 
+            if (phys == nullptr)
             {
                 phys = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, physx::PxTolerancesScale(), recordMemoryAllocations, pvd);
             }
@@ -83,9 +83,9 @@ namespace Albedo {
         desc.simulationEventCallback = this;
 
         // initialize cooking library with defaults
-        if(foundation)
+        if (foundation)
             cooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, physx::PxCookingParams(physx::PxTolerancesScale()));
-        if (!cooking) 
+        if (!cooking)
         {
             Albedo_CORE_ASSERT(false, "PhysX Cooking initialization failed");
         }
@@ -101,14 +101,14 @@ namespace Albedo {
         PhysicsSolver::cooking->setParams(params);
 
         // initialize extensions (can be omitted, these are optional components)
-        if (!PxInitExtensions(*phys, pvd)) 
+        if (!PxInitExtensions(*phys, pvd))
         {
             Albedo_CORE_ASSERT(false, "Unable to initialize PhysX");
         }
 
         //create the scene
         scene = phys->createScene(desc);
-        if (!scene) 
+        if (!scene)
         {
             Albedo_CORE_ASSERT(false, "PhysX Scene failed to create");
         }

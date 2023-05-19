@@ -24,13 +24,9 @@ namespace Albedo {
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 	}
 
-	Scene::~Scene()
-	{
-		m_PhysicsSolver->Deallocate();
-	}
-
 	void Scene::InitScene()
 	{
+		m_PhysicsSolver->Init();
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/ModelShader.glsl");
@@ -279,12 +275,14 @@ namespace Albedo {
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
 		ReInitScene();
-		OnUpdatePhysics(ts);
 
 		auto view = m_Registry.view<PhysicsComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
 
 		for (auto& entity : view)
 		{
+			auto& pos = view.get<TransformComponent>(entity).Position;
+			view.get<PhysicsComponent>(entity).BodyPosition = pos;
+			view.get<PhysicsComponent>(entity).ColliderPosition = pos;
 			auto& mesh = view.get<MeshComponent>(entity);
 			if (mesh.m_Mesh->GetInitializationStatus())
 				InitScene();
@@ -377,6 +375,11 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<ColliderComponent>(Entity entity, ColliderComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MaterialComponent>(Entity entity, MaterialComponent& component)
 	{
 	}
 

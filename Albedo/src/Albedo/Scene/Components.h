@@ -67,7 +67,6 @@ namespace Albedo {
 
 		void AddShader(const Ref<Shader> shader) { m_Shader = shader; }
 
-		std::string m_Path = std::string();
 		Ref<Shader> m_Shader;
 
 		ShaderComponent() = default;

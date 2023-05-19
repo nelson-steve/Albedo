@@ -44,6 +44,7 @@ namespace Albedo {
 		OrthographicCameraController m_CameraController;
 		Ref<Scene>					 m_ActiveScene;
 		Ref<Scene>					 m_EditorScene;
+		Ref<Scene>					 m_TempScene;
 		Ref<Framebuffer>			 m_Framebuffer;
 
 		Ref<Texture2D> m_IconPlay, m_IconPause, m_IconStep, m_IconSimulate, m_IconStop;
@@ -59,6 +60,7 @@ namespace Albedo {
 		SceneHierarchyPanel			 m_SceneHierarchyPanel;
 		ContentBrowserPanel			 m_ContentBrowserPanel;
 		ConfigurationPanel			 m_ConfigurationPanel;
+		std::filesystem::path m_EditorScenePath;
 
 		enum class SceneState
 		{

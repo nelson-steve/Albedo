@@ -96,7 +96,7 @@ namespace Albedo {
 		return out;
 	}
 
-	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
+	SceneSerializer::SceneSerializer(const Ref<Scene> scene)
 		:m_Scene(scene)
 	{
 
@@ -105,7 +105,7 @@ namespace Albedo {
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
 		out << YAML::BeginMap; // Entity
-		out << YAML::Key << "Entity" << YAML::Value << "12837192831273"; // TODO: Entity ID goes here
+		out << YAML::Key << "Entity" << YAML::Value << std::to_string((uint32_t)entity.GetEntityHandle()); // TODO: Entity ID goes here
 
 		if (entity.HasComponent<TagComponent>())
 		{
@@ -143,7 +143,7 @@ namespace Albedo {
 
 			out << YAML::Key << "Texture" << YAML::Value;
 			out << YAML::BeginMap;
-			out << YAML::Key << "Path" << YAML::Value << tc.m_Texture->GetPath();
+			out << YAML::Key << "Path" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
 			out << YAML::EndMap;
 
 			out << YAML::EndMap;
@@ -180,6 +180,33 @@ namespace Albedo {
 			out << YAML::Key << "Scale" << YAML::Value << tc.Scale;
 
 			out << YAML::EndMap; // TransformComponent
+		}
+
+		if (entity.HasComponent<PhysicsComponent>())
+		{
+			out << YAML::Key << "PhysicsComponent";
+			out << YAML::BeginMap; // PhysicsComponent
+
+			auto& tc = entity.GetComponent<PhysicsComponent>();
+			out << YAML::Key << "Body Position" << YAML::Value << tc.BodyPosition;
+			out << YAML::Key << "Body Orientation" << YAML::Value << glm::vec3(tc.BodyOrientation.x, tc.BodyOrientation.y, tc.BodyOrientation.z);
+			out << YAML::Key << "Force" << YAML::Value << tc.Force;
+			out << YAML::Key << "Velocity" << YAML::Value << tc.Velocity;
+			out << YAML::Key << "Mass" << YAML::Value << tc.Mass;
+			
+			
+			out << YAML::Key << "Collider Position" << YAML::Value << tc.ColliderPosition;
+			out << YAML::Key << "Collider Size" << YAML::Value << tc.ColliderSize;
+			out << YAML::Key << "Collider Orientation" << YAML::Value << glm::vec3(tc.ColliderOrientation.x, tc.ColliderOrientation.y, tc.ColliderOrientation.z);
+			out << YAML::Key << "Collider Radius" << YAML::Value << tc.ColliderRadius;
+
+			out << YAML::Key << "Dirty" << YAML::Value << true;
+			out << YAML::Key << "Physics Enabled" << YAML::Value << tc.PhysicsEnabled;
+
+			out << YAML::Key << "Body Type" << YAML::Value << tc._BodyType;
+			out << YAML::Key << "Collider Type" << YAML::Value << tc._ColliderType;
+
+			out << YAML::EndMap; // PhysicsComponent
 		}
 
 		if (entity.HasComponent<ScriptComponent>())
@@ -235,17 +262,6 @@ namespace Albedo {
 			}
 #endif
 			out << YAML::EndMap; // ScriptComponent
-		}
-
-		if (entity.HasComponent<SpriteRendererComponent>())
-		{
-			out << YAML::Key << "SpriteRendererComponent";
-			out << YAML::BeginMap; // SpriteRendererComponent
-
-			auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();
-			out << YAML::Key << "Color" << YAML::Value << spriteRendererComponent.Color;
-
-			out << YAML::EndMap; // SpriteRendererComponent
 		}
 
 		if (false && entity.HasComponent<CameraComponent>())
@@ -358,10 +374,32 @@ namespace Albedo {
 				if (transformComponent)
 				{
 					// Entities always have transforms
-					auto& tc = deserializedEntity.GetComponent<TransformComponent>();
+					auto& tc = deserializedEntity.AddComponent<TransformComponent>();
 					tc.Position = transformComponent["Translation"].as<glm::vec3>();
 					tc.Rotation = transformComponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformComponent["Scale"].as<glm::vec3>();
+				}
+
+				auto physicsComponent = entity["PhysicsComponent"];
+				if (physicsComponent)
+				{
+					// Entities always have transforms
+					auto& tc = deserializedEntity.AddComponent<PhysicsComponent>();
+					tc.BodyPosition = physicsComponent["Body Position"].as<glm::vec3>();
+					tc.BodyOrientation = physicsComponent["Body Orientation"].as<glm::vec3>();
+					tc.Force = physicsComponent["Force"].as<glm::vec3>();
+					tc.Velocity = physicsComponent["Velocity"].as<glm::vec3>();
+					tc.Mass = physicsComponent["Mass"].as<float>();
+
+					tc.ColliderPosition = physicsComponent["Collider Position"].as<glm::vec3>();
+					tc.ColliderSize = physicsComponent["Collider Size"].as<glm::vec3>();
+					tc.ColliderOrientation = physicsComponent["Collider Orientation"].as<glm::vec3>();
+					tc.ColliderRadius = physicsComponent["Collider Radius"].as<float>();
+
+					tc.dirty = physicsComponent["Dirty"].as<bool>();
+					tc.PhysicsEnabled = physicsComponent["Physics Enabled"].as<bool>();
+					tc._BodyType = (PhysicsComponent::BodyType)physicsComponent["Body Type"].as<uint32_t>();
+					tc._ColliderType = (PhysicsComponent::ColliderType)physicsComponent["Collider Type"].as<uint32_t>();
 				}
 
 				auto scriptComponent = entity["ScriptComponent"];
@@ -420,43 +458,42 @@ namespace Albedo {
 #endif
 				}
 
-					auto spriteRendererComponent = entity["SpriteRendererComponent"];
-					if (spriteRendererComponent)
-					{
-						auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
-						src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-					}
+				auto spriteRendererComponent = entity["SpriteRendererComponent"];
+				if (spriteRendererComponent)
+				{
+					auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
+					src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+				}
 
-					auto cameraComponent = entity["CameraComponent"];
+				auto cameraComponent = entity["CameraComponent"];
 #if 0
-					if (cameraComponent)
-					{
-						//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-						//
-						//auto& cameraProps = cameraComponent["Camera"];
-						//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
-						//
-						//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
-						//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-						//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
-						//
-						//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-						//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-						//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+				if (cameraComponent)
+				{
+					//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+					//
+					//auto& cameraProps = cameraComponent["Camera"];
+					//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+					//
+					//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+					//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+					//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+					//
+					//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+					//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+					//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 
-						//cc.Primary = cameraComponent["Primary"].as<bool>();
-						//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
-					}
+					//cc.Primary = cameraComponent["Primary"].as<bool>();
+					//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+				}
 #endif
 
-					auto nativeScriptComponent = entity["NativeScriptComponent"];
-					if (nativeScriptComponent)
-					{
+				auto nativeScriptComponent = entity["NativeScriptComponent"];
+				if (nativeScriptComponent)
+				{
 
-					}
+				}
 			}
 		}
-
 			return true;
 	}
 

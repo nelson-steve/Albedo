@@ -6,6 +6,8 @@
 #include "VertexArray.h"
 #include "RendererConfig.h"
 
+#include <tiny_obj_loader.h>
+
 #define MAX_BONE_INFLUENCE 4
 
 namespace Albedo {
@@ -32,6 +34,7 @@ namespace Albedo {
 		const std::vector<glm::vec3>& GetVertices() const { return m_Vertices;	   }
 		const std::vector<uint32_t>& GetIndices() const { return m_Indices;	   }
         uint32_t GetTotalVertices() const { return m_TotalVertices; }
+        const std::vector<tinyobj::material_t> GetMaterials() const { return m_Materials; }
 
         void SetName                  (const std::string& name)                { m_Name             = name;     }
         void SetPath                  (const std::string& path)                { m_Path             = path;     }
@@ -42,6 +45,7 @@ namespace Albedo {
         void SetSingularMeshData      (const std::vector<float>& data)         { m_SingularMeshData = data;     }
         void SetVerticesDataLayout    (const BufferLayout& layout)             { m_Layout           = layout;   }
         void SetDataSingularityStatus (bool status)                            { m_SingularData     = status;   }
+        void SetMaterials(const std::vector<tinyobj::material_t> materials) { m_Materials = materials; }
 
         bool IsSingularData() const { return m_SingularData; }
 
@@ -66,6 +70,7 @@ namespace Albedo {
         std::vector<glm::vec3> m_Normals;
         std::vector<glm::vec2> m_UV;
         std::vector<uint32_t>  m_Indices;
+        std::vector<tinyobj::material_t> m_Materials;
         RendererConfig m_RendererConfiguration;
         //Contains all the mesh data in one variable (vertices, normals, uvs...)
 		std::vector<float> m_SingularMeshData;
