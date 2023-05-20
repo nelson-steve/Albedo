@@ -381,6 +381,12 @@ namespace Albedo {
 					m_SelectionContext.AddComponent<PhysicsComponent>();
 				ImGui::CloseCurrentPopup();
 			}
+			else if (ImGui::MenuItem("Collider"))
+			{
+				if (!m_SelectionContext.HasComponent<ColliderComponent>())
+					m_SelectionContext.AddComponent<ColliderComponent>();
+				ImGui::CloseCurrentPopup();
+			}
 			else if (ImGui::MenuItem("Script"))
 			{
 				if (!m_SelectionContext.HasComponent<ScriptComponent>())
@@ -427,14 +433,14 @@ namespace Albedo {
 		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
 			{
 				std::string items[] = {"Albedo", "Ambient Occlusion", "Metallic", "Normal", "Roughness"};
-				if (ImGui::BeginCombo("##textures", m_CurrentShader.c_str()))
+				if (ImGui::BeginCombo("##textures", m_CurrentTexture.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{
-						bool is_selected = (m_CurrentShader == items[n]);
+						bool is_selected = (m_CurrentTexture == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
-							m_CurrentShader = items[n];
+							m_CurrentTexture = items[n];
 							switch (n)
 							{
 							case 0: // Albedo
@@ -499,13 +505,13 @@ namespace Albedo {
 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
 			{
 				std::string items[] = { "Vertex", "Fragment", "Compute", "Geometry"};
-				if (ImGui::BeginCombo("##shaders", m_CurrentTexture.c_str()))
+				if (ImGui::BeginCombo("##shaders", m_CurrentShader.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{
-						bool is_selected = (m_CurrentTexture == items[n]);
+						bool is_selected = (m_CurrentShader == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
-							m_CurrentTexture = items[n];
+							m_CurrentShader = items[n];
 						if(is_selected)
 						{
 							ImGui::SetItemDefaultFocus();
@@ -540,7 +546,13 @@ namespace Albedo {
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("Enable Physics: ", &m_PhysicsEnabled);
+				ImGui::Checkbox("Disable Physics: ", &component.enableGravity);
+				ImGui::Separator();
+				
+				ImGui::DragFloat("Resitution", &component.restitution, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Dynamic Friction", &component.dynamicFriction, 1.0f, 0.0f);
+				ImGui::DragFloat("Static Friction", &component.staticFriction, 1.0f, 0.0f);
+				ImGui::Separator();
 
 				ImGui::Text("Body Type");
 				ImGui::SameLine();
@@ -556,7 +568,6 @@ namespace Albedo {
 								(component.staticFriction, component.dynamicFriction, component.restitution);
 
 							m_CurrentPhysicsType = items[n];
-							m_CurrentShader = items[n];
 							switch (n)
 							{
 							case 0: // Static
@@ -600,18 +611,6 @@ namespace Albedo {
 							{
 							case 0: // Box
 							{
-								if (e.bodyType == e.BodyType::Static && e.staticBody)
-								{
-									component.collider = std::make_shared<BoxCollider>
-										(e.staticBody.get(), component.ColliderSize,
-											e.physicsMaterial, component.ColliderPosition, component.ColliderOrientation);
-								}
-								else if (e.bodyType == e.BodyType::Dynamic && e.dynamicBody)
-								{
-									component.collider = std::make_shared<BoxCollider>
-										(e.dynamicBody.get(), component.ColliderSize,
-											e.physicsMaterial, component.ColliderPosition, component.ColliderOrientation);
-								}
 								component.colliderType = component.ColliderType::Box;
 								break;
 							}

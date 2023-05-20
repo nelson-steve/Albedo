@@ -13,7 +13,7 @@ namespace Albedo {
 	{
 	public:
 		//matrix4 CalculateWorldMatrix(const RavEngine::Transform&) const;
-		enum class CollisionType { Trigger, Collider };
+		static enum class CollisionType { Trigger, Collider };
 		void UpdateFilterData(RigidBodyDynamicComponent* body);
 		void UpdateFilterData(RigidBodyStaticComponent* body);
 		void SetType(CollisionType);

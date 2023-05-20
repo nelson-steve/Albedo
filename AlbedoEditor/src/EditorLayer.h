@@ -67,6 +67,9 @@ namespace Albedo {
 			Edit = 0, Play = 1, Simulate = 2
 		};
 
+
+		std::string savedScenePath = "TempScene.albedo";
+
 		SceneState m_SceneState = SceneState::Edit;
 
 		friend class SceneHierarchyPanel;

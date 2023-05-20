@@ -67,8 +67,8 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
-        //SetRelativeTransform(position, rotation);
-        //UpdateFilterData(body);
+        SetRelativeTransform(position, rotation);
+        UpdateFilterData(body);
     }
 
     BoxCollider::BoxCollider(RigidBodyStaticComponent* body, const glm::vec3& size, Ref<PhysicsMaterial> mat, const glm::vec3& position, const glm::quat& rotation)
@@ -76,8 +76,8 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
-        //SetRelativeTransform(position, rotation);
-        //UpdateFilterData(body);
+        SetRelativeTransform(position, rotation);
+        UpdateFilterData(body);
     }
 
     // --------------------------------------------- Sphere Collider ------------------------------------------------------------------//
@@ -88,7 +88,7 @@ namespace Albedo {
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
         SetRelativeTransform(pos, rot);
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     SphereCollider::SphereCollider(RigidBodyStaticComponent* body, float radius, Ref<PhysicsMaterial> mat, const glm::vec3& pos, const glm::quat& rot)
@@ -97,7 +97,7 @@ namespace Albedo {
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
         SetRelativeTransform(pos, rot);
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
     
     void SphereCollider::SetRadius(float radius)
@@ -117,7 +117,7 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxCapsuleGeometry(radius, halfHeight), *mat->GetPhysXmat());
 
         SetRelativeTransform(pos, rot);
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     CapsuleCollider::CapsuleCollider(RigidBodyStaticComponent* body, float radius, float halfHeight, Ref<PhysicsMaterial> mat, const glm::vec3& pos, const glm::quat& rot)
@@ -125,7 +125,7 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxCapsuleGeometry(radius, halfHeight), *mat->GetPhysXmat());
 
         SetRelativeTransform(pos, rot);
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     // --------------------------------------------- Mesh Collider ------------------------------------------------------------------//
@@ -169,7 +169,7 @@ namespace Albedo {
 
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxTriangleMeshGeometry(triMesh), *mat->GetPhysXmat());
         triMesh->release();
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     MeshCollider::MeshCollider(RigidBodyStaticComponent* body, Ref<Mesh> meshAsset, Ref<PhysicsMaterial> mat)
@@ -211,7 +211,7 @@ namespace Albedo {
 
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxTriangleMeshGeometry(triMesh), *mat->GetPhysXmat());
         triMesh->release();
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     // --------------------------------------------- Convex Mesh Collider ------------------------------------------------------------------//
@@ -242,7 +242,7 @@ namespace Albedo {
         physx::PxConvexMesh* convMesh = PhysicsSolver::cooking->createConvexMesh(meshDesc, PhysicsSolver::phys->getPhysicsInsertionCallback());
         
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxConvexMeshGeometry(convMesh), *mat->GetPhysXmat());
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     ConvexMeshCollider::ConvexMeshCollider(RigidBodyStaticComponent* body, Ref<Mesh> meshAsset, Ref<PhysicsMaterial> mat) 
@@ -271,7 +271,7 @@ namespace Albedo {
         physx::PxConvexMesh* convMesh = PhysicsSolver::cooking->createConvexMesh(meshDesc, PhysicsSolver::phys->getPhysicsInsertionCallback());
 
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxConvexMeshGeometry(convMesh), *mat->GetPhysXmat());
-        //UpdateFilterData(body);
+        UpdateFilterData(body);
     }
 
     //Transformation PhysicsCollider::GetRelativeTransform() const {

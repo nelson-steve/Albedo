@@ -142,9 +142,9 @@ namespace Albedo {
 			Static
 		};
 
-		float staticFriction = 0;
-		float dynamicFriction = 0;
-		float restitution = 0;
+		float staticFriction = 0.1;
+		float dynamicFriction = 0.1;
+		float restitution = 0.1;
 
 		// Rigid Body
 		BodyType bodyType = BodyType::Static;
@@ -153,6 +153,9 @@ namespace Albedo {
 		glm::vec3 Force = glm::vec3(0.0);
 		glm::vec3 Velocity = glm::vec3(0.0, 0.0, 0.0);
 		float Mass = 1;
+
+		//states
+		bool enableGravity = false;
 		
 		float SphereColliderRadius = 1.0f;
 
@@ -176,6 +179,7 @@ namespace Albedo {
 
 		ColliderType colliderType = ColliderType::Box;
 		glm::vec3 ColliderPosition = glm::vec3(0.0);
+		float ColliderRadius = 1;
 		glm::vec3 ColliderSize = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::quat ColliderOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
 		
@@ -242,9 +246,6 @@ namespace Albedo {
 	};
 
 	using AllComponents =
-		ComponentGroup<TransformComponent, SpriteRendererComponent,
-		NativeScriptComponent, CameraComponent, ScriptComponent>;
-		//CircleRendererComponent, Rigidbody2DComponent, BoxCollider2DComponent,
-		//CircleCollider2DComponent>;
+		ComponentGroup<MeshComponent, TransformComponent, PhysicsComponent, ColliderComponent, TagComponent, ShaderComponent>;
 
 }

@@ -1,0 +1,117 @@
+Scene: Untitled
+Entities:
+  - Entity: 3
+    TagComponent:
+      Tag: Sphere
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: Mesh
+        Path: Assets/models/sphere/sphere_wrong_tangents.obj
+    TextureComponent:
+      Texture:
+        Path: Assets/Models/suzanne/albedo.png
+    ShaderComponent:
+      Shader:
+        Path: Assets/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, 400, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      Body Position: [0, 400, 0]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 1
+      Body Type: 1
+  - Entity: 2
+    TagComponent:
+      Tag: Plane
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: Mesh
+        Path: Assets\Models\chess\board\board.obj
+    TextureComponent:
+      Texture:
+        Path: Assets\Models\chess\board\albedo.png
+    ShaderComponent:
+      Shader:
+        Path: Assets/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [5.88546038, 5.88546038, 5.88546038]
+    PhysicsComponent:
+      Body Position: [0, 0, 0]
+      Body Orientation: [0, 0, -0.00178085256]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 0
+      Body Type: 0
+    ColliderComponent:
+      Collider Position: [0, 0, 0]
+      Collider Size: [43.9000015, 0.800000012, 47.0999985]
+      Collider Orientation: [0, 0, 0]
+      Collider Type: 0
+  - Entity: 1
+    TagComponent:
+      Tag: box
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: Mesh
+        Path: Assets/models/suzanne/suzanne.obj
+    TextureComponent:
+      Texture:
+        Path: Assets\Models\suzanne\albedo.png
+    ShaderComponent:
+      Shader:
+        Path: Assets/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, 18, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      Body Position: [0, 18, 0]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 0
+      Body Type: 0
+    ColliderComponent:
+      Collider Position: [0, 18, 0]
+      Collider Size: [1, 1, 1]
+      Collider Orientation: [0, 0, 0]
+      Collider Type: 0
+  - Entity: 0
+    TagComponent:
+      Tag: Default Entity
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: Mesh
+        Path: Assets/models/suzanne/suzanne.obj
+    TextureComponent:
+      Texture:
+        Path: Assets\Models\suzanne\albedo.png
+    ShaderComponent:
+      Shader:
+        Path: Assets/ModelShader.glsl
+    TransformComponent:
+      Translation: [-1.5, 12.3000002, -0.100000001]
+      Rotation: [0, 0, 0]
+      Scale: [2.73000002, 2.73000002, 2.73000002]
+    PhysicsComponent:
+      Body Position: [-1.5, 12.3000002, -0.100000001]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 0
+      Body Type: 0
+    ColliderComponent:
+      Collider Position: [-1.5, 12.3000002, -0.100000001]
+      Collider Size: [6, 3.5, 2.9000001]
+      Collider Orientation: [0, 0, 0]
+      Collider Type: 0

@@ -30,7 +30,6 @@ namespace Albedo {
 		std::string m_CurrentTexture = "Albedo";
 		std::string m_CurrentPhysicsType = "Static";
 		std::string m_CurrentColliderType = "Sphere";
-		bool m_PhysicsEnabled;
 		float offset = 0;
 		Ref<Texture2D> m_MeshIcon;
 		Ref<Scene> m_Context;

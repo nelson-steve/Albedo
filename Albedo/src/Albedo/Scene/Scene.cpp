@@ -19,10 +19,15 @@ namespace Albedo {
 
 	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
-	static Ref<PhysicsSolver> m_PhysicsSolver = std::make_shared<PhysicsSolver>();
+
+	Scene::Scene()
+	{
+	}
 
 	void Scene::InitScene()
 	{
+		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
+	
 		m_PhysicsSolver->Init();
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
@@ -30,29 +35,75 @@ namespace Albedo {
 
 		m_Collider->InitMesh(-1);
 
-		auto view = m_Registry.view<PhysicsComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent>();
 
 		for (auto entity : view)
 		{
-			//if(view.get<PhysicsComponent>(entity).dirty)
-			//	view.get<PhysicsComponent>(entity).Create();
+			auto& phy = view.get<PhysicsComponent>(entity);
+			phy.physicsMaterial = std::make_shared<PhysicsMaterial>
+				(phy.staticFriction, phy.dynamicFriction, phy.restitution);
+
+			if (phy.bodyType == phy.BodyType::Static)
+			{
+				phy.staticBody = std::make_shared<RigidBodyStaticComponent>
+					(phy.BodyPosition, phy.BodyOrientation);
+			}
+
+			else if (phy.bodyType == phy.BodyType::Dynamic)
+			{
+				phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
+					(phy.BodyPosition, phy.BodyOrientation, phy.Mass);
+				phy.dynamicBody->DisableGravity(phy.enableGravity);
+			}
+
+			auto& col = view.get<ColliderComponent>(entity);
+			if (col.colliderType == col.ColliderType::Box)
+			{
+				if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
+				{
+					col.collider = std::make_shared<BoxCollider>
+						(phy.staticBody.get(), col.ColliderSize,
+							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
+					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+				}
+
+				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
+				{
+					col.collider = std::make_shared<BoxCollider>
+						(phy.dynamicBody.get(), col.ColliderSize,
+							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
+					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+				}
+			}
+			else if (col.colliderType == col.ColliderType::Sphere)
+			{
+				if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
+				{
+					col.collider = std::make_shared<SphereCollider>
+						(phy.staticBody.get(), col.ColliderRadius,
+							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
+					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+				}
+
+				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
+				{
+					col.collider = std::make_shared<SphereCollider>
+						(phy.dynamicBody.get(), col.ColliderRadius,
+							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
+					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+				}
+			}
+			else if (col.colliderType == col.ColliderType::ConvexMesh)
+			{
+				Albedo_Core_ERROR("ConvexMesh not implemented yet");
+			}
+			else if (col.colliderType == col.ColliderType::Mesh)
+			{
+				Albedo_Core_ERROR("Mesh not implemented yet");
+			}
 		}
 
 		Renderer::Init(m_Registry);
-	}
-
-	void Scene::ReInitScene()
-	{
-		auto view = m_Registry.view<PhysicsComponent>();
-
-		for (auto entity : view)
-		{
-			//if (view.get<PhysicsComponent>(entity).dirty)
-			//{
-			//	view.get<PhysicsComponent>(entity).Create();
-			//	view.get<PhysicsComponent>(entity).dirty = false;
-			//}
-		}
 	}
 
 	Entity Scene::CreateEntity(const std::string& name)
@@ -62,8 +113,6 @@ namespace Albedo {
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg"));
-		//entity.AddComponent<ColliderComponent>().collider = std::make_shared<BoxCollider>();
-		//entity.GetComponent<ColliderComponent>().collider->SetType(Type::BoxAABB);
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -78,13 +127,30 @@ namespace Albedo {
 	{
 		////TODO:: Fix copying the scene
 		//
-		//Ref<Scene> newScene = std::make_shared<Scene>();
+		Ref<Scene> newScene = std::make_shared<Scene>();
 		//
-		//newScene->m_ViewportWidth = other->m_ViewportWidth;
-		//newScene->m_ViewportHeight = other->m_ViewportHeight;
+		newScene->m_ViewportWidth = other->m_ViewportWidth;
+		newScene->m_ViewportHeight = other->m_ViewportHeight;
+
+		newScene->m_PhysicsSolver = other->m_PhysicsSolver;
 		//
-		//auto& srcSceneRegistry = other->m_Registry;
-		//auto& dstSceneRegistry = newScene->m_Registry;
+		auto& srcSceneRegistry = other->m_Registry;
+		auto& dstSceneRegistry = newScene->m_Registry;
+
+		dstSceneRegistry.assign(srcSceneRegistry.data(), srcSceneRegistry.data() + srcSceneRegistry.size(), srcSceneRegistry.released());
+
+		//auto view = srcSceneRegistry.view<AllComponents>();
+		//dstSceneRegistry.insert(view.begin(), view.end(), view.storage());
+
+		//srcSceneRegistry.each([&](auto entityID)
+		//	{
+		//		bool exist = srcSceneRegistry.all_of<AllComponents>(entityID);
+		//		//Entity entity{ entityID , this };
+		//		dstSceneRegistry.create(entityID) =  srcSceneRegistry.get<AllComponents>(entityID);
+		//		
+		//
+		//	});
+
 		//std::unordered_map<uint32_t, entt::entity> enttMap;
 		//
 		//// Create entities in new scene
@@ -100,7 +166,7 @@ namespace Albedo {
 		//// Copy components (except IDComponent and TagComponent)
 		//CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
 
-		return nullptr;
+		return newScene;
 	}
 
 	void Scene::Step(int frames)
@@ -163,20 +229,24 @@ namespace Albedo {
 		//m_PhysicsWorld->Update(ts);
 		m_PhysicsSolver->UpdatePhysics(ts);
 
-		auto view = m_Registry.view<TransformComponent, PhysicsComponent>();
+		auto view = m_Registry.view<TransformComponent, PhysicsComponent, ColliderComponent>();
+
 
 		for (auto entity : view)
 		{
+			auto& phy = view.get<PhysicsComponent>(entity);
+			auto& col = view.get<ColliderComponent>(entity);
+			auto& tra = view.get<TransformComponent>(entity);
 
-			if (view.get<PhysicsComponent>(entity).bodyType == view.get<PhysicsComponent>(entity).BodyType::Dynamic)
+			if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
 			{
-				auto p = view.get<PhysicsComponent>(entity).dynamicBody->GetRigidActor()->getGlobalPose().p;
-				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
+				auto p = phy.dynamicBody->GetRigidActor()->getGlobalPose().p;
+				tra.AddTranform(glm::vec3(p.x, p.y, p.z));
 			}
-			else if (view.get<PhysicsComponent>(entity).bodyType == view.get<PhysicsComponent>(entity).BodyType::Static)
+			else if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
 			{
-				auto p = view.get<PhysicsComponent>(entity).staticBody->GetRigidActor()->getGlobalPose().p;
-				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
+				auto p = phy.staticBody->GetRigidActor()->getGlobalPose().p;
+				tra.AddTranform(glm::vec3(p.x, p.y, p.z));
 			}
 			else
 				Albedo_Core_ERROR("Invalid Body Type");

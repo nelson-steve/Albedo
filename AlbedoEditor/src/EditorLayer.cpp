@@ -52,6 +52,7 @@ namespace Albedo {
 			suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh.GetComponent<PhysicsComponent>().BodyPosition = pos;
 			suzanneMesh.GetComponent<PhysicsComponent>().Mass = 1.0f;
+			suzanneMesh.AddComponent<ColliderComponent>();
 			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 		}
 #endif
@@ -77,12 +78,12 @@ namespace Albedo {
 			suzanneMesh1.GetComponent<ColliderComponent>().ColliderPosition = pos;
 			suzanneMesh1.GetComponent<ColliderComponent>().ColliderSize = size;
 	}
-
-		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
-		m_IconPause = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
 		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
-		m_IconStep = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
-		m_IconStop = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
+
+		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack1.png", false);
+		m_IconPause = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack1.png", false);
+		m_IconStep = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack1.png", false);
 
 		m_ActiveScene->InitScene();
 
@@ -176,6 +177,17 @@ namespace Albedo {
 		switch (m_SceneState)
 		{
 			case SceneState::Edit:
+			{
+				//Albedo_Core_INFO("Scene: Edit Mode");
+				if (m_ViewportFocused)
+					m_CameraController.OnUpdate(ts);
+
+				m_EditorCamera.OnUpdate(ts);
+
+				m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
+				break;
+			}
+			case SceneState::Simulate:
 			{
 				//Albedo_Core_INFO("Scene: Edit Mode");
 				if (m_ViewportFocused)
@@ -421,24 +433,24 @@ namespace Albedo {
 		float size = ImGui::GetWindowHeight() - 4.0f;
 		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
 
-		bool hasPlayButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play;
+		//bool hasPlayButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play;
 		bool hasSimulateButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate;
-		bool hasPauseButton = m_SceneState != SceneState::Edit;
+		//bool hasPauseButton = m_SceneState != SceneState::Edit;
 
-		if (hasPlayButton)
-		{
-			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate) ? m_IconPlay : m_IconStop;
-			if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-			{
-				if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
-					OnScenePlay();
-				else if (m_SceneState == SceneState::Play)
-					OnSceneStop();
-			}
-		}
+		//if (hasPlayButton)
+		//{
+		//	Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate) ? m_IconPlay : m_IconStop;
+		//	if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+		//	{
+		//		if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
+		//			OnScenePlay();
+		//		else if (m_SceneState == SceneState::Play)
+		//			OnSceneStop();
+		//	}
+		//}
 		if (hasSimulateButton)
 		{
-			if (hasPlayButton)
+			//if (hasPlayButton)
 				ImGui::SameLine();
 
 			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play) ? m_IconSimulate : m_IconStop;
@@ -450,32 +462,32 @@ namespace Albedo {
 					OnSceneStop();
 			}
 		}
-		if (hasPauseButton)
-		{
-			bool isPaused = m_ActiveScene->IsPaused();
-			ImGui::SameLine();
-			{
-				Ref<Texture2D> icon = m_IconPause;
-				if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-				{
-					m_ActiveScene->SetPaused(!isPaused);
-				}
-			}
-
-			// Step button
-			if (isPaused)
-			{
-				ImGui::SameLine();
-				{
-					Ref<Texture2D> icon = m_IconStep;
-					bool isPaused = m_ActiveScene->IsPaused();
-					if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-					{
-						m_ActiveScene->Step();
-					}
-				}
-			}
-		}
+		//if (hasPauseButton)
+		//{
+		//	bool isPaused = m_ActiveScene->IsPaused();
+		//	ImGui::SameLine();
+		//	{
+		//		Ref<Texture2D> icon = m_IconPause;
+		//		if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+		//		{
+		//			m_ActiveScene->SetPaused(!isPaused);
+		//		}
+		//	}
+		//
+		//	// Step button
+		//	if (isPaused)
+		//	{
+		//		ImGui::SameLine();
+		//		{
+		//			Ref<Texture2D> icon = m_IconStep;
+		//			bool isPaused = m_ActiveScene->IsPaused();
+		//			if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+		//			{
+		//				m_ActiveScene->Step();
+		//			}
+		//		}
+		//	}
+		//}
 
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(3);
@@ -614,6 +626,7 @@ namespace Albedo {
 	void EditorLayer::SaveSceneAs()
 	{
 		std::optional<std::string> filepath = FileDialogs::SaveFile("Albedo Scene (*.albedo)\0*.albedo\0");
+		
 		if (filepath)
 		{
 			SceneSerializer serializer(m_ActiveScene);
@@ -628,7 +641,7 @@ namespace Albedo {
 
 		m_SceneState = SceneState::Play;
 
-		m_ActiveScene = Scene::Copy(m_EditorScene);
+		m_EditorScene = Scene::Copy(m_ActiveScene);
 		m_ActiveScene->OnRuntimeStart();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
@@ -636,14 +649,21 @@ namespace Albedo {
 
 	void EditorLayer::OnSceneSimulate()
 	{
+		if (!savedScenePath.empty())
+		{
+			SceneSerializer serializer(m_ActiveScene);
+			serializer.Serialize(savedScenePath);
+		}
+
 		if (m_SceneState == SceneState::Play)
 			OnSceneStop();
 
+		m_ActiveScene->InitScene();
+
+		//m_EditorScene = Scene::Copy(m_ActiveScene);
+
 		m_SceneState = SceneState::Simulate;
-		Ref<Scene> s(std::make_shared<Scene>(*m_ActiveScene));
-		s = m_ActiveScene;
-		//m_ActiveScene = Scene::Copy(m_EditorScene);
-		m_EditorScene = s;
+
 		m_ActiveScene->OnSimulationStart();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
@@ -657,6 +677,19 @@ namespace Albedo {
 			m_ActiveScene->OnRuntimeStop();
 		else if (m_SceneState == SceneState::Simulate)
 			m_ActiveScene->OnSimulationStop();
+
+		Ref<Scene> newScene = std::make_shared<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(savedScenePath))
+		{
+			m_EditorScene = newScene;
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+			m_ActiveScene = m_EditorScene;
+		}
+
+		//m_ActiveScene = Scene::Copy(m_EditorScene);
+		m_ActiveScene->InitScene();
 
 		m_SceneState = SceneState::Edit;
 

@@ -16,10 +16,10 @@ namespace Albedo {
 	public:
 		RigidBodyDynamicComponent();
 		RigidBodyDynamicComponent(const glm::vec3& pos = glm::vec3(0.0f), const glm::quat& rot = glm::quat(), float mass = 1.0f);
-		~RigidBodyDynamicComponent();
 		void AddToScene();
 		const auto& GetScene() const { return rigidActor->getScene(); }
 
+		void DisableGravity(bool gravity);
 		void SetLinearVelocity(const glm::vec3& vel, bool autoWake);
 		void SetAngularVelocity(const glm::vec3& vel, bool autoWake);
 		void SetKinematicTarget(const glm::vec3& targetPos, const glm::quat& targetRot);

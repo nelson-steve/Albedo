@@ -410,7 +410,7 @@ namespace Albedo {
 					tc.ColliderPosition = colliderComponent["Collider Position"].as<glm::vec3>();
 					tc.ColliderSize = colliderComponent["Collider Size"].as<glm::vec3>();
 					tc.ColliderOrientation = colliderComponent["Collider Orientation"].as<glm::vec3>();
-					//tc.ColliderRadius = colliderComponent["Collider Radius"].as<float>();
+					//tc.ColliderRadius = physicsComponent["Collider Radius"].as<float>();
 
 					tc.colliderType = (ColliderComponent::ColliderType)colliderComponent["Collider Type"].as<uint32_t>();
 				}

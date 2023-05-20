@@ -16,10 +16,7 @@ namespace Albedo {
 	class Scene
 	{
 	public:
-		Scene() = default;
-		Scene(const Scene&) = default;
-		Scene& operator=(const Scene&) = default;
-
+		Scene();
 		static Ref<Scene> Copy(Ref<Scene> other);
 
 		void InitScene();
@@ -55,7 +52,9 @@ namespace Albedo {
 
 		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
-		//static Ref<PhysicsSolver> m_PhysicsSolver;
+
+		//TODO: make this private
+		Ref<PhysicsSolver> m_PhysicsSolver;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
