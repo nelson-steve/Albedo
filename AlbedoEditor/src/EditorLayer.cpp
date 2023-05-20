@@ -51,12 +51,6 @@ namespace Albedo {
 			//suzanneMesh.GetComponent<TransformComponent>().Scale = size;
 			suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 			suzanneMesh.GetComponent<PhysicsComponent>().BodyPosition = pos;
-			suzanneMesh.GetComponent<PhysicsComponent>().ColliderRadius = 1.0f;
-			//suzanneMesh.GetComponent<PhysicsComponent>().ColliderRadius = 20.0f;
-			suzanneMesh.GetComponent<PhysicsComponent>().ColliderSize = size;
-			suzanneMesh.GetComponent<PhysicsComponent>().ColliderPosition = pos;
-			suzanneMesh.GetComponent<PhysicsComponent>()._ColliderType = suzanneMesh.GetComponent<PhysicsComponent>().ColliderType::Box;
-			suzanneMesh.GetComponent<PhysicsComponent>()._BodyType = suzanneMesh.GetComponent<PhysicsComponent>().BodyType::Dynamic;
 			suzanneMesh.GetComponent<PhysicsComponent>().Mass = 1.0f;
 			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 		}
@@ -78,20 +72,17 @@ namespace Albedo {
 			suzanneMesh1.GetComponent<PhysicsComponent>();
 			suzanneMesh1.GetComponent<PhysicsComponent>().BodyPosition = pos;
 			suzanneMesh1.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
-			suzanneMesh1.GetComponent<PhysicsComponent>()._BodyType = suzanneMesh1.GetComponent<PhysicsComponent>().BodyType::Dynamic;
-			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderPosition = pos;
-			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderSize = size;
-			suzanneMesh1.GetComponent<PhysicsComponent>().ColliderOrientation = glm::quat(rot);
-			suzanneMesh1.GetComponent<PhysicsComponent>()._ColliderType = suzanneMesh1.GetComponent<PhysicsComponent>().ColliderType::Box;
-			suzanneMesh1.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 			suzanneMesh1.GetComponent<PhysicsComponent>().Mass = 0.f;
+			suzanneMesh1.AddComponent<ColliderComponent>();
+			suzanneMesh1.GetComponent<ColliderComponent>().ColliderPosition = pos;
+			suzanneMesh1.GetComponent<ColliderComponent>().ColliderSize = size;
 	}
 
-		m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png", false);
-		m_IconPause = Texture2D::Create("Resources/Icons/PauseButton.png", false);
-		m_IconSimulate = Texture2D::Create("Resources/Icons/SimulateButton.png", false);
-		m_IconStep = Texture2D::Create("Resources/Icons/StepButton.png", false);
-		m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png", false);
+		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconPause = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconStep = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconStop = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
 
 		m_ActiveScene->InitScene();
 
@@ -649,8 +640,10 @@ namespace Albedo {
 			OnSceneStop();
 
 		m_SceneState = SceneState::Simulate;
-
-		m_ActiveScene = Scene::Copy(m_EditorScene);
+		Ref<Scene> s(std::make_shared<Scene>(*m_ActiveScene));
+		s = m_ActiveScene;
+		//m_ActiveScene = Scene::Copy(m_EditorScene);
+		m_EditorScene = s;
 		m_ActiveScene->OnSimulationStart();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);

@@ -193,20 +193,27 @@ namespace Albedo {
 			out << YAML::Key << "Force" << YAML::Value << tc.Force;
 			out << YAML::Key << "Velocity" << YAML::Value << tc.Velocity;
 			out << YAML::Key << "Mass" << YAML::Value << tc.Mass;
-			
-			
+		
+			out << YAML::Key << "Body Type" << YAML::Value << tc.bodyType;
+
+			out << YAML::EndMap; // PhysicsComponent
+		}
+
+		if (entity.HasComponent<ColliderComponent>())
+		{
+			out << YAML::Key << "ColliderComponent";
+			out << YAML::BeginMap; // ColliderComponent
+
+			auto& tc = entity.GetComponent<ColliderComponent>();
+
 			out << YAML::Key << "Collider Position" << YAML::Value << tc.ColliderPosition;
 			out << YAML::Key << "Collider Size" << YAML::Value << tc.ColliderSize;
 			out << YAML::Key << "Collider Orientation" << YAML::Value << glm::vec3(tc.ColliderOrientation.x, tc.ColliderOrientation.y, tc.ColliderOrientation.z);
-			out << YAML::Key << "Collider Radius" << YAML::Value << tc.ColliderRadius;
+			//out << YAML::Key << "Collider Radius" << YAML::Value << tc.ColliderRadius;
 
-			out << YAML::Key << "Dirty" << YAML::Value << true;
-			out << YAML::Key << "Physics Enabled" << YAML::Value << tc.PhysicsEnabled;
+			out << YAML::Key << "Collider Type" << YAML::Value << tc.colliderType;
 
-			out << YAML::Key << "Body Type" << YAML::Value << tc._BodyType;
-			out << YAML::Key << "Collider Type" << YAML::Value << tc._ColliderType;
-
-			out << YAML::EndMap; // PhysicsComponent
+			out << YAML::EndMap; // ColliderComponent
 		}
 
 		if (entity.HasComponent<ScriptComponent>())
@@ -391,15 +398,21 @@ namespace Albedo {
 					tc.Velocity = physicsComponent["Velocity"].as<glm::vec3>();
 					tc.Mass = physicsComponent["Mass"].as<float>();
 
-					tc.ColliderPosition = physicsComponent["Collider Position"].as<glm::vec3>();
-					tc.ColliderSize = physicsComponent["Collider Size"].as<glm::vec3>();
-					tc.ColliderOrientation = physicsComponent["Collider Orientation"].as<glm::vec3>();
-					tc.ColliderRadius = physicsComponent["Collider Radius"].as<float>();
+					tc.bodyType = (PhysicsComponent::BodyType)physicsComponent["Body Type"].as<uint32_t>();
+				}
 
-					tc.dirty = physicsComponent["Dirty"].as<bool>();
-					tc.PhysicsEnabled = physicsComponent["Physics Enabled"].as<bool>();
-					tc._BodyType = (PhysicsComponent::BodyType)physicsComponent["Body Type"].as<uint32_t>();
-					tc._ColliderType = (PhysicsComponent::ColliderType)physicsComponent["Collider Type"].as<uint32_t>();
+				auto colliderComponent = entity["ColliderComponent"];
+				if (colliderComponent)
+				{
+					// Entities always have transforms
+					auto& tc = deserializedEntity.AddComponent<ColliderComponent>();
+
+					tc.ColliderPosition = colliderComponent["Collider Position"].as<glm::vec3>();
+					tc.ColliderSize = colliderComponent["Collider Size"].as<glm::vec3>();
+					tc.ColliderOrientation = colliderComponent["Collider Orientation"].as<glm::vec3>();
+					//tc.ColliderRadius = colliderComponent["Collider Radius"].as<float>();
+
+					tc.colliderType = (ColliderComponent::ColliderType)colliderComponent["Collider Type"].as<uint32_t>();
 				}
 
 				auto scriptComponent = entity["ScriptComponent"];

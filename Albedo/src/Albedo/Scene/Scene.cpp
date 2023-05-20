@@ -19,10 +19,7 @@ namespace Albedo {
 
 	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
-	Scene::Scene()
-	{
-		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
-	}
+	static Ref<PhysicsSolver> m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 
 	void Scene::InitScene()
 	{
@@ -37,8 +34,8 @@ namespace Albedo {
 
 		for (auto entity : view)
 		{
-			if(view.get<PhysicsComponent>(entity).dirty)
-				view.get<PhysicsComponent>(entity).Create();
+			//if(view.get<PhysicsComponent>(entity).dirty)
+			//	view.get<PhysicsComponent>(entity).Create();
 		}
 
 		Renderer::Init(m_Registry);
@@ -50,11 +47,11 @@ namespace Albedo {
 
 		for (auto entity : view)
 		{
-			if (view.get<PhysicsComponent>(entity).dirty)
-			{
-				view.get<PhysicsComponent>(entity).Create();
-				view.get<PhysicsComponent>(entity).dirty = false;
-			}
+			//if (view.get<PhysicsComponent>(entity).dirty)
+			//{
+			//	view.get<PhysicsComponent>(entity).Create();
+			//	view.get<PhysicsComponent>(entity).dirty = false;
+			//}
 		}
 	}
 
@@ -79,8 +76,8 @@ namespace Albedo {
 
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
 	{
-		//TODO:: Fix copying the scene
-		
+		////TODO:: Fix copying the scene
+		//
 		//Ref<Scene> newScene = std::make_shared<Scene>();
 		//
 		//newScene->m_ViewportWidth = other->m_ViewportWidth;
@@ -142,13 +139,13 @@ namespace Albedo {
 
 	void Scene::OnSimulationStart()
 	{
-		//TODO: get Timestep here somehow
+		m_IsSimulating = true;
 		//OnUpdatePhysics(ts);
 	}
 
 	void Scene::OnSimulationStop()
 	{
-		//OnPhysics2DStop();
+		m_IsSimulating = false;
 	}
 
 	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
@@ -171,12 +168,12 @@ namespace Albedo {
 		for (auto entity : view)
 		{
 
-			if (view.get<PhysicsComponent>(entity)._BodyType == view.get<PhysicsComponent>(entity).BodyType::Dynamic)
+			if (view.get<PhysicsComponent>(entity).bodyType == view.get<PhysicsComponent>(entity).BodyType::Dynamic)
 			{
 				auto p = view.get<PhysicsComponent>(entity).dynamicBody->GetRigidActor()->getGlobalPose().p;
 				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
 			}
-			else if (view.get<PhysicsComponent>(entity)._BodyType == view.get<PhysicsComponent>(entity).BodyType::Static)
+			else if (view.get<PhysicsComponent>(entity).bodyType == view.get<PhysicsComponent>(entity).BodyType::Static)
 			{
 				auto p = view.get<PhysicsComponent>(entity).staticBody->GetRigidActor()->getGlobalPose().p;
 				view.get<TransformComponent>(entity).AddTranform(glm::vec3(p.x, p.y, p.z));
@@ -204,7 +201,6 @@ namespace Albedo {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		ReInitScene();
 		OnUpdatePhysics(ts);
 
 		// Update scripts
@@ -274,15 +270,16 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		ReInitScene();
+		if(m_IsSimulating)
+			OnUpdatePhysics(ts);
 
-		auto view = m_Registry.view<PhysicsComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
 
 		for (auto& entity : view)
 		{
 			auto& pos = view.get<TransformComponent>(entity).Position;
 			view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			view.get<PhysicsComponent>(entity).ColliderPosition = pos;
+			view.get<ColliderComponent>(entity).ColliderPosition = pos;
 			auto& mesh = view.get<MeshComponent>(entity);
 			if (mesh.m_Mesh->GetInitializationStatus())
 				InitScene();
@@ -297,8 +294,9 @@ namespace Albedo {
 		for (auto& entity : view)
 		{
 			auto& phy = view.get<PhysicsComponent>(entity);
+			auto& col = view.get<ColliderComponent>(entity);
 
-			m_Transform = glm::translate(glm::mat4(1.0f), phy.ColliderPosition) * glm::scale(glm::mat4(1.0f), phy.ColliderSize);
+			m_Transform = glm::translate(glm::mat4(1.0f), col.ColliderPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
 			glm::vec3 offset = glm::vec3(2.0);
 			m_Transform = glm::scale(m_Transform, offset);
 			{

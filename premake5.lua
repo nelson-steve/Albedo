@@ -254,6 +254,7 @@ project "Sandbox"
 		"Albedo/src",
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.entt}"

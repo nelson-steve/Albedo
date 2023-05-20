@@ -71,13 +71,13 @@ namespace Albedo {
 				e.GetComponent<PhysicsComponent>();
 				e.GetComponent<PhysicsComponent>().BodyPosition = pos;
 				e.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
-				e.GetComponent<PhysicsComponent>()._BodyType = e.GetComponent<PhysicsComponent>().BodyType::Static;
-				e.GetComponent<PhysicsComponent>().ColliderPosition = pos;
-				e.GetComponent<PhysicsComponent>().ColliderSize = size;
-				e.GetComponent<PhysicsComponent>().ColliderOrientation = glm::quat(rot);
-				e.GetComponent<PhysicsComponent>()._ColliderType = e.GetComponent<PhysicsComponent>().ColliderType::Box;
-				e.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
+				e.GetComponent<PhysicsComponent>().bodyType = e.GetComponent<PhysicsComponent>().BodyType::Static;
 				e.GetComponent<PhysicsComponent>().Mass = 0.f;
+				e.AddComponent<ColliderComponent>();
+				e.GetComponent<ColliderComponent>().ColliderPosition = pos;
+				e.GetComponent<ColliderComponent>().ColliderSize = size;
+				e.GetComponent<ColliderComponent>().ColliderOrientation = glm::quat(rot);
+				e.GetComponent<ColliderComponent>().colliderType = e.GetComponent<ColliderComponent>().ColliderType::Box;
 
 				m_SelectionContext = e;
 			}
@@ -552,15 +552,22 @@ namespace Albedo {
 						bool is_selected = (m_CurrentPhysicsType == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
+							component.physicsMaterial = std::make_shared<PhysicsMaterial>
+								(component.staticFriction, component.dynamicFriction, component.restitution);
+
 							m_CurrentPhysicsType = items[n];
 							m_CurrentShader = items[n];
 							switch (n)
 							{
 							case 0: // Static
-								component._BodyType = component.BodyType::Static;
+								component.staticBody = std::make_shared<RigidBodyStaticComponent>
+									(component.BodyPosition, component.BodyOrientation);
+								component.bodyType = component.BodyType::Static;
 								break;
 							case 1: // Dynamic
-								component._BodyType = component.BodyType::Dynamic;
+								component.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
+									(component.BodyPosition, component.BodyOrientation, component.Mass);
+								component.bodyType = component.BodyType::Dynamic;
 								break;
 							default:
 								break;
@@ -571,10 +578,14 @@ namespace Albedo {
 					}
 					ImGui::EndCombo();
 				}
+				ImGui::Separator();
+			});
 
+		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
+			{
 				ImGui::Text("Collider Type");
 				ImGui::SameLine();
-				std::string items2[] = { "Box", "Sphere", "Mesh", "ConvexMesh" };
+				std::string items[] = { "Box", "Sphere", "Mesh", "ConvexMesh" };
 				if (ImGui::BeginCombo("##collider", m_CurrentColliderType.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
@@ -582,21 +593,36 @@ namespace Albedo {
 						bool is_selected = (m_CurrentColliderType == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
+							auto& e = entity.GetComponent<PhysicsComponent>();
 							m_CurrentColliderType = items[n];
 							m_CurrentShader = items[n];
 							switch (n)
 							{
 							case 0: // Box
-								component._ColliderType = component.ColliderType::Box;
+							{
+								if (e.bodyType == e.BodyType::Static && e.staticBody)
+								{
+									component.collider = std::make_shared<BoxCollider>
+										(e.staticBody.get(), component.ColliderSize,
+											e.physicsMaterial, component.ColliderPosition, component.ColliderOrientation);
+								}
+								else if (e.bodyType == e.BodyType::Dynamic && e.dynamicBody)
+								{
+									component.collider = std::make_shared<BoxCollider>
+										(e.dynamicBody.get(), component.ColliderSize,
+											e.physicsMaterial, component.ColliderPosition, component.ColliderOrientation);
+								}
+								component.colliderType = component.ColliderType::Box;
 								break;
+							}
 							case 1: // Sphere
-								component._ColliderType = component.ColliderType::Sphere;
+								component.colliderType = component.ColliderType::Sphere;
 								break;
 							case 2: // Mesh
-								component._ColliderType = component.ColliderType::Mesh;
+								component.colliderType = component.ColliderType::Mesh;
 								break;
 							case 3: // Convex Mesh
-								component._ColliderType = component.ColliderType::ConvexMesh;
+								component.colliderType = component.ColliderType::ConvexMesh;
 								break;
 							default:
 								break;
@@ -610,11 +636,6 @@ namespace Albedo {
 				ImGui::Separator();
 				//DrawVec3Control("Rotation", g, 0, 70);
 				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
-				ImGui::Separator();
-				if (ImGui::Button("Initialize", ImVec2{ 50.0f, 15.0f }))
-				{
-					component.dirty = true;
-				}
 			});
 
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
