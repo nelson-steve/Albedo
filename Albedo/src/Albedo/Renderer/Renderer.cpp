@@ -54,9 +54,15 @@ namespace Albedo {
 		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
 
-		int i = 0;
-		for (auto& it : texture.m_Textures) {
-			it.second->Bind(i++);
+		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
+			texture.m_DefaultTexture->Bind();
+		else if(texture.m_Textures.bucket_count() <= 5)
+		{
+			int i = 0;
+			for (auto& it : texture.m_Textures) {
+				if (it.second)
+					it.second->Bind(it.first);
+			}
 		}
 
 		//scnObj->GetShader()->SetUniformInt1("u_DiffuseMap", 0);
@@ -78,9 +84,15 @@ namespace Albedo {
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetProjectionView());
 		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
-		int i = 0;
-		for (auto& it : texture.m_Textures) {
-			it.second->Bind(i++);
+		if (texture.m_Textures.empty() || texture.defaultTexture)
+			texture.m_DefaultTexture->Bind();
+		else
+		{
+			int i = 0;
+			for (auto& it : texture.m_Textures) {
+				if (it.second)
+					it.second->Bind(it.first);
+			}
 		}
 	}
 

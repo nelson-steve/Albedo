@@ -140,8 +140,8 @@ namespace Albedo {
         physx::PxMaterial* terrainMaterial;
         terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
 
-        //physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 0), *terrainMaterial);
-        //scene->addActor(*groundPlane);
+        physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 30), *terrainMaterial);
+        scene->addActor(*groundPlane);
         scene->setGravity(physx::PxVec3{0.0, -1.0, 0.0});
     }
 

@@ -85,11 +85,11 @@ Entities:
       Shader:
         Path: Assets/ModelShader.glsl
     TransformComponent:
-      Translation: [0, 9.69999981, 0]
+      Translation: [0, -11.1999998, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     PhysicsComponent:
-      Body Position: [0, 9.69999981, 0]
+      Body Position: [0, -11.1999998, 0]
       Body Orientation: [0, 0, 0]
       Force: [0, 0, 0]
       Velocity: [0, 0, 0]
@@ -100,7 +100,7 @@ Entities:
       Dynamic Friction: 0.00499999989
       Body Type: 0
     ColliderComponent:
-      Collider Position: [0, 9.69999981, 0]
+      Collider Position: [0, -11.1999998, 0]
       Collider Size: [7.30000019, 5.5, 9.89999962]
       Collider Orientation: [0, 0, 0]
       Collider Radius: 1
@@ -120,11 +120,11 @@ Entities:
       Shader:
         Path: Assets/ModelShader.glsl
     TransformComponent:
-      Translation: [0, 10.3000002, 0]
+      Translation: [0, 23.7000008, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     PhysicsComponent:
-      Body Position: [0, 10.3000002, 0]
+      Body Position: [0, 23.7000008, 0]
       Body Orientation: [0, 0, 0]
       Force: [0, 0, 0]
       Velocity: [0, 0, 0]
@@ -135,7 +135,7 @@ Entities:
       Dynamic Friction: 0.00499999989
       Body Type: 1
     ColliderComponent:
-      Collider Position: [0, 10.3000002, 0]
+      Collider Position: [0, 23.7000008, 0]
       Collider Size: [9.60000038, 7.19999981, 9.10000038]
       Collider Orientation: [0, 0, 0]
       Collider Radius: 1

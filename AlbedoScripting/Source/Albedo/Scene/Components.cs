@@ -43,4 +43,38 @@ namespace Albedo
         
     }
 
+    public class MeshComponent : Component
+    {
+
+    }
+
+    public class PhysicsComponent : Component
+    {
+
+    }
+
+    public class TagComponent : Component
+    {
+
+    }
+
+    public class ShaderComponent : Component
+    {
+
+    }
+
+    public class ColliderComponent : Component
+    {
+
+    }
+
+    public class TextureComponent : Component
+    {
+
+    }
+
+    public class MaterialComponent : Component
+    {
+
+    }
 }

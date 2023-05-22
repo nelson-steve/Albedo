@@ -45,7 +45,7 @@ namespace Albedo {
 		{
 			Albedo = 0,
 			AmbientOcclusion, 
-			Metallic, 
+			Metallic,
 			Normal,
 			Roughness
 		};
@@ -53,9 +53,11 @@ namespace Albedo {
 		void AddTexture(const Ref<Texture2D>  texture)
 		{
 			m_Textures[type] = texture;
+			defaultTexture = false;
 		}
 		TextureType type;
-		Ref<Texture2D> m_Texture;
+		Ref<Texture2D> m_DefaultTexture;
+		bool defaultTexture = true;
 		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
 		TextureComponent() = default;
 		TextureComponent(const TextureComponent&) = default;
@@ -253,6 +255,7 @@ namespace Albedo {
 	};
 
 	using AllComponents =
-		ComponentGroup<MeshComponent, TransformComponent, PhysicsComponent, ColliderComponent, TagComponent, ShaderComponent>;
+		ComponentGroup<MeshComponent, TransformComponent, PhysicsComponent, 
+		ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent>;
 
 }
