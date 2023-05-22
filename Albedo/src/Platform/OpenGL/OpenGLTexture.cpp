@@ -74,7 +74,7 @@ namespace Albedo {
 		}
 		else
 		{
-			Albedo_Core_WARN("Failed to load texture");
+			Albedo_Core_WARN("Failed to load texture: {}", path);
 		}
 		//stbi_image_free(data);
 
@@ -86,6 +86,7 @@ namespace Albedo {
 		//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
+		//this->Unbind();
 		#else
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);

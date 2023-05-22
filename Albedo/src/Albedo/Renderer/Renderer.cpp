@@ -10,7 +10,7 @@ namespace Albedo {
 
 	void Renderer::Init(const entt::registry& reg)
 	{
-		auto group = reg.view<MeshComponent>();
+		auto group = reg.view<MeshComponent, ShaderComponent>();
 
 		
 		for (auto view : group)
@@ -20,6 +20,18 @@ namespace Albedo {
 				group.get<MeshComponent>(view).m_Mesh->InitMesh(group.get<MeshComponent>(view).ID);
 				group.get<MeshComponent>(view).m_Mesh->SetInitializationStatus(false);
 			}
+		}
+
+		for (auto view : group)
+		{
+			auto& shader = group.get<ShaderComponent>(view);
+			shader.m_Shader->Bind();
+			shader.m_Shader->SetUniformInt1("u_Default", 0);
+			shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
+			shader.m_Shader->SetUniformInt1("u_AOMap", 2);
+			shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
+			shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
+			shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
 		}
 
 	}
@@ -51,12 +63,13 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
+		shader.m_Shader->SetUniformInt1("u_DefaultTexture", (int)texture.defaultTexture);
+		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
 
 		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
 			texture.m_DefaultTexture->Bind();
-		else if(texture.m_Textures.bucket_count() <= 5)
+		else if(texture.m_Textures.size() <= 5)
 		{
 			int i = 0;
 			for (auto& it : texture.m_Textures) {
@@ -64,6 +77,7 @@ namespace Albedo {
 					it.second->Bind(it.first);
 			}
 		}
+		
 
 		//scnObj->GetShader()->SetUniformInt1("u_DiffuseMap", 0);
 		//scnObj->GetShader()->SetUniformInt1("u_AOMap", 1);
@@ -82,11 +96,16 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetProjectionView());
-		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
+		shader.m_Shader->SetUniformInt1("u_Default", 0);
+		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
+		shader.m_Shader->SetUniformInt1("u_AOMap", 2);
+		shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
+		shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
+		shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
 
-		if (texture.m_Textures.empty() || texture.defaultTexture)
+		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
 			texture.m_DefaultTexture->Bind();
-		else
+		else if (texture.m_Textures.size() <= 5)
 		{
 			int i = 0;
 			for (auto& it : texture.m_Textures) {
@@ -101,6 +120,7 @@ namespace Albedo {
 		shader->Bind();
 		shader->SetUniformMat4("u_Transform", transform);
 		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader->SetUniformInt1("u_Default", 0);
 	}
 
 	void Renderer::RenderOverlay(const Ref<Mesh> mesh)

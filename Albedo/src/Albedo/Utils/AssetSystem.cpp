@@ -158,7 +158,7 @@ namespace Albedo {
 			m_Meshes[0] = std::make_shared<Mesh>();
 			m_Meshes[0]->SetDataSingularityStatus(true);
 			m_Meshes[0]->SetName("Default Cube");
-			m_Meshes[0]->SetSingularMeshData(triangleVertices);
+			m_Meshes[0]->SetSingularMeshData(cubeVertices);
 			m_Meshes[0]->SetVerticesDataLayout
 			({
 				{ShaderDataType::Float3, "a_Position"},

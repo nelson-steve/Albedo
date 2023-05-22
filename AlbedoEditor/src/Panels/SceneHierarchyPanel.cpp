@@ -57,9 +57,9 @@ namespace Albedo {
 			{
 				Entity e = m_Context->CreateEntity("Default Entity");
 
-				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
-				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzann/albedo.png"));
-				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+				//e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
+				//e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzann/albedo.png"));
+				//e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
 				e.AddComponent<PhysicsComponent>();
 				glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 				glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);

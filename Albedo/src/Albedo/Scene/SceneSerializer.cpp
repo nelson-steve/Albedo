@@ -143,8 +143,18 @@ namespace Albedo {
 
 			out << YAML::Key << "Texture" << YAML::Value;
 			out << YAML::BeginMap;
-			out << YAML::Key << "Path" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+			
+			out << YAML::Key << "Default Texture" << YAML::Value << tc.m_Textures[tc.TextureType::Default]->GetPath();
+		
+			out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+			out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
+			out << YAML::Key << "Metallic" << YAML::Value << tc.m_Textures[tc.TextureType::Metallic]->GetPath();
+			out << YAML::Key << "Normal" << YAML::Value << tc.m_Textures[tc.TextureType::Normal]->GetPath();
+			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
+			
 			out << YAML::EndMap;
+
+			out << YAML::Key << "isDefault" << YAML::Value << tc.defaultTexture;
 
 			out << YAML::EndMap;
 		}
@@ -197,7 +207,6 @@ namespace Albedo {
 			out << YAML::Key << "Restitution" << YAML::Value << tc.restitution;
 			out << YAML::Key << "Static Friction" << YAML::Value << tc.staticFriction;
 			out << YAML::Key << "Dynamic Friction" << YAML::Value << tc.dynamicFriction;
-			
 			
 			out << YAML::Key << "Body Type" << YAML::Value << tc.bodyType;
 
@@ -363,9 +372,24 @@ namespace Albedo {
 				auto textureComponent = entity["TextureComponent"];
 				if (textureComponent)
 				{
+					auto& tc = deserializedEntity.AddComponent<TextureComponent>();
+
 					auto& texture = textureComponent["Texture"];
-					std::string& path = texture["Path"].as<std::string>();
-					deserializedEntity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture(path));
+					std::string& defaultTexture = texture["Default Texture"].as<std::string>();
+					std::string& albedo = texture["Albedo"].as<std::string>();
+					std::string& ambientOcclusion = texture["Ambient Occlusion"].as<std::string>();
+					std::string& metallic = texture["Metallic"].as<std::string>();
+					std::string& normal = texture["Normal"].as<std::string>();
+					std::string& roughness = texture["Roughness"].as<std::string>();
+
+					tc.AddTexture(m_AssetManager->LoadTexture(defaultTexture));
+					tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+					tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion));
+					tc.AddTexture(m_AssetManager->LoadTexture(metallic));
+					tc.AddTexture(m_AssetManager->LoadTexture(normal));
+					tc.AddTexture(m_AssetManager->LoadTexture(roughness));
+
+					tc.defaultTexture = textureComponent["isDefault"].as<bool>();
 				}
 
 				auto shaderComponent = entity["ShaderComponent"];
