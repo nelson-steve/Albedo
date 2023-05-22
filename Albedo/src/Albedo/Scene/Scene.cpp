@@ -10,6 +10,7 @@
 #include "Albedo/Physics/PhysicsSolver.h"
 #include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Scripting/ScriptEngine.h"
+#include "Albedo/Physics/Conversions.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -35,25 +36,34 @@ namespace Albedo {
 
 		m_Collider->InitMesh(-1);
 
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent>();
 
 		for (auto entity : view)
 		{
+			auto& tra = view.get<TransformComponent>(entity);
+			glm::vec3& pos = tra.Position;
 			auto& phy = view.get<PhysicsComponent>(entity);
 			phy.physicsMaterial = std::make_shared<PhysicsMaterial>
 				(phy.staticFriction, phy.dynamicFriction, phy.restitution);
 
 			if (phy.bodyType == phy.BodyType::Static)
 			{
+				phy.BodyPosition =  tra.Position;
 				phy.staticBody = std::make_shared<RigidBodyStaticComponent>
 					(phy.BodyPosition, phy.BodyOrientation);
+				//phy.staticBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
 			}
 
 			else if (phy.bodyType == phy.BodyType::Dynamic)
 			{
+				if (phy.infiniteMass)
+					phy.Mass = .0f;
+
+				phy.BodyPosition = tra.Position;
 				phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
 					(phy.BodyPosition, phy.BodyOrientation, phy.Mass);
-				phy.dynamicBody->DisableGravity(phy.enableGravity);
+				//phy.dynamicBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
+				phy.dynamicBody->DisableGravity(phy.disableGravity);
 			}
 
 			auto& col = view.get<ColliderComponent>(entity);
@@ -61,36 +71,40 @@ namespace Albedo {
 			{
 				if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
 				{
+					col.ColliderPosition = tra.Position;
 					col.collider = std::make_shared<BoxCollider>
 						(phy.staticBody.get(), col.ColliderSize,
 							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
 				}
 
 				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
 				{
+					col.ColliderPosition = tra.Position;
 					col.collider = std::make_shared<BoxCollider>
 						(phy.dynamicBody.get(), col.ColliderSize,
 							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
 				}
 			}
 			else if (col.colliderType == col.ColliderType::Sphere)
 			{
 				if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
 				{
+					col.ColliderPosition = tra.Position;
 					col.collider = std::make_shared<SphereCollider>
 						(phy.staticBody.get(), col.ColliderRadius,
 							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
 				}
 
 				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
 				{
+					col.ColliderPosition = tra.Position;
 					col.collider = std::make_shared<SphereCollider>
 						(phy.dynamicBody.get(), col.ColliderRadius,
 							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.collider->SetType(PhysicsCollider::CollisionType::Collider);
+					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
 				}
 			}
 			else if (col.colliderType == col.ColliderType::ConvexMesh)
@@ -216,7 +230,7 @@ namespace Albedo {
 
 	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
 	{
-
+		Albedo_Core_INFO("simulation");
 	}
 
 	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
@@ -226,7 +240,6 @@ namespace Albedo {
 
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
-		//m_PhysicsWorld->Update(ts);
 		m_PhysicsSolver->UpdatePhysics(ts);
 
 		auto view = m_Registry.view<TransformComponent, PhysicsComponent, ColliderComponent>();
@@ -240,13 +253,19 @@ namespace Albedo {
 
 			if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
 			{
-				auto p = phy.dynamicBody->GetRigidActor()->getGlobalPose().p;
-				tra.AddTranform(glm::vec3(p.x, p.y, p.z));
+				auto& p = phy.dynamicBody->GetRigidActor()->getGlobalPose().p;
+				auto& q = phy.dynamicBody->GetRigidActor()->getGlobalPose().q;
+				Albedo_Core_INFO("Rotation: {} {} {} {}", q.x, q.y, q.z, q.w);
+				tra.AddTranform(glm::vec3(p.x, p.y, p.z), glm::vec4(q.x, q.y, q.z, q.w), tra.Scale);
+
+				phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
+				phy.BodyOrientation = glm::quat(q.x, q.y, q.z, q.w);
 			}
 			else if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
 			{
 				auto p = phy.staticBody->GetRigidActor()->getGlobalPose().p;
 				tra.AddTranform(glm::vec3(p.x, p.y, p.z));
+				phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
 			}
 			else
 				Albedo_Core_ERROR("Invalid Body Type");
@@ -312,7 +331,7 @@ namespace Albedo {
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					mainCamera->SetPosition(transform.GetPosition());
+					mainCamera->SetPosition(transform.Position);
 					break;
 				}
 			}
@@ -340,38 +359,60 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		if(m_IsSimulating)
-			OnUpdatePhysics(ts);
-
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
-
+		
 		for (auto& entity : view)
 		{
-			auto& pos = view.get<TransformComponent>(entity).Position;
-			view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			view.get<ColliderComponent>(entity).ColliderPosition = pos;
 			auto& mesh = view.get<MeshComponent>(entity);
 			if (mesh.m_Mesh->GetInitializationStatus())
 				InitScene();
 		}
 
-		for (auto& entity : view)
+		if (m_IsSimulating)
 		{
-			Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
-		}
+			OnUpdatePhysics(ts);
 
-		for (auto& entity : view)
-		{
-			auto& phy = view.get<PhysicsComponent>(entity);
-			auto& col = view.get<ColliderComponent>(entity);
+			//for (auto& entity : view)
+			//{
+			//	auto& pos = view.get<PhysicsComponent>(entity).BodyPosition;
+			//	view.get<TransformComponent>(entity).Position = pos;
+			//}
 
-			m_Transform = glm::translate(glm::mat4(1.0f), col.ColliderPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
-			glm::vec3 offset = glm::vec3(2.0);
-			m_Transform = glm::scale(m_Transform, offset);
+			for (auto& entity : view)
 			{
-				Renderer::Setup(camera, m_Shader, m_Transform);
-				Renderer::RenderOverlay(m_Collider);
+				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+			}
+		}
+		else
+		{
+			for (auto& entity : view)
+			{
+				auto& pos = view.get<TransformComponent>(entity).Position;
+				auto& rot = view.get<TransformComponent>(entity).Rotation;
+				view.get<PhysicsComponent>(entity).BodyPosition = pos;
+				view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+				view.get<ColliderComponent>(entity).ColliderPosition = pos;
+			}
+
+			for (auto& entity : view)
+			{
+				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+			}
+
+			for (auto& entity : view)
+			{
+				auto& phy = view.get<PhysicsComponent>(entity);
+				auto& col = view.get<ColliderComponent>(entity);
+
+				m_Transform = glm::translate(glm::mat4(1.0f), phy.BodyPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
+				//glm::vec3 offset = glm::vec3(2.0);
+				//m_Transform = glm::scale(m_Transform, offset);
+				{
+					Renderer::Setup(camera, m_Shader, m_Transform);
+					Renderer::RenderOverlay(m_Collider);
+				}
 			}
 		}
 	}
@@ -428,7 +469,6 @@ namespace Albedo {
 	template<>
 	void Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
-		Albedo_Core_INFO("nothing");
 	}
 
 	template<>
@@ -479,7 +519,6 @@ namespace Albedo {
 	template<>
 	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
-		Albedo_Core_INFO("mesh added");
 	}
 
 	template<>

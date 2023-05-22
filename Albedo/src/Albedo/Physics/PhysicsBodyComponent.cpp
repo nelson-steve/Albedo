@@ -19,6 +19,7 @@ namespace Albedo {
 	RigidBodyDynamicComponent::RigidBodyDynamicComponent()
 	{
 		defaultConfig = new RidigBodyDynamicConfig();
+
 		rigidActor = PhysicsSolver::phys->createRigidDynamic(glmToPhysx::ToTransform(defaultConfig->position));	//will be set pre-tick to the entity's location
 		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, defaultConfig->enableGravity);
 		rigidActor->setGlobalPose(glmToPhysx::ToTransform(defaultConfig->position, defaultConfig->rotation));
@@ -42,7 +43,7 @@ namespace Albedo {
 
 	void RigidBodyDynamicComponent::DisableGravity(bool gravity)
 	{
-		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, gravity);
+		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, true);
 	}
 
 	void RigidBodyDynamicComponent::AddToScene()

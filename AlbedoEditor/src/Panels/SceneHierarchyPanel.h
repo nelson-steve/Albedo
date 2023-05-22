@@ -28,8 +28,8 @@ namespace Albedo {
 			m_Metallic = false, m_Normal = false, m_Roughness = false;
 		std::string m_CurrentShader = "Vertex";
 		std::string m_CurrentTexture = "Albedo";
-		std::string m_CurrentPhysicsType = "Static";
-		std::string m_CurrentColliderType = "Sphere";
+		std::string m_CurrentPhysicsType = "Dynamic";
+		std::string m_CurrentColliderType = "Box";
 		float offset = 0;
 		Ref<Texture2D> m_MeshIcon;
 		Ref<Scene> m_Context;

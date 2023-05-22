@@ -546,7 +546,11 @@ namespace Albedo {
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("Disable Physics: ", &component.enableGravity);
+				ImGui::Checkbox("Disable Gravity", &component.disableGravity);
+				ImGui::Checkbox("Infinite Mass", &component.infiniteMass);
+				ImGui::Separator();
+
+				ImGui::DragFloat("Mass", &component.Mass);
 				ImGui::Separator();
 				
 				ImGui::DragFloat("Resitution", &component.restitution, 0.01f, 0.0f, 1.0f);
@@ -571,13 +575,9 @@ namespace Albedo {
 							switch (n)
 							{
 							case 0: // Static
-								component.staticBody = std::make_shared<RigidBodyStaticComponent>
-									(component.BodyPosition, component.BodyOrientation);
 								component.bodyType = component.BodyType::Static;
 								break;
 							case 1: // Dynamic
-								component.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
-									(component.BodyPosition, component.BodyOrientation, component.Mass);
 								component.bodyType = component.BodyType::Dynamic;
 								break;
 							default:
@@ -606,7 +606,6 @@ namespace Albedo {
 						{
 							auto& e = entity.GetComponent<PhysicsComponent>();
 							m_CurrentColliderType = items[n];
-							m_CurrentShader = items[n];
 							switch (n)
 							{
 							case 0: // Box

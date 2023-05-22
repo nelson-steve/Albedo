@@ -100,7 +100,13 @@ namespace Albedo {
 			Position = pos;
 		}
 
-		void AddTranform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale) 
+		void AddTranform(const glm::vec4& rot)
+		{
+			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
+			Transform = Transform * rotation;
+		}
+
+		void AddTranform(const glm::vec3& pos, const glm::vec4& rot, const glm::vec3& scale) 
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
 			Transform =  glm::translate(glm::mat4(1.0f), pos) * rotation * glm::scale(glm::mat4(1.0f), scale);
@@ -142,20 +148,21 @@ namespace Albedo {
 			Static
 		};
 
-		float staticFriction = 0.1;
-		float dynamicFriction = 0.1;
-		float restitution = 0.1;
+		float staticFriction = 0.05;
+		float dynamicFriction = 0.005;
+		float restitution = 0.0;
 
 		// Rigid Body
-		BodyType bodyType = BodyType::Static;
+		BodyType bodyType = BodyType::Dynamic;
 		glm::vec3 BodyPosition = glm::vec3(0.0);
 		glm::quat BodyOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
 		glm::vec3 Force = glm::vec3(0.0);
 		glm::vec3 Velocity = glm::vec3(0.0, 0.0, 0.0);
 		float Mass = 1;
+		bool infiniteMass = false;
 
 		//states
-		bool enableGravity = false;
+		bool disableGravity = true;
 		
 		float SphereColliderRadius = 1.0f;
 

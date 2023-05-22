@@ -29,19 +29,34 @@ namespace Albedo {
 
     physx::PxFilterFlags FilterShader(physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0, physx::PxFilterObjectAttributes attributes1, physx::PxFilterData filterData1, physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize)
     {
+        PX_UNUSED(attributes0);
+        PX_UNUSED(attributes1);
+        PX_UNUSED(filterData0);
+        PX_UNUSED(filterData1);
+        PX_UNUSED(constantBlockSize);
+        PX_UNUSED(constantBlock);
+
         // let triggers through
         if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
         {
             pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
             return physx::PxFilterFlag::eDEFAULT;
         }
+
+        pairFlags = physx::PxPairFlag::eSOLVE_CONTACT
+            | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
+            | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
+            | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+            | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS
+            | physx::PxPairFlag::eDETECT_CCD_CONTACT;
+
         // generate contacts for all that were not filtered above
-        pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+        //pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
 
         // trigger the contact callback for pairs (A,B) where
         // the filtermask of A contains the ID of B and vice versa.
-        if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
-            pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+        //if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+        //    pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
 
         return physx::PxFilterFlag::eDEFAULT;
     }
@@ -81,6 +96,15 @@ namespace Albedo {
 
         desc.filterShader = FilterShader;
         desc.simulationEventCallback = this;
+        desc.solverType = physx::PxSolverType::ePGS;
+        //desc.flags |= physx::PxSceneFlag::eREQUIRE_RW_LOCK;
+
+#if ENABLE_GPU
+        PxCudaContextManagerDesc cudaContextManagerDesc;
+        gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+        sceneDesc.cudaContextManager = gCudaContextManager;
+        sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
+#endif
 
         // initialize cooking library with defaults
         if (foundation)
@@ -112,6 +136,13 @@ namespace Albedo {
         {
             Albedo_CORE_ASSERT(false, "PhysX Scene failed to create");
         }
+
+        physx::PxMaterial* terrainMaterial;
+        terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
+
+        //physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 0), *terrainMaterial);
+        //scene->addActor(*groundPlane);
+        scene->setGravity(physx::PxVec3{0.0, -1.0, 0.0});
     }
 
     PhysicsSolver::~PhysicsSolver()
@@ -205,6 +236,7 @@ namespace Albedo {
 
     void PhysicsSolver::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
     {
+        Albedo_Core_INFO("trigger found");
         for (physx::PxU32 i = 0; i < count; ++i) {
             // ignore pairs when shapes have been deleted
             const physx::PxTriggerPair& cp = pairs[i];
