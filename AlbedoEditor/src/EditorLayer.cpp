@@ -33,17 +33,17 @@ namespace Albedo {
 		//sceneCamera.AddComponent<CameraComponent>();
 		//sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
 		//sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
-		//sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		//sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		//sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
 		//sceneCamera.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
 		//sceneCamera.GetComponent<TransformComponent>().Position = glm::vec3(0.0, 0.0, 75.0);
 
-#if 1
+#if 0
 		{
 			Entity suzanneMesh = m_ActiveScene->CreateEntity("Sphere");
 			suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere_wrong_tangents.obj"), (uint32_t)suzanneMesh);
 			suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
-			suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+			suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 			suzanneMesh.AddComponent<PhysicsComponent>();
 			glm::vec3 pos(0.0f, 400.0f, 0.0f);
 			glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
@@ -55,12 +55,11 @@ namespace Albedo {
 			suzanneMesh.AddComponent<ColliderComponent>();
 			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
 		}
-#endif
 		{
 			Entity suzanneMesh1 = m_ActiveScene->CreateEntity("Plane");
 			suzanneMesh1.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh1);
 			suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/concrete/dirty_concrete_metall_1k.png"));
-			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 			suzanneMesh1.AddComponent<PhysicsComponent>();
 			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
@@ -77,7 +76,8 @@ namespace Albedo {
 			suzanneMesh1.AddComponent<ColliderComponent>();
 			suzanneMesh1.GetComponent<ColliderComponent>().ColliderPosition = pos;
 			suzanneMesh1.GetComponent<ColliderComponent>().ColliderSize = size;
-	}
+		}
+#endif
 		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
 		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
 
@@ -143,6 +143,8 @@ namespace Albedo {
 #endif
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+		OpenDefaultScene("DefaultScene.albedo");
 	}
 
 	void EditorLayer::OnDetach()
@@ -580,6 +582,23 @@ namespace Albedo {
 				m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
 		}
 		return false;
+	}
+
+	void EditorLayer::OpenDefaultScene(const std::string& path)
+	{
+		Ref<Scene> newScene = std::make_shared<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(path))
+		{
+			m_EditorScene = newScene;
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+
+			m_ActiveScene = m_EditorScene;
+		}
+
+		m_ActiveScene->InitScene();
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::NewScene()

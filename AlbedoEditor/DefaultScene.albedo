@@ -1,0 +1,43 @@
+Scene: Untitled
+Entities:
+  - Entity: 0
+    TagComponent:
+      Tag: Default Entity
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: Mesh
+        Path: Assets\Models\cerberus\cerberus.obj
+    TextureComponent:
+      Texture:
+        Default Texture: Assets/Textures/Diluc.png
+        Albedo: Assets\Models\cerberus\albedo.tga
+        Ambient Occlusion: Assets\Models\cerberus\ao.tga
+        Metallic: Assets\Models\cerberus\metallic.tga
+        Normal: Assets\Models\cerberus\normal.tga
+        Roughness: Assets\Models\cerberus\roughness.tga
+      isDefault: false
+    ShaderComponent:
+      Shader:
+        Path: Assets/Shaders/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      Body Position: [0, 0, 0]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 0
+      Disable Gravity: true
+      Restitution: 0
+      Static Friction: 0.0500000007
+      Dynamic Friction: 0.00499999989
+      Body Type: 1
+    ColliderComponent:
+      Collider Position: [0, 0, 0]
+      Collider Size: [0.600000024, 0.5, 1.5]
+      Collider Orientation: [0, 0, 0]
+      Collider Radius: 1
+      Collider Type: 0

@@ -32,7 +32,7 @@ namespace Albedo {
 		m_PhysicsSolver->Init();
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
-		m_Shader = m_AssetManager->LoadShader("Assets/ModelShader.glsl");
+		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 
 		m_Collider->InitMesh(-1);
 
@@ -125,7 +125,7 @@ namespace Albedo {
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;

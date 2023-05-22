@@ -59,6 +59,7 @@ namespace Albedo {
 		}
 		TextureType type = TextureType::Default;
 		Ref<Texture2D> m_DefaultTexture;
+		uint32_t totalTypes = 6;
 		bool defaultTexture = true;
 		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
 		TextureComponent() = default;

@@ -382,11 +382,17 @@ namespace Albedo {
 					std::string& normal = texture["Normal"].as<std::string>();
 					std::string& roughness = texture["Roughness"].as<std::string>();
 
+					tc.type = tc.TextureType::Default;
 					tc.AddTexture(m_AssetManager->LoadTexture(defaultTexture));
+					tc.type = tc.TextureType::Albedo;
 					tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+					tc.type = tc.TextureType::AmbientOcclusion;
 					tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion));
+					tc.type = tc.TextureType::Metallic;
 					tc.AddTexture(m_AssetManager->LoadTexture(metallic));
+					tc.type = tc.TextureType::Normal;
 					tc.AddTexture(m_AssetManager->LoadTexture(normal));
+					tc.type = tc.TextureType::Roughness;
 					tc.AddTexture(m_AssetManager->LoadTexture(roughness));
 
 					tc.defaultTexture = textureComponent["isDefault"].as<bool>();

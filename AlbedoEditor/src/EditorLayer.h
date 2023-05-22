@@ -25,6 +25,7 @@ namespace Albedo {
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
+		void OpenDefaultScene(const std::string& path);
 		void NewScene();
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);

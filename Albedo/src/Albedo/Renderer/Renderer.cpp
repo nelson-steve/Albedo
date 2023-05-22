@@ -69,7 +69,7 @@ namespace Albedo {
 
 		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
 			texture.m_DefaultTexture->Bind();
-		else if(texture.m_Textures.size() <= 5)
+		else if(texture.m_Textures.size() <= texture.totalTypes)
 		{
 			int i = 0;
 			for (auto& it : texture.m_Textures) {
