@@ -6,20 +6,20 @@ Entities:
     MeshComponent:
       Color: [1, 1, 1, 1]
       Mesh:
-        Name: Mesh
-        Path: Assets\Models\cerberus\cerberus.obj
+        Name: suzanne.obj
+        Path: Assets\Models\suzanne\suzanne.obj
     TextureComponent:
       Texture:
         Default Texture: Assets/Textures/Diluc.png
-        Albedo: Assets\Models\cerberus\albedo.tga
-        Ambient Occlusion: Assets\Models\cerberus\ao.tga
-        Metallic: Assets\Models\cerberus\metallic.tga
-        Normal: Assets\Models\cerberus\normal.tga
-        Roughness: Assets\Models\cerberus\roughness.tga
+        Albedo: Assets\Models\suzanne\albedo.png
+        Ambient Occlusion: Assets\Models\suzanne\ao.png
+        Metallic: Assets\Models\suzanne\metallic.png
+        Normal: Assets\Models\suzanne\normal.png
+        Roughness: Assets\Models\suzanne\roughness.png
       isDefault: false
     ShaderComponent:
       Shader:
-        Path: Assets/Shaders/ModelShader.glsl
+        Path: Assets\Shaders\ModelPBRShader.glsl
     TransformComponent:
       Translation: [0, 0, 0]
       Rotation: [0, 0, 0]

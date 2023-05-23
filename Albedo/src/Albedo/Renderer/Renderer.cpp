@@ -28,12 +28,18 @@ namespace Albedo {
 			if (!shader.m_Shader->GetInitializationStatus()) continue;
 
 			shader.m_Shader->Bind();
-			shader.m_Shader->SetUniformInt1("u_Default", 0);
-			shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
-			shader.m_Shader->SetUniformInt1("u_AOMap", 2);
-			shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
-			shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
-			shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
+			//shader.m_Shader->SetUniformInt1("u_Default", 0);
+			//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
+			//shader.m_Shader->SetUniformInt1("u_AOMap", 2);
+			//shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
+			//shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
+			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
+
+			shader.m_Shader->SetUniformInt1("u_AbedoMap", 0);
+			shader.m_Shader->SetUniformInt1("u_AOMap", 1);
+			shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
+			shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
+			shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
 
 			shader.m_Shader->SetInitializationStatus(false);
 		}
@@ -66,16 +72,19 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformInt1("u_DefaultTexture", (int)texture.defaultTexture);
+		shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
+		shader.m_Shader->SetUniformFloat3("u_LightPosition", glm::vec3(10.0, 5.0, 0.0));
+		shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
+		shader.m_Shader->SetUniformFloat("u_Exposure", 0.5);
+		shader.m_Shader->SetUniformFloat("u_RoughnessScale", 0.5);
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
 
-		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
-			texture.m_DefaultTexture->Bind();
-		else if(texture.m_Textures.size() <= texture.totalTypes)
+		if(texture.m_Textures.size() <= texture.totalTypes)
 		{
-			int i = 0;
-			for (auto& it : texture.m_Textures) {
+			for (auto& it : texture.m_Textures)
+			{
 				if (it.second)
 					it.second->Bind(it.first);
 			}
@@ -99,19 +108,16 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetProjectionView());
-		shader.m_Shader->SetUniformInt1("u_Default", 0);
-		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
-		shader.m_Shader->SetUniformInt1("u_AOMap", 2);
-		shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
-		shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
-		shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
+		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
+		shader.m_Shader->SetUniformInt1("u_AOMap", 1);
+		shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
+		shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
+		shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
 
-		if (texture.m_Textures.empty() || texture.defaultTexture && texture.m_DefaultTexture)
-			texture.m_DefaultTexture->Bind();
-		else if (texture.m_Textures.size() <= 5)
+		if (texture.m_Textures.size() <= texture.totalTypes)
 		{
-			int i = 0;
-			for (auto& it : texture.m_Textures) {
+			for (auto& it : texture.m_Textures)
+			{
 				if (it.second)
 					it.second->Bind(it.first);
 			}

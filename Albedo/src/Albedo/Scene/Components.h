@@ -43,8 +43,7 @@ namespace Albedo {
 
 		static enum TextureType
 		{
-			Default = 0,
-			Albedo,
+			Albedo = 0,
 			AmbientOcclusion, 
 			Metallic,
 			Normal,
@@ -55,14 +54,9 @@ namespace Albedo {
 		{
 			m_Textures[type] = texture;
 			m_TextureNames[type] = texture->GetName();
-
-			if(type != TextureType::Default)
-				defaultTexture = false;
 		}
-		TextureType type = TextureType::Default;
-		Ref<Texture2D> m_DefaultTexture;
-		uint32_t totalTypes = 6;
-		bool defaultTexture = true;
+		TextureType type = TextureType::Albedo;
+		uint32_t totalTypes = 5;
 		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
 		std::unordered_map<TextureType, std::string> m_TextureNames;
 		TextureComponent() = default;

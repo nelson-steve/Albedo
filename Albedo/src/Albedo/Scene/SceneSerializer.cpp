@@ -143,8 +143,6 @@ namespace Albedo {
 
 			out << YAML::Key << "Texture" << YAML::Value;
 			out << YAML::BeginMap;
-			
-			out << YAML::Key << "Default Texture" << YAML::Value << tc.m_Textures[tc.TextureType::Default]->GetPath();
 		
 			out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
 			out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
@@ -153,8 +151,6 @@ namespace Albedo {
 			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
 			
 			out << YAML::EndMap;
-
-			out << YAML::Key << "isDefault" << YAML::Value << tc.defaultTexture;
 
 			out << YAML::EndMap;
 		}
@@ -375,15 +371,12 @@ namespace Albedo {
 					auto& tc = deserializedEntity.AddComponent<TextureComponent>();
 
 					auto& texture = textureComponent["Texture"];
-					std::string& defaultTexture = texture["Default Texture"].as<std::string>();
 					std::string& albedo = texture["Albedo"].as<std::string>();
 					std::string& ambientOcclusion = texture["Ambient Occlusion"].as<std::string>();
 					std::string& metallic = texture["Metallic"].as<std::string>();
 					std::string& normal = texture["Normal"].as<std::string>();
 					std::string& roughness = texture["Roughness"].as<std::string>();
 
-					tc.type = tc.TextureType::Default;
-					tc.AddTexture(m_AssetManager->LoadTexture(defaultTexture));
 					tc.type = tc.TextureType::Albedo;
 					tc.AddTexture(m_AssetManager->LoadTexture(albedo));
 					tc.type = tc.TextureType::AmbientOcclusion;
@@ -394,8 +387,6 @@ namespace Albedo {
 					tc.AddTexture(m_AssetManager->LoadTexture(normal));
 					tc.type = tc.TextureType::Roughness;
 					tc.AddTexture(m_AssetManager->LoadTexture(roughness));
-
-					tc.defaultTexture = textureComponent["isDefault"].as<bool>();
 				}
 
 				auto shaderComponent = entity["ShaderComponent"];
