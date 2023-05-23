@@ -54,6 +54,8 @@ namespace Albedo {
 		void AddTexture(const Ref<Texture2D>  texture)
 		{
 			m_Textures[type] = texture;
+			m_TextureNames[type] = texture->GetName();
+
 			if(type != TextureType::Default)
 				defaultTexture = false;
 		}
@@ -62,6 +64,7 @@ namespace Albedo {
 		uint32_t totalTypes = 6;
 		bool defaultTexture = true;
 		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
+		std::unordered_map<TextureType, std::string> m_TextureNames;
 		TextureComponent() = default;
 		TextureComponent(const TextureComponent&) = default;
 	};

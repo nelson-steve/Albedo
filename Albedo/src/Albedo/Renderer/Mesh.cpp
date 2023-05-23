@@ -11,6 +11,23 @@
 namespace Albedo {
     void Mesh::InitMesh(int id)
     {
+        if (!m_Path.empty())
+        {
+            if (m_Path.find('/') != std::string::npos)
+            {
+                size_t pos = m_Path.find_last_of('/');
+                m_Name = m_Path.substr(pos + 1, m_Path.size());
+            }
+            else if (m_Path.find('\\') != std::string::npos)
+            {
+                size_t pos = m_Path.find_last_of('\\');
+                m_Name = m_Path.substr(pos + 1, m_Path.size());
+            }
+            else
+            {
+                m_Name = m_Path;
+            }
+        }
         if (m_SingularData)
         {
             m_MeshBufferData.m_VertexArray = VertexArray::Create();

@@ -28,6 +28,7 @@ namespace Albedo {
 		virtual unsigned int getWidth() const override { return m_Width; }
 		virtual unsigned int getHeight() const override { return m_Height; }
 		virtual const std::string& GetPath() const override { return m_Path; }
+		virtual const std::string& GetName() const override { return m_Name; }
 
 		virtual void SetData(void* data, unsigned int size) override;
 
@@ -43,6 +44,7 @@ namespace Albedo {
 	private:
 
 		std::string m_Path;
+		std::string m_Name;
 		uint32_t m_TextureID;
 		uint32_t m_Width, m_Height;
 		uint32_t m_InternalFormat, m_DataFormat;

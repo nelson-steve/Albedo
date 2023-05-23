@@ -39,6 +39,24 @@ namespace Albedo {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool flipped)
 		:m_Path(path)
 	{
+		if (!m_Path.empty())
+		{
+			if (m_Path.find('/') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('/');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else if (m_Path.find('\\') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('\\');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else
+			{
+				m_Name = m_Path;
+			}
+		}
+
 		Albedo_PROFILE_FUNCTION();
 		#if 1
 		//int width, height, channels;

@@ -423,11 +423,11 @@ namespace Albedo {
 				}
 				if (component.m_Mesh)
 				{
-					const std::string& s = "Vertices: " + std::to_string(component.m_Mesh->GetTotalVertices());
+					const std::string& s = "Vertices " + std::to_string(component.m_Mesh->GetTotalVertices());
 					ImGui::Text(s.c_str());
 				}
-				const std::string& s = "Name: " + component.m_Mesh->GetPath();
-				ImGui::Text(s.c_str());
+				const std::string& s = "Name " + component.m_Mesh->GetName();
+				ImGui::Button(s.c_str());
 			});
 
 		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
@@ -483,23 +483,23 @@ namespace Albedo {
 
 				ImGui::Checkbox("Albedo", &m_Albedo);
 				ImGui::SameLine();
-				ImGui::Button("ao.tga");
+				ImGui::Button(component.m_TextureNames[component.TextureType::Albedo].c_str());
 
 				ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
 				ImGui::SameLine();
-				ImGui::Button("ao.tga");
+				ImGui::Button(component.m_TextureNames[component.TextureType::AmbientOcclusion].c_str());
 
 				ImGui::Checkbox("Metallic", &m_Metallic);
 				ImGui::SameLine();
-				ImGui::Button("ao.tga");
+				ImGui::Button(component.m_TextureNames[component.TextureType::Metallic].c_str());
 
 				ImGui::Checkbox("Normal", &m_Normal);
 				ImGui::SameLine();
-				ImGui::Button("ao.tga");
+				ImGui::Button(component.m_TextureNames[component.TextureType::Normal].c_str());
 
 				ImGui::Checkbox("Roughness", &m_Roughness);
 				ImGui::SameLine();
-				ImGui::Button("ao.tga");
+				ImGui::Button(component.m_TextureNames[component.TextureType::Roughness].c_str());
 			});
 
 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
@@ -532,8 +532,9 @@ namespace Albedo {
 					ImGui::EndDragDropTarget();
 				}
 				ImGui::Separator();
-				ImGui::Text("Current Shaders");
-				ImGui::Button(component.m_Shader->GetPath().c_str(), ImVec2{60, 15});
+
+				const std::string& s = "Name " + component.m_Shader->GetName();
+				ImGui::Button(s.c_str());
 			});
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)

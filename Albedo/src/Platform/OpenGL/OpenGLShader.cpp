@@ -19,22 +19,39 @@ namespace Albedo {
 		return 0;
 	}
 	OpenGLShader::OpenGLShader(const std::string& filePath)
+		:m_Path(filePath)
 	{
-		Albedo_PROFILE_FUNCTION();
+		if (!m_Path.empty())
+		{
+			if (m_Path.find('/') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('/');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else if (m_Path.find('\\') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('\\');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else
+			{
+				m_Name = m_Path;
+			}
+		}
+
 		std::string source = readFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);	
 
-		size_t nameStart = filePath.find_last_of("/\\");
-		nameStart = nameStart == std::string::npos ? 0 : nameStart + 1;
-		size_t nameEnd = filePath.rfind(".");
-		size_t nameLength = nameEnd == std::string::npos ? filePath.size() - nameStart : nameEnd - nameStart;
-		m_Name = filePath.substr(nameStart, nameLength);
+		//size_t nameStart = filePath.find_last_of("/\\");
+		//nameStart = nameStart == std::string::npos ? 0 : nameStart + 1;
+		//size_t nameEnd = filePath.rfind(".");
+		//size_t nameLength = nameEnd == std::string::npos ? filePath.size() - nameStart : nameEnd - nameStart;
+		//m_Name = filePath.substr(nameStart, nameLength);
 	}
 
 	std::string OpenGLShader::readFile(const std::string& filePath)
 	{
-		Albedo_PROFILE_FUNCTION();
 		std::string result;
 		std::ifstream in(filePath, std::ios::in | std::ios::binary);
 		if (in)
