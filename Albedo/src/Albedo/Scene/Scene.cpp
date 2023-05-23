@@ -344,7 +344,8 @@ namespace Albedo {
 			for (auto entity : view)
 			{
 				auto& mesh = view.get<MeshComponent>(entity);
-				if (mesh.m_Mesh->GetInitializationStatus())
+				auto& shader = view.get<ShaderComponent>(entity);
+				if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
 					InitScene();
 			}
 			for (auto entity : view)
@@ -364,7 +365,8 @@ namespace Albedo {
 		for (auto& entity : view)
 		{
 			auto& mesh = view.get<MeshComponent>(entity);
-			if (mesh.m_Mesh->GetInitializationStatus())
+			auto& shader = view.get<ShaderComponent>(entity);
+			if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
 				InitScene();
 		}
 

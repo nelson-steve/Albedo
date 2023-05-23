@@ -6,7 +6,7 @@ Entities:
     MeshComponent:
       Color: [1, 1, 1, 1]
       Mesh:
-        Name: Mesh
+        Name: cerberus.obj
         Path: Assets\Models\cerberus\cerberus.obj
     TextureComponent:
       Texture:
@@ -19,7 +19,7 @@ Entities:
       isDefault: false
     ShaderComponent:
       Shader:
-        Path: Assets/ModelShader.glsl
+        Path: Assets\Shaders\ModelShader.glsl
     TransformComponent:
       Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
@@ -37,7 +37,7 @@ Entities:
       Body Type: 1
     ColliderComponent:
       Collider Position: [0, 0, 0]
-      Collider Size: [1, 1, 1]
+      Collider Size: [0.600000024, 0.5, 1.5]
       Collider Orientation: [0, 0, 0]
       Collider Radius: 1
       Collider Type: 0

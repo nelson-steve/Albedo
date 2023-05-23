@@ -30,6 +30,9 @@ namespace Albedo {
 		virtual void SetUniformMat4(const std::string& name, const glm::mat4& matrix) override;
 		virtual void SetPath(const std::string& path) override { m_Path = path; }
 
+		virtual void SetInitializationStatus(bool status) override { m_InitializationStatus = status; }
+		virtual bool GetInitializationStatus() const override { return m_InitializationStatus; }
+
 		//----------------------------------------------------------------------//
 
 		void UploadUniformInt1(const std::string& name, int value);
@@ -53,6 +56,7 @@ namespace Albedo {
 		unsigned int m_ShaderID;
 		std::string m_Name;
 		std::string m_Path;
+		bool m_InitializationStatus;
 	};
 
 }

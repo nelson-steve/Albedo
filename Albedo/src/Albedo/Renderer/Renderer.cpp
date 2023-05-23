@@ -12,7 +12,6 @@ namespace Albedo {
 	{
 		auto group = reg.view<MeshComponent, ShaderComponent>();
 
-		
 		for (auto view : group)
 		{
 			if (group.get<MeshComponent>(view).m_Mesh->GetInitializationStatus())
@@ -25,6 +24,9 @@ namespace Albedo {
 		for (auto view : group)
 		{
 			auto& shader = group.get<ShaderComponent>(view);
+
+			if (!shader.m_Shader->GetInitializationStatus()) continue;
+
 			shader.m_Shader->Bind();
 			shader.m_Shader->SetUniformInt1("u_Default", 0);
 			shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
@@ -32,8 +34,9 @@ namespace Albedo {
 			shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
 			shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
 			shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
-		}
 
+			shader.m_Shader->SetInitializationStatus(false);
+		}
 	}
 
 	GLenum Renderer::AlbedoDrawTypeToGLType(DrawType type)

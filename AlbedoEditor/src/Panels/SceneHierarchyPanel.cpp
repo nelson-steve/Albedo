@@ -526,8 +526,8 @@ namespace Albedo {
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						//component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+						std::filesystem::path shaderPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						component.AddShader(m_AssetManager->LoadShader(shaderPath.u8string()));
 					}
 					ImGui::EndDragDropTarget();
 				}

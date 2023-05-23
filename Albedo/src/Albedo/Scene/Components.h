@@ -73,7 +73,11 @@ namespace Albedo {
 	{
 		std::string name = "Shader Compnent";
 
-		void AddShader(const Ref<Shader> shader) { m_Shader = shader; }
+		void AddShader(const Ref<Shader> shader) 
+		{ 
+			m_Shader = shader; 
+			m_Shader->SetInitializationStatus(true);
+		}
 
 		Ref<Shader> m_Shader;
 

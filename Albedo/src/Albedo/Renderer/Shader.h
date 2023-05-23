@@ -27,6 +27,9 @@ namespace Albedo {
 		virtual const std::string& GetName() const = 0;
 		virtual const std::string& GetPath() const = 0;
 
+		virtual void SetInitializationStatus(bool status) = 0;
+		virtual bool GetInitializationStatus() const = 0;
+
 		static Ref<Shader> Create(const std::string& filePath);
 		static Ref<Shader> Create(const std::string& name, const char* vertexSrc, const char* fragmentSrc);
 	};
