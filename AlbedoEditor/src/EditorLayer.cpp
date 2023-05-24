@@ -94,16 +94,17 @@ namespace Albedo {
 		//	OpenScene(sceneFilePath);
 		//}
 
-
-		FramebufferSpecification fbSpec;
-		fbSpec.Attachments = {
-			FramebufferTextureFormat::RGBA8,
-			FramebufferTextureFormat::RED_INTEGER,
-			FramebufferTextureFormat::Depth
-		};
-		fbSpec.Width = 1280;
-		fbSpec.Height = 720;
-		m_Framebuffer = Framebuffer::Create(fbSpec);
+		{
+			FramebufferSpecification fbSpec;
+			fbSpec.Attachments = {
+				FramebufferTextureFormat::RGBA8,
+				FramebufferTextureFormat::RED_INTEGER,
+				FramebufferTextureFormat::Depth
+			};
+			fbSpec.Width = 1280;
+			fbSpec.Height = 720;
+			m_Framebuffer = Framebuffer::Create(fbSpec);
+		}
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 10000.0f);
 

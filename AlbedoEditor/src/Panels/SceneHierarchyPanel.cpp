@@ -539,10 +539,15 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
-				ImGui::Text("Irradiance");
-				ImGui::Text("Roughness");
-				ImGui::Text("Reflecion");
-				ImGui::Text("Specular");
+				ImGui::DragFloat("Exposure", &component.exposure, 0.1f, 0.0f, 10.0f);
+				component.m_Material->SetExposure(component.exposure);
+				ImGui::DragFloat("Roughness", &component.roughness, 0.01f, 0.0f, 5.0f);
+				component.m_Material->SetRoughnessScale(component.roughness);
+
+				DrawVec3Control("light", component.lightPos);
+				
+				//ImGui::DragFloat("exp", &component.exposure, 0.01f, 0.0f, 1.0f);
+				//component.m_Material->SetExposure(component.exposure);
 			});
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)

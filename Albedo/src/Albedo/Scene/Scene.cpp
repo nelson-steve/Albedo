@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Albedo/Renderer/Framebuffer.h>
 
 namespace Albedo {
 
@@ -27,6 +28,17 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
+		FramebufferSpecification fbspec;
+		fbspec.Attachments = {
+			FramebufferTextureFormat::RGBA8,
+			FramebufferTextureFormat::RENDER_BUFFER
+		};
+		fbspec.Width = 1280;
+		fbspec.Height = 720;
+		std::shared_ptr<Framebuffer> m_Framebuffer = Framebuffer::Create(fbspec);
+
+		m_Framebuffer->Unbind();
+
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 	
 		m_PhysicsSolver->Init();
@@ -36,10 +48,15 @@ namespace Albedo {
 
 		m_Collider->InitMesh(-1);
 
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
+
 
 		for (auto entity : view)
 		{
+			auto& mat = view.get<MaterialComponent>(entity);
+
+			mat.m_Material = std::make_shared<Material>();
+
 			auto& tra = view.get<TransformComponent>(entity);
 			glm::vec3& pos = tra.Position;
 			auto& phy = view.get<PhysicsComponent>(entity);
@@ -125,6 +142,7 @@ namespace Albedo {
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -352,15 +370,17 @@ namespace Albedo {
 			{
 				if (m_Registry.any_of<CameraComponent>(entity)) continue;
 
-				Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+				// TODO: fix
+				//Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				//Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 		}
 	}
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
+			TextureComponent, MaterialComponent>();
 		
 		for (auto& entity : view)
 		{
@@ -382,7 +402,8 @@ namespace Albedo {
 
 			for (auto& entity : view)
 			{
-				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity));
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 		}
@@ -399,7 +420,8 @@ namespace Albedo {
 
 			for (auto& entity : view)
 			{
-				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
+				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity));
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 

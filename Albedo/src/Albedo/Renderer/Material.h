@@ -6,29 +6,26 @@
 
 namespace Albedo {
 
-	enum MaterialType
-	{
-		AlbedoMap = 0,
-		NormalMap,
-		TextureMap,
-		LightingMap,
-		ShadowMap
-	};
-
 	class Material
 	{
 	public:
-		void SetAlbedo();
-		void SetRoughness();
-		void SetMaterialColor();
-		void SetMaterialType(MaterialType matType);
+		Material() {}
 
-		const std::vector<Ref<Texture2D>>& GetTextures() const { return m_Textures; }
-		std::vector<Ref<Texture2D>>& GetTextures() { return m_Textures; }
+		void SetAlbedoColor(const glm::vec3& color);
+		void SetRoughnessScale(float scale);
+		void SetExposure(float exposure);
+
+		const glm::vec3& GetAlbedoColor() { return m_AlbedoColor; }
+		float GetRoughnessScale() { return m_RoughnessScale; }
+		float GetExposure() { return m_Exposure; }
+
+		const glm::vec3& GetAlbedoColor() const { return m_AlbedoColor; }
+		float GetRoughnessScale() const { return m_RoughnessScale; }
+		float GetExposure() const { return m_Exposure; }
 	private:
-		MaterialType m_MaterialType;
-		std::vector<Ref<Texture2D>>  m_Textures;
-
+		glm::vec3 m_AlbedoColor = glm::vec3(1.0, 0.0, 0.0);
+		float m_RoughnessScale = 0.0;
+		float m_Exposure = 0.0;
 	};
 
 }

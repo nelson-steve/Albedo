@@ -81,12 +81,17 @@ namespace Albedo {
 
 	struct MaterialComponent
 	{
-		std::string name = "Material Compnent";
+		std::string name = "Material Component";
 
-		void AddMaterial(const Ref<Material> material) { m_Material = material; }
+
+		glm::vec3 albedoColor = glm::vec3(0.0);
+		float exposure = 2.2;
+		float roughness = 0.0;
+
+		glm::vec3 lightPos = glm::vec3(0.0);
 
 		Ref<Material> m_Material;
-
+		
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};

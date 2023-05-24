@@ -29,9 +29,11 @@ namespace Albedo {
 
 		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
 		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
+		FramebufferTextureSpecification m_RenderbufferAttachmentSpecification = FramebufferTextureFormat::None;
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
+		uint32_t m_RenderbufferAttachment = 0;
 	};
 
 }

@@ -172,7 +172,15 @@ namespace Albedo {
 
 		if (entity.HasComponent<MaterialComponent>())
 		{
+			out << YAML::Key << "MaterialComponent";
+			out << YAML::BeginMap; // MaterialComponent
 
+			auto& tc = entity.GetComponent<MaterialComponent>();
+			out << YAML::Key << "Albedo Color" << YAML::Value << tc.m_Material->GetAlbedoColor();
+			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Material->GetRoughnessScale();
+			out << YAML::Key << "Exposure" << YAML::Value << tc.m_Material->GetExposure();
+
+			out << YAML::EndMap; // MaterialComponent
 		}
 
 		if (entity.HasComponent<TransformComponent>())

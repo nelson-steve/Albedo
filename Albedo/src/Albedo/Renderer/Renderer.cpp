@@ -67,19 +67,21 @@ namespace Albedo {
 		}
 	}
 
-	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform, const TextureComponent& texture)
+	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader,
+		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 		shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
-		shader.m_Shader->SetUniformFloat3("u_LightPosition", glm::vec3(10.0, 5.0, 0.0));
+		shader.m_Shader->SetUniformFloat3("u_LightPosition", material.lightPos);
 		shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
-		shader.m_Shader->SetUniformFloat("u_Exposure", 0.5);
-		shader.m_Shader->SetUniformFloat("u_RoughnessScale", 0.5);
+		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
+		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
+		Albedo_Core_INFO("expo {} rough {}", material.m_Material->GetExposure(), material.m_Material->GetRoughnessScale());
 
 		if(texture.m_Textures.size() <= texture.totalTypes)
 		{
@@ -89,21 +91,10 @@ namespace Albedo {
 					it.second->Bind(it.first);
 			}
 		}
-		
-
-		//scnObj->GetShader()->SetUniformInt1("u_DiffuseMap", 0);
-		//scnObj->GetShader()->SetUniformInt1("u_AOMap", 1);
-		//scnObj->GetShader()->SetUniformInt1("u_MetallicMap", 2);
-		//scnObj->GetShader()->SetUniformInt1("u_NormalMap", 3);
-		//scnObj->GetShader()->SetUniformInt1("u_RoughnessMap", 4);
-		
-		//scnObj->GetShader()->SetUniformFloat("u_RoughnessScale", 0.0);
-		//scnObj->GetShader()->SetUniformFloat3("u_LightPosition", lightPos);
-		//scnObj->GetShader()->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
-		//scnObj->GetShader()->SetUniformFloat("u_Exposure", 3.5);
 	}
 
-	void Renderer::Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform, const TextureComponent& texture)
+	void Renderer::Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		const TextureComponent& texture, const MaterialComponent& material)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());

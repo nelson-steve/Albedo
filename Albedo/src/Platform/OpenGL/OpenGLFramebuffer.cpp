@@ -72,11 +72,30 @@ namespace Albedo {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
 		}
 
+		static void AttachRenderbuffer(uint32_t id, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
+		{
+			glGenRenderbuffers(1, &id);
+			glBindRenderbuffer(GL_RENDERBUFFER, id);
+			glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, id);
+		}
+
 		static bool IsDepthFormat(FramebufferTextureFormat format)
 		{
 			switch (format)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+				case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+			}
+
+			return false;
+		}
+
+		static bool IsColorFormat(FramebufferTextureFormat format)
+		{
+			switch (format)
+			{
+				case FramebufferTextureFormat::RGBA8:		 return true;
+				case FramebufferTextureFormat::RED_INTEGER:  return true;
 			}
 
 			return false;
@@ -102,10 +121,14 @@ namespace Albedo {
 	{
 		for (auto spec : m_Specification.Attachments.Attachments)
 		{
-			if (!Utils::IsDepthFormat(spec.TextureFormat))
+			if (Utils::IsColorFormat(spec.TextureFormat))
 				m_ColorAttachmentSpecifications.emplace_back(spec);
-			else
+			else if (Utils::IsDepthFormat(spec.TextureFormat))
 				m_DepthAttachmentSpecification = spec;
+			else if (spec.TextureFormat == FramebufferTextureFormat::RENDER_BUFFER)
+				m_RenderbufferAttachmentSpecification = spec;
+			else
+				Albedo_Core_ERROR("Unknown Frame buffer texture format");
 		}
 
 		Invalidate();
@@ -155,14 +178,24 @@ namespace Albedo {
 			}
 		}
 
-		if (m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
+		if (m_DepthAttachmentSpecification.TextureFormat == FramebufferTextureFormat::DEPTH24STENCIL8)
 		{
 			Utils::CreateTextures(multisample, &m_DepthAttachment, 1);
 			Utils::BindTexture(multisample, m_DepthAttachment);
 			switch (m_DepthAttachmentSpecification.TextureFormat)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8:
-				Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+				case FramebufferTextureFormat::DEPTH24STENCIL8:
+					Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+					break;
+			}
+		}
+
+		if (m_RenderbufferAttachmentSpecification.TextureFormat == FramebufferTextureFormat::RENDER_BUFFER)
+		{
+			switch (m_DepthAttachmentSpecification.TextureFormat)
+			{
+			case FramebufferTextureFormat::RENDER_BUFFER:
+				Utils::AttachRenderbuffer(m_RenderbufferAttachment, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
 				break;
 			}
 		}
@@ -178,6 +211,9 @@ namespace Albedo {
 			// Only depth-pass
 			glDrawBuffer(GL_NONE);
 		}
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			Albedo_Core_ERROR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

@@ -12,6 +12,8 @@ namespace Albedo {
 		RED_INTEGER,
 		// Depth/stencil
 		DEPTH24STENCIL8,
+		//Renderbuffer
+		RENDER_BUFFER,
 		// Defaults
 		Depth = DEPTH24STENCIL8
 	};
