@@ -81,8 +81,6 @@ namespace Albedo {
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
-		Albedo_Core_INFO("expo {} rough {}", material.m_Material->GetExposure(), material.m_Material->GetRoughnessScale());
-
 		if(texture.m_Textures.size() <= texture.totalTypes)
 		{
 			for (auto& it : texture.m_Textures)
