@@ -5,6 +5,7 @@
 #include "Albedo/Renderer/Material.h"
 #include "Albedo/Renderer/Mesh.h"
 #include "Albedo/Physics/PhysicsCollider.h"
+#include "Albedo/Renderer/Framebuffer.h"
 
 #include "entt.hpp"
 
@@ -66,6 +67,13 @@ namespace Albedo {
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
 
+		Ref<Texture2D> hdrTexture;
+		//Ref<Texture2D> envCubemap;
+		unsigned int envCubemap;
+		Ref<Framebuffer> m_Framebuffer;
+		Ref<Shader> m_SkyboxShader;
+
+		Ref<Mesh> m_Skybox;
 		Ref<Mesh> m_Collider;
 		Ref<Shader> m_Shader;
 		glm::mat4 m_Transform = glm::mat4(1.0);

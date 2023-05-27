@@ -72,12 +72,13 @@ namespace Albedo {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
 		}
 
-		static void AttachRenderbuffer(uint32_t id, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
+		static void AttachRenderbuffer(uint32_t& id, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
 		{
 			glGenRenderbuffers(1, &id);
 			glBindRenderbuffer(GL_RENDERBUFFER, id);
-			glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, id);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, id);
+
 		}
 
 		static bool IsDepthFormat(FramebufferTextureFormat format)
@@ -151,6 +152,7 @@ namespace Albedo {
 
 			m_ColorAttachments.clear();
 			m_DepthAttachment = 0;
+			m_RenderbufferAttachment = 0;
 		}
 		glGenFramebuffers(1, &m_FramebufferID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
@@ -192,10 +194,10 @@ namespace Albedo {
 
 		if (m_RenderbufferAttachmentSpecification.TextureFormat == FramebufferTextureFormat::RENDER_BUFFER)
 		{
-			switch (m_DepthAttachmentSpecification.TextureFormat)
+			switch (m_RenderbufferAttachmentSpecification.TextureFormat)
 			{
 			case FramebufferTextureFormat::RENDER_BUFFER:
-				Utils::AttachRenderbuffer(m_RenderbufferAttachment, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+				Utils::AttachRenderbuffer(m_RenderbufferAttachment, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT, m_Specification.Width, m_Specification.Height);
 				break;
 			}
 		}
@@ -206,7 +208,7 @@ namespace Albedo {
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
-		else if (m_ColorAttachments.empty())
+		else if (m_ColorAttachments.empty() && m_RenderbufferAttachmentSpecification.TextureFormat != FramebufferTextureFormat::RENDER_BUFFER)
 		{
 			// Only depth-pass
 			glDrawBuffer(GL_NONE);
@@ -222,11 +224,6 @@ namespace Albedo {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferID);
 		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
-
-		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
-		//	Albedo_Core_INFO("Framebuffer complete");
-		//else
-		//	Albedo_Core_ERROR("WARNING: Framebuffer incomplete");
 	}
 
 	void OpenGLFramebuffer::Unbind()

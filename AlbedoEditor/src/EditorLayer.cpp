@@ -323,7 +323,7 @@ namespace Albedo {
 
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
-			m_ConfigurationPanel.OnImGuiRender();
+			//m_ConfigurationPanel.OnImGuiRender();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");

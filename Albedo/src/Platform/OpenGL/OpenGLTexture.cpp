@@ -8,10 +8,172 @@
 
 namespace Albedo {
 
+	OpenGLTexture2D::OpenGLTexture2D(const TextureConfiguration& config)
+	{
+		if (!config.Path.empty() || config.m_NullData)
+		{
+			if (m_Path.find('/') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('/');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else if (m_Path.find('\\') != std::string::npos)
+			{
+				size_t pos = m_Path.find_last_of('\\');
+				m_Name = m_Path.substr(pos + 1, m_Path.size());
+			}
+			else
+			{
+				m_Name = "Custom";
+			}
+		}
+
+		glGenTextures(1, &m_TextureID);
+		this->Bind();
+
+		GLenum dataFormat = GL_NONE;
+		GLenum texLayout  = GL_NONE;
+		GLenum dataType   = GL_NONE;
+		GLenum texType	  = GL_NONE;
+		GLint inFormat    = GL_NONE;
+		GLint minFilter   = GL_NONE;
+		GLint magFilter   = GL_NONE;
+
+		if (config.m_TextureType == Config::TextureType::Texture2D)
+			texType = GL_TEXTURE_2D;
+		else if (config.m_TextureType == Config::TextureType::Cubemap)
+			texType = GL_TEXTURE_CUBE_MAP;
+		else
+			Albedo_Core_WARN("Invalid texture type");
+
+		if (config.m_TextureLayout == Config::TextureLayout::Repeat)
+			texLayout = GL_REPEAT;
+		else if (config.m_TextureLayout == Config::TextureLayout::ClampToEdge)
+			texLayout = GL_CLAMP_TO_EDGE;
+		else
+			Albedo_Core_WARN("Invalid layout type");
+
+		if (config.m_InternalFormat == Config::InternalFormat::RGB)
+			inFormat = GL_RGB;
+		else if (config.m_InternalFormat == Config::InternalFormat::RGBA)
+			inFormat = GL_RGBA;
+		else if (config.m_InternalFormat == Config::InternalFormat::RGB16F)
+			inFormat = GL_RGBA16F;
+		else
+			Albedo_Core_WARN("Invalid internal format type");
+
+		if (config.m_DataType == Config::DataType::INT)
+			dataType = GL_INT;
+		else if (config.m_DataType == Config::DataType::UNSIGNED_BYTE)
+			dataType = GL_UNSIGNED_BYTE;
+		else if (config.m_DataType == Config::DataType::FLOAT)
+			dataType = GL_FLOAT;
+
+		if (config.m_DataFormat == Config::DataFormat::RGB)
+			dataFormat = GL_RGB;
+		else if (config.m_DataFormat == Config::DataFormat::RGBA)	
+			dataFormat = GL_RGBA;
+
+		if (config.m_MinFilter == Config::MinMagFilters::LINEAR)
+			minFilter = GL_LINEAR;
+		else if (config.m_MinFilter == Config::MinMagFilters::LINEAR_MIPMAP_LINEAR)
+			minFilter = GL_LINEAR_MIPMAP_LINEAR;
+
+		if (config.m_MagFilter == Config::MinMagFilters::LINEAR)
+			magFilter = GL_LINEAR;
+		else if (config.m_MagFilter == Config::MinMagFilters::LINEAR_MIPMAP_LINEAR)
+			magFilter = GL_LINEAR_MIPMAP_LINEAR;
+
+
+		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, magFilter);
+
+		glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
+		glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
+		if(config.m_TextureType == Config::TextureType::Cubemap)
+			glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
+
+		if (config.m_NullData && config.m_TextureType == Config::TextureType::Cubemap)
+		{
+			for (unsigned int i = 0; i < 6; ++i)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
+			}
+			return;
+		}
+		else if (config.m_NullData && config.m_TextureType == Config::TextureType::Texture2D)
+		{
+			glTexImage2D(texType, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
+			return;
+		}
+
+		else if (!config.m_NullData)
+		{
+			int width, height, nrChannels;
+			unsigned char* dataRGB = nullptr;
+			float* dataHDR = nullptr;
+			stbi_set_flip_vertically_on_load(config.m_Flipped);
+			if (config.m_TextureType == Config::TextureType::Texture2D)
+			{
+				if (config.m_InternalFormat == Config::InternalFormat::RGB ||
+					config.m_InternalFormat == Config::InternalFormat::RGBA)
+				{
+					dataRGB = stbi_load(config.Path.c_str(), &width, &height, &nrChannels, 0);
+				}
+				else if (config.m_InternalFormat == Config::InternalFormat::RGB16F)
+				{
+					dataHDR = stbi_loadf(config.Path.c_str(), &width, &height, &nrChannels, 0);
+				}
+				if (dataRGB || dataHDR)
+				{
+					void* data;
+					if (dataRGB) data = dataRGB;
+					else if (dataHDR) data = dataHDR;
+
+					if (nrChannels == 4)
+					{
+						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGBA, dataType, data);
+					}
+					else if (nrChannels == 3)
+					{
+						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
+					}
+					else
+						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RED, dataType, data);
+					if (config.m_TextureType == Config::TextureType::Texture2D)
+						glGenerateMipmap(GL_TEXTURE_2D);
+					stbi_image_free(data);
+				}
+				else
+				{
+					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
+				}
+			}
+			else if (config.m_TextureType == Config::TextureType::Cubemap)
+			{
+				Albedo_CORE_ASSERT(!config.Faces.empty(), "Invalid cubemap paths");
+				for (unsigned int i = 0; i < 6; i++)
+				{
+					unsigned char* data = stbi_load(config.Faces[i].c_str(), &width, &height, &nrChannels, 0);
+					if (data)
+					{
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
+						stbi_image_free(data);
+					}
+					else
+					{
+						Albedo_Core_ERROR("Cubemap texture failed to load at path: ", config.Faces[i]);
+						//std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+						stbi_image_free(data);
+					}
+				}
+			}
+		}
+	}
+
 	OpenGLTexture2D::OpenGLTexture2D(unsigned int width, unsigned int height)
 		:m_Width(width),m_Height(height)
 	{
-	#if 1
 		Albedo_PROFILE_FUNCTION();
 		glGenTextures(1, &m_TextureID);
 		this->Bind();
@@ -21,19 +183,6 @@ namespace Albedo {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	#else
-		m_InternalFormat = GL_RGBA8;
-		m_DataFormat = GL_RGBA;
-
-		//glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);	
-		glGenTextures(1, &m_TextureID);
-		glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Width, m_Height);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	#endif
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool flipped)
@@ -56,16 +205,6 @@ namespace Albedo {
 				m_Name = m_Path;
 			}
 		}
-
-		Albedo_PROFILE_FUNCTION();
-		#if 1
-		//int width, height, channels;
-		//stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		//if (!data) Albedo_Core_WARN("Didn't load");
-
-		//m_Width = width;
-		//m_Height = height;
-
 		glGenTextures(1, &m_TextureID);
 		this->Bind();
 
@@ -94,75 +233,8 @@ namespace Albedo {
 		{
 			Albedo_Core_WARN("Failed to load texture: {}", path);
 		}
-		//stbi_image_free(data);
-
-		//glTexStorage2D(m_TextureID, 1, GL_RGB8, m_Width, m_Height);
-
-		//glTexParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTexParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
-		//this->Unbind();
-		#else
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(1);
-		stbi_uc* data = nullptr;
-		{
-			//HZ_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std:string&)");
-			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		}
-
-		Albedo_CORE_ASSERT(data, "Failed to load image!");
-		m_Width = width;
-		m_Height = height;
-
-		GLenum internalFormat = 0, dataFormat = 0;
-		if (channels == 4)
-		{
-			internalFormat = GL_RGBA8;
-			dataFormat = GL_RGBA;
-		}
-		else if (channels == 3)
-		{
-			internalFormat = GL_RGB8;
-			dataFormat = GL_RGB;
-		}
-
-		m_InternalFormat = internalFormat;
-		m_DataFormat = dataFormat;
-
-		//HZ_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
-
-		glGenTextures(1, &m_TextureID);
-		//this->Bind();
-		//glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		//glTextureStorage2D(m_TextureID, 1, internalFormat, m_Width, m_Height);
-		glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Width, m_Height);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-
-		if (data)
-		{
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
-			//glGenerateMipmap(GL_TEXTURE_2D);
-
-			//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		else
-		{
-			Albedo_Core_WARN("Failed to load texture");
-		}
-
-		//glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
-
-		stbi_image_free(data);
-	#endif
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::vector<std::string> faces)

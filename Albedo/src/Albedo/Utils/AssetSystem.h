@@ -16,6 +16,7 @@ namespace Albedo {
 		const Ref<Shader>	 LoadShader(const std::string& path);
 		const Ref<Mesh>		 LoadDefaultCube();
 		const Ref<Mesh>		 LoadDefaultQuad();
+		const Ref<Mesh>		 LoadDefaultSkybox();
 		const Ref<Mesh>		 LoadDefaultCircle();
 
 		const Ref<Mesh> GetMesh(uint32_t index) const 
@@ -135,59 +136,61 @@ namespace Albedo {
 			 -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
 			 -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
 		};
+
+		std::vector<float> skyboxVertices =
+		{
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			-1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f
+		};
+
 	std::vector<Ref<Mesh>>		m_Meshes;
 	std::vector<Ref<Texture2D>> m_Textures;
 	std::vector<Ref<Shader>>    m_Shaders;
 		
-	inline static bool m_DefaultCubeLoaded = false;
-	inline static bool m_DefaultQuadLoaded = false;
+	inline static bool m_DefaultCubeLoaded   = false;
+	inline static bool m_DefaultQuadLoaded   = false;
+	inline static bool m_DefaultSkyboxLoaded = false;
 
 	friend class Mesh;
 	};
-
-	//float skyboxVertices[] =
-	//{
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//
-	//	-1.0f, -1.0f,  1.0f,
-	//	-1.0f, -1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//
-	//	-1.0f, -1.0f,  1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f, -1.0f,  1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//
-	//	-1.0f,  1.0f, -1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//
-	//	-1.0f, -1.0f, -1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//	 1.0f, -1.0f,  1.0f
-	//};
 
 }

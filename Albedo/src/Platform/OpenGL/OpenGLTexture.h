@@ -4,22 +4,10 @@
 
 namespace Albedo {
 
-	enum class TextureType
-	{
-		NomralMap = 0,
-		HeightMap,
-		ShadowMap,
-		LightMap,
-		AOMap,
-		AlbedoMap,
-		DiffuseMap,
-		RoughnessMap,
-		SpecularMap
-	};
-
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
+		OpenGLTexture2D(const TextureConfiguration& config);
 		OpenGLTexture2D(unsigned int width, unsigned int height);
 		OpenGLTexture2D(const std::string& path, bool flipped);
 		OpenGLTexture2D(const std::vector<std::string> faces);

@@ -12,6 +12,11 @@ namespace Albedo {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
 
+		// set depth function to less than AND equal for skybox depth trick.
+		glDepthFunc(GL_LEQUAL);
+		// enable seamless cubemap sampling for lower mip levels in the pre-filter map.
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 		Albedo_Core_INFO("	OpenGL Info:");
 		Albedo_Core_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
 		Albedo_Core_INFO("  Renderer: {0}", glGetString(GL_RENDERER));

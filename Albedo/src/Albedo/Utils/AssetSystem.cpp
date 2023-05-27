@@ -187,7 +187,6 @@ namespace Albedo {
 			});
 		}
 			return m_Meshes[1];
-
 	}
 
 	const Ref<Mesh> AssetSystem::LoadDefaultCircle()
@@ -215,5 +214,23 @@ namespace Albedo {
 		m_Meshes.push_back(tempMesh);
 
 		return tempMesh;
+	}
+
+	const Ref<Mesh> AssetSystem::LoadDefaultSkybox()
+	{
+		if (m_DefaultSkyboxLoaded) return m_Meshes[2];
+		else m_DefaultSkyboxLoaded = true;
+
+		{
+			m_Meshes.resize(3);
+			m_Meshes[2] = std::make_shared<Mesh>();
+			m_Meshes[2]->SetDataSingularityStatus(true);
+			m_Meshes[2]->SetSingularMeshData(skyboxVertices);
+			m_Meshes[2]->SetVerticesDataLayout
+			({
+				{ShaderDataType::Float3, "a_Position"}
+			});
+		}
+		return m_Meshes[2];
 	}
 }

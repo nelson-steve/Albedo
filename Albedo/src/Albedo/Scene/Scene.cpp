@@ -12,10 +12,10 @@
 #include "Albedo/Scripting/ScriptEngine.h"
 #include "Albedo/Physics/Conversions.h"
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Albedo/Renderer/Framebuffer.h>
 
 namespace Albedo {
 
@@ -28,17 +28,6 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
-		FramebufferSpecification fbspec;
-		fbspec.Attachments = {
-			FramebufferTextureFormat::RGBA8,
-			FramebufferTextureFormat::RENDER_BUFFER
-		};
-		fbspec.Width = 1280;
-		fbspec.Height = 720;
-		std::shared_ptr<Framebuffer> m_Framebuffer = Framebuffer::Create(fbspec);
-
-		m_Framebuffer->Unbind();
-
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 	
 		m_PhysicsSolver->Init();
@@ -47,6 +36,10 @@ namespace Albedo {
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 
 		m_Collider->InitMesh(-1);
+
+		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
+		m_Skybox = m_AssetManager->LoadDefaultSkybox();
+		m_Skybox->InitMesh(-1);
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
 
@@ -133,6 +126,169 @@ namespace Albedo {
 				Albedo_Core_ERROR("Mesh not implemented yet");
 			}
 		}
+
+		GLint drawFboId;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		Albedo_Core_INFO("framebuffer BEFORE: {}", drawFboId);
+		FramebufferSpecification fbSpec;
+		fbSpec.Attachments = {
+			FramebufferTextureFormat::RENDER_BUFFER,
+		};
+		fbSpec.Width  = 512;
+		fbSpec.Height = 512;
+		m_Framebuffer = Framebuffer::Create(fbSpec);
+
+		//glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetFramebufferID());
+
+		{
+			TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::RGB16F, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::FLOAT,
+				Config::DataFormat::RGB, false, true);
+			config.Path = "Assets/Textures/HDRTexture.hdr";
+			hdrTexture = Texture2D::Create(config);
+		}
+		{
+			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB16F, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR_MIPMAP_LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::FLOAT,
+				Config::DataFormat::RGB, true, true);
+
+			//TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
+			//	Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
+			//	Config::DataFormat::RGB, false, false);
+			//config.Faces = 
+			//{
+			// "Assets/Textures/Skybox/right.jpg",
+			// "Assets/Textures/Skybox/left.jpg",
+			// "Assets/Textures/Skybox/top.jpg",
+			// "Assets/Textures/Skybox/bottom.jpg",
+			// "Assets/Textures/Skybox/front.jpg",
+			// "Assets/Textures/Skybox/back.jpg"
+			//};
+			
+			//envCubemap = Texture2D::Create(config);
+		}
+
+		glGenTextures(1, &envCubemap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // enable pre-filter mipmap sampling (combatting visible dots artifact)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 captureViews[] =
+		{
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		};
+		
+		Ref<Shader> shader = Shader::Create("Assets/Shaders/EquirectangulartoCubemap.glsl");
+		shader->Bind();
+		shader->SetUniformInt1("equirectangularMap", 0);
+		shader->SetUniformMat4("projection", captureProjection);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hdrTexture->GetTextureID());
+		
+		m_Framebuffer->Bind();
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		Albedo_Core_INFO("framebuffer AFTER: {}", drawFboId);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			shader->SetUniformMat4("view", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+			//m_Collider->GetMeshBufferData().m_VertexArray->Bind();
+			//glDrawArrays(GL_TRIANGLES, 0, 36);
+			//m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
+		
+			RendererConfig config;
+			m_Collider->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+			Renderer::RenderOverlay(m_Collider);
+		}
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+#if 0
+		unsigned int captureFBO;
+		unsigned int captureRBO;
+		glGenFramebuffers(1, &captureFBO);
+		glGenRenderbuffers(1, &captureRBO);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+		// pbr: setup cubemap to render to and attach to framebuffer
+		// ---------------------------------------------------------
+		//unsigned int envCubemap;
+		glGenTextures(1, &envCubemap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // enable pre-filter mipmap sampling (combatting visible dots artifact)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// pbr: set up projection and view matrices for capturing data onto the 6 cubemap face directions
+		// ----------------------------------------------------------------------------------------------
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 captureViews[] =
+		{
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		};
+
+		// pbr: convert HDR equirectangular environment map to cubemap equivalent
+		// ----------------------------------------------------------------------
+		Ref<Shader> shader = Shader::Create("Assets/Shaders/EquirectangulartoCubemap.glsl");
+		shader->Bind();
+		shader->SetUniformInt1("equirectangularMap", 0);
+		shader->SetUniformMat4("projection", captureProjection);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hdrTexture->GetTextureID());
+
+		glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
+		glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			shader->SetUniformMat4("view", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			m_Collider->GetMeshBufferData().m_VertexArray->Bind();
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			m_Collider->GetMeshBufferData().m_VertexArray->UnBind();
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+#endif // 1
 
 		Renderer::Init(m_Registry);
 	}
@@ -379,6 +535,10 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		GLint drawFboId;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
+
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
 			TextureComponent, MaterialComponent>();
 		
@@ -434,11 +594,25 @@ namespace Albedo {
 				//glm::vec3 offset = glm::vec3(2.0);
 				//m_Transform = glm::scale(m_Transform, offset);
 				{
-					Renderer::Setup(camera, m_Shader, m_Transform);
-					Renderer::RenderOverlay(m_Collider);
+					//Renderer::Setup(camera, m_Shader, m_Transform);
+					//Renderer::RenderOverlay(m_Collider);
 				}
 			}
 		}
+
+		m_SkyboxShader->Bind();
+		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
+		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
+		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
+
+		glDepthMask(GL_FALSE);
+		m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
+		glDepthMask(GL_TRUE);
+		//Renderer::RenderOverlay(m_Skybox);
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
