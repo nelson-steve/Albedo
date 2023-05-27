@@ -18,7 +18,6 @@ namespace Albedo {
 	{
 	public:
 		Scene();
-		static Ref<Scene> Copy(Ref<Scene> other);
 
 		void InitScene();
 		void ReInitScene();

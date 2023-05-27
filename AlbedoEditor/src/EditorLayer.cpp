@@ -661,7 +661,7 @@ namespace Albedo {
 
 		m_SceneState = SceneState::Play;
 
-		m_EditorScene = Scene::Copy(m_ActiveScene);
+		//m_EditorScene = Scene::Copy(m_ActiveScene);
 		m_ActiveScene->OnRuntimeStart();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);

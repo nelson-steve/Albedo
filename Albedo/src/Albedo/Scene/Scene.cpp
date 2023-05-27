@@ -207,52 +207,6 @@ namespace Albedo {
 		m_Registry.destroy(entity);
 	}
 
-	Ref<Scene> Scene::Copy(Ref<Scene> other)
-	{
-		////TODO:: Fix copying the scene
-		//
-		Ref<Scene> newScene = std::make_shared<Scene>();
-		//
-		newScene->m_ViewportWidth = other->m_ViewportWidth;
-		newScene->m_ViewportHeight = other->m_ViewportHeight;
-
-		newScene->m_PhysicsSolver = other->m_PhysicsSolver;
-		//
-		auto& srcSceneRegistry = other->m_Registry;
-		auto& dstSceneRegistry = newScene->m_Registry;
-
-		dstSceneRegistry.assign(srcSceneRegistry.data(), srcSceneRegistry.data() + srcSceneRegistry.size(), srcSceneRegistry.released());
-
-		//auto view = srcSceneRegistry.view<AllComponents>();
-		//dstSceneRegistry.insert(view.begin(), view.end(), view.storage());
-
-		//srcSceneRegistry.each([&](auto entityID)
-		//	{
-		//		bool exist = srcSceneRegistry.all_of<AllComponents>(entityID);
-		//		//Entity entity{ entityID , this };
-		//		dstSceneRegistry.create(entityID) =  srcSceneRegistry.get<AllComponents>(entityID);
-		//		
-		//
-		//	});
-
-		//std::unordered_map<uint32_t, entt::entity> enttMap;
-		//
-		//// Create entities in new scene
-		//auto idView = srcSceneRegistry.view<IDComponent>();
-		//for (auto e : idView)
-		//{
-		//	UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
-		//	const auto& name = srcSceneRegistry.get<TagComponent>(e).Tag;
-		//	Entity newEntity = newScene->CreateEntityWithUUID(uuid, name);
-		//	enttMap[uuid] = (entt::entity)newEntity;
-		//}
-		//
-		//// Copy components (except IDComponent and TagComponent)
-		//CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
-
-		return newScene;
-	}
-
 	void Scene::Step(int frames)
 	{
 		m_StepFrames = frames;
