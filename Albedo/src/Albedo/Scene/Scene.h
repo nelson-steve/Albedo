@@ -68,8 +68,8 @@ namespace Albedo {
 		bool m_IsSimulating = false;
 
 		Ref<Texture2D> hdrTexture;
-		//Ref<Texture2D> envCubemap;
-		unsigned int envCubemap;
+		Ref<Texture2D> envCubemap;
+		//unsigned int envCubemap;
 		Ref<Framebuffer> m_Framebuffer;
 		Ref<Shader> m_SkyboxShader;
 

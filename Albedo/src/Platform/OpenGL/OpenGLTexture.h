@@ -33,6 +33,7 @@ namespace Albedo {
 
 		std::string m_Path;
 		std::string m_Name;
+		bool isCubemap = false;
 		uint32_t m_TextureID;
 		uint32_t m_Width, m_Height;
 		uint32_t m_InternalFormat, m_DataFormat;

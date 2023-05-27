@@ -28,9 +28,6 @@ namespace Albedo {
 			}
 		}
 
-		glGenTextures(1, &m_TextureID);
-		this->Bind();
-
 		GLenum dataFormat = GL_NONE;
 		GLenum texLayout  = GL_NONE;
 		GLenum dataType   = GL_NONE;
@@ -38,6 +35,9 @@ namespace Albedo {
 		GLint inFormat    = GL_NONE;
 		GLint minFilter   = GL_NONE;
 		GLint magFilter   = GL_NONE;
+
+		if (config.m_TextureType == Config::TextureType::Cubemap)
+			isCubemap = true;
 
 		if (config.m_TextureType == Config::TextureType::Texture2D)
 			texType = GL_TEXTURE_2D;
@@ -84,31 +84,36 @@ namespace Albedo {
 		else if (config.m_MagFilter == Config::MinMagFilters::LINEAR_MIPMAP_LINEAR)
 			magFilter = GL_LINEAR_MIPMAP_LINEAR;
 
+		glGenTextures(1, &m_TextureID);
+		glBindTexture(texType, m_TextureID);
 
 		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, minFilter);
 		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, magFilter);
 
 		glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
 		glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
-		if(config.m_TextureType == Config::TextureType::Cubemap)
+		if (config.m_TextureType == Config::TextureType::Cubemap)
 			glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
 
 		if (config.m_NullData && config.m_TextureType == Config::TextureType::Cubemap)
 		{
 			for (unsigned int i = 0; i < 6; ++i)
 			{
+				if (!config.m_Width || !config.m_Height)
+					Albedo_Core_WARN("texture width or height is zero");
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
 			}
-			return;
 		}
 		else if (config.m_NullData && config.m_TextureType == Config::TextureType::Texture2D)
 		{
+			if (!config.m_Width || !config.m_Height)
+				Albedo_Core_WARN("texture width or height is zero");
 			glTexImage2D(texType, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
-			return;
 		}
-
 		else if (!config.m_NullData)
 		{
+			if (config.Path.empty() && config.Faces.empty())
+				Albedo_CORE_ASSERT(false, "no paths specified");
 			int width, height, nrChannels;
 			unsigned char* dataRGB = nullptr;
 			float* dataHDR = nullptr;
@@ -288,9 +293,11 @@ namespace Albedo {
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
-		Albedo_PROFILE_FUNCTION();
 		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, m_TextureID);
+		if(isCubemap)
+			glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureID);
+		else
+			glBindTexture(GL_TEXTURE_2D, m_TextureID);
 	}
 
 	void OpenGLTexture2D::Unbind() const
