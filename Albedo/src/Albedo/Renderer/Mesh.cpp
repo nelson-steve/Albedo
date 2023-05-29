@@ -37,15 +37,15 @@ namespace Albedo {
             m_MeshBufferData.m_VertexBuffer->SetLayout(m_Layout);
             m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_VertexBuffer);
 
-            std::vector<int> idBuffer;
-            auto size = sizeof(m_SingularMeshData);
-            for (int i = 0; i < m_SingularMeshData.size(); i++)
-            {
-                idBuffer.push_back(id);
-            }
-            m_MeshBufferData.m_ID = VertexBuffer::Create(idBuffer, GetVertexSize(idBuffer));
-            m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
-            m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_ID);
+            //std::vector<int> idBuffer;
+            //auto size = sizeof(m_SingularMeshData);
+            //for (int i = 0; i < m_SingularMeshData.size(); i++)
+            //{
+            //    idBuffer.push_back(id);
+            //}
+            //m_MeshBufferData.m_ID = VertexBuffer::Create(idBuffer, GetVertexSize(idBuffer));
+            //m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
+            //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_ID);
         }
 
         else
@@ -82,6 +82,8 @@ namespace Albedo {
             m_MeshBufferData.m_ID = VertexBuffer::Create(idBuffer, GetVertexSize(idBuffer));
             m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
             m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_ID);
+
+
         }
     }
 

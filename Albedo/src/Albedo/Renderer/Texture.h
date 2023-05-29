@@ -26,7 +26,8 @@ namespace Albedo {
 		enum class DataFormat
 		{
 			RGB,
-			RGBA
+			RGBA,
+			RG
 		};
 
 		enum class TextureLayout

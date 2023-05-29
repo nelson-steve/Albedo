@@ -41,7 +41,7 @@ namespace Albedo {
 		uint32_t Offset;
 		bool Normalized;
 
-		BufferElement(){}
+		BufferElement() = default;
 		BufferElement(ShaderDataType type, const std::string& name, bool normalized = false)
 			:Name(name),Type(type),Size(ShaderDataTypeSize(type)),Offset(0),Normalized(normalized) {}
 		//~BufferElement()
@@ -120,6 +120,7 @@ namespace Albedo {
 		static Ref<VertexBuffer> Create(const std::vector<float>& vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<glm::vec3>& vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const std::vector<glm::mat4>& instances, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<glm::vec2>& vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<int>& ids, uint32_t size);
 	};

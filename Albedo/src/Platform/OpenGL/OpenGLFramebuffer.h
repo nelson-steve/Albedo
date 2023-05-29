@@ -21,6 +21,7 @@ namespace Albedo {
 		virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) override;
 
 		virtual uint32_t GetFramebufferID() const override { return m_FramebufferID; }
+		virtual uint32_t GetRenderbufferID() const override { return m_RenderbufferAttachment; }
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { Albedo_CORE_ASSERT(index < m_ColorAttachments.size(), "index out of range"); return m_ColorAttachments[index]; }
 

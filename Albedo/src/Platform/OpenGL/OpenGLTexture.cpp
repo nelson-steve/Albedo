@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "stb_image.h"
+#include <gl/GL.h>
 
 
 namespace Albedo {
@@ -73,6 +74,8 @@ namespace Albedo {
 			dataFormat = GL_RGB;
 		else if (config.m_DataFormat == Config::DataFormat::RGBA)	
 			dataFormat = GL_RGBA;
+		else if (config.m_DataFormat == Config::DataFormat::RG)
+			dataFormat = GL_RG;
 
 		if (config.m_MinFilter == Config::MinMagFilters::LINEAR)
 			minFilter = GL_LINEAR;
@@ -213,10 +216,10 @@ namespace Albedo {
 		glGenTextures(1, &m_TextureID);
 		this->Bind();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		int width, height, nrChannels;

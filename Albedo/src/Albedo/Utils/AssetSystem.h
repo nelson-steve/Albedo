@@ -43,7 +43,7 @@ namespace Albedo {
 			{
 				if (mesh_ == mesh)
 				{
-					Albedo_Core_WARN("The mesh exists"); //TODO: Specify name
+					Albedo_Core_WARN("The mesh {} exists", mesh->GetName());
 					return true;
 				}
 			}
@@ -56,7 +56,7 @@ namespace Albedo {
 			{
 				if (texture_ == texture)
 				{
-					Albedo_Core_WARN("The texture exists"); //TODO: Specify name
+					Albedo_Core_WARN("The texture {} exists", texture_->GetName());
 					return true;
 				}
 			}
@@ -69,7 +69,7 @@ namespace Albedo {
 			{
 				if (shader_ == shader)
 				{
-					Albedo_Core_WARN("The shader exists"); //TODO: Specify name
+					Albedo_Core_WARN("The shader {} exists", shader_->GetName()); //TODO: Specify name
 					return true;
 				}
 			}

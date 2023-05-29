@@ -7,9 +7,10 @@ namespace Albedo {
 
 	AssetSystem::AssetSystem()
 	{
-		LoadDefaultCube();
 		LoadDefaultQuad();
-		LoadDefaultCircle();
+		//LoadDefaultCube();
+		//LoadDefaultCircle();
+		//LoadDefaultSkybox();
 	}
 
 	AssetSystem::~AssetSystem()
@@ -27,7 +28,7 @@ namespace Albedo {
 
 		for (auto& m : m_Meshes)
 		{
-			if (m->GetPath() == path && m->GetPath() != "")
+			if (m && m->GetPath() == path && m->GetPath() != "")
 			{
 				return m;
 			}
@@ -183,7 +184,7 @@ namespace Albedo {
 			({
 				{ShaderDataType::Float3, "a_Position"},
 				{ShaderDataType::Float3, "a_Normal"},
-				{ShaderDataType::Float2, "a_TexCoord"}
+				{ShaderDataType::Float2, "a_UV"}
 			});
 		}
 			return m_Meshes[1];

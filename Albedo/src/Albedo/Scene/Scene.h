@@ -66,14 +66,46 @@ namespace Albedo {
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
 
+		Ref<Texture2D> skyboxTemp;
+
 		Ref<Texture2D> hdrTexture;
-		Ref<Texture2D> envCubemap;
-		//unsigned int envCubemap;
+		//Ref<Texture2D> envCubemap;
+		//Ref<Texture2D> irradianceMap;
+		//Ref<Texture2D> prefilterMap;
+		//Ref<Texture2D> brdfLUTTexture;
+		unsigned int envCubemap;
+		unsigned int irradianceMap;
+		unsigned int prefilterMap;
+		unsigned int brdfLUTTexture;
+
+
+		Ref<Texture2D> AlbedoMap;
+		Ref<Texture2D> NormalMap;
+		Ref<Texture2D> MetallicMap;
+		Ref<Texture2D> RoughnessMap;
+		Ref<Texture2D> AOMap;
+
+		Ref<Shader> pbrShader;
+		Ref<Shader>	equirectangularToCubemapShader;
+		Ref<Shader>	irradianceShader;
+		Ref<Shader>	prefilterShader;
+		Ref<Shader>	brdfShader;
+		Ref<Shader>	backgroundShader;
+
 		Ref<Framebuffer> m_Framebuffer;
 		Ref<Shader> m_SkyboxShader;
+		Ref<Shader> m_IrradianceShader;
+		Ref<Shader> m_PrefilterShader;
+		Ref<Shader> m_brdfShader;
+
+		//Ref<Shader> m_ShaderTemp;
+		Ref<Shader> m_CubeShader;
+		Ref<Mesh> m_Cube;
+		Ref<Texture2D> tex;
 
 		Ref<Mesh> m_Skybox;
 		Ref<Mesh> m_Collider;
+		Ref<Mesh> m_Quad;
 		Ref<Shader> m_Shader;
 		glm::mat4 m_Transform = glm::mat4(1.0);
 		std::vector<Ref<PhysicsCollider>> m_ColliderList;

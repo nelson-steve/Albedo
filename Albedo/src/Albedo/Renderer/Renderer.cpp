@@ -35,6 +35,36 @@ namespace Albedo {
 			//shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
 			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
 
+			//shader.m_Shader->SetUniformInt1("irradianceMap", 0);
+			//shader.m_Shader->SetUniformInt1("prefilterMap", 1);
+			//shader.m_Shader->SetUniformInt1("brdfLUT", 2);
+			//shader.m_Shader->SetUniformInt1("albedoMap", 1);
+			//shader.m_Shader->SetUniformInt1("normalMap", 4);
+			//shader.m_Shader->SetUniformInt1("metallicMap", 3);
+			//shader.m_Shader->SetUniformInt1("roughnessMap", 5);
+			//shader.m_Shader->SetUniformInt1("aoMap", 2);
+
+			glm::vec3 translations[100];
+			int index = 0;
+			float offset = 1.0f;
+			for (int y = -100; y < 100; y += 20)
+			{
+				for (int x = -100; x < 100; x += 20)
+				{
+					glm::vec3 translation;
+					translation.x = (float)(x + offset) / 10.0f;
+					translation.y = (float)(y + offset) / 10.0f;
+					translation.z = 0.0;
+					translations[index++] = translation;
+				}
+			}
+			
+			for (unsigned int i = 0; i < 100; i++)
+			{
+				const std::string& n = ("offsets[" + std::to_string(i) + "]");
+				shader.m_Shader->SetUniformFloat3(n, translations[i]);
+			}
+
 			shader.m_Shader->SetUniformInt1("u_AbedoMap", 0);
 			shader.m_Shader->SetUniformInt1("u_AOMap", 1);
 			shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
@@ -73,12 +103,22 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
+		//shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
 		shader.m_Shader->SetUniformFloat3("u_LightPosition", material.lightPos);
 		shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
 		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
 		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+
+		//shader.m_Shader->Bind();
+		//shader.m_Shader->SetUniformMat4("projection", camera.GetProjection());
+		//shader.m_Shader->SetUniformMat4("view", camera.GetViewMatrix());
+		//shader.m_Shader->SetUniformFloat3("camPos", camera.GetPosition());
+		//shader.m_Shader->SetUniformMat4("model", transform.GetTransform());
+		//shader.m_Shader->SetUniformMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
+		//shader.m_Shader->SetUniformFloat3("lightPositions", material.lightPos);
+		//shader.m_Shader->SetUniformFloat3("lightColors", glm::vec3(1.0));
+
 		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
 		if(texture.m_Textures.size() <= texture.totalTypes)
@@ -132,11 +172,14 @@ namespace Albedo {
 	{
 		if(config.PolygonMode)	
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
+		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
 		if(mesh.m_Mesh->IsSingularData())
 			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
 		else
-			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
+		{
+			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
+			glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
+		}
 		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
 		if(config.PolygonMode) 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

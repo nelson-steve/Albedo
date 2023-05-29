@@ -21,23 +21,39 @@ namespace Albedo {
 
 	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
-
 	Scene::Scene()
 	{
 	}
 
 	void Scene::InitScene()
 	{
+		//glEnable(GL_DEPTH_TEST);
+		//
+		//// set depth function to less than AND equal for skybox depth trick.
+		//glDepthFunc(GL_LEQUAL);
+		//// enable seamless cubemap sampling for lower mip levels in the pre-filter map.
+		//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 	
+		tex = m_AssetManager->LoadTexture("Assets/Textures/Diluc.png", true);
 		m_PhysicsSolver->Init();
 		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
+		m_Cube = m_AssetManager->LoadModel("Assets/Models/suzanne/suzanne.obj");
+		m_Quad = m_AssetManager->LoadModel("Assets/Models/plane/plane2.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 
+		m_CubeShader = m_AssetManager->LoadShader("Assets/Shaders/Texture2.glsl");
+
 		m_Collider->InitMesh(-1);
+		m_Quad->InitMesh(-1);
+		m_Cube->InitMesh(-1);
 
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
+		//m_IrradianceShader = Shader::Create("Assets/Shaders/IrradiancetoConvolution.glsl");
+		//m_PrefilterShader = Shader::Create("Assets/Shaders/Prefilter.glsl");
+		//m_brdfShader = Shader::Create("Assets/Shaders/BRDF.glsl");
 		m_Skybox = m_AssetManager->LoadDefaultSkybox();
 		m_Skybox->InitMesh(-1);
 
@@ -127,6 +143,22 @@ namespace Albedo {
 			}
 		}
 
+		{
+			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
+				Config::DataFormat::RGB, false, false);
+			config.Faces =
+			{
+				"Assets/Textures/Skybox/right.jpg",
+				"Assets/Textures/Skybox/left.jpg",
+				"Assets/Textures/Skybox/top.jpg",
+				"Assets/Textures/Skybox/bottom.jpg",
+				"Assets/Textures/Skybox/front.jpg",
+				"Assets/Textures/Skybox/back.jpg"
+			};
+			skyboxTemp = Texture2D::Create(config);
+		}
+#if 0
 		FramebufferSpecification fbSpec;
 		fbSpec.Attachments = {
 			FramebufferTextureFormat::RENDER_BUFFER,
@@ -182,9 +214,142 @@ namespace Albedo {
 		}
 		
 		m_Framebuffer->Unbind();
-		
+
 		envCubemap->Bind();
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		
+		// irradiance
+		{
+			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB16F, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::FLOAT,
+				Config::DataFormat::RGB, true, true);
+			config.m_Width = 32;
+			config.m_Height = 32;
+			irradianceMap = Texture2D::Create(config);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer->GetFramebufferID());
+			glBindRenderbuffer(GL_RENDERBUFFER, m_Framebuffer->GetRenderbufferID());
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+		}
+
+		m_IrradianceShader->Bind();
+		m_IrradianceShader->SetUniformInt1("environmentMap", 0);
+		m_IrradianceShader->SetUniformMat4("projection", captureProjection);
+		envCubemap->Bind();
+
+		m_Framebuffer->Bind();
+
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			m_IrradianceShader->SetUniformMat4("view", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap->GetTextureID(), 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			RendererConfig config;
+			m_Collider->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+			Renderer::RenderOverlay(m_Collider);
+		}
+		m_Framebuffer->Unbind();
+
+		//prefilter
+		{
+			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB16F, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR_MIPMAP_LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::FLOAT,
+				Config::DataFormat::RGB, true, true);
+			config.m_Width = 128;
+			config.m_Height = 128;
+			prefilterMap = Texture2D::Create(config);
+
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		}
+
+		m_PrefilterShader->Bind();
+		m_PrefilterShader->SetUniformInt1("environmentMap", 0);
+		m_PrefilterShader->SetUniformMat4("projection", captureProjection);
+		envCubemap->Bind();
+
+		m_Framebuffer->Bind();
+		unsigned int maxMipLevels = 5;
+		for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+		{
+			// reisze framebuffer according to mip-level size.
+			unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+			unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+			glBindRenderbuffer(GL_RENDERBUFFER, m_Framebuffer->GetRenderbufferID());
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+			glViewport(0, 0, mipWidth, mipHeight);
+
+			float roughness = (float)mip / (float)(maxMipLevels - 1);
+			m_PrefilterShader->SetUniformFloat("roughness", roughness);
+			for (uint32_t i = 0; i < 6; ++i)
+			{
+				m_PrefilterShader->SetUniformMat4("view", captureViews[i]);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap->GetTextureID(), mip);
+
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				RendererConfig config;
+				m_Collider->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+				Renderer::RenderOverlay(m_Collider);
+			}
+		}
+		m_Framebuffer->Unbind();
+
+		//brdfLUTT
+		{
+			TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::RGB16F, Config::TextureLayout::ClampToEdge,
+				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::FLOAT,
+				Config::DataFormat::RG, true, true);
+			config.m_Width = 512;
+			config.m_Height = 512;
+			brdfLUTTexture = Texture2D::Create(config);
+
+			m_Framebuffer->Bind();
+			glBindRenderbuffer(GL_RENDERBUFFER, m_Framebuffer->GetRenderbufferID());
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture->GetTextureID(), 0);
+		}
+
+		glViewport(0, 0, 512, 512);
+		m_brdfShader->Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		{
+			unsigned int quadVAO = 0;
+			unsigned int quadVBO;
+
+			float quadVertices[] = {
+				// positions        // texture Coords
+				-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+				-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+				 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+				 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			};
+			// setup plane VAO
+			glGenVertexArrays(1, &quadVAO);
+			glGenBuffers(1, &quadVBO);
+			glBindVertexArray(quadVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glBindVertexArray(quadVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+		}
+
+		//m_Quad->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+		//Renderer::RenderOverlay(m_Quad);
+
+		//m_Quad->GetMeshBufferData().m_VertexArray->Bind();
+		//glDrawArrays(GL_TRIANGLES, 0, m_Quad->GetVertices().size());
+		//m_Quad->GetMeshBufferData().m_VertexArray->UnBind();
+
+		m_Framebuffer->Unbind();
+#endif
 
 		Renderer::Init(m_Registry);
 	}
@@ -385,9 +550,28 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		GLint drawFboId;
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-		Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
+
+		//m_CubeShader->Bind();
+		//m_CubeShader->SetUniformInt1("u_Texture", 0);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+		//m_CubeShader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		//RenderCube();
+
+		//m_Cube->GetMeshBufferData().m_VertexArray->Bind();
+		//glDrawArrays(GL_TRIANGLES, 0, m_Cube->GetVertices().size());
+		//m_Cube->GetMeshBufferData().m_VertexArray->UnBind();
+
+		//m_ShaderTemp->Bind();
+		//tex->Bind();
+		//m_ShaderTemp->SetUniformInt1("u_Texture", 0);
+		//m_ShaderTemp->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		//Renderer::RenderOverlay(m_Collider);
+
+#if 1
+		//GLint drawFboId;
+		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		//Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
 			TextureComponent, MaterialComponent>();
@@ -430,6 +614,14 @@ namespace Albedo {
 
 			for (auto& entity : view)
 			{
+				// bind pre-computed IBL data
+				//glActiveTexture(GL_TEXTURE0);
+				//glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap->GetTextureID());
+				//glActiveTexture(GL_TEXTURE1);
+				//glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap->GetTextureID());
+				//glActiveTexture(GL_TEXTURE2);
+				//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture->GetTextureID());
+
 				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity));
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
@@ -449,16 +641,17 @@ namespace Albedo {
 				}
 			}
 		}
-
+#endif
 		m_SkyboxShader->Bind();
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
 		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
 		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTemp->GetTextureID());
+
 		glDepthMask(GL_FALSE);
 		m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
-		//glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap->GetTextureID());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
 		glDepthMask(GL_TRUE);
