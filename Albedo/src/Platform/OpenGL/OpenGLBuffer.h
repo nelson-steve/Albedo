@@ -12,6 +12,7 @@ namespace Albedo {
 		OpenGLVertexBuffer(const std::vector<float>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<glm::vec3>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<uint32_t>& instances, uint32_t size);
+		OpenGLVertexBuffer(const std::vector<glm::mat4>& transforms, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<glm::vec2>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<int>& ids, uint32_t size);
 		virtual ~OpenGLVertexBuffer();

@@ -121,6 +121,7 @@ namespace Albedo {
 		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<glm::vec3>& vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<uint32_t>& instances, uint32_t size);
+		static Ref<VertexBuffer> Create(const std::vector<glm::mat4>& transforms, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<glm::vec2>& vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<int>& ids, uint32_t size);
 	};

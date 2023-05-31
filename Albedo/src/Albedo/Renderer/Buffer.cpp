@@ -66,6 +66,18 @@ namespace Albedo {
 		return nullptr;
 	}
 
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<glm::mat4>& transforms, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(transforms, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
 	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<glm::vec2>& vertices, uint32_t size)
 	{
 		switch (Renderer::GetAPI())

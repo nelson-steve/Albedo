@@ -168,9 +168,9 @@ namespace Albedo {
 			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
 		else
 		{
-			glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
+			//glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
 			//glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
-			//glDrawElementsInstanced();
+			glDrawElementsInstanced(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0, 1600);
 			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 		}

@@ -21,6 +21,7 @@ namespace Albedo {
         Ref<VertexBuffer> m_NormalBuffer;
         Ref<VertexBuffer> m_ID;
         Ref<VertexBuffer> m_InstanceBuffer;
+        Ref<VertexBuffer> m_Positions;
     };
 
     class Mesh

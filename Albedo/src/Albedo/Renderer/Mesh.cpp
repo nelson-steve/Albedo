@@ -84,24 +84,27 @@ namespace Albedo {
             }
 
             //glm::vec3 translations[200];
-            std::vector<glm::vec3> instanceBuffer;
+            std::vector<glm::mat4> positions;
             int index = 0;
             float offset = 1.0f;
-            for (int y = -1000; y < 1000; y += 20)
+            for (int y = -1000; y < 1000; y += 50)
             {
-                for (int x = -1000; x < 1000; x += 20)
+                for (int x = -1000; x < 1000; x += 50)
                 {
                     glm::vec3 translation;
                     translation.x = (float)(x + offset) / 10.0f;
-                    translation.y = (float)(y + offset) / 10.0f;
-                    translation.z = 0.0;
-                    instanceBuffer.push_back(translation);
+                    translation.y = 0.0;
+                    translation.z = (float)(y + offset) / 10.0f;
+                    glm::mat4 m = glm::translate(glm::mat4(1.0), translation);
+                    positions.push_back(m);
+                    index++;
                 }
             }
+            auto count = index;
 
-            //m_MeshBufferData.m_InstanceBuffer = VertexBuffer::Create(instanceBuffer, GetVertexSize(instanceBuffer));
-            //m_MeshBufferData.m_InstanceBuffer->SetLayout({ {ShaderDataType::Int, "m_InstanceBuffer"} });
-            //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_InstanceBuffer);
+            m_MeshBufferData.m_Positions = VertexBuffer::Create(positions, GetVertexSize(positions));
+            m_MeshBufferData.m_Positions->SetLayout({ {ShaderDataType::Mat4, "m_Positions"} });
+            m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_Positions);
             //
             //glBindBuffer(GL_ARRAY_BUFFER, 0);
             //glVertexAttribDivisor(3, 1);
