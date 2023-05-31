@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -91,7 +91,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Debug\PhysX_static_64.lib;dependencies\Physx\lib\Debug\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Debug\PhysXCommon_static_64.lib;dependencies\Physx\lib\Debug\PhysXCooking_static_64.lib;dependencies\Physx\lib\Debug\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Debug\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Debug\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Debug\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Debug\mono-2.0-sgen.lib;dependencies\mono\lib\Debug\eglib.lib;dependencies\mono\lib\Debug\libgcmonosgen.lib;dependencies\mono\lib\Debug\libmini-sgen.lib;dependencies\mono\lib\Debug\libmonoruntime-sgen.lib;dependencies\mono\lib\Debug\libmonoutils.lib;dependencies\mono\lib\Debug\MonoPosixHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Debug\PhysX_static_64.lib;dependencies\Physx\lib\Debug\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Debug\PhysXCommon_static_64.lib;dependencies\Physx\lib\Debug\PhysXCooking_static_64.lib;dependencies\Physx\lib\Debug\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Debug\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Debug\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Debug\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Debug\mono-2.0-sgen.lib;dependencies\mono\lib\Debug\eglib.lib;dependencies\mono\lib\Debug\libgcmonosgen.lib;dependencies\mono\lib\Debug\libmini-sgen.lib;dependencies\mono\lib\Debug\libmonoruntime-sgen.lib;dependencies\mono\lib\Debug\libmonoutils.lib;dependencies\mono\lib\Debug\MonoPosixHelper.lib;dependencies\assimp\libs\assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -99,8 +99,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -117,7 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Release\PhysX_static_64.lib;dependencies\Physx\lib\Release\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Release\PhysXCommon_static_64.lib;dependencies\Physx\lib\Release\PhysXCooking_static_64.lib;dependencies\Physx\lib\Release\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Release\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Release\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Release\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Release\mono-2.0-sgen.lib;dependencies\mono\lib\Release\eglib.lib;dependencies\mono\lib\Release\libgcmonosgen.lib;dependencies\mono\lib\Release\libmini-sgen.lib;dependencies\mono\lib\Release\libmonoruntime-sgen.lib;dependencies\mono\lib\Release\libmonoutils.lib;dependencies\mono\lib\Release\MonoPosixHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Release\PhysX_static_64.lib;dependencies\Physx\lib\Release\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Release\PhysXCommon_static_64.lib;dependencies\Physx\lib\Release\PhysXCooking_static_64.lib;dependencies\Physx\lib\Release\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Release\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Release\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Release\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Release\mono-2.0-sgen.lib;dependencies\mono\lib\Release\eglib.lib;dependencies\mono\lib\Release\libgcmonosgen.lib;dependencies\mono\lib\Release\libmini-sgen.lib;dependencies\mono\lib\Release\libmonoruntime-sgen.lib;dependencies\mono\lib\Release\libmonoutils.lib;dependencies\mono\lib\Release\MonoPosixHelper.lib;dependencies\assimp\libs\assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -125,8 +125,8 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_DEBUG;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -143,7 +143,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Dist\PhysX_static_64.lib;dependencies\Physx\lib\Dist\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Dist\PhysXCommon_static_64.lib;dependencies\Physx\lib\Dist\PhysXCooking_static_64.lib;dependencies\Physx\lib\Dist\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Dist\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Dist\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Dist\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Dist\mono-2.0-sgen.lib;dependencies\mono\lib\Dist\eglib.lib;dependencies\mono\lib\Dist\libgcmonosgen.lib;dependencies\mono\lib\Dist\libmini-sgen.lib;dependencies\mono\lib\Dist\libmonoruntime-sgen.lib;dependencies\mono\lib\Dist\libmonoutils.lib;dependencies\mono\lib\Dist\MonoPosixHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;dependencies\Physx\lib\Dist\PhysX_static_64.lib;dependencies\Physx\lib\Dist\PhysXPvdSDK_static_64.lib;dependencies\Physx\lib\Dist\PhysXCommon_static_64.lib;dependencies\Physx\lib\Dist\PhysXCooking_static_64.lib;dependencies\Physx\lib\Dist\PhysXVehicle_static_64.lib;dependencies\Physx\lib\Dist\PhysXExtensions_static_64.lib;dependencies\Physx\lib\Dist\PhysXFoundation_static_64.lib;dependencies\Physx\lib\Dist\PhysXCharacterKinematic_static_64.lib;dependencies\mono\lib\Dist\mono-2.0-sgen.lib;dependencies\mono\lib\Dist\eglib.lib;dependencies\mono\lib\Dist\libgcmonosgen.lib;dependencies\mono\lib\Dist\libmini-sgen.lib;dependencies\mono\lib\Dist\libmonoruntime-sgen.lib;dependencies\mono\lib\Dist\libmonoutils.lib;dependencies\mono\lib\Dist\MonoPosixHelper.lib;dependencies\assimp\libs\assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -11,7 +11,7 @@ namespace Albedo {
 		OpenGLVertexBuffer(const float* vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<float>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<glm::vec3>& vertices, uint32_t size);
-		OpenGLVertexBuffer(const std::vector<glm::mat4>& instances, uint32_t size);
+		OpenGLVertexBuffer(const std::vector<uint32_t>& instances, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<glm::vec2>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<int>& ids, uint32_t size);
 		virtual ~OpenGLVertexBuffer();
@@ -26,6 +26,7 @@ namespace Albedo {
 		virtual void SetData(const void* data, uint32_t size) override;
 	private:
 		unsigned int m_RendererID;
+		unsigned int m_ElmentsID;
 		BufferLayout m_Layout;
 	};
 

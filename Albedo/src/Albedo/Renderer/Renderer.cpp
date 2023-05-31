@@ -35,35 +35,26 @@ namespace Albedo {
 			//shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
 			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
 
-			//shader.m_Shader->SetUniformInt1("irradianceMap", 0);
-			//shader.m_Shader->SetUniformInt1("prefilterMap", 1);
-			//shader.m_Shader->SetUniformInt1("brdfLUT", 2);
-			//shader.m_Shader->SetUniformInt1("albedoMap", 1);
-			//shader.m_Shader->SetUniformInt1("normalMap", 4);
-			//shader.m_Shader->SetUniformInt1("metallicMap", 3);
-			//shader.m_Shader->SetUniformInt1("roughnessMap", 5);
-			//shader.m_Shader->SetUniformInt1("aoMap", 2);
-
-			glm::vec3 translations[100];
-			int index = 0;
-			float offset = 1.0f;
-			for (int y = -100; y < 100; y += 20)
-			{
-				for (int x = -100; x < 100; x += 20)
-				{
-					glm::vec3 translation;
-					translation.x = (float)(x + offset) / 10.0f;
-					translation.y = (float)(y + offset) / 10.0f;
-					translation.z = 0.0;
-					translations[index++] = translation;
-				}
-			}
-			
-			for (unsigned int i = 0; i < 100; i++)
-			{
-				const std::string& n = ("offsets[" + std::to_string(i) + "]");
-				shader.m_Shader->SetUniformFloat3(n, translations[i]);
-			}
+			//glm::vec3 translations[100];
+			//int index = 0;
+			//float offset = 1.0f;
+			//for (int y = -100; y < 100; y += 20)
+			//{
+			//	for (int x = -100; x < 100; x += 20)
+			//	{
+			//		glm::vec3 translation;
+			//		translation.x = (float)(x + offset) / 10.0f;
+			//		translation.y = (float)(y + offset) / 10.0f;
+			//		translation.z = 0.0;
+			//		translations[index++] = translation;
+			//	}
+			//}
+			//
+			//for (unsigned int i = 0; i < 100; i++)
+			//{
+			//	const std::string& n = ("offsets[" + std::to_string(i) + "]");
+			//	shader.m_Shader->SetUniformFloat3(n, translations[i]);
+			//}
 
 			shader.m_Shader->SetUniformInt1("u_AbedoMap", 0);
 			shader.m_Shader->SetUniformInt1("u_AOMap", 1);
@@ -177,8 +168,11 @@ namespace Albedo {
 			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
 		else
 		{
+			glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
+			//glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
+			//glDrawElementsInstanced();
 			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
-			glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
+			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 		}
 		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
 		if(config.PolygonMode) 

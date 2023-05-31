@@ -11,13 +11,17 @@
 
 namespace Albedo {
 
+	//
+	// this is a scene class. it handles everything we see on the screen.
+	//
+
 	class Entity;
 	class PhysicsSolver;
 
 	class Scene
 	{
 	public:
-		Scene();
+		Scene(); // this is a constructor as you may remember. since it's name is the same as the class
 
 		void InitScene();
 		void ReInitScene();
@@ -65,6 +69,11 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
+
+		//
+		// and these are lot's of data types. since I change to try new things.
+		// it's very messy.
+		//
 
 		Ref<Texture2D> skyboxTemp;
 

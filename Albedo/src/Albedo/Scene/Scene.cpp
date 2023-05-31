@@ -38,9 +38,9 @@ namespace Albedo {
 	
 		tex = m_AssetManager->LoadTexture("Assets/Textures/Diluc.png", true);
 		m_PhysicsSolver->Init();
-		m_Collider = m_AssetManager->LoadModel("Assets/models/cube/box.obj");
-		m_Cube = m_AssetManager->LoadModel("Assets/Models/suzanne/suzanne.obj");
-		m_Quad = m_AssetManager->LoadModel("Assets/Models/plane/plane2.obj");
+		m_Collider = m_AssetManager->LoadModelusingAssimp("Assets/models/cube/box.obj");
+		m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
+		m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 

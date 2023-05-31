@@ -37,6 +37,14 @@ namespace Albedo {
 		MeshComponent(const MeshComponent&) = default;
 	};
 
+	struct LightComponent
+	{
+		glm::vec3 pos;
+
+		LightComponent() = default;
+		LightComponent(const LightComponent&) = default;
+	};
+
 	struct TextureComponent
 	{
 		std::string name = "Texture Compnent";

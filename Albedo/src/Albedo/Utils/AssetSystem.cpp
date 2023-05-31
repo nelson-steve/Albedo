@@ -3,6 +3,12 @@
 #include "AssetSystem.h"
 #include "Albedo/Renderer/Buffer.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#define ASSIMP_BUILD_DEBUG
+
 namespace Albedo {
 
 	AssetSystem::AssetSystem()
@@ -18,9 +24,106 @@ namespace Albedo {
 
 	}
 
-	const Ref<Mesh> AssetSystem::LoadModel(const std::string& path)
+	const Ref<Mesh> AssetSystem::LoadModelusingAssimp(const std::string& path)
 	{
 		if (path == "")
+		{
+			Albedo_Core_ERROR("Error: Empty path - Mesh");
+			return nullptr;
+		}
+
+		for (auto& m : m_Meshes)
+		{
+			if (m && m->GetPath() == path && m->GetPath() != "")
+			{
+				return m;
+			}
+		}
+
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+		// check for errors
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+		{
+			Albedo_CORE_ASSERT(false, "ASSIMP: Error loading model");
+		}
+
+		Ref<Mesh> tempMesh = std::make_shared<Mesh>();
+		tempMesh->SetPath(path);
+
+		tempMesh->SetDataSingularityStatus(false);
+
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec2> uvs;
+		std::vector<uint32_t> indices;
+
+		for (uint32_t i = 0; i < scene->mNumMeshes; i++)
+		{
+			aiMesh& mesh = *scene->mMeshes[i];
+			for (uint32_t i = 0; i < mesh.mNumVertices; i++)
+			{
+				glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+				// positions
+				vector.x = mesh.mVertices[i].x;
+				vector.y = mesh.mVertices[i].y;
+				vector.z = mesh.mVertices[i].z;
+				vertices.push_back(vector);
+				// normals
+				if (mesh.HasNormals())
+				{
+					vector.x = mesh.mNormals[i].x;
+					vector.y = mesh.mNormals[i].y;
+					vector.z = mesh.mNormals[i].z;
+					normals.push_back(vector);
+				}
+				// texture coordinates
+				if (mesh.mTextureCoords[0]) // does the mesh contain texture coordinates?
+				{
+					glm::vec2 vec;
+					vec.x = mesh.mTextureCoords[0][i].x;
+					vec.y = mesh.mTextureCoords[0][i].y;
+					uvs.push_back(vec);
+
+					// tangent
+					//vector.x = mesh->mTangents[i].x;
+					//vector.y = mesh->mTangents[i].y;
+					//vector.z = mesh->mTangents[i].z;
+					//vertex.Tangent = vector;
+					//// bitangent
+					//vector.x = mesh->mBitangents[i].x;
+					//vector.y = mesh->mBitangents[i].y;
+					//vector.z = mesh->mBitangents[i].z;
+					//vertex.Bitangent = vector;
+				}
+				else
+				{
+					Albedo_Core_WARN("no texture coordinates in this model");
+					uvs.push_back(glm::vec2(0.0f, 0.0f));
+				}
+			}
+			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
+			{
+				aiFace face = mesh.mFaces[i];
+				// retrieve all indices of the face and store them in the indices vector
+				for (unsigned int j = 0; j < face.mNumIndices; j++)
+					indices.push_back(face.mIndices[j]);
+			}
+		}
+
+		tempMesh->SetVertices(vertices);
+		tempMesh->SetNormals(normals);
+		tempMesh->SetUV(uvs);
+		tempMesh->SetIndices(indices);
+		
+		m_Meshes.push_back(tempMesh);
+
+		return tempMesh;
+	}
+
+	const Ref<Mesh> AssetSystem::LoadModel(const std::string& path)
+	{
+ 		if (path == "")
 		{
 			Albedo_Core_ERROR("Error: Empty path - Mesh");
 			return nullptr;

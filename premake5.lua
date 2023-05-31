@@ -28,10 +28,12 @@ IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
+IncludeDir["Assimp"]  	= "%{wks.location}/Albedo/dependencies/assimp/include"
 
 LibraryDir = {}
 LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
 LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
+LibraryDir["Assimp"] 		= "%{wks.location}/Albedo/dependencies/assimp/libs"
 
 Library = {}
 Library["Physx"] 				   = "%{LibraryDir.Physx}/PhysX_static_64.lib"
@@ -42,13 +44,14 @@ Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
 Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
 Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
 Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
-Library["mono_sgen"] 				   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
+Library["mono_sgen"] 			   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
 Library["mono_eglib"] 				   = "%{LibraryDir.mono}/eglib.lib"
 Library["mono_libgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
 Library["mono_libmini"] 				   = "%{LibraryDir.mono}/libmini-sgen.lib"
 Library["mono_runtime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
 Library["mono_utils"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
 Library["mono_posix"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
+Library["Assimp"] 				   = "%{LibraryDir.Assimp}/assimp.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -89,8 +92,7 @@ project "Albedo"
 	defines
 	{
 		"PX_PHYSX_STATIC_LIB",
-		"_CRT_SECURE_NO_WARNINGS",
-		"Albedo_DEBUG"
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
@@ -108,6 +110,7 @@ project "Albedo"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.mono}",
+		"%{IncludeDir.Assimp}",
 		"%{prj.name}/dependencies/spdlog/include"
 	}
 
@@ -140,7 +143,10 @@ project "Albedo"
 		"%{Library.mono_posix}",
 		-- mono DLLs
 		"mono-2.0-sgen.dll",
-		"MonoPosixHelper.dll"
+		"MonoPosixHelper.dll",
+		-- Assimp
+		"%{Library.Assimp}",
+		"assimp.dll"
 	}
 
 	filter "files:Albedo/dependencies/ImGuizmo/ImGuizmo.cpp"
@@ -201,7 +207,8 @@ project "AlbedoEditor"
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.mono}",
-		"%{IncludeDir.ImGuizmo}"
+		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Assimp}"
 	}
 
 	links
@@ -257,6 +264,7 @@ project "Sandbox"
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.mono}",
+		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.entt}"
 	}
 
@@ -299,8 +307,7 @@ project "AlbedoScripting"
 
 	files 
 	{
-		"Source/**.cs",
-		"Properties/**.cs"
+		"Source/Albedo/**.cs"
 	}
 
 	filter "configurations:Debug"

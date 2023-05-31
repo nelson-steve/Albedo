@@ -54,7 +54,7 @@ namespace Albedo {
 		return nullptr;
 	}
 
-	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<glm::mat4>& instances, uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(const std::vector<uint32_t>& instances, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{

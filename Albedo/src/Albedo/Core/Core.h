@@ -3,6 +3,8 @@
 #include <memory>
 #include "Log.h"
 
+#define ALBEDO_RELEASE
+
 #ifdef _MSVC_LANG
 	#define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -23,14 +25,18 @@
 #endif
 
 #ifdef Albedo_DEBUG
-#define Albedo_ENABLE_ASSERTS
+	#define Albedo_ENABLE_ASSERTS
+	#define _DEBUG
+#endif
+#ifdef Albedo_RELEASE
+	#define NDEBUG
 #endif
 
-#ifdef Albedo_ENABLE_ASSERTS
+#ifdef Albedo_ENABLE_ASSERTS // look there are 2 versions of it
 #define Albedo_ASSERT(x, ...) { if(!(x)) { Albedo_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #define Albedo_CORE_ASSERT(x, ...) { if(!(x)) { Albedo_Core_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #else
-#define Albedo_ASSERT(x, ...)
+#define Albedo_ASSERT(x, ...) 
 #define Albedo_CORE_ASSERT(x, ...)
 #endif
 

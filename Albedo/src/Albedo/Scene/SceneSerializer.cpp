@@ -370,7 +370,7 @@ namespace Albedo {
 					auto& mesh = meshComponent["Mesh"];
 					std::string& name = mesh["Name"].as<std::string>();
 					std::string& path = mesh["Path"].as<std::string>();
-					deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel(path), (uint32_t)deserializedEntity);
+					deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModelusingAssimp(path), (uint32_t)deserializedEntity);
 				}
 
 				auto textureComponent = entity["TextureComponent"];

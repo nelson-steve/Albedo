@@ -50,12 +50,21 @@ namespace Albedo {
 
         else
         {
-            m_MeshBufferData.m_VertexArray  = VertexArray::Create();
+            m_MeshBufferData.m_VertexArray = VertexArray::Create();
+            m_MeshBufferData.m_VertexArray->Bind();
 
             if (m_Vertices.size() != 0)
             {
                 m_TotalVertices = GetVertexSize(m_Vertices);
                 m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_Vertices, GetVertexSize(m_Vertices));
+                
+                if (m_Indices.size() != 0)
+                {
+                    m_MeshBufferData.m_InstanceBuffer = VertexBuffer::Create(m_Indices, GetVertexSize(m_Indices));
+                    //m_MeshBufferData.m_UVBuffer->SetLayout({ {ShaderDataType::Float2, "a_UV"} });
+                    //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_UVBuffer);
+                }
+
                 m_MeshBufferData.m_VertexBuffer->SetLayout({ {ShaderDataType::Float3, "a_Position"} });
                 m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_VertexBuffer);
             }
@@ -74,14 +83,37 @@ namespace Albedo {
                 m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_UVBuffer);
             }
 
-            std::vector<int> idBuffer;
-            for (int i = 0; i < m_Vertices.size()*3; i++)
+            //glm::vec3 translations[200];
+            std::vector<glm::vec3> instanceBuffer;
+            int index = 0;
+            float offset = 1.0f;
+            for (int y = -1000; y < 1000; y += 20)
             {
-                idBuffer.push_back(id);
+                for (int x = -1000; x < 1000; x += 20)
+                {
+                    glm::vec3 translation;
+                    translation.x = (float)(x + offset) / 10.0f;
+                    translation.y = (float)(y + offset) / 10.0f;
+                    translation.z = 0.0;
+                    instanceBuffer.push_back(translation);
+                }
             }
-            m_MeshBufferData.m_ID = VertexBuffer::Create(idBuffer, GetVertexSize(idBuffer));
-            m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
-            m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_ID);
+
+            //m_MeshBufferData.m_InstanceBuffer = VertexBuffer::Create(instanceBuffer, GetVertexSize(instanceBuffer));
+            //m_MeshBufferData.m_InstanceBuffer->SetLayout({ {ShaderDataType::Int, "m_InstanceBuffer"} });
+            //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_InstanceBuffer);
+            //
+            //glBindBuffer(GL_ARRAY_BUFFER, 0);
+            //glVertexAttribDivisor(3, 1);
+
+            //std::vector<int> idBuffer;
+            //for (int i = 0; i < m_Vertices.size()*3; i++)
+            //{
+            //    idBuffer.push_back(id);
+            //}
+            //m_MeshBufferData.m_ID = VertexBuffer::Create(idBuffer, GetVertexSize(idBuffer));
+            //m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
+            //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_ID);
 
 
         }
