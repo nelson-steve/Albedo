@@ -99,7 +99,7 @@ namespace Albedo {
 			fbSpec.Attachments = {
 				FramebufferTextureFormat::RGBA8,
 				FramebufferTextureFormat::RED_INTEGER,
-				FramebufferTextureFormat::Depth
+				FramebufferTextureFormat::DEPTH24STENCIL8
 			};
 			fbSpec.Width = 1280;
 			fbSpec.Height = 720;
@@ -326,7 +326,7 @@ namespace Albedo {
 
 			ImGui::Begin("depth map");
 
-			ImGui::Image((ImTextureID)m_ActiveScene->m_DepthMap->GetTextureID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image((ImTextureID)m_ActiveScene->m_DepthMapFBO->GetDepthAttachmentID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			ImGui::End();
 

@@ -60,6 +60,7 @@ namespace Albedo {
 		//TODO: make this private
 		Ref<PhysicsSolver> m_PhysicsSolver;
 		Ref<Texture2D> m_DepthMap;
+		Ref<Framebuffer> m_DepthMapFBO;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -75,7 +76,7 @@ namespace Albedo {
 		// and these are lot's of data types. since I change to try new things.
 		// it's very messy.
 		//
-
+		bool fbo = true;
 		Ref<Texture2D> skyboxTemp;
 		Ref<Shader> m_SkyboxShader;
 		Ref<Shader> m_DepthShader;
@@ -93,7 +94,6 @@ namespace Albedo {
 		Ref<Shader>	brdfShader;
 		Ref<Shader>	backgroundShader;
 
-		Ref<Framebuffer> m_DepthMapFBO;
 		unsigned int depthMapFBO;
 
 		//Ref<Shader> m_ShaderTemp;

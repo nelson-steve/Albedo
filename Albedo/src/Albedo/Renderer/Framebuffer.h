@@ -13,10 +13,9 @@ namespace Albedo {
 		RED_INTEGER,
 		// Depth/stencil
 		DEPTH24STENCIL8,
+		Depth,
 		//Renderbuffer
-		RENDER_BUFFER,
-		// Defaults
-		Depth = DEPTH24STENCIL8
+		RENDER_BUFFER
 	};
 
 	struct FramebufferTextureSpecification
@@ -46,6 +45,9 @@ namespace Albedo {
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;
 
+		bool s_DrawBuffer = true;
+		bool s_ReadBuffer = true;
+		bool s_BorderColor   = false;
 		bool SwapChainTarget = false;
 	};
 
@@ -67,11 +69,13 @@ namespace Albedo {
 		virtual uint32_t GetFramebufferID() const = 0;
 		virtual uint32_t GetRenderbufferID() const = 0;
 
+		virtual uint32_t GetDepthAttachmentID() const = 0;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
+		static Ref<Framebuffer> Create(const FramebufferSpecification& spec, TextureConfiguration config);
 	};
 
 

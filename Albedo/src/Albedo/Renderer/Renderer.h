@@ -16,6 +16,8 @@ namespace Albedo {
 	{
 	public:
 		static void   Init(const entt::registry& reg);
+		static void	  PreRenderPass(Ref<Shader> depthShader, Ref<Framebuffer> fbo, 
+			const entt::registry& reg, const glm::vec3& l);
 		static void   Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
 		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,

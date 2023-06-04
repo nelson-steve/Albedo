@@ -4,6 +4,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Albedo {
@@ -64,6 +65,43 @@ namespace Albedo {
 
 			shader.m_Shader->SetInitializationStatus(false);
 		}
+	}
+
+	void Renderer::PreRenderPass(Ref<Shader> depthShader, Ref<Framebuffer> fbo, const entt::registry& reg, const glm::vec3& l)
+	{
+		auto view = reg.view<TransformComponent, MeshComponent>();
+
+		fbo->Bind();
+		// --------------------------------------------------------------
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 0.1f, far_plane = 700.5f;
+		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(l, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		// render scene from light's point of view
+		depthShader->Bind();
+		for (auto& entity : view)
+		{
+			auto& mesh = view.get<MeshComponent>(entity);
+			auto& transform = view.get<TransformComponent>(entity);
+			depthShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+			depthShader->SetUniformMat4("u_Transform", transform.GetTransform());
+			glClear(GL_DEPTH_BUFFER_BIT);
+			//glActiveTexture(GL_TEXTURE0);
+			//glBindTexture(GL_TEXTURE_2D, woodTexture);
+			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
+			glDrawArrays(AlbedoDrawTypeToGLType(mesh.m_Mesh->GetRendererConfig().Type), 0, mesh.m_Mesh->GetVertices().size());
+			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
+		}
+
+		//Render(simpleDepthShader);
+		
+		depthShader->Unbind();
+		fbo->Unbind();
+		//glBindFramebuffer(GL_FRAMEBUFFER, 1);
+
 	}
 
 	GLenum Renderer::AlbedoDrawTypeToGLType(DrawType type)
