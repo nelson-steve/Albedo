@@ -2,10 +2,10 @@
 
 namespace Albedo {
 
-	class ConfigurationPanel
+	class SceneConfigurationPanel
 	{
 	public:
-		ConfigurationPanel();
+		SceneConfigurationPanel();
 
 		void OnImGuiRender();
 	private:

@@ -36,6 +36,7 @@ namespace Albedo {
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
+
 		m_Context->m_Registry.each([&](auto entityID)
 			{
 				Entity entity{ entityID , m_Context.get() };
@@ -81,6 +82,25 @@ namespace Albedo {
 
 				m_SelectionContext = e;
 			}
+
+			if (ImGui::MenuItem("Create Scene Light"))
+			{
+				Entity e = m_Context->CreateEntity("Scene Light");
+
+				e.AddComponent<LightComponent>();
+
+				m_SelectionContext = e;
+			}
+
+			if (ImGui::MenuItem("Create Skybox"))
+			{
+				Entity e = m_Context->CreateEntity("Skybox");
+
+				e.AddComponent<SkyboxComponent>();
+
+				m_SelectionContext = e;
+			}
+
 			ImGui::EndPopup();
 		}
 
@@ -89,11 +109,46 @@ namespace Albedo {
 		ImGui::Begin("Properties");
 		if (m_SelectionContext)
 		{
-			DrawComponents(m_SelectionContext);
+			DrawComponentsOfEntity(m_SelectionContext);
+		}
+
+		ImGui::End();
+
+		ImGui::Begin("Scene Configuration");
+		if (m_SelectionContext)
+		{
+			DrawComponentsOfScene(m_SelectionContext);
 		}
 
 		ImGui::End();
 	}
+#if 0
+	if (entity.HasComponent<LightComponent>())
+	{
+		auto& view = m_Context->m_Registry.view<LightComponent, TagComponent>();
+
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
+		bool opened = ImGui::TreeNodeEx((void*)234234, flags, "Scene Lights");
+		int i = 0;
+		if (opened)
+		{
+			auto& tag = entity.GetComponent<TagComponent>();
+			ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+			flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+			bool opened = ImGui::TreeNodeEx((void*)i, flags, tag.Tag.c_str());
+			if (ImGui::IsItemClicked)
+			{
+				m_SelectionContext = e;
+			}
+			if (o)
+				ImGui::TreePop();
+
+			ImGui::TreePop();
+		}
+
+		return;
+	}
+#endif
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
@@ -101,7 +156,7 @@ namespace Albedo {
 
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void*)(uint32_t)entity, flags, tag.c_str());
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
@@ -309,8 +364,11 @@ namespace Albedo {
 		}
 	}
 
-	void SceneHierarchyPanel::DrawComponents(Entity entity)
+	void SceneHierarchyPanel::DrawComponentsOfEntity(Entity entity)
 	{
+		if (entity.HasComponent<LightComponent>())
+			return;
+
 		if (entity.HasComponent<TagComponent>())
 		{
 			auto& tag = entity.GetComponent<TagComponent>().Tag;
@@ -334,9 +392,9 @@ namespace Albedo {
 		{
 			char* Tag = "Default Tag";
 			ImGuiInputTextFlags input_text_flags =
-				ImGuiInputTextFlags_EnterReturnsTrue   | 
-				ImGuiInputTextFlags_EscapeClearsAll    | 
-				ImGuiInputTextFlags_CallbackCompletion | 
+				ImGuiInputTextFlags_EnterReturnsTrue   |
+				ImGuiInputTextFlags_EscapeClearsAll    |
+				ImGuiInputTextFlags_CallbackCompletion |
 				ImGuiInputTextFlags_CallbackHistory;
 
 			if (ImGui::MenuItem("Tag"))
@@ -349,6 +407,12 @@ namespace Albedo {
 			{
 				if (!m_SelectionContext.HasComponent<MeshComponent>())
 					m_SelectionContext.AddComponent<MeshComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("Light"))
+			{
+				if (!m_SelectionContext.HasComponent<LightComponent>())
+					m_SelectionContext.AddComponent<LightComponent>();
 				ImGui::CloseCurrentPopup();
 			}
 			else if (ImGui::MenuItem("Texture"))
@@ -407,6 +471,17 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
 			});
 
+		DrawComponent<LightComponent>("Light", entity, [&](auto& component)
+			{
+				DrawVec3Control("Position", component.position, 0, 70);
+				//glm::vec3 rotation = glm::degrees(component.Rotation);
+				ImGui::ColorEdit3("color", glm::value_ptr(color));
+				//ImGui::ColorButton("color", ImVec4(color.x, color.y, color.z, color.w), 0, ImVec2());
+				//DrawVec3Control("", rotation, 0, 70);
+				//component.Rotation = glm::radians(rotation);
+				//DrawVec3Control("Scale", component.Scale, 1.0f, 70);
+			});
+
 		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
 			{
 				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
@@ -417,7 +492,7 @@ namespace Albedo {
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
-						component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+						component.AddMesh(m_AssetManager->LoadModelusingAssimp(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -539,13 +614,17 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
-				ImGui::DragFloat("Exposure", &component.exposure, 0.1f, 0.0f, 10.0f);
-				component.m_Material->SetExposure(component.exposure);
-				ImGui::DragFloat("Roughness", &component.roughness, 0.01f, 0.0f, 5.0f);
-				component.m_Material->SetRoughnessScale(component.roughness);
+				ImGui::Checkbox("PBR", &isPBR);
+				if(isPBR)
+				{
+				}
+				ImGui::DragFloat("Exposure", &exposure, 0.1f, 0.0f, 10.0f);
+				component.m_Material->SetExposure(exposure);
+				ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 5.0f);
+				component.m_Material->SetRoughnessScale(roughness);
 
-				DrawVec3Control("light", component.lightPos);
-				
+				//DrawVec3Control("light", lightPos);
+				//component.
 				//ImGui::DragFloat("exp", &component.exposure, 0.01f, 0.0f, 1.0f);
 				//component.m_Material->SetExposure(component.exposure);
 			});
@@ -713,6 +792,66 @@ namespace Albedo {
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
 			});
+	}
+
+	void SceneHierarchyPanel::DrawComponentsOfScene(Entity entity)
+	{
+		DrawComponent<LightComponent>("Light", entity, [&](auto& component)
+			{
+				ImGui::Text("Light Component");
+
+				DrawVec3Control("Position", component.position, 0, 70);
+				//glm::vec3 rotation = glm::degrees(component.Rotation);
+				ImGui::ColorEdit3("Ambient", glm::value_ptr(component.ambient));
+
+				std::string items[] = { "Point", "Directional", "Spot" };
+				if (ImGui::BeginCombo("##lights", m_CurrentLight.c_str()))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					{
+						bool is_selected = (m_CurrentLight == items[n]);
+						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						{
+							m_CurrentLight = items[n];
+							switch (n)
+							{
+							case 0: // Point
+								component.type = component.LightType::Point;
+								break;
+							case 1: // Directional
+								component.type = component.LightType::Directional;
+								break;
+							case 2: // Spot
+								component.type = component.LightType::Spot;
+								break;
+							default:
+								break;
+							}
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+
+				//ImGui::ColorButton("color", ImVec4(color.x, color.y, color.z, color.w), 0, ImVec2());
+				//DrawVec3Control("", rotation, 0, 70);
+				//component.Rotation = glm::radians(rotation);
+				//DrawVec3Control("Scale", component.Scale, 1.0f, 70);
+			});
+
+		DrawComponent<SkyboxComponent>("Skybox", entity, [&](auto& component)
+			{
+				ImGui::Text("Skybox Component");
+				//DrawVec3Control("Position", component.position, 0, 70);
+				//glm::vec3 rotation = glm::degrees(component.Rotation);
+				//ImGui::ColorEdit3("color", glm::value_ptr(color));
+				//ImGui::ColorButton("color", ImVec4(color.x, color.y, color.z, color.w), 0, ImVec2());
+				//DrawVec3Control("", rotation, 0, 70);
+				//component.Rotation = glm::radians(rotation);
+				//DrawVec3Control("Scale", component.Scale, 1.0f, 70);
+			});
+
 	}
 
 }

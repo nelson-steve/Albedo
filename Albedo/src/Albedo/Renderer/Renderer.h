@@ -17,7 +17,7 @@ namespace Albedo {
 	public:
 		static void   Init(const entt::registry& reg);
 		static void   Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
-			const TextureComponent& texture, const MaterialComponent& material);
+			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
 		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material);
 		static void	  Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);

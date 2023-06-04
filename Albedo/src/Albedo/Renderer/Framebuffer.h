@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo/Core/Core.h"
+#include "Texture.h"
 
 namespace Albedo {
 
@@ -39,6 +40,8 @@ namespace Albedo {
 
 	struct FramebufferSpecification
 	{
+		TextureConfiguration config;
+
 		uint32_t Width = 0, Height = 0;
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;

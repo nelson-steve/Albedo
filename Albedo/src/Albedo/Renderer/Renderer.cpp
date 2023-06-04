@@ -89,14 +89,27 @@ namespace Albedo {
 	}
 
 	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader,
-		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material)
+		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material, 
+		const std::vector<LightComponent>& lights)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 		//shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
-		shader.m_Shader->SetUniformFloat3("u_LightPosition", material.lightPos);
-		shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
+		shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());	
+		int i = 0;
+		for (const LightComponent& l : lights)
+		{
+			std::string& s = "u_LightPosition[" + std::to_string(i) + "]";
+			shader.m_Shader->SetUniformFloat3(s, l.position);
+
+			s = "u_LightColor[" + std::to_string(i) + "]";
+			shader.m_Shader->SetUniformFloat3(s, l.ambient);
+
+			i++;
+		}
+		
+		//shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
 		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
 		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
@@ -170,7 +183,8 @@ namespace Albedo {
 		{
 			//glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
 			//glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
-			glDrawElementsInstanced(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0, 1600);
+			//glDrawElementsInstanced(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0, 1);
+			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
 			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 		}

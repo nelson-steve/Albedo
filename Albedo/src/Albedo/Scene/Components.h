@@ -39,10 +39,38 @@ namespace Albedo {
 
 	struct LightComponent
 	{
-		glm::vec3 pos;
+		enum LightType
+		{
+			Point,
+			Directional,
+			Spot
+		};
+		
+		LightType type = LightType::Point;
+		
+		glm::vec3 direction = glm::vec3(1.0);
+		glm::vec3 position = glm::vec3(1.0);
+		glm::vec3 ambient = glm::vec3(1.0);
+		glm::vec3 diffuse = glm::vec3(1.0);
+		glm::vec3 specular = glm::vec3(1.0);
+
+		float cutOff = 0.0;
+		float OuterCutOff = 0.0;
+		float constant = 0.0;
+		float liear = 0.0;
+		float quadratic = 0.0;
+		//glm::vec3 color = glm::vec3(1.0);
 
 		LightComponent() = default;
 		LightComponent(const LightComponent&) = default;
+	};
+
+	struct SkyboxComponent
+	{
+		Ref<Texture2D> m_Skybox;
+
+		SkyboxComponent() = default;
+		SkyboxComponent(const SkyboxComponent&) = default;
 	};
 
 	struct TextureComponent
@@ -90,13 +118,6 @@ namespace Albedo {
 	struct MaterialComponent
 	{
 		std::string name = "Material Component";
-
-
-		glm::vec3 albedoColor = glm::vec3(0.0);
-		float exposure = 2.2;
-		float roughness = 0.0;
-
-		glm::vec3 lightPos = glm::vec3(0.0);
 
 		Ref<Material> m_Material;
 		

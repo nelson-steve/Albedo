@@ -6,6 +6,7 @@
 #include "stb_image.h"
 #include <gl/GL.h>
 
+#include "Utils.h"
 
 namespace Albedo {
 
@@ -29,63 +30,17 @@ namespace Albedo {
 			}
 		}
 
-		GLenum dataFormat = GL_NONE;
-		GLenum texLayout  = GL_NONE;
-		GLenum dataType   = GL_NONE;
-		GLenum texType	  = GL_NONE;
-		GLint inFormat    = GL_NONE;
-		GLint minFilter   = GL_NONE;
-		GLint magFilter   = GL_NONE;
+		GLenum dataFormat = Utils::AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
+		GLenum texLayout  = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
+		GLenum dataType   = Utils::AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
+		GLenum texType	  = Utils::AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
+
+		GLint inFormat    = Utils::AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
+		GLint minFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
+		GLint magFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
 
 		if (config.m_TextureType == Config::TextureType::Cubemap)
 			isCubemap = true;
-
-		if (config.m_TextureType == Config::TextureType::Texture2D)
-			texType = GL_TEXTURE_2D;
-		else if (config.m_TextureType == Config::TextureType::Cubemap)
-			texType = GL_TEXTURE_CUBE_MAP;
-		else
-			Albedo_Core_WARN("Invalid texture type");
-
-		if (config.m_TextureLayout == Config::TextureLayout::Repeat)
-			texLayout = GL_REPEAT;
-		else if (config.m_TextureLayout == Config::TextureLayout::ClampToEdge)
-			texLayout = GL_CLAMP_TO_EDGE;
-		else
-			Albedo_Core_WARN("Invalid layout type");
-
-		if (config.m_InternalFormat == Config::InternalFormat::RGB)
-			inFormat = GL_RGB;
-		else if (config.m_InternalFormat == Config::InternalFormat::RGBA)
-			inFormat = GL_RGBA;
-		else if (config.m_InternalFormat == Config::InternalFormat::RGB16F)
-			inFormat = GL_RGBA16F;
-		else
-			Albedo_Core_WARN("Invalid internal format type");
-
-		if (config.m_DataType == Config::DataType::INT)
-			dataType = GL_INT;
-		else if (config.m_DataType == Config::DataType::UNSIGNED_BYTE)
-			dataType = GL_UNSIGNED_BYTE;
-		else if (config.m_DataType == Config::DataType::FLOAT)
-			dataType = GL_FLOAT;
-
-		if (config.m_DataFormat == Config::DataFormat::RGB)
-			dataFormat = GL_RGB;
-		else if (config.m_DataFormat == Config::DataFormat::RGBA)	
-			dataFormat = GL_RGBA;
-		else if (config.m_DataFormat == Config::DataFormat::RG)
-			dataFormat = GL_RG;
-
-		if (config.m_MinFilter == Config::MinMagFilters::LINEAR)
-			minFilter = GL_LINEAR;
-		else if (config.m_MinFilter == Config::MinMagFilters::LINEAR_MIPMAP_LINEAR)
-			minFilter = GL_LINEAR_MIPMAP_LINEAR;
-
-		if (config.m_MagFilter == Config::MinMagFilters::LINEAR)
-			magFilter = GL_LINEAR;
-		else if (config.m_MagFilter == Config::MinMagFilters::LINEAR_MIPMAP_LINEAR)
-			magFilter = GL_LINEAR_MIPMAP_LINEAR;
 
 		glGenTextures(1, &m_TextureID);
 		glBindTexture(texType, m_TextureID);

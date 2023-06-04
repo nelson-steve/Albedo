@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include "Entity.h"
+#include "imgui.h"
 
 #include "Components.h"
 #include "Albedo/Utils/AssetSystem.h"
@@ -51,6 +52,7 @@ namespace Albedo {
 		m_Cube->InitMesh(-1);
 
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
+		m_DepthShader  = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
 		//m_IrradianceShader = Shader::Create("Assets/Shaders/IrradiancetoConvolution.glsl");
 		//m_PrefilterShader = Shader::Create("Assets/Shaders/Prefilter.glsl");
 		//m_brdfShader = Shader::Create("Assets/Shaders/BRDF.glsl");
@@ -350,6 +352,31 @@ namespace Albedo {
 
 		m_Framebuffer->Unbind();
 #endif
+		FramebufferSpecification fbSpec;
+		fbSpec.Attachments = {
+			FramebufferTextureFormat::RENDER_BUFFER,
+		};
+		fbSpec.Width = 512;
+		fbSpec.Height = 512;
+		m_DepthMapFBO = Framebuffer::Create(fbSpec);
+
+		glGenFramebuffers(1, &depthMapFBO);
+
+		TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::DEPTH, Config::TextureLayout::ClampToBorder,
+			Config::MinMagFilters::NEAREST, Config::MinMagFilters::NEAREST, Config::DataType::FLOAT,
+			Config::DataFormat::RGB, true, false);
+		config.m_Width = 1024;
+		config.m_Height = 1024;
+		m_DepthMap = Texture2D::Create(config);
+		
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		// attach depth texture as FBO's depth buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthMap->GetTextureID(), 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		Renderer::Init(m_Registry);
 	}
@@ -360,7 +387,7 @@ namespace Albedo {
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -568,14 +595,9 @@ namespace Albedo {
 		//m_ShaderTemp->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 		//Renderer::RenderOverlay(m_Collider);
 
-#if 1
-		//GLint drawFboId;
-		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-		//Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
-
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
 			TextureComponent, MaterialComponent>();
-		
+
 		for (auto& entity : view)
 		{
 			auto& mesh = view.get<MeshComponent>(entity);
@@ -584,20 +606,52 @@ namespace Albedo {
 				InitScene();
 		}
 
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 7.5f;
+		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		// render scene from light's point of view
+		m_DepthShader->Bind();
+		m_DepthShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+
+		glViewport(0, 0, 1024, 1024);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		auto& lightComponents = m_Registry.view<LightComponent>();
+		std::vector<LightComponent> lights;
+
+		for (auto& entity : lightComponents)
+		{
+			lights.push_back(lightComponents.get<LightComponent>(entity));
+		}
+
+		for (auto& entity : view)
+		{
+			m_DepthShader->SetUniformMat4("u_Transform", view.get<TransformComponent>(entity).GetTransform());
+			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 2);
+		glViewport(0, 0, 1280, 720);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+#if 1
+		GLint drawFboId;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
+
 		if (m_IsSimulating)
 		{
 			OnUpdatePhysics(ts);
 
-			//for (auto& entity : view)
-			//{
-			//	auto& pos = view.get<PhysicsComponent>(entity).BodyPosition;
-			//	view.get<TransformComponent>(entity).Position = pos;
-			//}
-
 			for (auto& entity : view)
 			{
 				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity));
+					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 		}
@@ -623,7 +677,7 @@ namespace Albedo {
 				//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture->GetTextureID());
 
 				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity));
+					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 
@@ -714,6 +768,16 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<LightComponent>(Entity entity, LightComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<SkyboxComponent>(Entity entity, SkyboxComponent& component)
 	{
 	}
 

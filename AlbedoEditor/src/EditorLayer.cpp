@@ -145,7 +145,7 @@ namespace Albedo {
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
-		OpenDefaultScene("DefaultScene.albedo");
+		//OpenDefaultScene("DefaultScene.albedo");
 	}
 
 	void EditorLayer::OnDetach()
@@ -323,7 +323,12 @@ namespace Albedo {
 
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
-			//m_ConfigurationPanel.OnImGuiRender();
+
+			ImGui::Begin("depth map");
+
+			ImGui::Image((ImTextureID)m_ActiveScene->m_DepthMap->GetTextureID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			ImGui::End();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");

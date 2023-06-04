@@ -26,6 +26,9 @@ namespace Albedo {
 
 	const Ref<Mesh> AssetSystem::LoadModelusingAssimp(const std::string& path)
 	{
+		//auto& m = LoadModel(path);
+		//return m;
+
 		if (path == "")
 		{
 			Albedo_Core_ERROR("Error: Empty path - Mesh");
@@ -41,7 +44,8 @@ namespace Albedo {
 		}
 
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	//	| aiProcess_FlipUVs
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 		// check for errors
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 		{
@@ -80,6 +84,17 @@ namespace Albedo {
 				// texture coordinates
 				if (mesh.mTextureCoords[0]) // does the mesh contain texture coordinates?
 				{
+					if (mesh.mTextureCoords[1] ||
+						mesh.mTextureCoords[2] ||
+						mesh.mTextureCoords[3] ||
+						mesh.mTextureCoords[4] ||
+						mesh.mTextureCoords[5] ||
+						mesh.mTextureCoords[6] ||
+						mesh.mTextureCoords[7]
+						)
+					{
+						Albedo_CORE_ASSERT(false, "tex");
+					}
 					glm::vec2 vec;
 					vec.x = mesh.mTextureCoords[0][i].x;
 					vec.y = mesh.mTextureCoords[0][i].y;

@@ -1554,6 +1554,7 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">

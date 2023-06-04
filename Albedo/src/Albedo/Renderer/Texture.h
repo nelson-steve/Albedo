@@ -16,24 +16,29 @@ namespace Albedo {
 			Cubemap
 		};
 
-		enum class InternalFormat
+		enum class InternalFormat // GLint
 		{
 			RGB,
 			RGBA,
-			RGB16F
+			RGBA8,
+			RGB16F,
+			DEPTH
 		};
 
 		enum class DataFormat
 		{
+			RG,
 			RGB,
 			RGBA,
-			RG
+			RGBA8,
+			DEPTH
 		};
 
 		enum class TextureLayout
 		{
 			Repeat,
-			ClampToEdge
+			ClampToEdge,
+			ClampToBorder
 		};
 
 		enum class DataType
@@ -43,15 +48,17 @@ namespace Albedo {
 			INT
 		};
 
-		enum class MinMagFilters
+		enum class MinMagFilters // GLint
 		{
 			LINEAR,
+			NEAREST,
 			LINEAR_MIPMAP_LINEAR
 		};
 	};
 
 	struct TextureConfiguration
 	{
+		TextureConfiguration() = default;
 		TextureConfiguration(Config::TextureType texType, Config::InternalFormat inFormat, Config::TextureLayout texLayout,
 			Config::MinMagFilters minFilter, Config::MinMagFilters magFilter, Config::DataType dataType, Config::DataFormat dataFormat, bool nullData, bool flip,
 			const std::string& path = "", uint32_t width = 0, uint32_t height = 0)
@@ -74,12 +81,12 @@ namespace Albedo {
 		std::vector<std::string> Faces;
 	
 		Config::TextureType m_TextureType		= Config::TextureType::Texture2D;
-		Config::InternalFormat m_InternalFormat = Config::InternalFormat::RGB;
-		Config::TextureLayout m_TextureLayout	= Config::TextureLayout::Repeat;
+		Config::InternalFormat m_InternalFormat = Config::InternalFormat::RGBA;
+		Config::TextureLayout m_TextureLayout	= Config::TextureLayout::ClampToEdge;
 		Config::MinMagFilters m_MinFilter		= Config::MinMagFilters::LINEAR;
 		Config::MinMagFilters m_MagFilter		= Config::MinMagFilters::LINEAR;
 		Config::DataType m_DataType				= Config::DataType::UNSIGNED_BYTE;
-		Config::DataFormat m_DataFormat			= Config::DataFormat::RGB;
+		Config::DataFormat m_DataFormat			= Config::DataFormat::RGBA;
 		bool m_NullData							= true;
 		bool m_Flipped							= false;
 		uint32_t m_Width						= 0;

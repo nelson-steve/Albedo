@@ -7,7 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\EditorLayer.h" />
-    <ClInclude Include="src\Panels\ConfigurationPanel.h">
+    <ClInclude Include="src\Panels\SceneConfigurationPanel.h">
       <Filter>Panels</Filter>
     </ClInclude>
     <ClInclude Include="src\Panels\ContentBrowserPanel.h">
@@ -20,7 +20,7 @@
   <ItemGroup>
     <ClCompile Include="src\AlbedoEditorApp.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
-    <ClCompile Include="src\Panels\ConfigurationPanel.cpp">
+    <ClCompile Include="src\Panels\SceneConfigurationPanel.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp">

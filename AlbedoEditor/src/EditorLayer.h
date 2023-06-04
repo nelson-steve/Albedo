@@ -2,11 +2,12 @@
 
 #include "Albedo.h"
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "Albedo/Cameras/EditorCamera.h"
+#include "Albedo/Utils/AssetSystem.h"
+// Panels
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
-#include "Albedo/Cameras/EditorCamera.h"
-#include <Albedo/Utils/AssetSystem.h>
-#include "Panels/ConfigurationPanel.h"
+#include "Panels/SceneConfigurationPanel.h"
 
 namespace Albedo {
 	class EditorLayer : public Layer
@@ -60,7 +61,7 @@ namespace Albedo {
 		int							 m_GizmoType = -1;
 		SceneHierarchyPanel			 m_SceneHierarchyPanel;
 		ContentBrowserPanel			 m_ContentBrowserPanel;
-		ConfigurationPanel			 m_ConfigurationPanel;
+		SceneConfigurationPanel			 m_SceneConfigurationPanel;
 		std::filesystem::path m_EditorScenePath;
 
 		enum class SceneState

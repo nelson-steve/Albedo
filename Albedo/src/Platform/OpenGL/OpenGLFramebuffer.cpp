@@ -3,13 +3,14 @@
 #include "OpenGLFramebuffer.h"
 
 #include <glad/glad.h>
+#include "Utils.h"
 
 namespace Albedo {
 
 	static const uint32_t s_MaxFramebufferSize = 8192;
 
 	namespace Utils {
-
+		
 		static GLenum TextureTarget(bool multisampled)
 		{
 			return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -25,12 +26,21 @@ namespace Albedo {
 			glBindTexture(TextureTarget(multisampled), id);
 		}
 
-		static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
+		static void AttachColorTexture(uint32_t id, GLenum internalFormat, GLenum format, const FramebufferSpecification& spec, const TextureConfiguration& config, int index)
 		{
-			bool multisampled = samples > 1;
+			GLenum dataFormat = AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
+			GLenum texLayout  = AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
+			GLenum dataType   = AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
+			GLenum texType    = AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
+
+			GLint inFormat    = AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
+			GLint minFilter   = AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
+			GLint magFilter   = AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
+
+			bool multisampled = spec.Samples > 1;
 			if (multisampled)
 			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, spec.Samples, internalFormat, spec.Width, spec.Height, GL_FALSE);
 			}
 			else
 			{
@@ -39,44 +49,53 @@ namespace Albedo {
 				//	int value = -1;
 				//	glTexImage2D(GL_TEXTURE_2D, 0, GL_INT, 1, 1, 0, format, GL_INT, (void *) & value);
 				//}
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+				glTexImage2D(texType, 0, internalFormat, spec.Width, spec.Height, 0, format, dataType, nullptr);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, minFilter);
+				glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, magFilter);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(multisampled), id, 0);
 		}
 
-		static void AttachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
+		static void AttachDepthTexture(uint32_t id, GLenum format, GLenum attachmentType, const FramebufferSpecification& spec, const TextureConfiguration& config)
 		{
-			bool multisampled = samples > 1;
+			GLenum dataFormat = AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
+			GLenum texLayout = AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
+			GLenum dataType = AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
+			GLenum texType = AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
+
+			GLint inFormat = AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
+			GLint minFilter = AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
+			GLint magFilter = AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
+
+			bool multisampled = spec.Samples > 1;
 			if (multisampled)
 			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, spec.Samples, format, spec.Width, spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+				glTexStorage2D(texType, 1, format, spec.Width, spec.Height);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, minFilter);
+				glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, magFilter);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
+				glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
 		}
 
-		static void AttachRenderbuffer(uint32_t& id, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
+		static void AttachRenderbuffer(uint32_t& id, const FramebufferSpecification& spec, const TextureConfiguration& config)
 		{
 			glGenRenderbuffers(1, &id);
 			glBindRenderbuffer(GL_RENDERBUFFER, id);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, spec.Width, spec.Height);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, id);
 
 		}
@@ -117,8 +136,8 @@ namespace Albedo {
 
 	}
 
-	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
-		: m_Specification(spec)
+	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec, const TextureConfiguration& config)
+		: m_Specification(spec), m_TextureConfiguration(config)
 	{
 		for (auto spec : m_Specification.Attachments.Attachments)
 		{
@@ -171,10 +190,11 @@ namespace Albedo {
 				switch (m_ColorAttachmentSpecifications[i].TextureFormat)
 				{
 					case FramebufferTextureFormat::RGBA8:
-						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+						Utils::AttachColorTexture(m_ColorAttachments[i], GL_RGBA8, GL_RGBA, m_Specification, m_TextureConfiguration, i);
 						break;
 					case FramebufferTextureFormat::RED_INTEGER:
-						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
+						Utils::AttachColorTexture(m_ColorAttachments[i], GL_R32I, GL_RED_INTEGER, m_Specification, m_TextureConfiguration, i);
+						//Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
 						break;
 				}
 			}
@@ -187,7 +207,7 @@ namespace Albedo {
 			switch (m_DepthAttachmentSpecification.TextureFormat)
 			{
 				case FramebufferTextureFormat::DEPTH24STENCIL8:
-					Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+					Utils::AttachDepthTexture(m_DepthAttachment, GL_DEPTH24_STENCIL8, GL_DEPTH_ATTACHMENT m_Specification, m_TextureConfiguration);
 					break;
 			}
 		}
@@ -197,7 +217,7 @@ namespace Albedo {
 			switch (m_RenderbufferAttachmentSpecification.TextureFormat)
 			{
 			case FramebufferTextureFormat::RENDER_BUFFER:
-				Utils::AttachRenderbuffer(m_RenderbufferAttachment, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+				Utils::AttachRenderbuffer(m_RenderbufferAttachment, m_Specification, m_TextureConfiguration);
 				break;
 			}
 		}

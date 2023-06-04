@@ -139,14 +139,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\EditorLayer.h" />
-    <ClInclude Include="src\Panels\ConfigurationPanel.h" />
+    <ClInclude Include="src\Panels\SceneConfigurationPanel.h" />
     <ClInclude Include="src\Panels\ContentBrowserPanel.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlbedoEditorApp.cpp" />
     <ClCompile Include="src\EditorLayer.cpp" />
-    <ClCompile Include="src\Panels\ConfigurationPanel.cpp" />
+    <ClCompile Include="src\Panels\SceneConfigurationPanel.cpp" />
     <ClCompile Include="src\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
   </ItemGroup>

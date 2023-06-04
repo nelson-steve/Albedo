@@ -87,9 +87,9 @@ namespace Albedo {
             std::vector<glm::mat4> positions;
             int index = 0;
             float offset = 1.0f;
-            for (int y = -1000; y < 1000; y += 50)
+            for (int y = -100; y < 100; y += 10)
             {
-                for (int x = -1000; x < 1000; x += 50)
+                for (int x = -100; x < 100; x += 10)
                 {
                     glm::vec3 translation;
                     translation.x = (float)(x + offset) / 10.0f;

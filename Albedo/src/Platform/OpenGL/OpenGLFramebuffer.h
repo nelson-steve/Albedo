@@ -6,7 +6,7 @@ namespace Albedo {
 	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
-		OpenGLFramebuffer(const FramebufferSpecification& spec);
+		OpenGLFramebuffer(const FramebufferSpecification& spec, const TextureConfiguration& config = TextureConfiguration());
 		virtual ~OpenGLFramebuffer();
 
 		void Invalidate();
@@ -33,6 +33,8 @@ namespace Albedo {
 		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
 		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
 		FramebufferTextureSpecification m_RenderbufferAttachmentSpecification = FramebufferTextureFormat::None;
+
+		TextureConfiguration m_TextureConfiguration;
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
