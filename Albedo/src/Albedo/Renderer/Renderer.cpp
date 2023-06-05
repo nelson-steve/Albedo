@@ -82,13 +82,13 @@ namespace Albedo {
 		lightSpaceMatrix = lightProjection * lightView;
 		// render scene from light's point of view
 		depthShader->Bind();
+		depthShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		for (auto& entity : view)
 		{
 			auto& mesh = view.get<MeshComponent>(entity);
 			auto& transform = view.get<TransformComponent>(entity);
-			depthShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
 			depthShader->SetUniformMat4("u_Transform", transform.GetTransform());
-			glClear(GL_DEPTH_BUFFER_BIT);
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
@@ -98,8 +98,8 @@ namespace Albedo {
 
 		//Render(simpleDepthShader);
 		
-		depthShader->Unbind();
 		fbo->Unbind();
+		depthShader->Unbind();
 		//glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
 	}

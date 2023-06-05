@@ -423,16 +423,16 @@ namespace Albedo {
 
 		for (auto& entity : view)
 		{
-			glm::vec3 l;
-			if (lights.empty())
-				l = glm::vec3(1.0f, 3.0f, 0.0f);
-			else
-				l = lights[0].position;
-			Renderer::PreRenderPass(m_DepthShader, m_DepthMapFBO, m_Registry, l);
 			//Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 			//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
 			//Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 		}
+		glm::vec3 l;
+		if (lights.empty())
+			l = glm::vec3(1.0f, 3.0f, 0.0f);
+		else
+			l = lights[0].position;
+		Renderer::PreRenderPass(m_DepthShader, m_DepthMapFBO, m_Registry, l);
 		//m_DepthMapFBO->Unbind();
 		glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
