@@ -6,6 +6,7 @@
 #include "Albedo/Renderer/Mesh.h"
 #include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
+#include "Platform/OpenGL/ShadowMap.h"
 
 #include "entt.hpp"
 
@@ -52,6 +53,8 @@ namespace Albedo {
 
 		void SetPaused(bool paused) { m_IsPaused = paused; }
 
+		void SetMainFramebuffer(Ref<Framebuffer> fbo) { m_Framebuffer = fbo; }
+
 		void Step(int frames = 1);
 
 		entt::registry& Reg() { return m_Registry; }
@@ -61,17 +64,18 @@ namespace Albedo {
 		Ref<PhysicsSolver> m_PhysicsSolver;
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
+		Ref<ShadowMap> m_ShadowMap;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 	private:
 		entt::registry m_Registry;
+		Ref<Framebuffer> m_Framebuffer;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 		bool m_IsRunning = false;
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
-
 		//
 		// and these are lot's of data types. since I change to try new things.
 		// it's very messy.

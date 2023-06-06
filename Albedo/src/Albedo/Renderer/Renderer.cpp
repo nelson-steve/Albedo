@@ -57,25 +57,28 @@ namespace Albedo {
 			//	shader.m_Shader->SetUniformFloat3(n, translations[i]);
 			//}
 
-			shader.m_Shader->SetUniformInt1("u_AbedoMap", 0);
-			shader.m_Shader->SetUniformInt1("u_AOMap", 1);
-			shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
-			shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
-			shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
+			//shader.m_Shader->SetUniformInt1("u_AOMap", 1);
+			//shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
+			//shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
+			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
+			shader.m_Shader->SetUniformInt1("diffuseTexture", 0);
+			shader.m_Shader->SetUniformInt1("shadowMap", 1);
 
 			shader.m_Shader->SetInitializationStatus(false);
 		}
 	}
 
-	void Renderer::PreRenderPass(Ref<Shader> depthShader, Ref<Framebuffer> fbo, const entt::registry& reg, const glm::vec3& l)
+	void Renderer::PreRenderPass(Ref<Shader> depthShader, Ref<ShadowMap> fbo, 
+		const entt::registry& reg, const glm::vec3& l, Ref<Texture2D> tex)
 	{
 		auto view = reg.view<TransformComponent, MeshComponent>();
 
 		fbo->Bind();
+		glClear(GL_DEPTH_BUFFER_BIT);
 		// --------------------------------------------------------------
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
-		float near_plane = 0.1f, far_plane = 700.5f;
+		float near_plane = 1.0f, far_plane = 70.0f;
 		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
 		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 		lightView = glm::lookAt(l, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -83,12 +86,14 @@ namespace Albedo {
 		// render scene from light's point of view
 		depthShader->Bind();
 		depthShader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
-		glClear(GL_DEPTH_BUFFER_BIT);
 		for (auto& entity : view)
 		{
+			//if (view.<LightComponent>(entity))
+			//	continue;
 			auto& mesh = view.get<MeshComponent>(entity);
 			auto& transform = view.get<TransformComponent>(entity);
 			depthShader->SetUniformMat4("u_Transform", transform.GetTransform());
+			tex->Bind();
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
@@ -98,8 +103,8 @@ namespace Albedo {
 
 		//Render(simpleDepthShader);
 		
-		fbo->Unbind();
 		depthShader->Unbind();
+		fbo->Unbind();
 		//glBindFramebuffer(GL_FRAMEBUFFER, 1);
 
 	}
@@ -130,27 +135,42 @@ namespace Albedo {
 		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material, 
 		const std::vector<LightComponent>& lights)
 	{
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 70.0f;
+		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		glm::vec3 l;
+		if (lights.empty())
+			l = glm::vec3(1.0f, 3.0f, 0.0f);
+		else
+			l = lights[0].position;
+		lightView = glm::lookAt(l, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
+		shader.m_Shader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 		//shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
-		shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());	
+		//shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());	
 		int i = 0;
 		for (const LightComponent& l : lights)
 		{
-			std::string& s = "u_LightPosition[" + std::to_string(i) + "]";
-			shader.m_Shader->SetUniformFloat3(s, l.position);
+			//std::string& s = "u_LightPosition[" + std::to_string(i) + "]";
+			shader.m_Shader->SetUniformFloat3("u_LightPos", l.position);
 
-			s = "u_LightColor[" + std::to_string(i) + "]";
-			shader.m_Shader->SetUniformFloat3(s, l.ambient);
+			//s = "u_LightColor[" + std::to_string(i) + "]";
+			//shader.m_Shader->SetUniformFloat3(s, l.ambient);
+			shader.m_Shader->SetUniformFloat3("u_MaterialColor", l.ambient);
 
 			i++;
 		}
 		
 		//shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
-		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
-		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
-		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		//shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
+		//shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
+		shader.m_Shader->SetUniformFloat3("u_CameraPos", camera.GetPosition());
 
 		//shader.m_Shader->Bind();
 		//shader.m_Shader->SetUniformMat4("projection", camera.GetProjection());
@@ -163,14 +183,16 @@ namespace Albedo {
 
 		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 
-		if(texture.m_Textures.size() <= texture.totalTypes)
-		{
-			for (auto& it : texture.m_Textures)
-			{
-				if (it.second)
-					it.second->Bind(it.first);
-			}
-		}
+		//if(texture.m_Textures.size() <= texture.totalTypes)
+		//{
+		//	for (auto& it : texture.m_Textures)
+		//	{
+		//		if (it.second)
+		//			it.second->Bind(it.first);
+		//	}
+		//}
+
+
 	}
 
 	void Renderer::Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,

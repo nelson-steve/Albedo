@@ -90,7 +90,7 @@ namespace Albedo {
 
 				if (spec.s_BorderColor)
 				{
-					float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+					float borderColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 				}
 			}

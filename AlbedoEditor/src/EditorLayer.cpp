@@ -106,6 +106,8 @@ namespace Albedo {
 			m_Framebuffer = Framebuffer::Create(fbSpec);
 		}
 
+		m_ActiveScene->SetMainFramebuffer(m_Framebuffer);
+
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 10000.0f);
 
 #if 0
@@ -326,7 +328,7 @@ namespace Albedo {
 
 			ImGui::Begin("depth map");
 
-			ImGui::Image((ImTextureID)m_ActiveScene->m_DepthMapFBO->GetDepthAttachmentID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image((ImTextureID)m_ActiveScene->m_ShadowMap->GetDepthMapID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			ImGui::End();
 
@@ -644,6 +646,7 @@ namespace Albedo {
 
 			m_ActiveScene = m_EditorScene;
 			m_ActiveScene->InitScene();
+			m_ActiveScene->SetMainFramebuffer(m_Framebuffer);
 			m_EditorScenePath = path;
 		}
 	}

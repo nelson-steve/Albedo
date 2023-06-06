@@ -86,6 +86,7 @@ namespace Albedo {
 			if (ImGui::MenuItem("Create Scene Light"))
 			{
 				Entity e = m_Context->CreateEntity("Scene Light");
+				e.RemoveComponent<MeshComponent>();
 
 				e.AddComponent<LightComponent>();
 

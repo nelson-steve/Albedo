@@ -37,7 +37,7 @@ namespace Albedo {
 
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 	
-		tex = m_AssetManager->LoadTexture("Assets/Textures/Diluc.png", true);
+		tex = m_AssetManager->LoadTexture("Assets/Textures/Wood.png", true);
 		m_PhysicsSolver->Init();
 		m_Collider = m_AssetManager->LoadModelusingAssimp("Assets/models/cube/box.obj");
 		m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
@@ -161,43 +161,26 @@ namespace Albedo {
 			skyboxTemp = Texture2D::Create(config);
 		}
 
+		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
+
 		if (fbo)
 		{
-			FramebufferSpecification fbSpec;
-			fbSpec.Attachments = {
-				FramebufferTextureFormat::Depth
-			};
-			fbSpec.Width = 1024;
-			fbSpec.Height = 1024;
-			fbSpec.s_BorderColor = true;
-			fbSpec.s_DrawBuffer = false;
-			fbSpec.s_ReadBuffer = false;
-
-			TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::DEPTH, Config::TextureLayout::ClampToBorder,
-				Config::MinMagFilters::NEAREST, Config::MinMagFilters::NEAREST, Config::DataType::FLOAT,
-				Config::DataFormat::DEPTH, true, false);
-			m_DepthMapFBO = Framebuffer::Create(fbSpec, config);
-			fbo = false;
+			//FramebufferSpecification fbSpec;
+			//fbSpec.Attachments = {
+			//	FramebufferTextureFormat::Depth
+			//};
+			//fbSpec.Width = 1024;
+			//fbSpec.Height = 1024;
+			//fbSpec.s_BorderColor = true;
+			//fbSpec.s_DrawBuffer = false;
+			//fbSpec.s_ReadBuffer = false;
+			//
+			//TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::DEPTH, Config::TextureLayout::ClampToBorder,
+			//	Config::MinMagFilters::NEAREST, Config::MinMagFilters::NEAREST, Config::DataType::FLOAT,
+			//	Config::DataFormat::DEPTH, true, false);
+			//m_DepthMapFBO = Framebuffer::Create(fbSpec, config);
+			//fbo = false;
 		}
-
-		//
-		//glGenFramebuffers(1, &depthMapFBO);
-		//
-		//TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::DEPTH, Config::TextureLayout::ClampToBorder,
-		//	Config::MinMagFilters::NEAREST, Config::MinMagFilters::NEAREST, Config::DataType::FLOAT,
-		//	Config::DataFormat::RGB, true, false);
-		//config.m_Width = 1024;
-		//config.m_Height = 1024;
-		//m_DepthMap = Texture2D::Create(config);
-		//
-		//float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-		//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-		//// attach depth texture as FBO's depth buffer
-		//glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthMap->GetTextureID(), 0);
-		//glDrawBuffer(GL_NONE);
-		//glReadBuffer(GL_NONE);
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		Renderer::Init(m_Registry);
 	}
@@ -398,13 +381,18 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		GLint drawFboId;
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-		Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
+		//GLint drawFboId = 0, readFboId = 0;
+		//glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+		//glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
+
+		//GLint drawFboId;
+		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+		//Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
 			TextureComponent, MaterialComponent>();
 
+		// Checking for re initialization of meshes
 		for (auto& entity : view)
 		{
 			auto& mesh = view.get<MeshComponent>(entity);
@@ -413,30 +401,26 @@ namespace Albedo {
 				InitScene();
 		}
 
+		// Getting light components
 		auto& lightComponents = m_Registry.view<LightComponent>();
 		std::vector<LightComponent> lights;
-
 		for (auto& entity : lightComponents)
 		{
 			lights.push_back(lightComponents.get<LightComponent>(entity));
-		}
-
-		for (auto& entity : view)
-		{
-			//Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-			//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-			//Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 		}
 		glm::vec3 l;
 		if (lights.empty())
 			l = glm::vec3(1.0f, 3.0f, 0.0f);
 		else
 			l = lights[0].position;
-		Renderer::PreRenderPass(m_DepthShader, m_DepthMapFBO, m_Registry, l);
-		//m_DepthMapFBO->Unbind();
-		glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+
+		//
+		// Shadow map render pass
+		//
+		Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, l, tex);
+
+		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, 1280, 720);
 #if 1
 
 		if (m_IsSimulating)
@@ -463,16 +447,11 @@ namespace Albedo {
 
 			for (auto& entity : view)
 			{
-				// bind pre-computed IBL data
-				//glActiveTexture(GL_TEXTURE0);
-				//glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap->GetTextureID());
-				//glActiveTexture(GL_TEXTURE1);
-				//glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap->GetTextureID());
-				//glActiveTexture(GL_TEXTURE2);
-				//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture->GetTextureID());
-
 				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
+				tex->Bind();
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, m_ShadowMap->GetDepthMapID());
 				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 
