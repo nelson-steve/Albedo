@@ -46,19 +46,21 @@ namespace Albedo {
 			Spot
 		};
 		
-		LightType type = LightType::Point;
+		LightType type = LightType::Directional;
 		
-		glm::vec3 direction = glm::vec3(1.0);
+		glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 		glm::vec3 position = glm::vec3(1.0);
-		glm::vec3 ambient = glm::vec3(1.0);
-		glm::vec3 diffuse = glm::vec3(1.0);
-		glm::vec3 specular = glm::vec3(1.0);
+		glm::vec3 ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+		glm::vec3 diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+		glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
 		float cutOff = 0.0;
-		float OuterCutOff = 0.0;
+		float outerCutOff = 0.0;
 		float constant = 0.0;
-		float liear = 0.0;
+		float linear = 0.0;
 		float quadratic = 0.0;
+
+		std::string nameOfLight = "Directional";
 		//glm::vec3 color = glm::vec3(1.0);
 
 		LightComponent() = default;
@@ -120,7 +122,10 @@ namespace Albedo {
 		std::string name = "Material Component";
 
 		Ref<Material> m_Material;
-		
+		bool isPBR = false;
+		float shininess = 0.0;
+		glm::vec3 specular{ 0.1 };
+
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};

@@ -54,9 +54,9 @@ namespace Albedo {
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
 		{
-			if (ImGui::MenuItem("Create Default Entity"))
+			if (ImGui::MenuItem("Create Default Mesh"))
 			{
-				Entity e = m_Context->CreateEntity("Default Entity");
+				Entity e = m_Context->CreateMeshEntity("Default Mesh");
 
 				//e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
 				//e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzann/albedo.png"));
@@ -85,17 +85,14 @@ namespace Albedo {
 
 			if (ImGui::MenuItem("Create Scene Light"))
 			{
-				Entity e = m_Context->CreateEntity("Scene Light");
-				e.RemoveComponent<MeshComponent>();
-
-				e.AddComponent<LightComponent>();
+				Entity e = m_Context->CreateLightEntity("Scene Light");
 
 				m_SelectionContext = e;
 			}
 
 			if (ImGui::MenuItem("Create Skybox"))
 			{
-				Entity e = m_Context->CreateEntity("Skybox");
+				Entity e = m_Context->CreateSkyboxEntity("Skybox");
 
 				e.AddComponent<SkyboxComponent>();
 
@@ -615,19 +612,16 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("PBR", &isPBR);
-				if(isPBR)
-				{
-				}
+				ImGui::Checkbox("PBR", &component.isPBR);
+
+				component.m_Material->SetPBRStatus(component.isPBR);
+
+				ImGui::DragFloat("Shininess", &component.shininess, 0.1f, 0.0f, 40.0f);
+				component.m_Material->SetShininess(component.shininess);
 				ImGui::DragFloat("Exposure", &exposure, 0.1f, 0.0f, 10.0f);
 				component.m_Material->SetExposure(exposure);
 				ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 5.0f);
 				component.m_Material->SetRoughnessScale(roughness);
-
-				//DrawVec3Control("light", lightPos);
-				//component.
-				//ImGui::DragFloat("exp", &component.exposure, 0.01f, 0.0f, 1.0f);
-				//component.m_Material->SetExposure(component.exposure);
 			});
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
@@ -801,19 +795,46 @@ namespace Albedo {
 			{
 				ImGui::Text("Light Component");
 
-				DrawVec3Control("Position", component.position, 0, 70);
-				//glm::vec3 rotation = glm::degrees(component.Rotation);
-				ImGui::ColorEdit3("Ambient", glm::value_ptr(component.ambient));
+				if (component.type == component.LightType::Point)
+				{
+					DrawVec3Control("Position", component.position, 0, 70);
+					ImGui::ColorEdit3("Ambient", glm::value_ptr(component.ambient));
+					ImGui::ColorEdit3("Diffuse", glm::value_ptr(component.diffuse));
+					ImGui::ColorEdit3("Specular", glm::value_ptr(component.specular));
+					ImGui::DragFloat("Constant", &component.constant, 0.01, 0.0, 1.0);
+					ImGui::DragFloat("Linear", &component.linear, 0.001, 0.0, 1.0);
+					ImGui::DragFloat("Quadratic", &component.quadratic, 0.001, 0.0, 2.0);
+				}
+				else if (component.type == component.LightType::Directional)
+				{
+					DrawVec3Control("Direction", component.direction, 0, 70);
+					ImGui::ColorEdit3("Ambient", glm::value_ptr(component.ambient));
+					ImGui::ColorEdit3("Diffuse", glm::value_ptr(component.diffuse));
+					ImGui::ColorEdit3("Specular", glm::value_ptr(component.specular));
+				}
+				else if (component.type == component.LightType::Spot)
+				{
+					DrawVec3Control("Position", component.position, 0, 70);
+					DrawVec3Control("Direction", component.direction, 0, 70);
+					ImGui::ColorEdit3("Ambient", glm::value_ptr(component.ambient));
+					ImGui::ColorEdit3("Diffuse", glm::value_ptr(component.diffuse));
+					ImGui::ColorEdit3("Specular", glm::value_ptr(component.specular));
+					ImGui::DragFloat("Constant", &component.constant, 0.01, 0.0, 1.0);
+					ImGui::DragFloat("Linear", &component.linear, 0.001, 0.0, 1.0);
+					ImGui::DragFloat("Quadratic", &component.quadratic, 0.001, 0.0, 2.0);
+					ImGui::DragFloat("CutOff", &component.cutOff, 1.0, 0.0, 100.0);
+					ImGui::DragFloat("OuterCutOff", &component.outerCutOff, 1.0, 0.0, 100.0);
+				}
 
 				std::string items[] = { "Point", "Directional", "Spot" };
-				if (ImGui::BeginCombo("##lights", m_CurrentLight.c_str()))
+				if (ImGui::BeginCombo("##lights", component.nameOfLight.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{
-						bool is_selected = (m_CurrentLight == items[n]);
+						bool is_selected = (component.nameOfLight == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
-							m_CurrentLight = items[n];
+							component.nameOfLight = items[n];
 							switch (n)
 							{
 							case 0: // Point

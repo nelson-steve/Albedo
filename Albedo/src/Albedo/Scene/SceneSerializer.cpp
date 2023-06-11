@@ -360,7 +360,7 @@ namespace Albedo {
 
 				Albedo_Core_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
-				Entity deserializedEntity = m_Scene->CreateEntity(name);
+				Entity deserializedEntity = m_Scene->CreateMeshEntity(name);
 
 				auto meshComponent = entity["MeshComponent"];
 				if (meshComponent)

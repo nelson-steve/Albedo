@@ -27,7 +27,9 @@ namespace Albedo {
 		void InitScene();
 		void ReInitScene();
 
-		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateMeshEntity(const std::string& name = std::string());
+		Entity CreateLightEntity(const std::string& name = std::string());
+		Entity CreateSkyboxEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 
 		void OnRuntimeStart();
@@ -76,10 +78,7 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
-		//
-		// and these are lot's of data types. since I change to try new things.
-		// it's very messy.
-		//
+	
 		bool fbo = true;
 		Ref<Texture2D> skyboxTemp;
 		Ref<Shader> m_SkyboxShader;
@@ -111,7 +110,8 @@ namespace Albedo {
 		Ref<Shader> m_Shader;
 		glm::mat4 m_Transform = glm::mat4(1.0);
 		//Shader paths
-		std::string m_PBRShaderPath;
+		std::string m_PBRShaderPath = "Assets/Shaders/ModelPBRShader.glsl";
+		std::string m_NonPBRShaderPath = "Assets/Shaders/ShadowMappingShader.glsl";
 		std::string m_SkyboxShaderPath;
 		std::string m_ShaderPath;
 		friend class Entity;

@@ -11,7 +11,7 @@ namespace Albedo {
 
 	void Renderer::Init(const entt::registry& reg)
 	{
-		auto group = reg.view<MeshComponent, ShaderComponent>();
+		auto group = reg.view<MeshComponent, ShaderComponent, MaterialComponent>();
 
 		for (auto view : group)
 		{
@@ -25,51 +25,32 @@ namespace Albedo {
 		for (auto view : group)
 		{
 			auto& shader = group.get<ShaderComponent>(view);
+			auto& mat = group.get<MaterialComponent>(view);
 
 			if (!shader.m_Shader->GetInitializationStatus()) continue;
 
 			shader.m_Shader->Bind();
-			//shader.m_Shader->SetUniformInt1("u_Default", 0);
-			//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 1);
-			//shader.m_Shader->SetUniformInt1("u_AOMap", 2);
-			//shader.m_Shader->SetUniformInt1("u_MetallicMap", 3);
-			//shader.m_Shader->SetUniformInt1("u_NormalMap", 4);
-			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 5);
-
-			//glm::vec3 translations[100];
-			//int index = 0;
-			//float offset = 1.0f;
-			//for (int y = -100; y < 100; y += 20)
-			//{
-			//	for (int x = -100; x < 100; x += 20)
-			//	{
-			//		glm::vec3 translation;
-			//		translation.x = (float)(x + offset) / 10.0f;
-			//		translation.y = (float)(y + offset) / 10.0f;
-			//		translation.z = 0.0;
-			//		translations[index++] = translation;
-			//	}
-			//}
-			//
-			//for (unsigned int i = 0; i < 100; i++)
-			//{
-			//	const std::string& n = ("offsets[" + std::to_string(i) + "]");
-			//	shader.m_Shader->SetUniformFloat3(n, translations[i]);
-			//}
-
-			//shader.m_Shader->SetUniformInt1("u_AOMap", 1);
-			//shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
-			//shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
-			//shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
-			shader.m_Shader->SetUniformInt1("diffuseTexture", 0);
-			shader.m_Shader->SetUniformInt1("shadowMap", 1);
+			if (mat.m_Material->IsPBR())
+			{
+				shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
+				shader.m_Shader->SetUniformInt1("u_AOMap", 1);
+				shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
+				shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
+				shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
+				shader.m_Shader->SetUniformInt1("u_ShadowMap", 5);
+			}
+			else
+			{
+				shader.m_Shader->SetUniformInt1("u_DiffuseMap", 0);
+				shader.m_Shader->SetUniformInt1("u_ShadowMap", 1);
+			}
 
 			shader.m_Shader->SetInitializationStatus(false);
 		}
 	}
 
 	void Renderer::PreRenderPass(Ref<Shader> depthShader, Ref<ShadowMap> fbo, 
-		const entt::registry& reg, const glm::vec3& l, Ref<Texture2D> tex)
+		const entt::registry& reg, const glm::vec3& dir, Ref<Texture2D> tex)
 	{
 		auto view = reg.view<TransformComponent, MeshComponent>();
 
@@ -81,7 +62,7 @@ namespace Albedo {
 		float near_plane = 1.0f, far_plane = 70.0f;
 		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
 		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(l, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightView = glm::lookAt(-dir, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 		lightSpaceMatrix = lightProjection * lightView;
 		// render scene from light's point of view
 		depthShader->Bind();
@@ -93,7 +74,7 @@ namespace Albedo {
 			auto& mesh = view.get<MeshComponent>(entity);
 			auto& transform = view.get<TransformComponent>(entity);
 			depthShader->SetUniformMat4("u_Transform", transform.GetTransform());
-			tex->Bind();
+			//tex->Bind();
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
@@ -131,10 +112,47 @@ namespace Albedo {
 		}
 	}
 
-	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader,
-		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material, 
-		const std::vector<LightComponent>& lights)
+	void Renderer::SetupPBR(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights)
 	{
+		shader.m_Shader->Bind();
+		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+
+		int i = 0;
+		for (const LightComponent& l : lights)
+		{
+			std::string& s = "u_LightPosition[" + std::to_string(i) + "]";
+			shader.m_Shader->SetUniformFloat3(s, l.position);
+
+			s = "u_LightColor[" + std::to_string(i) + "]";
+			shader.m_Shader->SetUniformFloat3(s, l.ambient);
+			i++;
+		}
+		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
+		shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());
+		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
+
+		if (texture.m_Textures.size() <= texture.totalTypes)
+		{
+			for (auto& it : texture.m_Textures)
+			{
+				if (it.second)
+					it.second->Bind(it.first);
+			}
+		}
+	}
+
+	void Renderer::SetupPlane(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights,
+		const Ref<ShadowMap> shadowMap)
+	{
+		shader.m_Shader->Bind();
+		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 		float near_plane = 1.0f, far_plane = 70.0f;
@@ -145,53 +163,135 @@ namespace Albedo {
 			l = glm::vec3(1.0f, 3.0f, 0.0f);
 		else
 			l = lights[0].position;
-		lightView = glm::lookAt(l, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		lightSpaceMatrix = lightProjection * lightView;
+
+		int noOfPointLights = 0;
+		bool spotLightExists = false;
+		bool dirLightExists = false;
+		bool pointLightExists = false;
+		for (const auto& l : lights)
+		{
+			if (l.type == l.LightType::Point)
+				noOfPointLights++;
+
+			if (l.type == l.LightType::Spot)
+			{
+				spotLightExists = true;
+			}
+			if (l.type == l.LightType::Directional)
+			{
+				dirLightExists = true;
+			}
+			if (l.type == l.LightType::Point)
+			{
+				pointLightExists = true;
+			}
+
+		}
+		shader.m_Shader->SetUniformInt1("u_NoOfPointLights", noOfPointLights);
+
+		shader.m_Shader->SetUniformInt1("u_SpotLightExists", spotLightExists);
+		shader.m_Shader->SetUniformInt1("u_PointLightExists", pointLightExists);
+		shader.m_Shader->SetUniformInt1("u_DirLightExists", dirLightExists);
+
+		int i = 0;
+		for (const auto& l : lights)
+		{
+			if (l.type == l.LightType::Directional)
+			{
+				lightView = glm::lookAt(-l.direction, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+				lightSpaceMatrix = lightProjection * lightView;
+
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Direction", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Ambient",   l.ambient);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Diffuse",   l.diffuse);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Specular",  l.specular);
+			}
+			else if (l.type == l.LightType::Point)
+			{
+				std::string& index = std::to_string(i);
+				std::string& s = "u_PointLights[" + index + "].u_Position";
+				shader.m_Shader->SetUniformFloat3(s, l.position);
+
+				s = "u_PointLights[" + index + "].u_Ambient";
+				shader.m_Shader->SetUniformFloat3(s, l.ambient);
+
+				s = "u_PointLights[" + index + "].u_Diffuse";
+				shader.m_Shader->SetUniformFloat3(s, l.diffuse);
+
+				s = "u_PointLights[" + index + "].u_Specular";
+				shader.m_Shader->SetUniformFloat3(s, l.specular);
+
+				s = "u_PointLights[" + index + "].u_Constant";
+				shader.m_Shader->SetUniformFloat(s, l.constant);
+
+				s = "u_PointLights[" + index + "].u_Linear";
+				shader.m_Shader->SetUniformFloat(s, l.linear);
+
+				s = "u_PointLights[" + index + "].u_Quadratic";
+				shader.m_Shader->SetUniformFloat(s, l.quadratic);
+				
+				i++;
+			}
+			else if (l.type == l.LightType::Spot)
+			{
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Position", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Direction", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Ambient", l.ambient);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Diffuse", l.diffuse);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Specular", l.specular);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Constant", l.constant);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Linear", l.linear);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Quadratic", l.quadratic);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_CutOff", glm::cos(glm::radians(l.cutOff)));
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_OuterCutOff", glm::cos(glm::radians(l.outerCutOff)));
+			}
+		}
+
+		glm::vec3 p;
+		glm::vec3 c;
+		if (lights.empty())
+		{
+			p = glm::vec3(1.0f, 3.0f, 0.0f);
+			c = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			p = lights[0].position;
+			c = lights[0].ambient;
+
+		}
+		//shader.m_Shader->SetUniformFloat3("u_LightPosition", p);
+		shader.m_Shader->SetUniformFloat("u_Shininess", material.m_Material->GetShininess());
+		shader.m_Shader->SetUniformFloat3("u_Specular", material.specular);
+
+		shader.m_Shader->SetUniformFloat3("u_MaterialColor", glm::vec3(1.0f));
+		shader.m_Shader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
+
+		for (auto& it : texture.m_Textures)
+		{
+			if (it.second)
+				it.second->Bind(it.first);
+			break;
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, shadowMap->GetDepthMapID());
+	}
+
+	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader,
+		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material, 
+		const std::vector<LightComponent>& lights)
+	{
 
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
-		shader.m_Shader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		//shader.m_Shader->SetUniformMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
-		//shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());	
-		int i = 0;
-		for (const LightComponent& l : lights)
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+
 		{
-			//std::string& s = "u_LightPosition[" + std::to_string(i) + "]";
-			shader.m_Shader->SetUniformFloat3("u_LightPos", l.position);
-
-			//s = "u_LightColor[" + std::to_string(i) + "]";
-			//shader.m_Shader->SetUniformFloat3(s, l.ambient);
-			shader.m_Shader->SetUniformFloat3("u_MaterialColor", l.ambient);
-
-			i++;
 		}
-		
+
 		//shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
-		//shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
-		//shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
-		shader.m_Shader->SetUniformFloat3("u_CameraPos", camera.GetPosition());
-
-		//shader.m_Shader->Bind();
-		//shader.m_Shader->SetUniformMat4("projection", camera.GetProjection());
-		//shader.m_Shader->SetUniformMat4("view", camera.GetViewMatrix());
-		//shader.m_Shader->SetUniformFloat3("camPos", camera.GetPosition());
-		//shader.m_Shader->SetUniformMat4("model", transform.GetTransform());
-		//shader.m_Shader->SetUniformMat4("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform.GetTransform()))));
-		//shader.m_Shader->SetUniformFloat3("lightPositions", material.lightPos);
-		//shader.m_Shader->SetUniformFloat3("lightColors", glm::vec3(1.0));
-
-		//shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
-
-		//if(texture.m_Textures.size() <= texture.totalTypes)
-		//{
-		//	for (auto& it : texture.m_Textures)
-		//	{
-		//		if (it.second)
-		//			it.second->Bind(it.first);
-		//	}
-		//}
-
 
 	}
 

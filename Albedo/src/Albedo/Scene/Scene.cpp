@@ -45,8 +45,6 @@ namespace Albedo {
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 
-		m_CubeShader = m_AssetManager->LoadShader("Assets/Shaders/Texture2.glsl");
-
 		m_Collider->InitMesh(-1);
 		m_Quad->InitMesh(-1);
 		m_Cube->InitMesh(-1);
@@ -185,7 +183,7 @@ namespace Albedo {
 		Renderer::Init(m_Registry);
 	}
 
-	Entity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateMeshEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
@@ -193,6 +191,26 @@ namespace Albedo {
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreateLightEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<LightComponent>();
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreateSkyboxEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<SkyboxComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -381,14 +399,6 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		//GLint drawFboId = 0, readFboId = 0;
-		//glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
-		//glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
-
-		//GLint drawFboId;
-		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-		//Albedo_Core_INFO("framebuffer DURING: {}", drawFboId);
-
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
 			TextureComponent, MaterialComponent>();
 
@@ -404,72 +414,72 @@ namespace Albedo {
 		// Getting light components
 		auto& lightComponents = m_Registry.view<LightComponent>();
 		std::vector<LightComponent> lights;
+		glm::vec3 lightDirection{ 0.0 };
 		for (auto& entity : lightComponents)
 		{
+			auto& dirLight = lightComponents.get<LightComponent>(entity);
+			if (dirLight.type == dirLight.LightType::Directional)
+			{
+				lightDirection = lightComponents.get<LightComponent>(entity).direction;
+			}
 			lights.push_back(lightComponents.get<LightComponent>(entity));
 		}
 		glm::vec3 l;
 		if (lights.empty())
-			l = glm::vec3(1.0f, 3.0f, 0.0f);
+			l = glm::vec3(0.0f, 5.0f, 0.0f);
 		else
 			l = lights[0].position;
 
 		//
 		// Shadow map render pass
 		//
-		Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, l, tex);
+		Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, lightDirection, tex);
 
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#if 1
 
 		if (m_IsSimulating)
-		{
 			OnUpdatePhysics(ts);
 
-			for (auto& entity : view)
-			{
-				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
-			}
-		}
-		else
+		for (auto& entity : view)
 		{
-			for (auto& entity : view)
-			{
-				auto& pos = view.get<TransformComponent>(entity).Position;
-				auto& rot = view.get<TransformComponent>(entity).Rotation;
-				view.get<PhysicsComponent>(entity).BodyPosition = pos;
-				view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-				view.get<ColliderComponent>(entity).ColliderPosition = pos;
-			}
+			auto& pos = view.get<TransformComponent>(entity).Position;
+			auto& rot = view.get<TransformComponent>(entity).Rotation;
+			view.get<PhysicsComponent>(entity).BodyPosition = pos;
+			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+			view.get<ColliderComponent>(entity).ColliderPosition = pos;
+		}
 
-			for (auto& entity : view)
+		for (auto& entity : view)
+		{
+			if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
 			{
-				Renderer::Setup(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+				Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-				tex->Bind();
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, m_ShadowMap->GetDepthMapID());
-				Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+			}
+			else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
+			{
+				Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
 
-			for (auto& entity : view)
-			{
-				auto& phy = view.get<PhysicsComponent>(entity);
-				auto& col = view.get<ColliderComponent>(entity);
+			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+		}
 
-				m_Transform = glm::translate(glm::mat4(1.0f), phy.BodyPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
-				//glm::vec3 offset = glm::vec3(2.0);
-				//m_Transform = glm::scale(m_Transform, offset);
-				{
-					//Renderer::Setup(camera, m_Shader, m_Transform);
-					//Renderer::RenderOverlay(m_Collider);
-				}
+		for (auto& entity : view)
+		{
+			auto& phy = view.get<PhysicsComponent>(entity);
+			auto& col = view.get<ColliderComponent>(entity);
+
+			m_Transform = glm::translate(glm::mat4(1.0f), phy.BodyPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
+			//glm::vec3 offset = glm::vec3(2.0);
+			//m_Transform = glm::scale(m_Transform, offset);
+			{
+				//Renderer::Setup(camera, m_Shader, m_Transform);
+				//Renderer::RenderOverlay(m_Collider);
 			}
 		}
-#endif
+
 		m_SkyboxShader->Bind();
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
 		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());

@@ -380,8 +380,11 @@ namespace Albedo {
 				glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
 
 				// Entity transform
+				glm::mat4 transform{ 1.0 };
+				glm::vec3 rot{ 0.0 };
 				auto& tc = selectedEntity.GetComponent<TransformComponent>();
-				glm::mat4 transform = tc.GetTransform();
+				transform = tc.GetTransform();
+				rot = tc.GetRotation();
 
 				// Snapping
 				bool snap = Input::IsKeyPressed(Key::LeftControl);
@@ -401,7 +404,7 @@ namespace Albedo {
 					glm::vec3 translation, rotation, scale;
 					Math::DecomposeTransform(transform, translation, rotation, scale);
 
-					glm::vec3 deltaRotation = rotation - tc.Rotation;
+					glm::vec3 deltaRotation = rotation - rot;
 					tc.Position= translation;
 					tc.Rotation += deltaRotation;
 					tc.Scale = scale;

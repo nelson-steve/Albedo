@@ -6,9 +6,10 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Platform/OpenGL/ShadowMap.h"
 #include "Albedo/Cameras/EditorCamera.h"
-#include <entt.hpp>
 #include "RendererConfig.h"
+#include <entt.hpp>
 
 namespace Albedo {
 
@@ -18,6 +19,11 @@ namespace Albedo {
 		static void   Init(const entt::registry& reg);
 		static void	  PreRenderPass(Ref<Shader> depthShader, Ref<ShadowMap> fbo, 
 			const entt::registry& reg, const glm::vec3& l, Ref<Texture2D> tex);
+		static void   SetupPBR(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
+		static void   SetupPlane(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights,
+			const Ref<ShadowMap> shadowMap);
 		static void   Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
 		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
