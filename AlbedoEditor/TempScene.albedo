@@ -1,6 +1,44 @@
 Scene: Untitled
 Entities:
-  - Entity: 0
+  - Entity: 4
+    TagComponent:
+      Tag: Scene Light
+    LightComponent:
+      Direction: [-0.200000003, -1, -0.300000012]
+      Position: [1, 1, 1]
+      Ambient: [0.746114016, 0.313135922, 0.313135922]
+      Diffuse: [0.400000006, 0.400000006, 0.400000006]
+      Specular: [0.5, 0.5, 0.5]
+      Cutt Off: 0
+      Outer Cutt Off: 0
+      Constant: 1
+      Linear: 0
+      Quadratic: 0
+      Name Of Light: Point
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 3
+    TagComponent:
+      Tag: Scene Light
+    LightComponent:
+      Direction: [-1.5, 1, -0.300000012]
+      Position: [1, 1, 1]
+      Ambient: [0.0500000007, 0.0500000007, 0.0500000007]
+      Diffuse: [0.400000006, 0.400000006, 0.400000006]
+      Specular: [0.5, 0.5, 0.5]
+      Cutt Off: 0
+      Outer Cutt Off: 0
+      Constant: 0
+      Linear: 0
+      Quadratic: 0
+      Name Of Light: Directional
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+  - Entity: 2
     TagComponent:
       Tag: Default Mesh
     MeshComponent:
@@ -11,16 +49,12 @@ Entities:
     TextureComponent:
       Texture:
         Total Types: 5
-        Type: 4
-        isPBR: true
+        Type: 0
+        isPBR: false
         Albedo: Assets\Models\suzanne\albedo.png
-        Ambient Occlusion: Assets\Models\suzanne\ao.png
-        Metallic: Assets\Models\suzanne\metallic.png
-        Normal: Assets\Models\suzanne\normal.png
-        Roughness: Assets\Models\suzanne\roughness.png
     ShaderComponent:
       Shader:
-        Path: Assets/Shaders/ModelPBRShader.glsl
+        Path: Assets\Shaders\ShadowswithMultipleLights.glsl
     MaterialComponent:
       Albedo Color: [1, 0, 0]
       Roughness: 1.39999998
@@ -43,6 +77,94 @@ Entities:
     ColliderComponent:
       Collider Position: [0, 0, 0]
       Collider Size: [1, 1, 1]
+      Collider Orientation: [0, 0, 0]
+      Collider Radius: 1
+      Collider Type: 0
+    ScriptComponent:
+      ClassName: Sandbox.Player
+  - Entity: 1
+    TagComponent:
+      Tag: Default Mesh
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: suzanne.obj
+        Path: Assets\Models\suzanne\suzanne.obj
+    TextureComponent:
+      Texture:
+        Total Types: 5
+        Type: 0
+        isPBR: false
+        Albedo: Assets/Textures/Diluc.png
+    ShaderComponent:
+      Shader:
+        Path: Assets\Shaders\ShadowswithMultipleLights.glsl
+    MaterialComponent:
+      Albedo Color: [1, 0, 0]
+      Roughness: 1.39999998
+      Exposure: 2.20000005
+    TransformComponent:
+      Translation: [0, 0, -9]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      Body Position: [0, 0, -9]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 62
+      Disable Gravity: true
+      Restitution: 0
+      Static Friction: 0.0500000007
+      Dynamic Friction: 0.00499999989
+      Body Type: 0
+    ColliderComponent:
+      Collider Position: [0, 0, -9]
+      Collider Size: [1, 1, 1]
+      Collider Orientation: [0, 0, 0]
+      Collider Radius: 1
+      Collider Type: 0
+    ScriptComponent:
+      ClassName: Sandbox.Player
+  - Entity: 0
+    TagComponent:
+      Tag: Default Mesh
+    MeshComponent:
+      Color: [1, 1, 1, 1]
+      Mesh:
+        Name: suzanne.obj
+        Path: Assets\Models\suzanne\suzanne.obj
+    TextureComponent:
+      Texture:
+        Total Types: 5
+        Type: 0
+        isPBR: false
+        Albedo: Assets/Textures/Diluc.png
+    ShaderComponent:
+      Shader:
+        Path: Assets\Shaders\ShadowswithMultipleLights.glsl
+    MaterialComponent:
+      Albedo Color: [1, 0, 0]
+      Roughness: 1.39999998
+      Exposure: 2.20000005
+    TransformComponent:
+      Translation: [0, 4, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      Body Position: [0, 4, 0]
+      Body Orientation: [0, 0, 0]
+      Force: [0, 0, 0]
+      Velocity: [0, 0, 0]
+      Mass: 69
+      Disable Gravity: true
+      Restitution: 0
+      Static Friction: 0.0500000007
+      Dynamic Friction: 0.00499999989
+      Body Type: 1
+    ColliderComponent:
+      Collider Position: [0, 4, 0]
+      Collider Size: [1, 2.5, 1]
       Collider Orientation: [0, 0, 0]
       Collider Radius: 1
       Collider Type: 0

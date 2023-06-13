@@ -43,7 +43,7 @@ namespace Albedo {
 
 	void RigidBodyDynamicComponent::DisableGravity(bool gravity)
 	{
-		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, true);
+		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
 	}
 
 	void RigidBodyDynamicComponent::AddToScene()

@@ -24,6 +24,8 @@ namespace Albedo {
 	public:
 		Scene(); // this is a constructor as you may remember. since it's name is the same as the class
 
+		void InitDefaults();
+		void InitPhysicsObjects();
 		void InitScene();
 		void ReInitScene();
 
@@ -79,6 +81,7 @@ namespace Albedo {
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
 	
+		bool m_DefaultsInitialized = false;
 		bool fbo = true;
 		Ref<Texture2D> skyboxTemp;
 		Ref<Shader> m_SkyboxShader;

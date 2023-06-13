@@ -489,6 +489,7 @@ namespace Albedo {
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.initialize = true; // TODO: See if this needs to be here or not
 						component.AddMesh(m_AssetManager->LoadModelusingAssimp(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
@@ -547,6 +548,7 @@ namespace Albedo {
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.initialize = true; // TODO: See if this needs to be here or not
 						component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()));
 					}
 					ImGui::EndDragDropTarget();
@@ -599,6 +601,7 @@ namespace Albedo {
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path shaderPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+						//component.initialize = true; // TODO: See if this needs to be here or not
 						component.AddShader(m_AssetManager->LoadShader(shaderPath.u8string()));
 					}
 					ImGui::EndDragDropTarget();
@@ -640,24 +643,26 @@ namespace Albedo {
 				ImGui::Text("Body Type");
 				ImGui::SameLine();
 				std::string items[] = { "Static", "Dynamic" };
-				if (ImGui::BeginCombo("##physics", m_CurrentPhysicsType.c_str()))
+				if (ImGui::BeginCombo("##physics", component.phyTypeName.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{
-						bool is_selected = (m_CurrentPhysicsType == items[n]);
+						bool is_selected = (component.phyTypeName == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
-							component.physicsMaterial = std::make_shared<PhysicsMaterial>
-								(component.staticFriction, component.dynamicFriction, component.restitution);
+							//component.physicsMaterial = std::make_shared<PhysicsMaterial>
+							//	(component.staticFriction, component.dynamicFriction, component.restitution);
 
-							m_CurrentPhysicsType = items[n];
+							component.phyTypeName = items[n];
 							switch (n)
 							{
 							case 0: // Static
 								component.bodyType = component.BodyType::Static;
+								component.initialize = true;
 								break;
 							case 1: // Dynamic
 								component.bodyType = component.BodyType::Dynamic;
+								component.initialize = true;
 								break;
 							default:
 								break;
@@ -676,30 +681,34 @@ namespace Albedo {
 				ImGui::Text("Collider Type");
 				ImGui::SameLine();
 				std::string items[] = { "Box", "Sphere", "Mesh", "ConvexMesh" };
-				if (ImGui::BeginCombo("##collider", m_CurrentColliderType.c_str()))
+				if (ImGui::BeginCombo("##collider", component.colTypeName.c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{
-						bool is_selected = (m_CurrentColliderType == items[n]);
+						bool is_selected = (component.colTypeName == items[n]);
 						if (ImGui::Selectable(items[n].c_str(), is_selected))
 						{
 							auto& e = entity.GetComponent<PhysicsComponent>();
-							m_CurrentColliderType = items[n];
+							component.colTypeName = items[n];
 							switch (n)
 							{
 							case 0: // Box
 							{
 								component.colliderType = component.ColliderType::Box;
+								component.initialize = true;
 								break;
 							}
 							case 1: // Sphere
 								component.colliderType = component.ColliderType::Sphere;
+								component.initialize = true;
 								break;
 							case 2: // Mesh
 								component.colliderType = component.ColliderType::Mesh;
+								component.initialize = true;
 								break;
 							case 3: // Convex Mesh
 								component.colliderType = component.ColliderType::ConvexMesh;
+								component.initialize = true;
 								break;
 							default:
 								break;
@@ -715,7 +724,7 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
 			});
 
-#if 0
+#if 1
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
 				bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);

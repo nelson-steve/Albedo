@@ -33,6 +33,8 @@ namespace Albedo {
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Mesh> m_Mesh;
 		int ID = -1;
+		bool initialize = true;
+
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
 	};
@@ -97,6 +99,8 @@ namespace Albedo {
 		uint32_t totalTypes = 5;
 		std::unordered_map<TextureType, Ref<Texture2D>> m_Textures;
 		std::unordered_map<TextureType, std::string> m_TextureNames;
+		bool initialize = true;
+
 		TextureComponent() = default;
 		TextureComponent(const TextureComponent&) = default;
 	};
@@ -112,6 +116,7 @@ namespace Albedo {
 		}
 
 		Ref<Shader> m_Shader;
+		bool initialize = true;
 
 		ShaderComponent() = default;
 		ShaderComponent(const ShaderComponent&) = default;
@@ -125,6 +130,7 @@ namespace Albedo {
 		bool isPBR = false;
 		float shininess = 0.0;
 		glm::vec3 specular{ 0.1 };
+		bool initialize = true;
 
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
@@ -189,8 +195,8 @@ namespace Albedo {
 
 		enum BodyType
 		{
-			Dynamic = 0,
-			Static
+			Static = 0,
+			Dynamic
 		};
 
 		float staticFriction = 0.05;
@@ -211,9 +217,12 @@ namespace Albedo {
 		
 		float SphereColliderRadius = 1.0f;
 
+		std::string phyTypeName = "Dynamic";
+
 		Ref<PhysicsMaterial> physicsMaterial;
 		Ref<RigidBodyDynamicComponent> dynamicBody;	
 		Ref<RigidBodyStaticComponent> staticBody;
+		bool initialize = true;
 
 		PhysicsComponent() = default;
 		PhysicsComponent(const PhysicsComponent&) = default;
@@ -234,8 +243,12 @@ namespace Albedo {
 		float ColliderRadius = 1;
 		glm::vec3 ColliderSize = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::quat ColliderOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+
+		std::string colTypeName = "Box";
 		
+
 		Ref<PhysicsCollider> collider;
+		bool initialize = true;
 		
 		ColliderComponent() = default;
 		ColliderComponent(const ColliderComponent&) = default;

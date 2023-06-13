@@ -8,7 +8,7 @@ namespace Sandbox
     {
         private TransformComponent m_Transform;
 
-        public float Speed = 20.0f;
+        public float Speed;
         public float Time = 0.0f;
 
         void OnCreate()
