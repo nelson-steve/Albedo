@@ -51,7 +51,7 @@ namespace Albedo {
 		//Albedo_CORE_ASSERT(entity, "Invalid entity");
 
 		MonoType* managedType = mono_reflection_type_get_type(componentType);
-		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end(), "failed");
+		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end(), "Component not found");
 		return s_EntityHasComponentFuncs.at(managedType)(entity);
 	}
 

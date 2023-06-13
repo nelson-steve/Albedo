@@ -2,24 +2,29 @@ Scene: Untitled
 Entities:
   - Entity: 0
     TagComponent:
-      Tag: Default Entity
+      Tag: Default Mesh
     MeshComponent:
       Color: [1, 1, 1, 1]
       Mesh:
-        Name: cerberus.obj
-        Path: Assets\Models\cerberus\cerberus.obj
+        Name: suzanne.obj
+        Path: Assets\Models\suzanne\suzanne.obj
     TextureComponent:
       Texture:
-        Default Texture: Assets/Textures/Diluc.png
-        Albedo: Assets\Models\cerberus\albedo.tga
-        Ambient Occlusion: Assets\Models\cerberus\ao.tga
-        Metallic: Assets\Models\cerberus\metallic.tga
-        Normal: Assets\Models\cerberus\normal.tga
-        Roughness: Assets\Models\cerberus\roughness.tga
-      isDefault: false
+        Total Types: 5
+        Type: 4
+        isPBR: true
+        Albedo: Assets\Models\suzanne\albedo.png
+        Ambient Occlusion: Assets\Models\suzanne\ao.png
+        Metallic: Assets\Models\suzanne\metallic.png
+        Normal: Assets\Models\suzanne\normal.png
+        Roughness: Assets\Models\suzanne\roughness.png
     ShaderComponent:
       Shader:
-        Path: Assets\Shaders\ModelShader.glsl
+        Path: Assets/Shaders/ModelPBRShader.glsl
+    MaterialComponent:
+      Albedo Color: [1, 0, 0]
+      Roughness: 1.39999998
+      Exposure: 2.20000005
     TransformComponent:
       Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
@@ -37,7 +42,9 @@ Entities:
       Body Type: 1
     ColliderComponent:
       Collider Position: [0, 0, 0]
-      Collider Size: [0.600000024, 0.5, 1.5]
+      Collider Size: [1, 1, 1]
       Collider Orientation: [0, 0, 0]
       Collider Radius: 1
       Collider Type: 0
+    ScriptComponent:
+      ClassName: Sandbox.Player

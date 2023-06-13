@@ -721,6 +721,7 @@ namespace Albedo {
 
 		//m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ActiveScene->InitScene();
+		m_ActiveScene->SetMainFramebuffer(m_Framebuffer);
 
 		m_SceneState = SceneState::Edit;
 

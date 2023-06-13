@@ -334,8 +334,7 @@ namespace Albedo {
 			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			ImGui::Separator();
 			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
-			ImGui::PopStyleVar(
-			);
+			ImGui::PopStyleVar();
 			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
 			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
 			{
@@ -716,6 +715,7 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
 			});
 
+#if 0
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
 				bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);
@@ -787,6 +787,7 @@ namespace Albedo {
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
 			});
+#endif
 	}
 
 	void SceneHierarchyPanel::DrawComponentsOfScene(Entity entity)

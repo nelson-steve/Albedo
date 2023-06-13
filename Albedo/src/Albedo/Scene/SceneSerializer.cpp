@@ -99,7 +99,6 @@ namespace Albedo {
 	SceneSerializer::SceneSerializer(const Ref<Scene> scene)
 		:m_Scene(scene)
 	{
-
 	}
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
@@ -135,6 +134,26 @@ namespace Albedo {
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<LightComponent>())
+		{
+			out << YAML::Key << "LightComponent";
+			out << YAML::BeginMap;
+			auto& lc = entity.GetComponent<LightComponent>();
+			out << YAML::Key << "Direction" << YAML::Value << lc.direction;
+			out << YAML::Key << "Position" << YAML::Value << lc.position;
+			out << YAML::Key << "Ambient" << YAML::Value << lc.ambient;
+			out << YAML::Key << "Diffuse" << YAML::Value << lc.diffuse;
+			out << YAML::Key << "Specular" << YAML::Value << lc.specular;
+			out << YAML::Key << "Cutt Off" << YAML::Value << lc.cutOff;
+			out << YAML::Key << "Outer Cutt Off" << YAML::Value << lc.outerCutOff;
+			out << YAML::Key << "Constant" << YAML::Value << lc.constant;
+			out << YAML::Key << "Linear" << YAML::Value << lc.linear;
+			out << YAML::Key << "Quadratic" << YAML::Value << lc.quadratic;
+			out << YAML::Key << "Name Of Light" << YAML::Value << lc.nameOfLight;
+
+			out << YAML::EndMap;
+		}
+
 		if (entity.HasComponent<TextureComponent>())
 		{
 			out << YAML::Key << "TextureComponent";
@@ -143,12 +162,23 @@ namespace Albedo {
 
 			out << YAML::Key << "Texture" << YAML::Value;
 			out << YAML::BeginMap;
-		
-			out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
-			out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
-			out << YAML::Key << "Metallic" << YAML::Value << tc.m_Textures[tc.TextureType::Metallic]->GetPath();
-			out << YAML::Key << "Normal" << YAML::Value << tc.m_Textures[tc.TextureType::Normal]->GetPath();
-			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
+			out << YAML::Key << "Total Types" << YAML::Value << tc.totalTypes;
+			out << YAML::Key << "Type" << YAML::Value << tc.type;
+
+			auto& mc = entity.GetComponent<MaterialComponent>();
+			out << YAML::Key << "isPBR" << YAML::Value << mc.isPBR;
+			if (mc.isPBR)
+			{
+				out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+				out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
+				out << YAML::Key << "Metallic" << YAML::Value << tc.m_Textures[tc.TextureType::Metallic]->GetPath();
+				out << YAML::Key << "Normal" << YAML::Value << tc.m_Textures[tc.TextureType::Normal]->GetPath();
+				out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
+			}
+			else
+			{
+				out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+			}
 			
 			out << YAML::EndMap;
 
@@ -379,22 +409,33 @@ namespace Albedo {
 					auto& tc = deserializedEntity.AddComponent<TextureComponent>();
 
 					auto& texture = textureComponent["Texture"];
-					std::string& albedo = texture["Albedo"].as<std::string>();
-					std::string& ambientOcclusion = texture["Ambient Occlusion"].as<std::string>();
-					std::string& metallic = texture["Metallic"].as<std::string>();
-					std::string& normal = texture["Normal"].as<std::string>();
-					std::string& roughness = texture["Roughness"].as<std::string>();
+					bool isPBR = texture["isPBR"].as<bool>();
+					if (isPBR)
+					{
+						std::string& albedo = texture["Albedo"].as<std::string>();
+						std::string& ambientOcclusion = texture["Ambient Occlusion"].as<std::string>();
+						std::string& metallic = texture["Metallic"].as<std::string>();
+						std::string& normal = texture["Normal"].as<std::string>();
+						std::string& roughness = texture["Roughness"].as<std::string>();
 
-					tc.type = tc.TextureType::Albedo;
-					tc.AddTexture(m_AssetManager->LoadTexture(albedo));
-					tc.type = tc.TextureType::AmbientOcclusion;
-					tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion));
-					tc.type = tc.TextureType::Metallic;
-					tc.AddTexture(m_AssetManager->LoadTexture(metallic));
-					tc.type = tc.TextureType::Normal;
-					tc.AddTexture(m_AssetManager->LoadTexture(normal));
-					tc.type = tc.TextureType::Roughness;
-					tc.AddTexture(m_AssetManager->LoadTexture(roughness));
+						tc.type = tc.TextureType::Albedo;
+						tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+						tc.type = tc.TextureType::AmbientOcclusion;
+						tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion));
+						tc.type = tc.TextureType::Metallic;
+						tc.AddTexture(m_AssetManager->LoadTexture(metallic));
+						tc.type = tc.TextureType::Normal;
+						tc.AddTexture(m_AssetManager->LoadTexture(normal));
+						tc.type = tc.TextureType::Roughness;
+						tc.AddTexture(m_AssetManager->LoadTexture(roughness));
+					}
+					else
+					{
+						std::string& albedo = texture["Albedo"].as<std::string>();
+
+						tc.type = tc.TextureType::Albedo;
+						tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+					}
 				}
 
 				auto shaderComponent = entity["ShaderComponent"];
@@ -475,7 +516,7 @@ namespace Albedo {
 
 								ScriptFieldInstance& fieldInstance = entityFields[name];
 
-								// TODO(Yan): turn this assert into Hazelnut log warning
+								// TODO: turn this assert into AlbedoEditor log warning
 								Albedo_CORE_ASSERT(fields.find(name) != fields.end(), "field not found");
 
 								if (fields.find(name) == fields.end())
@@ -518,21 +559,21 @@ namespace Albedo {
 #if 0
 				if (cameraComponent)
 				{
-					//auto& cc = deserializedEntity.AddComponent<CameraComponent>();
-					//
-					//auto& cameraProps = cameraComponent["Camera"];
-					//cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
-					//
-					//cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
-					//cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-					//cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
-					//
-					//cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-					//cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-					//cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+					
+					auto& cameraProps = cameraComponent["Camera"];
+					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+					
+					cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+					cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+					cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+					
+					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+					cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+					cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 
-					//cc.Primary = cameraComponent["Primary"].as<bool>();
-					//cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+					cc.Primary = cameraComponent["Primary"].as<bool>();
+					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
 				}
 #endif
 

@@ -8,7 +8,7 @@ project "AlbedoScripting"
 
 	files
 	{
-		"Source/**.cs",
+		"Source/Albedo/**.cs",
 		"Properties/**.cs"
 	}
 	

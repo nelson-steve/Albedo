@@ -188,6 +188,7 @@ namespace Albedo {
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
@@ -230,8 +231,6 @@ namespace Albedo {
 	{
 		m_IsRunning = true;
 
-		//OnUpdatePhysics(ts);
-
 		// Scripting
 		{
 			ScriptEngine::OnRuntimeStart(this);
@@ -240,7 +239,7 @@ namespace Albedo {
 			auto view = m_Registry.view<ScriptComponent>();
 			for (auto e : view)
 			{
-				Entity entity = { e, this };
+				Entity entity = { e, this };	
 				ScriptEngine::OnCreateEntity(entity);
 			}
 		}
@@ -248,9 +247,7 @@ namespace Albedo {
 
 	void Scene::OnRuntimeStop()
 	{
-		m_IsRunning = false;
-
-		//OnPhysics2DStop();
+		m_IsRunning = false;;
 
 		ScriptEngine::OnRuntimeStop();
 	}
@@ -258,7 +255,16 @@ namespace Albedo {
 	void Scene::OnSimulationStart()
 	{
 		m_IsSimulating = true;
-		//OnUpdatePhysics(ts);
+
+		ScriptEngine::OnRuntimeStart(this);
+		// Instantiate all script entities
+
+		auto view = m_Registry.view<ScriptComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e, this };
+			ScriptEngine::OnCreateEntity(entity);
+		}
 	}
 
 	void Scene::OnSimulationStop()
@@ -330,19 +336,6 @@ namespace Albedo {
 	{
 		OnUpdatePhysics(ts);
 
-		// Update scripts
-		{
-			ScriptEngine::OnRuntimeStart(this);
-			// Instantiate all script entities
-
-			auto view = m_Registry.view<ScriptComponent>();
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				ScriptEngine::OnCreateEntity(entity);
-			}
-		}
-
 		{
 			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 				{
@@ -399,8 +392,24 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent, TransformComponent, MeshComponent,
-			TextureComponent, MaterialComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent,
+			TransformComponent, MeshComponent, TextureComponent, MaterialComponent, ScriptComponent>();
+
+		if (m_IsSimulating)
+		{
+			//OnUpdatePhysics(ts);
+
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnUpdateEntity(entity, ts);
+				Ref<ScriptInstance> instance = ScriptEngine::GetEntityScriptInstance(entity);
+				const auto& speed = instance->GetFieldValue<float>("Speed");
+				Albedo_Core_INFO("Speed: {}", speed);
+			}
+		}
+
 
 		// Checking for re initialization of meshes
 		for (auto& entity : view)
@@ -430,6 +439,7 @@ namespace Albedo {
 		else
 			l = lights[0].position;
 
+
 		//
 		// Shadow map render pass
 		//
@@ -437,18 +447,17 @@ namespace Albedo {
 
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 
-		if (m_IsSimulating)
-			OnUpdatePhysics(ts);
+		//for (auto& entity : view)
+		//{
+		//	auto& pos = view.get<TransformComponent>(entity).Position;
+		//	auto& rot = view.get<TransformComponent>(entity).Rotation;
+		//	view.get<PhysicsComponent>(entity).BodyPosition = pos;
+		//	view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+		//	view.get<ColliderComponent>(entity).ColliderPosition = pos;
+		//}
 
-		for (auto& entity : view)
-		{
-			auto& pos = view.get<TransformComponent>(entity).Position;
-			auto& rot = view.get<TransformComponent>(entity).Rotation;
-			view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-			view.get<ColliderComponent>(entity).ColliderPosition = pos;
-		}
 
 		for (auto& entity : view)
 		{

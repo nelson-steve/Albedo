@@ -7,6 +7,7 @@ namespace Sandbox
         public Entity OtherEntity;
 
         public float DistanceFromPlayer = 5.0f;
+        public float temp = 4;
 
         private Entity m_Player;
 

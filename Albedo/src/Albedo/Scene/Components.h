@@ -46,19 +46,19 @@ namespace Albedo {
 			Spot
 		};
 		
-		LightType type = LightType::Directional;
+		LightType type		= LightType::Directional;
 		
 		glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-		glm::vec3 position = glm::vec3(1.0);
-		glm::vec3 ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-		glm::vec3 diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-		glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
+		glm::vec3 position  = glm::vec3(1.0);
+		glm::vec3 ambient   = glm::vec3(0.05f, 0.05f, 0.05f);
+		glm::vec3 diffuse   = glm::vec3(0.4f, 0.4f, 0.4f);
+		glm::vec3 specular  = glm::vec3(0.5f, 0.5f, 0.5f);
 
-		float cutOff = 0.0;
-		float outerCutOff = 0.0;
-		float constant = 0.0;
-		float linear = 0.0;
-		float quadratic = 0.0;
+		float cutOff        = 0.0;
+		float outerCutOff	= 0.0;
+		float constant		= 0.0;
+		float linear		= 0.0;
+		float quadratic		= 0.0;
 
 		std::string nameOfLight = "Directional";
 		//glm::vec3 color = glm::vec3(1.0);
@@ -269,7 +269,7 @@ namespace Albedo {
 	{
 		std::string name = "Script Compnent";
 
-		std::string ClassName;
+		std::string ClassName = "Sandbox.Player";
 
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;
@@ -298,7 +298,8 @@ namespace Albedo {
 	};
 
 	using AllComponents =
-		ComponentGroup<MeshComponent, TransformComponent, PhysicsComponent, 
-		ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent>;
+		ComponentGroup<MeshComponent, TransformComponent, LightComponent, SkyboxComponent, PhysicsComponent,
+		ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
+		ScriptComponent>;
 
 }
