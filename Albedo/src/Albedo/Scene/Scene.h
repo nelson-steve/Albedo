@@ -7,6 +7,7 @@
 #include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
+#include "Platform/OpenGL/TerrainGeneraion.h"
 
 #include "entt.hpp"
 
@@ -69,6 +70,7 @@ namespace Albedo {
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
 		Ref<ShadowMap> m_ShadowMap;
+		Ref<TerrainGeneration> m_TerrainGeneration;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -93,16 +95,9 @@ namespace Albedo {
 		Ref<Texture2D> RoughnessMap;
 		Ref<Texture2D> AOMap;
 
-		Ref<Shader> pbrShader;
-		Ref<Shader>	equirectangularToCubemapShader;
-		Ref<Shader>	irradianceShader;
-		Ref<Shader>	prefilterShader;
-		Ref<Shader>	brdfShader;
-		Ref<Shader>	backgroundShader;
-
 		unsigned int depthMapFBO;
 
-		//Ref<Shader> m_ShaderTemp;
+		Ref<Shader> m_TerrainShader;
 		Ref<Shader> m_CubeShader;
 		Ref<Mesh> m_Cube;
 		Ref<Texture2D> tex;

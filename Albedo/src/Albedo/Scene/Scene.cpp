@@ -34,6 +34,9 @@ namespace Albedo {
 		m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
+		m_TerrainShader = m_AssetManager->LoadShader("Assets/Shaders/TerrainShader.glsl");
+		
+		//m_TerrainShader = m_AssetManager->LoadShader("Assets/Shaders/Terrain.glsl");
 
 		m_Collider->InitMesh(-1);
 		m_Quad->InitMesh(-1);
@@ -62,7 +65,7 @@ namespace Albedo {
 			};
 			skyboxTemp = Texture2D::Create(config);
 		}
-
+ 
 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
 
 		m_DefaultsInitialized = true;
@@ -89,7 +92,7 @@ namespace Albedo {
 				phy.staticBody = std::make_shared<RigidBodyStaticComponent>
 					(phy.BodyPosition, phy.BodyOrientation);
 				phy.initialize = false;
-				//phy.staticBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
+				phy.staticBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
 			}
 
 			else if (phy.bodyType == phy.BodyType::Dynamic && phy.initialize)
@@ -100,8 +103,10 @@ namespace Albedo {
 				phy.BodyPosition = tra.Position;
 				phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
 					(phy.BodyPosition, phy.BodyOrientation, phy.Mass);
-				//phy.dynamicBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
+				phy.dynamicBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
 				phy.dynamicBody->DisableGravity(phy.disableGravity);
+				if(phy.isKinematic)
+					phy.dynamicBody->MakeKinematic();
 				phy.initialize = false;
 			}
 
@@ -173,6 +178,9 @@ namespace Albedo {
 			auto& mat = view.get<MaterialComponent>(entity);
 			mat.m_Material = std::make_shared<Material>();
 		}
+
+		m_TerrainGeneration = std::make_shared<TerrainGeneration>();
+		m_TerrainGeneration->Init(m_TerrainShader);
 
 		Renderer::Init(m_Registry);
 	}
@@ -302,9 +310,9 @@ namespace Albedo {
 			}
 			else if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
 			{
-				auto p = phy.staticBody->GetRigidActor()->getGlobalPose().p;
-				tra.AddTranform(glm::vec3(p.x, p.y, p.z));
-				phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
+				//auto p = phy.staticBody->GetRigidActor()->getGlobalPose().p;
+				//tra.AddTranform(glm::vec3(p.x, p.y, p.z));
+				//phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
 			}
 			else
 				Albedo_Core_ERROR("Invalid Body Type");
@@ -450,6 +458,23 @@ namespace Albedo {
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		m_TerrainShader->Bind();
+		glm::mat4 model = glm::mat4(1.0f);
+		m_TerrainShader->SetUniformMat4("model", model);
+		m_TerrainShader->SetUniformMat4("view", camera.GetViewMatrix());
+		m_TerrainShader->SetUniformMat4("projection", camera.GetProjection());
+
+		glBindVertexArray(m_TerrainGeneration->terrainVAO);
+		for (unsigned int strip = 0; strip < m_TerrainGeneration->numStrips; strip++)
+		{
+			glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
+				m_TerrainGeneration->numTrisPerStrip + 2,   // number of indices to render
+				GL_UNSIGNED_INT,     // index data type
+				(void*)(sizeof(unsigned int) * (m_TerrainGeneration->numTrisPerStrip + 2) * strip)); // offset to starting index
+			Albedo_Core_INFO("strip: {}", strip);
+		}
+
+		//glDrawArrays(GL_PATCHES, 0, m_TerrainGeneration->NUM_PATCH_PTS * m_TerrainGeneration->rez * m_TerrainGeneration->rez);
 
 		//for (auto& entity : view)
 		//{
@@ -482,7 +507,7 @@ namespace Albedo {
 			auto& phy = view.get<PhysicsComponent>(entity);
 			auto& col = view.get<ColliderComponent>(entity);
 
-			m_Transform = glm::translate(glm::mat4(1.0f), phy.BodyPosition) * glm::scale(glm::mat4(1.0f), col.ColliderSize);
+			m_Transform = glm::translate(glm::mat4(1.0), phy.BodyPosition) * glm::scale(glm::mat4(1.0), col.ColliderSize);
 			//glm::vec3 offset = glm::vec3(2.0);
 			//m_Transform = glm::scale(m_Transform, offset);
 			{
@@ -495,10 +520,10 @@ namespace Albedo {
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
 		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
 		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
-
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTemp->GetTextureID());
-
+		
 		glDepthMask(GL_FALSE);
 		m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);

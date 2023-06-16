@@ -137,11 +137,11 @@ namespace Albedo {
             Albedo_CORE_ASSERT(false, "PhysX Scene failed to create");
         }
 
-        physx::PxMaterial* terrainMaterial;
-        terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
-
-        physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 30), *terrainMaterial);
-        scene->addActor(*groundPlane);
+        //physx::PxMaterial* terrainMaterial;
+        //terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
+        //
+        //physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 30), *terrainMaterial);
+        //scene->addActor(*groundPlane);
         scene->setGravity(physx::PxVec3{0.0, -1.0, 0.0});
     }
 
@@ -166,6 +166,7 @@ namespace Albedo {
         scene->lockWrite();
         //for (int i = 0; i < nsteps; i++)
         {
+            const auto& f = scene->getFilterShader();
             scene->simulate(ts.GetTime());
             scene->fetchResults(true);      //simulate is async, this blocks until the results have been calculated
         }

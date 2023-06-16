@@ -14,6 +14,10 @@ namespace Albedo {
 			return GL_VERTEX_SHADER;
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
+		if (type == "tess_control")
+			return GL_TESS_CONTROL_SHADER;
+		if (type == "tess_evaluation")
+			return GL_TESS_EVALUATION_SHADER;
 
 		Albedo_Core_WARN("Unknown shader type!");
 		return 0;
@@ -90,7 +94,7 @@ namespace Albedo {
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		Albedo_PROFILE_FUNCTION();
-		std::array<GLenum, 2> glShaderIDs;
+		std::array<GLenum, 4> glShaderIDs;
 		int glShaderIDIndex = 0;
 
 		m_ShaderID = glCreateProgram();

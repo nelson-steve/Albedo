@@ -67,8 +67,8 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
-        //collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        //collider->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+        collider->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
         SetRelativeTransform(position, rotation);
         //UpdateFilterData(body);
     }
@@ -78,8 +78,8 @@ namespace Albedo {
         collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
-        //collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        //collider->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+        collider->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
         SetRelativeTransform(position, rotation);
         //UpdateFilterData(body);
     }

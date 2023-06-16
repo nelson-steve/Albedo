@@ -17,6 +17,10 @@ namespace Albedo {
 		// enable seamless cubemap sampling for lower mip levels in the pre-filter map.
 		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
+		GLint maxTessLevel;
+		glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+		Albedo_Core_INFO("Max available tess level: {}", maxTessLevel);
+
 		Albedo_Core_INFO("	OpenGL Info:");
 		Albedo_Core_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
 		Albedo_Core_INFO("  Renderer: {0}", glGetString(GL_RENDERER));

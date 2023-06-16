@@ -628,16 +628,27 @@ namespace Albedo {
 
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("Disable Gravity", &component.disableGravity);
-				ImGui::Checkbox("Infinite Mass", &component.infiniteMass);
+				if (ImGui::Checkbox("Disable Gravity", &component.disableGravity))
+					component.initialize = true;
+				if (ImGui::Checkbox("Infinite Mass", &component.infiniteMass))
+					component.initialize = true;
+				if (ImGui::Checkbox("Kinematic", &component.isKinematic))
+					component.initialize = true;
+
 				ImGui::Separator();
 
-				ImGui::DragFloat("Mass", &component.Mass);
+				if (ImGui::DragFloat("Mass", &component.Mass))
+					component.initialize = true;
+
 				ImGui::Separator();
 				
-				ImGui::DragFloat("Resitution", &component.restitution, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Dynamic Friction", &component.dynamicFriction, 1.0f, 0.0f);
-				ImGui::DragFloat("Static Friction", &component.staticFriction, 1.0f, 0.0f);
+				if (ImGui::DragFloat("Resitution", &component.restitution, 0.01f, 0.0f, 1.0f))
+					component.initialize = true;
+				if (ImGui::DragFloat("Dynamic Friction", &component.dynamicFriction, 1.0f, 0.0f))
+					component.initialize = true;
+				if (ImGui::DragFloat("Static Friction", &component.staticFriction, 1.0f, 0.0f))
+					component.initialize = true;
+
 				ImGui::Separator();
 
 				ImGui::Text("Body Type");

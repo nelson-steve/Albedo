@@ -11,6 +11,7 @@ namespace Albedo {
 	{
 	public:
 		OpenGLShader(const std::string& name, const char* vertexSrc, const char* fragmentSrc);
+		OpenGLShader(const std::string& name, const char* tcsSrc, const char* tesSrc, bool isTrue);
 		OpenGLShader(const std::string& filePath);
 		~OpenGLShader();
 

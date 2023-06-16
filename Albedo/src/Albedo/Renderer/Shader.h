@@ -32,6 +32,7 @@ namespace Albedo {
 
 		static Ref<Shader> Create(const std::string& filePath);
 		static Ref<Shader> Create(const std::string& name, const char* vertexSrc, const char* fragmentSrc);
+		static Ref<Shader> Create(const std::string& name, const char* vertexSrc, const char* fragmentSrc, bool isTrue);
 	};
 
 	class ShaderLibrary

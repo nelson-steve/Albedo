@@ -214,7 +214,7 @@ namespace Albedo {
 
 		//states
 		bool disableGravity = true;
-		
+		bool isKinematic = false;
 		float SphereColliderRadius = 1.0f;
 
 		std::string phyTypeName = "Dynamic";

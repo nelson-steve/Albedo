@@ -328,7 +328,7 @@ namespace Albedo {
 
 			ImGui::Begin("depth map");
 
-			ImGui::Image((ImTextureID)m_ActiveScene->m_ShadowMap->GetDepthMapID(), ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainGeneration->texture, ImVec2{200, 200}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			ImGui::End();
 

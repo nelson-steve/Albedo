@@ -19,6 +19,8 @@ namespace Albedo {
 		void AddToScene();
 		const auto& GetScene() const { return rigidActor->getScene(); }
 
+		void MakeKinematic();
+
 		void DisableGravity(bool gravity);
 		void SetLinearVelocity(const glm::vec3& vel, bool autoWake);
 		void SetAngularVelocity(const glm::vec3& vel, bool autoWake);

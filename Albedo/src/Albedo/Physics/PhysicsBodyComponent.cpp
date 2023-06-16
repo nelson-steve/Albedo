@@ -36,14 +36,20 @@ namespace Albedo {
 	{
 		rigidActor = PhysicsSolver::phys->createRigidDynamic(glmToPhysx::ToTransform(pos));	//will be set pre-tick to the entity's location
 		rigidActor->setGlobalPose(glmToPhysx::ToTransform(pos, rot));
+		
 		static_cast<physx::PxRigidBody*>(rigidActor)->setMass(mass);
 
 		AddToScene();
 	}
 
+	void RigidBodyDynamicComponent::MakeKinematic()
+	{
+		static_cast<physx::PxRigidBody*>(rigidActor)->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
+	}
+
 	void RigidBodyDynamicComponent::DisableGravity(bool gravity)
 	{
-		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
+		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, gravity);
 	}
 
 	void RigidBodyDynamicComponent::AddToScene()
@@ -162,7 +168,7 @@ namespace Albedo {
 	RigidBodyStaticComponent::RigidBodyStaticComponent(const glm::vec3& pos, const glm::quat& rot)
 	{
 		rigidActor = PhysicsSolver::phys->createRigidStatic(glmToPhysx::ToTransform(pos, rot));	//will be set pre-tick to the entity's location
-
+		
 		AddToScene();
 	}
 
