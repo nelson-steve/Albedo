@@ -1561,6 +1561,12 @@
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\TerrainGeneraion.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\PerlinNoise2D.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\RandomNoise.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\SmoothNoise2D.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\HeightmapGenerator.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainChunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1726,5 +1732,11 @@
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\TerrainGeneraion.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\PerlinNoise2D.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\RandomNoise.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\SmoothNoise2D.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\HeightmapGenerator.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainChunk.cpp" />
   </ItemGroup>
 </Project>

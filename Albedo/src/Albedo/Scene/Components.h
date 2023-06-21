@@ -126,6 +126,11 @@ namespace Albedo {
 	{
 		std::string name = "Material Component";
 
+		int minTessLevel = 4;
+		int maxTessLevel = 64;
+		float minDistance = 10;
+		float maxDistance = 1000;
+
 		Ref<Material> m_Material;
 		bool isPBR = false;
 		float shininess = 0.0;

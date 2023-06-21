@@ -1,15 +1,18 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "TerrainGeneraion.h"
+#include "Albedo/TerrainGeneration/WorldGenerator.h"
 
 #include <stb_image.h>
 #include <glad/glad.h>
 
 namespace Albedo {
 
+    static PerlinNoise2D p(5, 2, 10, 4, 3, 10, 20);
+
 	void TerrainGeneration::Init(Ref<Shader> shader)
 	{
-#if 0
+#if 1
         // load and create a texture
         // -------------------------
         glGenTextures(1, &texture);
@@ -23,7 +26,7 @@ namespace Albedo {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // load image, create texture and generate mipmaps
         // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-        unsigned char* data = stbi_load("Assets/Tex/iceland_heightmap.png", &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load("Assets/Textures/iceland_heightmap.png", &width, &height, &nrChannels, 0);
         if (data)
         {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -73,6 +76,8 @@ namespace Albedo {
         std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
         std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
 
+        glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
+
         // first, configure the cube's VAO (and terrainVBO)
         glGenVertexArrays(1, &terrainVAO);
         glBindVertexArray(terrainVAO);
@@ -88,13 +93,26 @@ namespace Albedo {
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
         glEnableVertexAttribArray(1);
 
-        glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
-
 #else
+        uint32_t w = 200;
+        uint32_t h = 200;
+        uint32_t SIZE = w * h * 4;
 
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load("Assets/Textures/iceland_heightmap.png", &width, &height, &nrChannels, 0);
-        if (data)
+        std::vector<unsigned char> data;
+        //unsigned char* data = new unsigned char(200 * 200 * 4);
+        data.resize(SIZE);
+        p.FillData(data, w, h, 5);
+
+
+        unsigned char* inputData = new unsigned char[SIZE];
+        for (unsigned i = 0; i < SIZE; ++i)
+            inputData[i] = data[i];
+        width = w;
+        height = h;
+        nrChannels = 4;
+        //unsigned char* data = stbi_load("Assets/Textures/iceland_heightmap.png", &width, &height, &nrChannels, 0);
+        if (!data.empty())
         {
             std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
         }
@@ -111,7 +129,7 @@ namespace Albedo {
         {
             for (int j = 0; j < width; j++)
             {
-                unsigned char* pixelOffset = data + (j + width * i) * bytePerPixel;
+                unsigned char* pixelOffset = inputData + (j + width * i) * bytePerPixel;
                 unsigned char y = pixelOffset[0];
 
                 // vertex
@@ -121,7 +139,7 @@ namespace Albedo {
             }
         }
         std::cout << "Loaded " << vertices.size() / 3 << " vertices" << std::endl;
-        stbi_image_free(data);
+        //stbi_image_free(data);
 
         for (unsigned i = 0; i < height - 1; i += rez)
         {

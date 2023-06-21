@@ -8,6 +8,7 @@
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
 #include "Platform/OpenGL/TerrainGeneraion.h"
+#include "Albedo/TerrainGeneration/TerrainChunk.h"
 
 #include "entt.hpp"
 
@@ -43,7 +44,7 @@ namespace Albedo {
 
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateSimulation(Timestep ts, EditorCamera& camera);
-		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
+		void OnUpdateEditor(const EditorCamera& camera, Timestep ts);
 		void OnUpdateResize(uint32_t width, uint32_t height);
 
 		void OnUpdatePhysics(Timestep ts);
@@ -82,6 +83,7 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
+		Ref<TerrainChunk> m_TerrainChunk;
 	
 		bool m_DefaultsInitialized = false;
 		bool fbo = true;

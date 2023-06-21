@@ -35,6 +35,8 @@ namespace Albedo {
 
 		float GetPitch() const { return m_Pitch; }
 		float GetYaw() const { return m_Yaw; }
+		float GetNearClip() const { return m_NearClip; }
+		float GetFarClip() const { return m_FarClip; }
 	private:
 		void UpdateProjection();
 		void UpdateView();

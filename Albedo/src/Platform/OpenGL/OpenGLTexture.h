@@ -13,6 +13,7 @@ namespace Albedo {
 		OpenGLTexture2D(const std::vector<std::string> faces);
 		virtual ~OpenGLTexture2D();
 
+
 		virtual unsigned int getWidth() const override { return m_Width; }
 		virtual unsigned int getHeight() const override { return m_Height; }
 		virtual const std::string& GetPath() const override { return m_Path; }

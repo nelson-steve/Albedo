@@ -614,6 +614,11 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
+				ImGui::DragInt("Min tess level", &component.minTessLevel, 1, 0, 1000);
+				ImGui::DragInt("Max tess level", &component.maxTessLevel, 1, 0, 100000);
+				ImGui::DragFloat("Min Distance", &component.minDistance, 1.0f, 0.0f, 1000.0f);
+				ImGui::DragFloat("Max Distance", &component.maxDistance, 1.0f, 0.0f, 10000.0f);
+
 				ImGui::Checkbox("PBR", &component.isPBR);
 
 				component.m_Material->SetPBRStatus(component.isPBR);
@@ -642,7 +647,7 @@ namespace Albedo {
 
 				ImGui::Separator();
 				
-				if (ImGui::DragFloat("Resitution", &component.restitution, 0.01f, 0.0f, 1.0f))
+				if (ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f))
 					component.initialize = true;
 				if (ImGui::DragFloat("Dynamic Friction", &component.dynamicFriction, 1.0f, 0.0f))
 					component.initialize = true;
@@ -703,26 +708,26 @@ namespace Albedo {
 							component.colTypeName = items[n];
 							switch (n)
 							{
-							case 0: // Box
-							{
-								component.colliderType = component.ColliderType::Box;
-								component.initialize = true;
-								break;
-							}
-							case 1: // Sphere
-								component.colliderType = component.ColliderType::Sphere;
-								component.initialize = true;
-								break;
-							case 2: // Mesh
-								component.colliderType = component.ColliderType::Mesh;
-								component.initialize = true;
-								break;
-							case 3: // Convex Mesh
-								component.colliderType = component.ColliderType::ConvexMesh;
-								component.initialize = true;
-								break;
-							default:
-								break;
+								case 0: // Box
+								{
+									component.colliderType = component.ColliderType::Box;
+									component.initialize = true;
+									break;
+								}
+								case 1: // Sphere
+									component.colliderType = component.ColliderType::Sphere;
+									component.initialize = true;
+									break;
+								case 2: // Mesh
+									component.colliderType = component.ColliderType::Mesh;
+									component.initialize = true;
+									break;
+								case 3: // Convex Mesh
+									component.colliderType = component.ColliderType::ConvexMesh;
+									component.initialize = true;
+									break;
+								default:
+									break;
 							}
 						}
 						if (is_selected)

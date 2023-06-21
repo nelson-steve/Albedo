@@ -122,7 +122,7 @@ namespace Albedo {
 	};
 }
 
-#define Albedo_PROFILE 1
+#define Albedo_PROFILE 0
 #if Albedo_PROFILE
 #define Albedo_PROFILE_BEGIN_SESSION(name, filepath) ::Albedo::Instrumentor::Get().BeginSession(name, filepath)
 #define Albedo_PROFILE_END_SESSION() ::Albedo::Instrumentor::Get().EndSession()
