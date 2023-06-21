@@ -1,6 +1,5 @@
+#include "AlbedoPreCompiledHeader.h"
 #include "TerrainChunk.h"
-
-#include "Albedo/Cameras/EditorCamera.h"
 
 namespace Albedo {
 
@@ -14,8 +13,8 @@ namespace Albedo {
 
 		m_Shader->SetUniformInt1("grassTex", m_TextureGrass->GetTextureID());
 		m_Shader->SetUniformInt1("stoneTex", m_TextureStone->GetTextureID());
-		m_Shader->SetUniformInt1("normalMap", m_TextureNormalmap->GetTextureID());
-		m_Shader->SetUniformInt1("heightMap", m_TextureHeightmap->GetTextureID());
+		//m_Shader->SetUniformInt1("normalMap", m_TextureNormalmap->GetTextureID());
+		//m_Shader->SetUniformInt1("heightMap", m_TextureHeightmap->GetTextureID());
 
 		m_Shader->SetUniformInt1("maxTessLevel", m_MaxTessLevel);
 		m_Shader->SetUniformFloat("farPlane", camera.GetFarClip());

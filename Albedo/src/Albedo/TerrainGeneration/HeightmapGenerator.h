@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Albedo/Renderer/Texture.h"
-#include "PerlinNoise2D.h"
-#include "SmoothNoise2D.h"
-#include "RandomNoise.h"
 
 namespace Albedo {
 
@@ -35,7 +32,7 @@ namespace Albedo {
 		HeightmapGenerator(int width, int height)
 			:m_Width(width), m_Height(height)
 		{
-			m_Texture = std::make_shared<Texture2D>(width, height);
+			m_Texture = Texture2D::Create(width, height);
 		}
 
 		void InitPerlinNoiseTexture(double pFrequency = 1, double pAmplitude = 1, double pPersistance = 1, uint32_t pOctaves = 4,

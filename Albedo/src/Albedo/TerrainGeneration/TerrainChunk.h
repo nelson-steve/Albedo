@@ -4,6 +4,7 @@
 #include "HeightmapGenerator.h"
 #include "Albedo/Renderer/VertexArray.h"
 #include "Albedo/Renderer/Shader.h"
+#include "Albedo/Cameras/EditorCamera.h"
 
 namespace Albedo {
 
@@ -33,10 +34,10 @@ namespace Albedo {
         float GetDepth() const { return m_Depth; }
         Ref<VertexArray> GetVAO() const { return m_VAO; }
 
-        void LoadGrassTexture(const std::string& path) { m_TextureGrass = std::make_shared<Texture2D>(path); }
-        void LoadStoneTexture(const std::string& path) { m_TextureStone = std::make_shared<Texture2D>(path); }
-        void LoadHeightmapTexture(const std::string& path) { m_TextureHeightmap = std::make_shared<Texture2D>(path); }
-        void LoadNormalmapTexture(const std::string& path) { m_TextureNormalmap = std::make_shared<Texture2D>(path); }
+        void LoadGrassTexture(const std::string& path) { m_TextureGrass = Texture2D::Create(path, false); }
+        void LoadStoneTexture(const std::string& path) { m_TextureStone = Texture2D::Create(path, false); }
+        void LoadHeightmapTexture(const std::string& path) { m_TextureHeightmap = Texture2D::Create(path, false); }
+        void LoadNormalmapTexture(const std::string& path) { m_TextureNormalmap = Texture2D::Create(path, false); }
         void LoadHeightmapTexture(int width, int height);
         //void LoadNormalmapTexture(int width, int height);
 	private:

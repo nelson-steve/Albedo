@@ -1,3 +1,4 @@
+#include "AlbedoPreCompiledHeader.h"
 #include "HeightmapGenerator.h"
 
 #include <glm/glm.hpp>
