@@ -79,6 +79,9 @@
     <Filter Include="src\Albedo\Scripting">
       <UniqueIdentifier>{25CA7836-1159-0200-BA77-16FBA6E512A6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Albedo\TerrainGeneration">
+      <UniqueIdentifier>{D388653D-BF43-55E9-68FB-CD3354959F79}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Albedo\Utils">
       <UniqueIdentifier>{033DECBB-EF35-0B0E-1868-F09204C0EA19}</UniqueIdentifier>
     </Filter>
@@ -1515,6 +1518,15 @@
     <ClInclude Include="src\Albedo\Scripting\ScriptGlue.h">
       <Filter>src\Albedo\Scripting</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\HeightmapGenerator.h">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainChunk.h">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h">
       <Filter>src\Albedo\Utils</Filter>
     </ClInclude>
@@ -1554,19 +1566,15 @@
     <ClInclude Include="src\Platform\OpenGL\ShadowMap.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainGeneraion.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\Utils.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\OpenGL\TerrainGeneraion.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\PerlinNoise2D.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\RandomNoise.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\SmoothNoise2D.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\HeightmapGenerator.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainChunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1686,6 +1694,15 @@
     <ClCompile Include="src\Albedo\Scripting\ScriptGlue.cpp">
       <Filter>src\Albedo\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\HeightmapGenerator.cpp">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainChunk.cpp">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp">
       <Filter>src\Albedo\Utils</Filter>
     </ClCompile>
@@ -1722,6 +1739,9 @@
     <ClCompile Include="src\Platform\OpenGL\ShadowMap.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainGeneraion.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
@@ -1731,12 +1751,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\OpenGL\TerrainGeneraion.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\PerlinNoise2D.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\RandomNoise.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\SmoothNoise2D.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\HeightmapGenerator.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainChunk.cpp" />
   </ItemGroup>
 </Project>

@@ -22,6 +22,7 @@ namespace Albedo {
 			RGBA,
 			RGBA8,
 			RGB16F,
+			RGBA32F,
 			DEPTH
 		};
 

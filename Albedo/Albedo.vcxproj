@@ -622,14 +622,11 @@
     <ClInclude Include="src\Albedo\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Albedo\Scripting\ScriptGlue.h" />
     <ClInclude Include="src\Albedo\TerrainGeneration\HeightmapGenerator.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\PerlinNoise2D.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\RandomNoise.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\SmoothNoise2D.h" />
     <ClInclude Include="src\Albedo\TerrainGeneration\TerrainChunk.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h" />
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h" />
     <ClInclude Include="src\Albedo\Utils\PlatformUtils.h" />
     <ClInclude Include="src\AlbedoPreCompiledHeader.h" />
-    <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLCubemap.h" />
@@ -640,7 +637,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\OpenGL\ShadowMap.h" />
-    <ClInclude Include="src\Platform\OpenGL\TerrainGeneraion.h" />
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainGeneraion.h" />
     <ClInclude Include="src\Platform\OpenGL\Utils.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
@@ -691,15 +688,12 @@
     <ClCompile Include="src\Albedo\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Albedo\Scripting\ScriptGlue.cpp" />
     <ClCompile Include="src\Albedo\TerrainGeneration\HeightmapGenerator.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\SmoothNoise2D.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\PerlinNoise2D.cpp" />
-    <ClCompile Include="src\Albedo\TerrainGeneration\RandomNoise.cpp" />
     <ClCompile Include="src\Albedo\TerrainGeneration\TerrainChunk.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp" />
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp" />
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLCubemap.cpp" />
@@ -710,7 +704,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\OpenGL\ShadowMap.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\TerrainGeneraion.cpp" />
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainGeneraion.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />

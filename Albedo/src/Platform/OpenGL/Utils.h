@@ -9,6 +9,17 @@ namespace Albedo
 	namespace Utils
 	{
 		template<typename T>
+		static uint32_t GetVertexSize(const std::vector<T> data)
+		{
+			return data.size() * sizeof(T);
+		}
+
+		static void PatchParameter(uint32_t noOfPatchPoints)
+		{
+			glPatchParameteri(GL_PATCH_VERTICES, noOfPatchPoints);
+		}
+
+		template<typename T>
 		static GLenum AlbedoToOpenGLENUMType(T type)
 		{
 		}
@@ -118,6 +129,10 @@ namespace Albedo
 				return GL_RGBA8;
 			case Config::InternalFormat::RGBA8:
 				return GL_RGBA8;
+			case Config::InternalFormat::RGB16F:
+				return GL_RGB16F;
+			case Config::InternalFormat::RGBA32F:
+				return GL_RGBA32F;
 			case Config::InternalFormat::DEPTH:
 				return GL_DEPTH_COMPONENT;
 			default:

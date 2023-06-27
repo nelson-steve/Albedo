@@ -12,16 +12,36 @@ namespace Albedo {
 	{
 		if (type == "vertex")
 			return GL_VERTEX_SHADER;
-		if (type == "fragment" || type == "pixel")
-			return GL_FRAGMENT_SHADER;
+		if (type == "compute")
+			return GL_COMPUTE_SHADER;
 		if (type == "tess_control")
 			return GL_TESS_CONTROL_SHADER;
 		if (type == "tess_evaluation")
 			return GL_TESS_EVALUATION_SHADER;
+		if (type == "fragment" || type == "pixel")
+			return GL_FRAGMENT_SHADER;
 
 		Albedo_Core_WARN("Unknown shader type!");
 		return 0;
 	}
+
+	static std::string ShaderTypeToString(GLenum type)
+	{
+		if (type == GL_VERTEX_SHADER)
+			return "vertex";
+		if (type == GL_COMPUTE_SHADER)
+			return "compute";
+		if (type == GL_TESS_CONTROL_SHADER)
+			return "tesselation control";
+		if (type == GL_TESS_EVALUATION_SHADER)
+			return "tesselation evaluation";
+		if (type == GL_FRAGMENT_SHADER)
+			return "fragment";
+
+		Albedo_Core_WARN("Unknown Opengl shader type!");
+		return "none";
+	}
+
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 		:m_Path(filePath)
 	{
@@ -43,7 +63,7 @@ namespace Albedo {
 			}
 		}
 
-		std::string source = readFile(filePath);
+ 		std::string source = readFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);	
 
@@ -66,6 +86,8 @@ namespace Albedo {
 			in.read(&result[0], result.size());
 			in.close();
 		}
+		else
+			Albedo_Core_ERROR("Couldn't open the file {}", filePath);
 		return result;
 	}
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
@@ -118,7 +140,8 @@ namespace Albedo {
 			if (!success)
 			{
 				glGetShaderInfoLog(shader, 512, NULL, infoLog);
-				Albedo_Core_ERROR("ERROR::SHADER::COMPILATION_FAILED");
+				std::string& shaderType = ShaderTypeToString(type);
+				Albedo_Core_ERROR("Shader compilation failed: {}", shaderType);
 				glDeleteShader(shader);
 			}
 
@@ -132,8 +155,9 @@ namespace Albedo {
 		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &isLinked);
 		if (!isLinked)
 		{
+			char infoLog[512];
 			Albedo_Core_ERROR("Shader linking failed");
-
+			glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 			glDeleteProgram(shaderProgram);
 
 			for (auto id : glShaderIDs)

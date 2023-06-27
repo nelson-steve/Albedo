@@ -7,7 +7,6 @@
 #include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
-#include "Platform/OpenGL/TerrainGeneraion.h"
 #include "Albedo/TerrainGeneration/TerrainChunk.h"
 
 #include "entt.hpp"
@@ -71,7 +70,7 @@ namespace Albedo {
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
 		Ref<ShadowMap> m_ShadowMap;
-		Ref<TerrainGeneration> m_TerrainGeneration;
+		Ref<TerrainChunk> m_TerrainChunk;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -83,7 +82,6 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
-		Ref<TerrainChunk> m_TerrainChunk;
 	
 		bool m_DefaultsInitialized = false;
 		bool fbo = true;

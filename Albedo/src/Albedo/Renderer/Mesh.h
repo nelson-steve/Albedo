@@ -55,11 +55,11 @@ namespace Albedo {
         RendererConfig& GetRendererConfig() { return m_RendererConfiguration; }
         const RendererConfig& GetRendererConfig() const { return m_RendererConfiguration; }
 
-		template<typename T>
-		uint32_t GetVertexSize(const std::vector<T> data)
-		{
-			return data.size() * sizeof(T);
-		}
+		//template<typename T>
+		//uint32_t GetVertexSize(const std::vector<T> data)
+		//{
+		//	return data.size() * sizeof(T);
+		//}
 	private:
         bool m_InitializationStatus = true;
 		//Get the size of the vertex data for the Vertex Buffer

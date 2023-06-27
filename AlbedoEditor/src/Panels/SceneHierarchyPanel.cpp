@@ -641,6 +641,8 @@ namespace Albedo {
 					component.initialize = true;
 
 				ImGui::Separator();
+				ImGui::Separator();
+				ImGui::Separator();
 
 				if (ImGui::DragFloat("Mass", &component.Mass))
 					component.initialize = true;

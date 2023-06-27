@@ -8,11 +8,9 @@
 
 namespace Albedo {
 
-    static PerlinNoise2D p(5, 2, 10, 4, 3, 10, 20);
-
 	void TerrainGeneration::Init(Ref<Shader> shader)
 	{
-#if 1
+#if 0
         // load and create a texture
         // -------------------------
         glGenTextures(1, &texture);
@@ -93,7 +91,7 @@ namespace Albedo {
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
         glEnableVertexAttribArray(1);
 
-#else
+//#else
         uint32_t w = 200;
         uint32_t h = 200;
         uint32_t SIZE = w * h * 4;

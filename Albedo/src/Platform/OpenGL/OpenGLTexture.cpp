@@ -1,12 +1,11 @@
 #include "AlbedoPreCompiledHeader.h"
 #include "OpenGLTexture.h"
+#include "Utils.h"
 
 #include <glad/glad.h>
-
 #include "stb_image.h"
 #include <gl/GL.h>
 
-#include "Utils.h"
 
 namespace Albedo {
 
@@ -29,6 +28,9 @@ namespace Albedo {
 				m_Name = "Custom";
 			}
 		}
+
+		m_Width = config.m_Width;
+		m_Height = config.m_Height;
 
 		GLenum dataFormat = Utils::AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
 		GLenum texLayout  = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
@@ -111,6 +113,8 @@ namespace Albedo {
 				{
 					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
 				}
+				m_Width = width;
+				m_Height = height;
 			}
 			else if (config.m_TextureType == Config::TextureType::Cubemap)
 			{
@@ -173,8 +177,8 @@ namespace Albedo {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		int width, height, nrChannels;
@@ -183,14 +187,17 @@ namespace Albedo {
 		if (data)
 		{
 			if(nrChannels == 4)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			else if(nrChannels == 3)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			else
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+			m_Width = width;
+			m_Height = height;
 		}
 		else
 		{
@@ -239,7 +246,7 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 	#if 1
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, data);
 		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	#else

@@ -36,7 +36,7 @@ namespace Albedo {
 		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
 		//m_TerrainShader = m_AssetManager->LoadShader("Assets/Shaders/TerrainShader.glsl");
 		m_TerrainChunk = std::make_shared<TerrainChunk>();
-		m_TerrainChunk->LoadHeightmapTexture(300, 300);
+		//m_TerrainChunk->LoadHeightmapTexture(600, 600);
 		m_TerrainShader = m_AssetManager->LoadShader("Assets/Shaders/Terrain.glsl");
 
 		m_Collider->InitMesh(-1);
@@ -171,6 +171,8 @@ namespace Albedo {
 		if(!m_DefaultsInitialized)
 			InitDefaults();
 
+		m_TerrainChunk->Init();
+
 		InitPhysicsObjects();
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
@@ -179,9 +181,6 @@ namespace Albedo {
 			auto& mat = view.get<MaterialComponent>(entity);
 			mat.m_Material = std::make_shared<Material>();
 		}
-
-		m_TerrainGeneration = std::make_shared<TerrainGeneration>();
-		m_TerrainGeneration->Init(m_TerrainShader);
 
 		Renderer::Init(m_Registry);
 	}
@@ -459,26 +458,24 @@ namespace Albedo {
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		m_TerrainShader->Bind();
-		glm::mat4 model = glm::mat4(1.0f);
-		m_TerrainShader->SetUniformMat4("model", model);
-		m_TerrainShader->SetUniformMat4("view", camera.GetViewMatrix());
-		m_TerrainShader->SetUniformMat4("projection", camera.GetProjection());
-		for (auto& entity : view)
-		{
-			auto& mat = view.get<MaterialComponent>(entity);
-			m_TerrainShader->SetUniformInt1("min_tess_level", mat.minTessLevel);
-			m_TerrainShader->SetUniformInt1("max_tess_level", mat.minTessLevel);
-			m_TerrainShader->SetUniformFloat("min_distance", mat.minDistance);
-			m_TerrainShader->SetUniformFloat("max_distance", mat.maxDistance);
-		}
+		//m_TerrainShader->Bind();
+		//glm::mat4 model = glm::mat4(1.0f);
+		//m_TerrainShader->SetUniformMat4("model", model);
+		//m_TerrainShader->SetUniformMat4("view", camera.GetViewMatrix());
+		//m_TerrainShader->SetUniformMat4("projection", camera.GetProjection());
+		//for (auto& entity : view)
+		//{
+		//	auto& mat = view.get<MaterialComponent>(entity);
+		//	m_TerrainShader->SetUniformInt1("min_tess_level", mat.minTessLevel);
+		//	m_TerrainShader->SetUniformInt1("max_tess_level", mat.minTessLevel);
+		//	m_TerrainShader->SetUniformFloat("min_distance", mat.minDistance);
+		//	m_TerrainShader->SetUniformFloat("max_distance", mat.maxDistance);
+		//}
 
-		m_TerrainChunk->SetShaderData(camera);
-		m_TerrainChunk->GetShader()->Bind();
-		m_TerrainChunk->GetVAO()->Bind();
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		glDrawArraysInstanced(GL_PATCHES, 0, 4, 64 * 64);
-
+		//m_TerrainChunk->SetShaderData(camera);
+		//m_TerrainChunk->GetVAO()->Bind()
+		//m_TerrainChunk->SetShaderUniforms(camera);
+		//m_TerrainChunk->Update();
 
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, m_TerrainGeneration->texture);
@@ -535,6 +532,8 @@ namespace Albedo {
 				//Renderer::RenderOverlay(m_Collider);
 			}
 		}
+
+		m_TerrainChunk->Render(camera);
 
 		m_SkyboxShader->Bind();
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());

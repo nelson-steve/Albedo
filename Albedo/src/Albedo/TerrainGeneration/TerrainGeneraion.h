@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo/Renderer/Shader.h"
+#include "Albedo/Renderer/VertexArray.h"
 
 namespace Albedo {
 
@@ -11,8 +12,10 @@ namespace Albedo {
 
 		void Init(Ref<Shader> shader);
 
+
+		
+
 		unsigned int texture;
-		unsigned int rez = 1;
 		unsigned int terrainVAO, terrainVBO, terrainIBO;
 		int width, height, nrChannels;
 		std::vector<float> vertices;

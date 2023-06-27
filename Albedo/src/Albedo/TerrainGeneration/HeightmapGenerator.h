@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Albedo/Renderer/Texture.h"
+#include "Albedo/Renderer/Shader.h"
 
 namespace Albedo {
 
@@ -29,11 +30,26 @@ namespace Albedo {
 	class HeightmapGenerator
 	{
 	public:
+		HeightmapGenerator() = default;
 		HeightmapGenerator(int width, int height)
 			:m_Width(width), m_Height(height)
 		{
 			m_Texture = Texture2D::Create(width, height);
+			//m_Texture = Texture2D::Create("Assets/Textures/iceland_heightmap.png", true);
 		}
+
+		struct MeshGenerationBuffer
+		{
+			glm::vec2 offset;
+			double scale;
+			double pad;
+			glm::mat4 normalTransform;
+			glm::dmat4 pointTransform;
+			glm::ivec2 gridDimensions;
+		};
+
+		void Init();
+		Ref<Texture2D> GenerateHeightmap();
 
 		void InitPerlinNoiseTexture(double pFrequency = 1, double pAmplitude = 1, double pPersistance = 1, uint32_t pOctaves = 4,
 			double pMulitplier = 1, uint32_t pOffsetX = 0, uint32_t pOffsetY = 0);
@@ -55,6 +71,11 @@ namespace Albedo {
 		uint32_t m_Width;
 		uint32_t m_Height;
 		std::vector<char> m_Data;
+
+		Ref<Shader> m_Shader;
+		uint32_t m_UniformBuffer = 0;
+		uint32_t m_Resolution = 512;
+
 	};
 
 }

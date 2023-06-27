@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include "Mesh.h"
+#include "Platform/OpenGL/Utils.h"
 
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,8 +33,8 @@ namespace Albedo {
         {
             m_MeshBufferData.m_VertexArray = VertexArray::Create();
             auto x = sizeof(m_SingularMeshData);
-            auto y = GetVertexSize(m_SingularMeshData);
-            m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_SingularMeshData, GetVertexSize(m_SingularMeshData));
+            auto y = Utils::GetVertexSize(m_SingularMeshData);
+            m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_SingularMeshData, Utils::GetVertexSize(m_SingularMeshData));
             m_MeshBufferData.m_VertexBuffer->SetLayout(m_Layout);
             m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_VertexBuffer);
 
@@ -55,12 +56,12 @@ namespace Albedo {
 
             if (m_Vertices.size() != 0)
             {
-                m_TotalVertices = GetVertexSize(m_Vertices);
-                m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_Vertices, GetVertexSize(m_Vertices));
+                m_TotalVertices = Utils::GetVertexSize(m_Vertices);
+                m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_Vertices, Utils::GetVertexSize(m_Vertices));
                 
                 if (m_Indices.size() != 0)
                 {
-                    m_MeshBufferData.m_InstanceBuffer = VertexBuffer::Create(m_Indices, GetVertexSize(m_Indices));
+                    m_MeshBufferData.m_InstanceBuffer = VertexBuffer::Create(m_Indices, Utils::GetVertexSize(m_Indices));
                     //m_MeshBufferData.m_UVBuffer->SetLayout({ {ShaderDataType::Float2, "a_UV"} });
                     //m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_UVBuffer);
                 }
@@ -71,14 +72,14 @@ namespace Albedo {
 
             if (m_Normals.size() != 0)
             {
-                m_MeshBufferData.m_NormalBuffer = VertexBuffer::Create(m_Normals, GetVertexSize(m_Normals));
+                m_MeshBufferData.m_NormalBuffer = VertexBuffer::Create(m_Normals, Utils::GetVertexSize(m_Normals));
                 m_MeshBufferData.m_NormalBuffer->SetLayout({ {ShaderDataType::Float3, "a_Normal"} });
                 m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_NormalBuffer);
             }
 
             if (m_UV.size() != 0)
             {
-                m_MeshBufferData.m_UVBuffer = VertexBuffer::Create(m_UV, GetVertexSize(m_UV));
+                m_MeshBufferData.m_UVBuffer = VertexBuffer::Create(m_UV, Utils::GetVertexSize(m_UV));
                 m_MeshBufferData.m_UVBuffer->SetLayout({ {ShaderDataType::Float2, "a_UV"} });
                 m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_UVBuffer);
             }
@@ -102,7 +103,7 @@ namespace Albedo {
             }
             auto count = index;
 
-            m_MeshBufferData.m_Positions = VertexBuffer::Create(positions, GetVertexSize(positions));
+            m_MeshBufferData.m_Positions = VertexBuffer::Create(positions, Utils::GetVertexSize(positions));
             m_MeshBufferData.m_Positions->SetLayout({ {ShaderDataType::Mat4, "m_Positions"} });
             m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_Positions);
             //
