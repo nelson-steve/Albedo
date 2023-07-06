@@ -329,7 +329,7 @@ namespace Albedo {
 			ImGui::Begin("depth map");
 
 			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainChunk->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
-			ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainChunk->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
+			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainManager->m_TerrainChunks[0]->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
 
 			ImGui::End();
 

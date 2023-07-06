@@ -164,18 +164,24 @@ namespace Albedo {
 	{
 		m_VAO = VertexArray::Create();
 
-		auto posVBO = VertexBuffer::Create(m_Positions, Utils::GetVertexSize(m_Positions));
-		//m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
-		posVBO->SetLayout({ {ShaderDataType::Float3, "a_Pos"} });
-		m_VAO->AddVertexBuffer(posVBO);
+		{
+			auto posVBO = VertexBuffer::Create(m_Positions, Utils::GetVertexSize(m_Positions));
+			//m_MeshBufferData.m_ID->SetLayout({ {ShaderDataType::Int, "a_ID"} });
+			posVBO->SetLayout({ {ShaderDataType::Float3, "inPos"} });
+			m_VAO->AddVertexBuffer(posVBO);
+		}
 
-		auto normVBO = VertexBuffer::Create(m_Normals, Utils::GetVertexSize(m_Normals));
-		posVBO->SetLayout({ {ShaderDataType::Float3, "a_Normal"} });
-		m_VAO->AddVertexBuffer(normVBO);
-		
-		auto uvVBO = VertexBuffer::Create(m_TexCoords, Utils::GetVertexSize(m_TexCoords));
-		posVBO->SetLayout({ {ShaderDataType::Float2, "a_UV"} });
-		m_VAO->AddVertexBuffer(uvVBO);
+		{
+			auto normVBO = VertexBuffer::Create(m_Normals, Utils::GetVertexSize(m_Normals));
+			normVBO->SetLayout({ {ShaderDataType::Float3, "inNormal"} });
+			m_VAO->AddVertexBuffer(normVBO);
+		}
+
+		{
+			auto uvVBO = VertexBuffer::Create(m_TexCoords, Utils::GetVertexSize(m_TexCoords));
+			uvVBO->SetLayout({ {ShaderDataType::Float2, "inUV"} });
+			m_VAO->AddVertexBuffer(uvVBO);
+		}
 
 		//m_VAO->Bind();
 		auto indicesVBO = IndexBuffer::Create(m_Indices.data(), m_Indices.size());

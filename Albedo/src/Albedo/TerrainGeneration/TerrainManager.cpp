@@ -8,6 +8,7 @@ namespace Albedo {
 
 	TerrainManager::TerrainManager()
 	{
+		m_LandTexture = Texture2D::Create("Assets/Textures/grass.jpg", false);
 
 		m_Shader = Shader::Create("Assets/Shaders/TerrainMVP.glsl");
 
@@ -70,6 +71,23 @@ namespace Albedo {
 		m_Terrain->GetVAO()->Bind();
 		m_TerrainUBO = UniformBuffer::Create(&m_TerrainUBOData, sizeof(TerrainUBO), m_Shader->GetShaderID(), 1);
 
+		m_Shader->Bind();
+		m_Shader->SetUniformInt1("u_RegionCount", m_Regions.size());
+		m_Shader->SetUniformInt1("u_MinHeight", m_NoiseMap->GetMinValue() * kTerrainHeightScale);
+		m_Shader->SetUniformFloat("u_MaxHeight", m_NoiseMap->GetMaxValue() * kTerrainHeightScale);
+
+		Albedo_CORE_ASSERT(m_Regions.size() > 0, "");
+		int i = 0;
+		for (auto& region : m_Regions)
+		{
+			m_Shader->SetUniformFloat("regions["+std::to_string(i)+"].scale", m_Regions[i].scale);
+			m_Shader->SetUniformInt1("regions["+std::to_string(i)+"].texIndex", m_Regions[i].texIndex);
+			m_Shader->SetUniformFloat("regions["+std::to_string(i)+"].blendStrength", m_Regions[i].blendStrength);
+			m_Shader->SetUniformFloat("regions["+std::to_string(i)+"].startHeight", m_Regions[i].startHeight);
+			m_Shader->SetUniformFloat3("regions["+std::to_string(i)+"].tint", m_Regions[i].tint);
+			i++;
+		}
+
 #if 0
 		int width = 1024;
 		int height = 1024;
@@ -119,13 +137,16 @@ namespace Albedo {
 	void TerrainManager::Render(const EditorCamera& camera)
 	{
 		m_Shader->Bind();
+		const float kTerrainHeightScale = m_Terrain->GetHeightScale();
 		//m_Shader->SetUniformMat4("view", camera.GetViewMatrix());
 		m_Shader->SetUniformMat4("MVP", camera.GetViewProjection());
 		m_Shader->SetUniformInt1("texArray", 0);
+		m_Shader->SetUniformInt1("land", 1);
 
 		//m_TerrainUBO->Bind();
 
 		m_TexArray->Bind();
+		m_LandTexture->Bind(1);
 
 		if (m_TerrainChanged)
 			UpdateTerrain();

@@ -47,7 +47,7 @@ namespace Albedo {
 
 			ImGui::PushID(filenameString.c_str());
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
-			ImGui::ImageButton((ImTextureID)icon->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.0, 0.0, 0.0, 0.0), ImVec4(0.5, 0.5, 0.5, 1.0));
+			ImGui::ImageButton((ImTextureID)icon->GetTextureID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 }, 0, ImVec4(0.1, 0.1, 0.1, 1.0), ImVec4(1.0, 1.0, 1.0, 1.0));
 			if (ImGui::BeginDragDropSource())
 			{
 				const wchar_t* itemPath = relativePath.c_str();

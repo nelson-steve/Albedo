@@ -14,14 +14,14 @@ namespace Albedo {
 		glGenTextures(1, &m_TextureID);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_TextureID);
 		// Allocate the storage.
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, m_MipLevelCount, GL_RGB8, width, height, m_TextureCount);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, m_MipLevelCount, GL_RGBA8, width, height, m_TextureCount);
 
 		for (int i = 0; i < data.size(); i++)
 		{
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, m_MipLevelCount, 0, 0, 0, width, height, i, GL_RGB, GL_UNSIGNED_BYTE, data[i]);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, m_MipLevelCount, 0, 0, 0, width, height, i, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
 		}
 
-		if (m_MipLevelCount > 1)
+		//if (m_MipLevelCount > 1)
 			glGenerateMipmap(m_TextureID);
 
 		// Always set reasonable texture parameters
@@ -33,6 +33,7 @@ namespace Albedo {
 
 	void OpenGLTexture2DArray::SetData(void* data, DataType type)
 	{
+		Albedo_CORE_ASSERT(false, "");
 		//for (int i = 0; i < data.size(); i++)
 		//{
 		//	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, m_MipLevelCount, 0, 0, 0, width, height, i, GL_RGB, GL_UNSIGNED_BYTE, data[i]);

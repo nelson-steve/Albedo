@@ -100,6 +100,7 @@ namespace Albedo {
 		//std::unique_ptr<Terrain> m_Terrain;
 		//std::shared_ptr<Shader> m_TerrainShader;
 
+		Ref<Texture2D> m_LandTexture;
 		Ref<Texture2DArray> m_TexArray;
 		int32_t m_TexArrayTexWidth = 512;
 		int32_t m_TexArrayTexHeight = 512;
