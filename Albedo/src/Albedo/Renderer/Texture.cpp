@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/OpenGL/OpenGLTexture2DArray.h"
 
 namespace Albedo {
 
@@ -45,6 +46,17 @@ namespace Albedo {
 		{
 			case RendererAPI::API::None: return nullptr;
 			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLTexture2D>(width, height);
+		}
+
+		return nullptr;
+	}
+
+	Ref<Texture2DArray> Texture2DArray::Create(unsigned int width, unsigned int height, const std::vector<const void*> data)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None: return nullptr;
+			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLTexture2DArray>(width, height, data);
 		}
 
 		return nullptr;

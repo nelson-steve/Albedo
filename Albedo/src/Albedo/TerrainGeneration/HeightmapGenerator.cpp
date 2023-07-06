@@ -1,5 +1,6 @@
 #include "AlbedoPreCompiledHeader.h"
 #include "HeightmapGenerator.h"
+#include "Terrain.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -28,6 +29,39 @@ namespace Albedo {
 		return total / maxValue;
 	}
 	
+	void HeightmapGenerator::GenerateValues()
+	{
+		m_Values.resize(m_Width * m_Height);
+		m_MinValue = std::numeric_limits<float>::max();
+		m_MaxValue = std::numeric_limits<float>::min();
+
+		for (uint32_t y = 0; y < m_Height; ++y)
+		{
+			for (uint32_t x = 0; x < m_Width; ++x)
+			{
+				const uint32_t kIndex = y * m_Width + x;
+				const float kValue = m_FractalNoise->Noise(x, y, 0);
+
+				m_Values[kIndex] = kValue;
+
+				m_MinValue = glm::min(m_MinValue, kValue);
+				m_MaxValue = glm::max(m_MaxValue, kValue);
+			}
+		}
+		Albedo_Core_INFO("generated values");
+	}
+
+	void HeightmapGenerator::UpdateTexture()
+	{
+		std::vector<glm::vec3> grayscaleValues;
+		grayscaleValues.reserve(m_Values.size());
+		std::transform(m_Values.begin(), m_Values.end(),
+			std::back_inserter(grayscaleValues),
+			[](float v) { return glm::vec3(v); });
+
+		m_Texture->SetData(grayscaleValues.data(), Texture::DataType::FLOAT);
+	}
+
 	void HeightmapGenerator::Init()
 	{
 		TextureConfiguration config(Config::TextureType::Texture2D, Config::InternalFormat::RGBA32F, Config::TextureLayout::ClampToEdge,
@@ -38,7 +72,7 @@ namespace Albedo {
 		m_Texture = Texture2D::Create(config);
 		//m_Texture = Texture2D::Create(512, 512);
 		
-		m_Shader = Shader::Create("Assets/Shaders/TerrainComputeShader.glsl");
+		m_Shader = Shader::Create("Assets/Shaders/TerrainCompute3DShader.glsl");
 
 		glGenBuffers(1, &m_UniformBuffer);
 		glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBuffer);
@@ -47,7 +81,7 @@ namespace Albedo {
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_UniformBuffer);
 	}
 
-	Ref<Texture2D> HeightmapGenerator::GenerateHeightmap()
+	Ref<Texture2D> HeightmapGenerator::GenerateHeightmap(const Terrain& chunk)
 	{
 		m_Shader->Bind();
 		//glUseProgram(mComputeProgram);
@@ -63,7 +97,7 @@ namespace Albedo {
 		double pad{ 5.0 };
 
 		//generationProperties->gridDimensions = glm::ivec2(m_Resolution, m_Resolution);
-		//generationProperties->offset = offset;
+		generationProperties->offset = chunk.GetOffset();
 		//generationProperties->scale = scale;
 		//generationProperties->pad = pad;
 		//generationProperties->normalTransform = glm::mat4(1.0f);
@@ -134,7 +168,7 @@ namespace Albedo {
 		}
 
 	if (!m_Data.empty())
-		m_Texture->SetData(m_Data.data(), m_Data.size());
+		m_Texture->SetData(m_Data.data(), Texture::DataType::FLOAT);
 	}
 
 	void HeightmapGenerator::InitSmoothNoiseTexture(uint32_t zoomLevel)

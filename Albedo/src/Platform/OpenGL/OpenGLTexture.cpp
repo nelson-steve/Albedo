@@ -175,7 +175,7 @@ namespace Albedo {
 		glGenTextures(1, &m_TextureID);
 		this->Bind();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -242,18 +242,41 @@ namespace Albedo {
 		glDeleteTextures(1, &m_TextureID);
 	}
 
-	void OpenGLTexture2D::SetData(void* data, unsigned int size)
+	void OpenGLTexture2D::SetData(void* data, DataType type)
 	{
-		Albedo_PROFILE_FUNCTION();
-	#if 1
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, data);
-		//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		if (type == DataType::BYTE)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_BYTE, data);
+		else if(type == DataType::UNSIGNED_BYTE)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		else if (type == DataType::SHORT)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_SHORT, data);
+		else if (type == DataType::UNSIGNED_SHORT)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_SHORT, data);
+		else if (type == DataType::INT)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_INT, data);
+		else if (type == DataType::UNSIGNED_INT)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_INT, data);
+		else if (type == DataType::FLOAT)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB8, GL_FLOAT, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
-	#else
-		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-		//HZ_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-		glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
-	#endif
+	}
+
+	void OpenGLTexture2D::GetData(void* data, DataType type)
+	{
+		if (type == DataType::BYTE)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_BYTE, data);
+		else if (type == DataType::UNSIGNED_BYTE)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		else if (type == DataType::SHORT)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_SHORT, data);
+		else if (type == DataType::UNSIGNED_SHORT)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_SHORT, data);
+		else if (type == DataType::INT)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_INT, data);
+		else if (type == DataType::UNSIGNED_INT)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_INT, data);
+		else if (type == DataType::FLOAT)
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
 	}
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const

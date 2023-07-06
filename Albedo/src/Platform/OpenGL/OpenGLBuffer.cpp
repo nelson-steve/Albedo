@@ -1,6 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "OpenGLBuffer.h"
+#include "Platform/OpenGL/Utils.h"
 
 #include <glad/glad.h>
 
@@ -109,8 +110,8 @@ namespace Albedo {
 		// Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
 		Albedo_PROFILE_FUNCTION();
 		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_DYNAMIC_DRAW);
 	}
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
@@ -126,5 +127,41 @@ namespace Albedo {
 	{
 		Albedo_PROFILE_FUNCTION();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	//////////////////////////////////////////
+	////////////////UniformBuffer/////////////
+	//////////////////////////////////////////
+
+	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t size, uint32_t program, uint32_t bindingPoint)
+	{
+		bindingPoint = 1;
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_RendererID);
+		
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
+		
+		//glUniformBlockBinding(program, 1, bindingPoint);
+	}
+
+	void OpenGLUniformBuffer::Bind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 1);
+	}
+	void OpenGLUniformBuffer::Unbind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+
+	void OpenGLUniformBuffer::SetData(const void* data, uint32_t size)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
+	}
+	uint32_t OpenGLUniformBuffer::GetRendererID() const
+	{
+		return m_RendererID;
 	}
 }

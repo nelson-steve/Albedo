@@ -1521,7 +1521,7 @@
     <ClInclude Include="src\Albedo\TerrainGeneration\HeightmapGenerator.h">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainChunk.h">
+    <ClInclude Include="src\Albedo\TerrainGeneration\Terrain.h">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h">
@@ -1575,6 +1575,9 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainManager.h" />
+    <ClInclude Include="src\Albedo\Utils\ImageLoader.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2DArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1697,7 +1700,7 @@
     <ClCompile Include="src\Albedo\TerrainGeneration\HeightmapGenerator.cpp">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainChunk.cpp">
+    <ClCompile Include="src\Albedo\TerrainGeneration\Terrain.cpp">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp">
@@ -1751,5 +1754,8 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainManager.cpp" />
+    <ClCompile Include="src\Albedo\Utils\ImageLoader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2DArray.cpp" />
   </ItemGroup>
 </Project>

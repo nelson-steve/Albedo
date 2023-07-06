@@ -8,10 +8,12 @@
 #include <optional>
 
 #include <vector>
+#include <array>
 #include <utility>
 #include <algorithm>
 #include <functional>
 #include <filesystem>
+#include <random>
 
 #include <unordered_map>
 #include <unordered_set>

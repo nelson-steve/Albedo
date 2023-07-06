@@ -113,4 +113,15 @@ namespace Albedo {
 		return nullptr;
 	}
 
+	Ref<UniformBuffer> UniformBuffer::Create(const void* data, uint32_t size, uint32_t program, uint32_t bindingPoint)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None: //assert
+			case RendererAPI::API::OpenGL: return std::make_shared<OpenGLUniformBuffer>(data, size, program, bindingPoint);
+		}
+		//assert();
+		return nullptr;
+	}
+
 }

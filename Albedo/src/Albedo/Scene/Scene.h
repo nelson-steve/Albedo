@@ -7,7 +7,7 @@
 #include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
-#include "Albedo/TerrainGeneration/TerrainChunk.h"
+#include "Albedo/TerrainGeneration/TerrainManager.h"
 
 #include "entt.hpp"
 
@@ -70,7 +70,7 @@ namespace Albedo {
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
 		Ref<ShadowMap> m_ShadowMap;
-		Ref<TerrainChunk> m_TerrainChunk;
+		Ref<TerrainManager> m_TerrainManager;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);

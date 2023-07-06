@@ -97,6 +97,18 @@ namespace Albedo {
 	class Texture
 	{
 	public:
+
+		static enum DataType
+		{
+			BYTE,
+			UNSIGNED_BYTE,
+			SHORT,
+			UNSIGNED_SHORT,
+			INT,
+			UNSIGNED_INT,
+			FLOAT,
+		};
+
 		~Texture() = default;
 
 		virtual unsigned int getWidth() const = 0;
@@ -104,7 +116,8 @@ namespace Albedo {
 		virtual const std::string& GetPath() const = 0;
 		virtual const std::string& GetName() const = 0;
 
-		virtual void SetData(void* data, unsigned int size) = 0;
+		virtual void SetData(void* data, DataType type) = 0;
+		virtual void GetData(void* data, DataType type) = 0;
 		virtual uint32_t GetTextureID() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
@@ -120,6 +133,12 @@ namespace Albedo {
 		static Ref<Texture2D> Create(const std::string& path, bool flipped);
 		static Ref<Texture2D> Create(const std::vector<std::string> faces);
 		static Ref<Texture2D> Create(unsigned int width, unsigned int height);
+	};
+
+	class Texture2DArray : public Texture
+	{
+	public:
+		static Ref<Texture2DArray> Create(unsigned int width, unsigned int height, const std::vector<const void*> data);
 	};
 
 }

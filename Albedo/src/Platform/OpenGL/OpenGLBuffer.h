@@ -46,4 +46,19 @@ namespace Albedo {
 		unsigned int m_Count;
 	};
 
+	class OpenGLUniformBuffer : public UniformBuffer
+	{
+	public:
+		OpenGLUniformBuffer(const void* data, uint32_t size, uint32_t program, uint32_t bindingPoint);
+
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+
+		virtual void SetData(const void* data, uint32_t size) override;
+
+		virtual uint32_t GetRendererID() const override;
+	private:
+		unsigned int m_RendererID;
+	};
+
 }

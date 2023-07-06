@@ -87,7 +87,7 @@ namespace Albedo {
 
 		s_RendererData.WhiteTexture = Texture2D::Create(1, 1);
 		uint32_t whiteTextureData = 0xffffffff;
-		s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+		//s_RendererData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 		s_RendererData.WhiteTexture->Bind();
 
 		int32_t samplers[32];
