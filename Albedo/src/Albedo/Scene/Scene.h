@@ -11,6 +11,8 @@
 
 #include "entt.hpp"
 
+class b2World;
+
 namespace Albedo {
 
 	//
@@ -42,7 +44,7 @@ namespace Albedo {
 		void OnSimulationStop();
 
 		void OnUpdateRuntime(Timestep ts);
-		void OnUpdateSimulation(Timestep ts, EditorCamera& camera);
+		void OnUpdateSimulation(Timestep ts, const EditorCamera& camera);
 		void OnUpdateEditor(const EditorCamera& camera, Timestep ts);
 		void OnUpdateResize(uint32_t width, uint32_t height);
 
@@ -70,7 +72,6 @@ namespace Albedo {
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
 		Ref<ShadowMap> m_ShadowMap;
-		Ref<TerrainManager> m_TerrainManager;
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
@@ -82,6 +83,8 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
+
+		b2World* m_PhysicsWorld = nullptr;
 	
 		bool m_DefaultsInitialized = false;
 		bool fbo = true;

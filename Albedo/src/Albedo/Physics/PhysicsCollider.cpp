@@ -64,7 +64,7 @@ namespace Albedo {
 
     BoxCollider::BoxCollider(RigidBodyDynamicComponent* body, const glm::vec3& size, Ref<PhysicsMaterial> mat, const glm::vec3& position, const glm::quat& rotation)
     {
-        collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
+        collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
         collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
@@ -75,7 +75,8 @@ namespace Albedo {
 
     BoxCollider::BoxCollider(RigidBodyStaticComponent* body, const glm::vec3& size, Ref<PhysicsMaterial> mat, const glm::vec3& position, const glm::quat& rotation)
     {
-        collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x, size.y, size.z), *(mat->GetPhysXmat()));
+        auto& s = size * 2.0f;
+        collider = PxRigidActorExt::createExclusiveShape(*body->GetRigidActor(), PxBoxGeometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f), *(mat->GetPhysXmat()));
         if (!collider)
             Albedo_CORE_ASSERT(false, "collider initialization failed");
         collider->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);

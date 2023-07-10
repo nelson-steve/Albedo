@@ -1524,10 +1524,19 @@
     <ClInclude Include="src\Albedo\TerrainGeneration\Terrain.h">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainGeneraion.h">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainManager.h">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\TerrainGeneration\WorldGenerator.h">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Utils\AssetSystem.h">
+      <Filter>src\Albedo\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Utils\ImageLoader.h">
       <Filter>src\Albedo\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Utils\PlatformUtils.h">
@@ -1560,13 +1569,13 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2DArray.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\ShadowMap.h">
-      <Filter>src\Platform\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainGeneraion.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\Utils.h">
@@ -1575,9 +1584,6 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\TerrainGeneration\TerrainManager.h" />
-    <ClInclude Include="src\Albedo\Utils\ImageLoader.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture2DArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\ImGuizmo\ImGuizmo.cpp">
@@ -1703,10 +1709,19 @@
     <ClCompile Include="src\Albedo\TerrainGeneration\Terrain.cpp">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainGeneraion.cpp">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainManager.cpp">
+      <Filter>src\Albedo\TerrainGeneration</Filter>
+    </ClCompile>
     <ClCompile Include="src\Albedo\TerrainGeneration\WorldGenerator.cpp">
       <Filter>src\Albedo\TerrainGeneration</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Utils\AssetSystem.cpp">
+      <Filter>src\Albedo\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Utils\ImageLoader.cpp">
       <Filter>src\Albedo\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\AlbedoPreCompiledHeader.cpp">
@@ -1736,13 +1751,13 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2DArray.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\ShadowMap.cpp">
-      <Filter>src\Platform\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainGeneraion.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1754,8 +1769,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\TerrainGeneration\TerrainManager.cpp" />
-    <ClCompile Include="src\Albedo\Utils\ImageLoader.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture2DArray.cpp" />
   </ItemGroup>
 </Project>

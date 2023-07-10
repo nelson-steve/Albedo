@@ -90,8 +90,9 @@ namespace Albedo {
 			Roughness
 		};
 
-		void AddTexture(const Ref<Texture2D>  texture)
+		void AddTexture(const Ref<Texture2D> texture, int i = 0)
 		{
+			type = static_cast<TextureType>(i);
 			m_Textures[type] = texture;
 			m_TextureNames[type] = texture->GetName();
 		}
@@ -162,6 +163,14 @@ namespace Albedo {
 			Transform = Transform * rotation;
 		}
 
+		void AddTranform(const glm::vec3& pos, const glm::vec4& rot)
+		{
+			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
+			Transform = glm::translate(glm::mat4(1.0f), pos) * rotation;
+			Position = pos;
+			Rotation = rot;
+		}
+
 		void AddTranform(const glm::vec3& pos, const glm::vec4& rot, const glm::vec3& scale) 
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
@@ -194,6 +203,38 @@ namespace Albedo {
 		}
 	};
 
+	// Physics
+
+	struct Physics2DComponent
+	{
+		enum class BodyType { Static = 0, Dynamic, Kinematic };
+		BodyType Type = BodyType::Static;
+		bool FixedRotation = false;
+
+		// Storage for runtime
+		void* RuntimeBody = nullptr;
+
+		Physics2DComponent() = default;
+		Physics2DComponent(const Physics2DComponent&) = default;
+	};
+
+	struct BoxCollider2DComponent
+	{
+		glm::vec2 Offset = { 0.0f, 0.0f };
+		glm::vec2 Size = { 0.5f, 0.5f };
+
+		float Density = 1.0f;
+		float Friction = 0.5f;
+		float Restitution = 0.0f;
+		float RestitutionThreshold = 0.5f;
+
+		// Storage for runtime
+		void* RuntimeFixture = nullptr;
+
+		BoxCollider2DComponent() = default;
+		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
+	};
+
 	struct PhysicsComponent
 	{
 		std::string name = "Physics Compnent";
@@ -209,13 +250,13 @@ namespace Albedo {
 		float restitution = 0.0;
 
 		// Rigid Body
-		BodyType bodyType = BodyType::Dynamic;
 		glm::vec3 BodyPosition = glm::vec3(0.0);
 		glm::quat BodyOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+		BodyType bodyType = BodyType::Dynamic;
 		glm::vec3 Force = glm::vec3(0.0);
 		glm::vec3 Velocity = glm::vec3(0.0, 0.0, 0.0);
 		float Mass = 1;
-		bool infiniteMass = false;
+		//bool infiniteMass = false;
 
 		//states
 		bool disableGravity = true;

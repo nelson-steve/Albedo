@@ -12,18 +12,35 @@
 #include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Scripting/ScriptEngine.h"
 #include "Albedo/Physics/Conversions.h"
+#include "box2d/box2d.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define ALBEDO_PHYSX 0;
+
 namespace Albedo {
 
 	extern std::unique_ptr<AssetSystem> m_AssetManager;
 
+	static b2BodyType Rigidbody2DTypeToBox2DBody(Physics2DComponent::BodyType bodyType)
+	{
+		switch (bodyType)
+		{
+		case Physics2DComponent::BodyType::Static:    return b2_staticBody;
+		case Physics2DComponent::BodyType::Dynamic:   return b2_dynamicBody;
+		case Physics2DComponent::BodyType::Kinematic: return b2_kinematicBody;
+		}
+
+		Albedo_CORE_ASSERT(false, "Unknown body type");
+		return b2_staticBody;
+	}
+
 	Scene::Scene()
 	{
+		//TODO: Remove this if not needed
 	}
 
 	void Scene::InitDefaults()
@@ -44,9 +61,10 @@ namespace Albedo {
 		m_Skybox = m_AssetManager->LoadDefaultSkybox();
 		m_Skybox->InitMesh(-1);
 
+#if ALBEDO_PHYSX
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
 		m_PhysicsSolver->Init();
-
+#endif
 		{
 			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
 				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
@@ -77,6 +95,8 @@ namespace Albedo {
 			auto& tra = view.get<TransformComponent>(entity);
 			auto& phy = view.get<PhysicsComponent>(entity);
 			auto& col = view.get<ColliderComponent>(entity);
+			phy.initialize = true;
+			col.initialize = true;
 			
 			phy.physicsMaterial = std::make_shared<PhysicsMaterial>
 				(phy.staticFriction, phy.dynamicFriction, phy.restitution);
@@ -92,8 +112,8 @@ namespace Albedo {
 
 			else if (phy.bodyType == phy.BodyType::Dynamic && phy.initialize)
 			{
-				if (phy.infiniteMass)
-					phy.Mass = .0f;
+				//if (phy.infiniteMass)
+				//	phy.Mass = .0f;
 
 				phy.BodyPosition = tra.Position;
 				phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
@@ -165,9 +185,8 @@ namespace Albedo {
 		if(!m_DefaultsInitialized)
 			InitDefaults();
 
-		m_TerrainManager = std::make_shared<TerrainManager>();
-
-		InitPhysicsObjects();
+		// Physx not working correctly
+		//InitPhysicsObjects();
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
 		for (auto entity : view)
@@ -187,7 +206,7 @@ namespace Albedo {
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
-		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/Diluc.png"));
+		
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -227,6 +246,41 @@ namespace Albedo {
 	{
 		m_IsRunning = true;
 
+		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
+
+		auto view = m_Registry.view<Physics2DComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e, this };
+			auto& transform = entity.GetComponent<TransformComponent>();
+			auto& rb2d = entity.GetComponent<Physics2DComponent>();
+
+			b2BodyDef bodyDef;
+			bodyDef.type = Rigidbody2DTypeToBox2DBody(rb2d.Type);
+			bodyDef.position.Set(transform.Position.x, transform.Position.y);
+			bodyDef.angle = transform.Rotation.z;
+
+			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
+			body->SetFixedRotation(rb2d.FixedRotation);
+			rb2d.RuntimeBody = body;
+
+			if (entity.HasComponent<BoxCollider2DComponent>())
+			{
+				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+
+				b2PolygonShape boxShape;
+				boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+
+				b2FixtureDef fixtureDef;
+				fixtureDef.shape = &boxShape;
+				fixtureDef.density = bc2d.Density;
+				fixtureDef.friction = bc2d.Friction;
+				fixtureDef.restitution = bc2d.Restitution;
+				fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;
+				body->CreateFixture(&fixtureDef);
+			}
+		}
+
 		// Scripting
 		{
 			ScriptEngine::OnRuntimeStart(this);
@@ -245,6 +299,9 @@ namespace Albedo {
 	{
 		m_IsRunning = false;;
 
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
+
 		ScriptEngine::OnRuntimeStop();
 	}
 
@@ -252,25 +309,87 @@ namespace Albedo {
 	{
 		m_IsSimulating = true;
 
+		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
+
+		{
+			auto view = m_Registry.view<Physics2DComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& rb2d = entity.GetComponent<Physics2DComponent>();
+
+				b2BodyDef bodyDef;
+				bodyDef.type = Rigidbody2DTypeToBox2DBody(rb2d.Type);
+				bodyDef.position.Set(transform.Position.x, transform.Position.y);
+				bodyDef.angle = transform.Rotation.z;
+
+				b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
+				body->SetFixedRotation(rb2d.FixedRotation);
+				rb2d.RuntimeBody = body;
+
+				if (entity.HasComponent<BoxCollider2DComponent>())
+				{
+					auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+
+					b2PolygonShape boxShape;
+					boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+
+					b2FixtureDef fixtureDef;
+					fixtureDef.shape = &boxShape;
+					fixtureDef.density = bc2d.Density;
+					fixtureDef.friction = bc2d.Friction;
+					fixtureDef.restitution = bc2d.Restitution;
+					fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;
+					body->CreateFixture(&fixtureDef);
+				}
+			}
+		}
+
 		ScriptEngine::OnRuntimeStart(this);
 		// Instantiate all script entities
-
-		auto view = m_Registry.view<ScriptComponent>();
-		for (auto e : view)
 		{
-			Entity entity = { e, this };
-			ScriptEngine::OnCreateEntity(entity);
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnCreateEntity(entity);
+			}
 		}
 	}
 
 	void Scene::OnSimulationStop()
 	{
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
+
 		m_IsSimulating = false;
 	}
 
-	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
+	void Scene::OnUpdateSimulation(Timestep ts, const EditorCamera& camera)
 	{
-		Albedo_Core_INFO("simulation");
+		// Physics
+		{
+			const int32_t velocityIterations = 6;
+			const int32_t positionIterations = 2;
+			m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+
+			// Retrieve transform from Box2D
+			auto view = m_Registry.view<Physics2DComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& rb2d = entity.GetComponent<Physics2DComponent>();
+
+				b2Body* body = (b2Body*)rb2d.RuntimeBody;
+				const auto& position = body->GetPosition();
+				transform.Position.x = position.x;
+				transform.Position.y = position.y;
+				transform.Rotation.z = body->GetAngle();
+			}
+		}
+
 	}
 
 	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
@@ -280,6 +399,9 @@ namespace Albedo {
 
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
+
+
+#if ALBEDO_PHYSX
 		m_PhysicsSolver->UpdatePhysics(ts);
 
 		auto view = m_Registry.view<TransformComponent, PhysicsComponent, ColliderComponent>();
@@ -297,7 +419,7 @@ namespace Albedo {
 				auto& q = phy.dynamicBody->GetRigidActor()->getGlobalPose().q;
 				//Albedo_Core_INFO("Rotation: {} {} {} {}", q.x, q.y, q.z, q.w);
 				Albedo_Core_INFO("Position: {} {} {}", p.x, p.y, p.z);
-				tra.AddTranform(glm::vec3(p.x, p.y, p.z), glm::vec4(q.x, q.y, q.z, q.w), tra.Scale);
+				tra.AddTranform(glm::vec3(p.x, p.y, p.z), glm::vec4(q.x, q.y, q.z, q.w));
 
 				phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
 				phy.BodyOrientation = glm::quat(q.x, q.y, q.z, q.w);
@@ -311,7 +433,7 @@ namespace Albedo {
 			else
 				Albedo_Core_ERROR("Invalid Body Type");
 		}
-
+#endif
 		//m_PhysicsSolver->Update(ts);
 		//
 		//// retrieve array of actors that moved
@@ -394,17 +516,17 @@ namespace Albedo {
 
 		if (m_IsSimulating)
 		{
+			OnUpdateSimulation(ts, camera);
 			OnUpdatePhysics(ts);
 
 			auto view = m_Registry.view<ScriptComponent>();
 			for (auto e : view)
 			{
-				//Entity entity = { e, this };
-				//ScriptEngine::OnUpdateEntity(entity, ts);
+				Entity entity = { e, this };
+				ScriptEngine::OnUpdateEntity(entity, ts);
 				//Ref<ScriptInstance> instance = ScriptEngine::GetEntityScriptInstance(entity);
 			}
 		}
-
 
 		// Checking for re initialization of meshes
 		for (auto& entity : view)
@@ -437,11 +559,14 @@ namespace Albedo {
 
 		for (auto& entity : view)
 		{
+
+#if ALBEDO_PHYSX
 			auto& pos = view.get<TransformComponent>(entity).Position;
 			auto& rot = view.get<TransformComponent>(entity).Rotation;
 			view.get<PhysicsComponent>(entity).BodyPosition = pos;
 			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
 			view.get<ColliderComponent>(entity).ColliderPosition = pos;
+#endif
 		}
 
 		//
@@ -452,15 +577,16 @@ namespace Albedo {
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//for (auto& entity : view)
-		//{
-		//	auto& pos = view.get<TransformComponent>(entity).Position;
-		//	auto& rot = view.get<TransformComponent>(entity).Rotation;
-		//	view.get<PhysicsComponent>(entity).BodyPosition = pos;
-		//	view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-		//	view.get<ColliderComponent>(entity).ColliderPosition = pos;
-		//}
-
+		for (auto& entity : view)
+		{
+#if ALBEDO_PHYSX
+			auto& pos = view.get<TransformComponent>(entity).Position;
+			auto& rot = view.get<TransformComponent>(entity).Rotation;
+			view.get<PhysicsComponent>(entity).BodyPosition = pos;
+			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+			view.get<ColliderComponent>(entity).ColliderPosition = pos;
+#endif
+		}
 
 		for (auto& entity : view)
 		{
@@ -475,7 +601,7 @@ namespace Albedo {
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
 
-			//Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 		}
 
 		for (auto& entity : view)
@@ -487,13 +613,10 @@ namespace Albedo {
 			//glm::vec3 offset = glm::vec3(2.0);
 			//m_Transform = glm::scale(m_Transform, offset);
 			{
-				//Renderer::Setup(camera, m_Shader, m_Transform);
-				//Renderer::RenderOverlay(m_Collider);
+				Renderer::Setup(camera, m_Shader, m_Transform);
+				Renderer::RenderOverlay(m_Collider);
 			}
 		}
-	
-		//m_TerrainManager->SetUniformData(camera);
-		m_TerrainManager->Render(camera);
 
 		m_SkyboxShader->Bind();
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
@@ -591,6 +714,11 @@ namespace Albedo {
 	}
 
 	template<>
+	void Scene::OnComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component)
+	{
+	}
+
+	template<>
 	void Scene::OnComponentAdded<MaterialComponent>(Entity entity, MaterialComponent& component)
 	{
 	}
@@ -627,6 +755,11 @@ namespace Albedo {
 
 	template<>
 	void Scene::OnComponentAdded<PhysicsComponent>(Entity entity, PhysicsComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<Physics2DComponent>(Entity entity, Physics2DComponent& component)
 	{
 	}
 

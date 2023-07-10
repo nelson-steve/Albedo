@@ -93,9 +93,9 @@ namespace Albedo {
         int m_IndicesSize;
 
         Ref<VertexArray> m_VAO;
-        glm::uvec2 m_Size{ 5.0 };
-        float m_TileScale{ 0.05 }; // Scaling factor of X and Z coord (per tile)
-        float m_HeightScale{ 10.0 }; // Scaling factor of Y coord, the height
+        glm::uvec2 m_Size{ 10.0 };
+        float m_TileScale{ 2.35 }; // Scaling factor of X and Z coord (per tile)
+        float m_HeightScale{ 70.0 }; // Scaling factor of Y coord, the height
 
         std::vector<float> m_FallOffMap;
         bool m_UseFallOffMap{ true };

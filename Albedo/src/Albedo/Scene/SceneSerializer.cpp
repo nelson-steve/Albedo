@@ -232,18 +232,22 @@ namespace Albedo {
 			out << YAML::BeginMap; // PhysicsComponent
 
 			auto& tc = entity.GetComponent<PhysicsComponent>();
+
+			out << YAML::Key << "Static Friction" << YAML::Value << tc.staticFriction;
+			out << YAML::Key << "Dynamic Friction" << YAML::Value << tc.dynamicFriction;
+			out << YAML::Key << "Restitution" << YAML::Value << tc.restitution;
+
 			out << YAML::Key << "Body Position" << YAML::Value << tc.BodyPosition;
 			out << YAML::Key << "Body Orientation" << YAML::Value << glm::vec3(tc.BodyOrientation.x, tc.BodyOrientation.y, tc.BodyOrientation.z);
+			out << YAML::Key << "Body Type" << YAML::Value << (uint32_t)tc.bodyType;
 			out << YAML::Key << "Force" << YAML::Value << tc.Force;
 			out << YAML::Key << "Velocity" << YAML::Value << tc.Velocity;
 			out << YAML::Key << "Mass" << YAML::Value << tc.Mass;
 			out << YAML::Key << "Disable Gravity" << YAML::Value << tc.disableGravity;
-			out << YAML::Key << "Restitution" << YAML::Value << tc.restitution;
-			out << YAML::Key << "Static Friction" << YAML::Value << tc.staticFriction;
-			out << YAML::Key << "Dynamic Friction" << YAML::Value << tc.dynamicFriction;
+			out << YAML::Key << "Kinematic" << YAML::Value << tc.isKinematic;
+			out << YAML::Key << "Sphere Collider Radius" << YAML::Value << tc.SphereColliderRadius;
+			out << YAML::Key << "Type Name" << YAML::Value << tc.phyTypeName;
 			
-			out << YAML::Key << "Body Type" << YAML::Value << tc.bodyType;
-
 			out << YAML::EndMap; // PhysicsComponent
 		}
 
@@ -254,12 +258,14 @@ namespace Albedo {
 
 			auto& tc = entity.GetComponent<ColliderComponent>();
 
+			out << YAML::Key << "Collider Type" << YAML::Value << tc.colliderType;
+
 			out << YAML::Key << "Collider Position" << YAML::Value << tc.ColliderPosition;
+			out << YAML::Key << "Collider Radius" << YAML::Value << tc.ColliderRadius;
 			out << YAML::Key << "Collider Size" << YAML::Value << tc.ColliderSize;
 			out << YAML::Key << "Collider Orientation" << YAML::Value << glm::vec3(tc.ColliderOrientation.x, tc.ColliderOrientation.y, tc.ColliderOrientation.z);
-			out << YAML::Key << "Collider Radius" << YAML::Value << tc.ColliderRadius;
 
-			out << YAML::Key << "Collider Type" << YAML::Value << tc.colliderType;
+			out << YAML::Key << "Type Name" << YAML::Value << tc.colTypeName;
 
 			out << YAML::EndMap; // ColliderComponent
 		}
@@ -466,17 +472,22 @@ namespace Albedo {
 				if (physicsComponent)
 				{
 					auto& tc = deserializedEntity.AddComponent<PhysicsComponent>();
+
+					tc.staticFriction = physicsComponent["Static Friction"].as<float>();
+					tc.restitution = physicsComponent["Restitution"].as<float>();
+					tc.dynamicFriction = physicsComponent["Dynamic Friction"].as<float>();
+
 					tc.BodyPosition = physicsComponent["Body Position"].as<glm::vec3>();
 					tc.BodyOrientation = physicsComponent["Body Orientation"].as<glm::vec3>();
+					//tc.bodyType = physicsComponent["Body Type"].as<PhysicsComponent::BodyType>();
+					tc.bodyType = (PhysicsComponent::BodyType)physicsComponent["Body Type"].as<uint32_t>();
 					tc.Force = physicsComponent["Force"].as<glm::vec3>();
 					tc.Velocity = physicsComponent["Velocity"].as<glm::vec3>();
 					tc.Mass = physicsComponent["Mass"].as<float>();
 					tc.disableGravity = physicsComponent["Disable Gravity"].as<bool>();
-					tc.restitution = physicsComponent["Restitution"].as<float>();
-					tc.staticFriction = physicsComponent["Static Friction"].as<float>();
-					tc.dynamicFriction = physicsComponent["Dynamic Friction"].as<float>();
+					tc.isKinematic = physicsComponent["Kinematic"].as<bool>();
+					tc.SphereColliderRadius = physicsComponent["Sphere Collider Radius"].as<float>();
 
-					tc.bodyType = (PhysicsComponent::BodyType)physicsComponent["Body Type"].as<uint32_t>();
 				}
 
 				auto colliderComponent = entity["ColliderComponent"];

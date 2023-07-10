@@ -363,7 +363,7 @@ namespace Albedo {
 
 			// Gizmos
 			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-			if (selectedEntity && m_GizmoType != -1)
+			if (selectedEntity && m_GizmoType != -1 && false)
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
@@ -383,6 +383,7 @@ namespace Albedo {
 				// Entity transform
 				glm::mat4 transform{ 1.0 };
 				glm::vec3 rot{ 0.0 };
+				//TODO : This asserts - fix it!
 				auto& tc = selectedEntity.GetComponent<TransformComponent>();
 				transform = tc.GetTransform();
 				rot = tc.GetRotation();

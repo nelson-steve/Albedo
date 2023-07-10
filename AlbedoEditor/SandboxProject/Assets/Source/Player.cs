@@ -8,7 +8,7 @@ namespace Sandbox
     {
         private TransformComponent m_Transform;
 
-        public float Speed;
+        public float Speed = 1.0f;
         public float Time = 0.0f;
 
         void OnCreate()
@@ -32,13 +32,22 @@ namespace Sandbox
                 Console.WriteLine("W key pressed");
 
             }
-            else if (Input.IsKeyDown(KeyCode.S))
+            if (Input.IsKeyDown(KeyCode.S))
+            {
                 velocity.Y = -1.0f;
+                Console.WriteLine("S key pressed");
+            }
             
             if (Input.IsKeyDown(KeyCode.A))
+            {
                 velocity.X = -1.0f;
-            else if (Input.IsKeyDown(KeyCode.D))
+                Console.WriteLine("A key pressed");
+            }
+            if (Input.IsKeyDown(KeyCode.D))
+            {
                 velocity.X = 1.0f;
+                Console.WriteLine("D key pressed");
+            }
 
             //Entity cameraEntity = FindEntityByName("Camera");
             //if (cameraEntity != null)
@@ -52,7 +61,6 @@ namespace Sandbox
             //}
 
             velocity *= speed * ts;
-
             Vector3 translation = m_Transform.Translation;
             translation += velocity * ts;
             m_Transform.Translation = translation;

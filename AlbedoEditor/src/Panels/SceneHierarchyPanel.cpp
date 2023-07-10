@@ -58,9 +58,13 @@ namespace Albedo {
 			{
 				Entity e = m_Context->CreateMeshEntity("Default Mesh");
 
-				//e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
-				//e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzann/albedo.png"));
-				//e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/ModelShader.glsl"));
+				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
+				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"), 0);
+				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/ao.png"), 1);
+				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/metallic.png"), 2);
+				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/normal.png"), 3);
+				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/roughness.png"), 4);
+				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 				e.AddComponent<PhysicsComponent>();
 				glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
 				glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
@@ -436,6 +440,19 @@ namespace Albedo {
 					m_SelectionContext.AddComponent<TransformComponent>();
 				ImGui::CloseCurrentPopup();
 			}
+			else if (ImGui::MenuItem("RigidBody2D"))
+			{
+				if (!m_SelectionContext.HasComponent<Physics2DComponent>())
+					m_SelectionContext.AddComponent<Physics2DComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+			else if (ImGui::MenuItem("BoxCollider"))
+			{
+				if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
+					m_SelectionContext.AddComponent<BoxCollider2DComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+#if 0
 			else if (ImGui::MenuItem("Physics"))
 			{
 				if (!m_SelectionContext.HasComponent<PhysicsComponent>())
@@ -448,6 +465,7 @@ namespace Albedo {
 					m_SelectionContext.AddComponent<ColliderComponent>();
 				ImGui::CloseCurrentPopup();
 			}
+#endif
 			else if (ImGui::MenuItem("Script"))
 			{
 				if (!m_SelectionContext.HasComponent<ScriptComponent>())
@@ -549,7 +567,7 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()));
+						component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()), (int)component.type);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -631,12 +649,47 @@ namespace Albedo {
 				component.m_Material->SetRoughnessScale(roughness);
 			});
 
+		DrawComponent<Physics2DComponent>("Rigidbody 2D", entity, [](auto& component)
+			{
+				const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
+				const char* currentBodyTypeString = bodyTypeStrings[(int)component.Type];
+				if (ImGui::BeginCombo("Body Type", currentBodyTypeString))
+				{
+					for (int i = 0; i < 2; i++)
+					{
+						bool isSelected = currentBodyTypeString == bodyTypeStrings[i];
+						if (ImGui::Selectable(bodyTypeStrings[i], isSelected))
+						{
+							currentBodyTypeString = bodyTypeStrings[i];
+							component.Type = (Physics2DComponent::BodyType)i;
+						}
+
+						if (isSelected)
+							ImGui::SetItemDefaultFocus();
+					}
+
+					ImGui::EndCombo();
+				}
+
+				ImGui::Checkbox("Fixed Rotation", &component.FixedRotation);
+			});
+
+		DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component)
+			{
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
+				ImGui::DragFloat2("Size", glm::value_ptr(component.Offset));
+				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
+			});
+
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
 				if (ImGui::Checkbox("Disable Gravity", &component.disableGravity))
 					component.initialize = true;
-				if (ImGui::Checkbox("Infinite Mass", &component.infiniteMass))
-					component.initialize = true;
+				//if (ImGui::Checkbox("Infinite Mass", &component.infiniteMass))
+				//	component.initialize = true;
 				if (ImGui::Checkbox("Kinematic", &component.isKinematic))
 					component.initialize = true;
 
@@ -661,7 +714,7 @@ namespace Albedo {
 				ImGui::Text("Body Type");
 				ImGui::SameLine();
 				std::string items[] = { "Static", "Dynamic" };
-				if (ImGui::BeginCombo("##physics", component.phyTypeName.c_str()))
+				if (ImGui::BeginCombo("##physics", items[component.bodyType].c_str()))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 					{

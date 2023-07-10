@@ -28,14 +28,17 @@ IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
+IncludeDir["Box2d"]  	= "%{wks.location}/Albedo/dependencies/Box2d/include"
 IncludeDir["Assimp"]  	= "%{wks.location}/Albedo/dependencies/assimp/include"
 
 LibraryDir = {}
 LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
+LibraryDir["Box2d"] 		= "%{wks.location}/Albedo/dependencies/Box2d/lib/%{cfg.buildcfg}"
 LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
 LibraryDir["Assimp"] 		= "%{wks.location}/Albedo/dependencies/assimp/libs"
 
 Library = {}
+Library["Box2d"] 				   = "%{LibraryDir.Box2d}/box2d.lib"
 Library["Physx"] 				   = "%{LibraryDir.Physx}/PhysX_static_64.lib"
 Library["PhysXPvdSDK"] 			   = "%{LibraryDir.Physx}/PhysXPvdSDK_static_64.lib"
 Library["PhysXCommon"] 			   = "%{LibraryDir.Physx}/PhysXCommon_static_64.lib"
@@ -109,6 +112,7 @@ project "Albedo"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Physx}",
+		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",
 		"%{prj.name}/dependencies/spdlog/include"
@@ -124,6 +128,8 @@ project "Albedo"
 		"Glad",
 		"GLFW",
 		"opengl32.lib",
+		-- Box2d
+		"%{Library.Box2d}",
 		-- Physx
 		"%{Library.Physx}",
 		"%{Library.PhysXPvdSDK}",
@@ -205,6 +211,7 @@ project "AlbedoEditor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Physx}",
+		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.ImGuizmo}",
