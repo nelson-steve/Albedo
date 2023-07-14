@@ -22,6 +22,11 @@ namespace Albedo {
 	class Entity;
 	class PhysicsSolver;
 
+	struct SceneSetting
+	{
+		bool ShowCollider = true;
+	};
+
 	class Scene
 	{
 	public:
@@ -53,6 +58,7 @@ namespace Albedo {
 		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity GetPrimaryCameraEntity();
+		SceneSetting& GetSceneSetting() { return m_SceneSetting; }
 		Entity FindEntityByName(std::string_view name);
 		
 		bool IsRunning() const { return m_IsRunning; }
@@ -83,6 +89,7 @@ namespace Albedo {
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
 		bool m_IsSimulating = false;
+		SceneSetting m_SceneSetting;
 
 		b2World* m_PhysicsWorld = nullptr;
 	
@@ -108,7 +115,7 @@ namespace Albedo {
 		Ref<Mesh> m_Skybox;
 		Ref<Mesh> m_Collider;
 		Ref<Mesh> m_Quad;
-		Ref<Shader> m_Shader;
+		Ref<Shader> m_ColliderShader;
 		glm::mat4 m_Transform = glm::mat4(1.0);
 		//Shader paths
 		std::string m_PBRShaderPath = "Assets/Shaders/ModelPBRShader.glsl";

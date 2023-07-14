@@ -78,7 +78,7 @@ namespace Albedo {
 			suzanneMesh1.GetComponent<ColliderComponent>().ColliderSize = size;
 		}
 #endif
-		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack.png", false);
+		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonWhite.png", false);
 		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
 
 		m_IconPlay = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack1.png", false);
@@ -326,12 +326,12 @@ namespace Albedo {
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
 
-			ImGui::Begin("depth map");
+			//ImGui::Begin("depth map");
 
 			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainChunk->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
 			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainManager->m_TerrainChunks[0]->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
 
-			ImGui::End();
+			//ImGui::End();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");
@@ -469,7 +469,7 @@ namespace Albedo {
 				ImGui::SameLine();
 
 			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play) ? m_IconSimulate : m_IconStop;
-			if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			if (ImGui::ImageButton((ImTextureID)icon->GetTextureID(), ImVec2(size/2, size/2), ImVec2(0, 0), ImVec2(1, 1), 1, ImVec4(1.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
 			{
 				if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play)
 					OnSceneSimulate();

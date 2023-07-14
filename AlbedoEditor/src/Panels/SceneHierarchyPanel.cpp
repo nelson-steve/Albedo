@@ -19,11 +19,13 @@ namespace Albedo {
 	SceneHierarchyPanel::SceneHierarchyPanel()
 	{
 		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
+		m_BlackTexture = Texture2D::Create("Assets/Textures/DarkGrey.jpeg", false);
 	}
 
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene> context)
 	{
 		m_MeshIcon = Texture2D::Create("Assets/Textures/Wood.png", false);
+		m_BlackTexture = Texture2D::Create("Assets/Textures/DarkGrey.jpeg", false);
 		SetContext(context);
 	}
 
@@ -108,7 +110,7 @@ namespace Albedo {
 
 		ImGui::End();
 
-		ImGui::Begin("Properties");
+		ImGui::Begin("Entities");
 		if (m_SelectionContext)
 		{
 			DrawComponentsOfEntity(m_SelectionContext);
@@ -116,10 +118,17 @@ namespace Albedo {
 
 		ImGui::End();
 
-		ImGui::Begin("Scene Configuration");
+		ImGui::Begin("Scene Enties");
 		if (m_SelectionContext)
 		{
 			DrawComponentsOfScene(m_SelectionContext);
+		}
+
+		ImGui::End();
+
+		ImGui::Begin("Scene Setting");
+		{
+			ImGui::Checkbox("Show Collider", &m_Context->GetSceneSetting().ShowCollider);
 		}
 
 		ImGui::End();
@@ -367,7 +376,7 @@ namespace Albedo {
 
 	void SceneHierarchyPanel::DrawComponentsOfEntity(Entity entity)
 	{
-		if (entity.HasComponent<LightComponent>())
+		if (entity.HasComponent<LightComponent>() || entity.HasComponent<SkyboxComponent>())
 			return;
 
 		if (entity.HasComponent<TagComponent>())
@@ -398,59 +407,86 @@ namespace Albedo {
 				ImGuiInputTextFlags_CallbackCompletion |
 				ImGuiInputTextFlags_CallbackHistory;
 
-			if (ImGui::MenuItem("Tag"))
+			if (!m_SelectionContext.HasComponent<TagComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<TagComponent>())
-					m_SelectionContext.AddComponent<TagComponent>(Tag);
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Tag"))
+				{
+					if (!m_SelectionContext.HasComponent<TagComponent>())
+						m_SelectionContext.AddComponent<TagComponent>(Tag);
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Mesh"))
+			if (!m_SelectionContext.HasComponent<MeshComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<MeshComponent>())
-					m_SelectionContext.AddComponent<MeshComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Mesh"))
+				{
+					if (!m_SelectionContext.HasComponent<MeshComponent>())
+						m_SelectionContext.AddComponent<MeshComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Light"))
+			if (!m_SelectionContext.HasComponent<LightComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<LightComponent>())
-					m_SelectionContext.AddComponent<LightComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Light"))
+				{
+					if (!m_SelectionContext.HasComponent<LightComponent>())
+						m_SelectionContext.AddComponent<LightComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Texture"))
+			if (!m_SelectionContext.HasComponent<TextureComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<TextureComponent>())
-					m_SelectionContext.AddComponent<TextureComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Texture"))
+				{
+					if (!m_SelectionContext.HasComponent<TextureComponent>())
+						m_SelectionContext.AddComponent<TextureComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Shader"))
+			if (!m_SelectionContext.HasComponent<ShaderComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<ShaderComponent>())
-					m_SelectionContext.AddComponent<ShaderComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Shader"))
+				{
+					if (!m_SelectionContext.HasComponent<ShaderComponent>())
+						m_SelectionContext.AddComponent<ShaderComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Material"))
+			if (!m_SelectionContext.HasComponent<MaterialComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<MaterialComponent>())
-					m_SelectionContext.AddComponent<MaterialComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Material"))
+				{
+					if (!m_SelectionContext.HasComponent<MaterialComponent>())
+						m_SelectionContext.AddComponent<MaterialComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("Transform"))
+			if (!m_SelectionContext.HasComponent<TransformComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<TransformComponent>())
-					m_SelectionContext.AddComponent<TransformComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Transform"))
+				{
+					if (!m_SelectionContext.HasComponent<TransformComponent>())
+						m_SelectionContext.AddComponent<TransformComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("RigidBody2D"))
+			if (!m_SelectionContext.HasComponent<Physics2DComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<Physics2DComponent>())
-					m_SelectionContext.AddComponent<Physics2DComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("RigidBody2D"))
+				{
+					if (!m_SelectionContext.HasComponent<Physics2DComponent>())
+						m_SelectionContext.AddComponent<Physics2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			else if (ImGui::MenuItem("BoxCollider"))
+			if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
-					m_SelectionContext.AddComponent<BoxCollider2DComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("BoxCollider"))
+				{
+					if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
+						m_SelectionContext.AddComponent<BoxCollider2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 #if 0
 			else if (ImGui::MenuItem("Physics"))
@@ -466,11 +502,14 @@ namespace Albedo {
 				ImGui::CloseCurrentPopup();
 			}
 #endif
-			else if (ImGui::MenuItem("Script"))
+			if (!m_SelectionContext.HasComponent<ScriptComponent>())
 			{
-				if (!m_SelectionContext.HasComponent<ScriptComponent>())
-					m_SelectionContext.AddComponent<ScriptComponent>();
-				ImGui::CloseCurrentPopup();
+				if (ImGui::MenuItem("Script"))
+				{
+					if (!m_SelectionContext.HasComponent<ScriptComponent>())
+						m_SelectionContext.AddComponent<ScriptComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 			ImGui::EndPopup();
 		}
@@ -486,20 +525,9 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
 			});
 
-		DrawComponent<LightComponent>("Light", entity, [&](auto& component)
-			{
-				DrawVec3Control("Position", component.position, 0, 70);
-				//glm::vec3 rotation = glm::degrees(component.Rotation);
-				ImGui::ColorEdit3("color", glm::value_ptr(color));
-				//ImGui::ColorButton("color", ImVec4(color.x, color.y, color.z, color.w), 0, ImVec2());
-				//DrawVec3Control("", rotation, 0, 70);
-				//component.Rotation = glm::radians(rotation);
-				//DrawVec3Control("Scale", component.Scale, 1.0f, 70);
-			});
-
 		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
 			{
-				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 				//ImGui::SameLine(65.0f, 1.0f);
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -508,7 +536,8 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						component.AddMesh(m_AssetManager->LoadModelusingAssimp(meshPath.string()), (uint32_t)entity);
+						if (m_AssetManager->ValidateModelPath(meshPath.string()))
+							component.AddMesh(m_AssetManager->LoadModelusingAssimp(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -559,7 +588,7 @@ namespace Albedo {
 					ImGui::EndCombo();
 				}
 				ImGui::SameLine();
-				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -567,7 +596,8 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()), (int)component.type);
+						if (m_AssetManager->ValidateTexturePath(texturePath.string()))
+							component.AddTexture(m_AssetManager->LoadTexture(texturePath.u8string()), (int)component.type);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -612,7 +642,7 @@ namespace Albedo {
 					ImGui::EndCombo();
 				}
 				ImGui::SameLine();
-				ImGui::Image(reinterpret_cast<void*>(m_MeshIcon->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -620,7 +650,8 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path shaderPath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						component.AddShader(m_AssetManager->LoadShader(shaderPath.u8string()));
+						if (m_AssetManager->ValidateShaderPath(shaderPath.string()))
+							component.AddShader(m_AssetManager->LoadShader(shaderPath.u8string()));
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -641,7 +672,7 @@ namespace Albedo {
 
 				component.m_Material->SetPBRStatus(component.isPBR);
 
-				ImGui::DragFloat("Shininess", &component.shininess, 0.1f, 0.0f, 40.0f);
+				ImGui::DragFloat("Shininess", &component.shininess, 0.1f, 0.001f, 40.0f);
 				component.m_Material->SetShininess(component.shininess);
 				ImGui::DragFloat("Exposure", &exposure, 0.1f, 0.0f, 10.0f);
 				component.m_Material->SetExposure(exposure);
@@ -683,7 +714,7 @@ namespace Albedo {
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
 			});
-
+#if 0
 		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
 			{
 				if (ImGui::Checkbox("Disable Gravity", &component.disableGravity))
@@ -794,7 +825,7 @@ namespace Albedo {
 				//DrawVec3Control("Rotation", g, 0, 70);
 				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
 			});
-
+#endif
 #if 1
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
@@ -946,13 +977,55 @@ namespace Albedo {
 		DrawComponent<SkyboxComponent>("Skybox", entity, [&](auto& component)
 			{
 				ImGui::Text("Skybox Component");
-				//DrawVec3Control("Position", component.position, 0, 70);
-				//glm::vec3 rotation = glm::degrees(component.Rotation);
-				//ImGui::ColorEdit3("color", glm::value_ptr(color));
-				//ImGui::ColorButton("color", ImVec4(color.x, color.y, color.z, color.w), 0, ImVec2());
-				//DrawVec3Control("", rotation, 0, 70);
-				//component.Rotation = glm::radians(rotation);
-				//DrawVec3Control("Scale", component.Scale, 1.0f, 70);
+
+				component.faces.resize(6);
+				std::vector<std::string> sideNames = 
+				{
+					"Right",
+					"Left",
+					"Top",
+					"Bottom",
+					"Front",
+					"Back"
+				};
+				for (int i = 0; i < 6; i++)
+				{
+					ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+						{
+							const wchar_t* path = (const wchar_t*)payload->Data;
+							std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
+							if (m_AssetManager->ValidateTexturePath(texturePath.string()))
+								component.faces[i] = texturePath.string();
+						}
+						ImGui::EndDragDropTarget();
+					}
+					ImGui::SameLine();
+					ImGui::Text(sideNames[i].c_str());
+					if (!component.faces[i].empty())
+					{
+						ImGui::SameLine();
+						ImGui::Text(component.faces[i].c_str());
+					}
+				}
+
+				//for (const auto& face : component.faces)
+				//{
+				//	if (face.empty())
+				//		continue;
+				//	ImGui::Text(face.c_str());
+				//}
+				if (ImGui::Button("Reload Skybox"))
+				{
+					TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
+						Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
+						Config::DataFormat::RGB, false, false);
+					config.Faces = component.faces;
+					component.m_Skybox = Texture2D::Create(config);
+				}
+
 			});
 
 	}

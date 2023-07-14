@@ -287,11 +287,80 @@ namespace Albedo {
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		shader.m_Shader->SetUniformInt1("m_DiffuseMap", 0);
 
+		int i = 0;
+		int noOfPointLights = 0;
+		bool pointLightExists = false, spotLightExits = false, dirLightExists = false;
+		for (const auto& l : lights)
 		{
+			if (l.type == l.LightType::Directional)
+			{
+				dirLightExists = true;
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Direction", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Ambient", l.ambient);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Diffuse", l.diffuse);
+				shader.m_Shader->SetUniformFloat3("u_DirLight.u_Specular", l.specular);
+			}
+			else if (l.type == l.LightType::Point)
+			{
+				pointLightExists = true;
+				noOfPointLights++;
+				std::string& index = std::to_string(i);
+				std::string& s = "u_PointLights[" + index + "].u_Position";
+				shader.m_Shader->SetUniformFloat3(s, l.position);
+
+				s = "u_PointLights[" + index + "].u_Ambient";
+				shader.m_Shader->SetUniformFloat3(s, l.ambient);
+
+				s = "u_PointLights[" + index + "].u_Diffuse";
+				shader.m_Shader->SetUniformFloat3(s, l.diffuse);
+
+				s = "u_PointLights[" + index + "].u_Specular";
+				shader.m_Shader->SetUniformFloat3(s, l.specular);
+
+				s = "u_PointLights[" + index + "].u_Constant";
+				shader.m_Shader->SetUniformFloat(s, l.constant);
+
+				s = "u_PointLights[" + index + "].u_Linear";
+				shader.m_Shader->SetUniformFloat(s, l.linear);
+
+				s = "u_PointLights[" + index + "].u_Quadratic";
+				shader.m_Shader->SetUniformFloat(s, l.quadratic);
+
+				i++;
+			}
+			else if (l.type == l.LightType::Spot)
+			{
+				spotLightExits = true;
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Position", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Direction", l.direction);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Ambient", l.ambient);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Diffuse", l.diffuse);
+				shader.m_Shader->SetUniformFloat3("u_SpotLight.u_Specular", l.specular);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Constant", l.constant);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Linear", l.linear);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_Quadratic", l.quadratic);
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_CutOff", glm::cos(glm::radians(l.cutOff)));
+				shader.m_Shader->SetUniformFloat("u_SpotLight.u_OuterCutOff", glm::cos(glm::radians(l.outerCutOff)));
+			}
 		}
 
-		//shader.m_Shader->SetUniformFloat3("u_LightColor", glm::vec3(1.0, 1.0, 1.0));
+		shader.m_Shader->SetUniformInt1("u_NoOfPointLights", noOfPointLights);
+		shader.m_Shader->SetUniformFloat("u_Shininess", material.shininess);
+		shader.m_Shader->SetUniformFloat3("u_Specular", material.specular);
+		shader.m_Shader->SetUniformInt1("u_SpotLightExists", (int)spotLightExits);
+		shader.m_Shader->SetUniformInt1("u_PointLightExists", (int)pointLightExists);
+		shader.m_Shader->SetUniformInt1("u_DirLightExists", (int)dirLightExists);
+		//shader.m_Shader->SetUniformFloat3("u_LightPosition", material.li);
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		shader.m_Shader->SetUniformFloat3("u_MaterialColor", material.m_Material->GetAlbedoColor());
+		
+		for (const auto& tex : texture.m_Textures)
+		{
+			tex.second->Bind();
+			break;
+		}
 
 	}
 

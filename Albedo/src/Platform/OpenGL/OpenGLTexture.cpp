@@ -214,7 +214,7 @@ namespace Albedo {
 
 		int width, height, nrComponents;
 		stbi_set_flip_vertically_on_load(0);
-		for (unsigned int i = 0; i < 6; i++)
+		for (unsigned int i = 0; i < faces.size(); i++)
 		{
 			unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
 			if (data)

@@ -73,6 +73,8 @@ namespace Albedo {
 	{
 		Ref<Texture2D> m_Skybox;
 
+		std::vector<std::string> faces;
+
 		SkyboxComponent() = default;
 		SkyboxComponent(const SkyboxComponent&) = default;
 	};
@@ -134,7 +136,7 @@ namespace Albedo {
 
 		Ref<Material> m_Material;
 		bool isPBR = false;
-		float shininess = 0.0;
+		float shininess = 0.001;
 		glm::vec3 specular{ 0.1 };
 		bool initialize = true;
 

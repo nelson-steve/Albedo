@@ -50,7 +50,7 @@ namespace Albedo {
 		m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
 		m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
 		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
-		m_Shader = m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl");
+		m_ColliderShader = m_AssetManager->LoadShader("Assets/Shaders/ColliderShader.glsl");
 
 		m_Collider->InitMesh(-1);
 		m_Quad->InitMesh(-1);
@@ -71,12 +71,12 @@ namespace Albedo {
 				Config::DataFormat::RGB, false, false);
 			config.Faces =
 			{
-				"Assets/Textures/Skybox/right.jpg",
-				"Assets/Textures/Skybox/left.jpg",
-				"Assets/Textures/Skybox/top.jpg",
-				"Assets/Textures/Skybox/bottom.jpg",
-				"Assets/Textures/Skybox/front.jpg",
-				"Assets/Textures/Skybox/back.jpg"
+				"Assets/Textures/Skybox/lake/right.jpg",
+				"Assets/Textures/Skybox/lake/left.jpg",
+				"Assets/Textures/Skybox/lake/top.jpg",
+				"Assets/Textures/Skybox/lake/bottom.jpg",
+				"Assets/Textures/Skybox/lake/front.jpg",
+				"Assets/Textures/Skybox/lake/back.jpg"
 			};
 			skyboxTemp = Texture2D::Create(config);
 		}
@@ -590,6 +590,8 @@ namespace Albedo {
 
 		for (auto& entity : view)
 		{
+			//Renderer::Setup();
+
 			if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
 			{
 				Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
@@ -597,8 +599,13 @@ namespace Albedo {
 			}
 			else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
 			{
+				//Renderer::Setup(camera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity),
+				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
 				Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
+			}
+			else if (false) // TODO: ONLY FOR PLANES
+			{
 			}
 
 			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
@@ -606,14 +613,12 @@ namespace Albedo {
 
 		for (auto& entity : view)
 		{
-			auto& phy = view.get<PhysicsComponent>(entity);
-			auto& col = view.get<ColliderComponent>(entity);
-
-			m_Transform = glm::translate(glm::mat4(1.0), phy.BodyPosition) * glm::scale(glm::mat4(1.0), col.ColliderSize);
-			//glm::vec3 offset = glm::vec3(2.0);
-			//m_Transform = glm::scale(m_Transform, offset);
+			//m_Transform = glm::translate(glm::mat4(1.0), phy.BodyPosition) * glm::scale(glm::mat4(1.0), col.ColliderSize);
+			m_Transform = glm::mat4(1.0);
+			
+			if(m_SceneSetting.ShowCollider)
 			{
-				Renderer::Setup(camera, m_Shader, m_Transform);
+				Renderer::Setup(camera, m_ColliderShader, m_Transform);
 				Renderer::RenderOverlay(m_Collider);
 			}
 		}
@@ -623,9 +628,24 @@ namespace Albedo {
 		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
 		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
 		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTemp->GetTextureID());
-		
+		bool skyboxExists = false;
+		auto skyboxView = m_Registry.view<SkyboxComponent>();
+		for (auto& e : skyboxView)
+		{
+			auto& skybox = skyboxView.get<SkyboxComponent>(e);
+			if(skybox.m_Skybox)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_Skybox->GetTextureID());
+				skyboxExists = true;
+			}
+		}
+		if (!skyboxExists)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTemp->GetTextureID());
+		}
+				
 		glDepthMask(GL_FALSE);
 		m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);

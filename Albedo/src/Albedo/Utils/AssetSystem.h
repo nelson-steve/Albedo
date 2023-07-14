@@ -11,6 +11,10 @@ namespace Albedo {
 		AssetSystem();
 		~AssetSystem();
 
+		bool ValidateShaderPath(const std::string& path);
+		bool ValidateTexturePath(const std::string& path);
+		bool ValidateModelPath(const std::string& path);
+
 		const Ref<Mesh>		 LoadModelusingAssimp(const std::string& path);
 		const Ref<Mesh>		 LoadModel(const std::string& path);
 		const Ref<Texture2D> LoadTexture(const std::string& path, bool flipped = true);

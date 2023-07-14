@@ -29,6 +29,7 @@ namespace Albedo {
 		glm::vec3 lightPos = glm::vec3(1.0);
 		glm::vec3 color = glm::vec3(1.0);
 
+		bool showCollider = true;
 		bool isPBR = false;
 		bool default = false;
 		bool m_Albedo = false, m_AmbientOcclusion = false, 
@@ -40,6 +41,7 @@ namespace Albedo {
 		std::string m_CurrentColliderType = "Box";
 		float offset = 0;
 		Ref<Texture2D> m_MeshIcon;
+		Ref<Texture2D> m_BlackTexture;
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;
 	};

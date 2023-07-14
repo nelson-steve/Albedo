@@ -258,6 +258,56 @@ namespace Albedo {
 		return tempTexture;
 	}
 
+	bool AssetSystem::ValidateShaderPath(const std::string& path)
+	{
+		if (path.empty())
+			return false;
+		if (path.find('.') == std::string::npos)
+			return false;
+
+		size_t pos = path.find_last_of('.');
+		std::string& extension = path.substr(pos + 1, path.size());
+
+		if (extension == "glsl")
+			return true;
+
+		return false;
+	}
+
+	bool AssetSystem::ValidateTexturePath(const std::string& path)
+	{
+		if (path.empty())
+			return false;
+		if (path.find('.') == std::string::npos)
+			return false;
+
+		size_t pos = path.find_last_of('.');
+		std::string& extension = path.substr(pos + 1, path.size());
+
+		if (extension == "jpg" || extension == "png" || extension == "jpeg")
+			return true;
+
+		return false;
+	}
+
+	bool AssetSystem::ValidateModelPath(const std::string& path)
+	{
+		if (path.empty())
+			return false;
+		if (path.find('.') == std::string::npos)
+			return false;
+
+		size_t pos = path.find_last_of('.');
+		std::string& extension = path.substr(pos + 1, path.size());
+
+		if (extension == "blend" || 
+			extension == "fbx" || 
+			extension == "obj")
+			return true;
+
+		return false;
+	}
+
 	const Ref<Shader> AssetSystem::LoadShader(const std::string& path)
 	{
 		Ref<Shader> tempShader = Shader::Create(path);
