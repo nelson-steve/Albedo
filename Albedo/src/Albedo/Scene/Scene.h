@@ -38,6 +38,7 @@ namespace Albedo {
 		void ReInitScene();
 
 		Entity CreateMeshEntity(const std::string& name = std::string());
+		Entity CreateCubeEntity(const std::string& name = std::string());
 		Entity CreateLightEntity(const std::string& name = std::string());
 		Entity CreateSkyboxEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);

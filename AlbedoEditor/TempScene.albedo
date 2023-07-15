@@ -11,7 +11,7 @@ Entities:
     TextureComponent:
       Texture:
         Total Types: 5
-        Type: 0
+        Type: 4
         isPBR: false
         Albedo: Assets/Models/suzanne/albedo.png
     ShaderComponent:
@@ -47,4 +47,4 @@ Entities:
       Collider Orientation: [0, 0, 0]
       Type Name: Box
     ScriptComponent:
-      ClassName: Sandbox.Enemy
+      ClassName: Sandbox.Player

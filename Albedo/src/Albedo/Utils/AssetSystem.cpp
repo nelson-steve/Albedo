@@ -69,6 +69,7 @@ namespace Albedo {
 			{
 				glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
 				// positions
+				
 				vector.x = mesh.mVertices[i].x;
 				vector.y = mesh.mVertices[i].y;
 				vector.z = mesh.mVertices[i].z;
@@ -300,9 +301,8 @@ namespace Albedo {
 		size_t pos = path.find_last_of('.');
 		std::string& extension = path.substr(pos + 1, path.size());
 
-		if (extension == "blend" || 
-			extension == "fbx" || 
-			extension == "obj")
+		// currently only support obj
+		if (extension == "obj")
 			return true;
 
 		return false;

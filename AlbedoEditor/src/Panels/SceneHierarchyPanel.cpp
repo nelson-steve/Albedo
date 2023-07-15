@@ -60,31 +60,12 @@ namespace Albedo {
 			{
 				Entity e = m_Context->CreateMeshEntity("Default Mesh");
 
-				e.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)e);
-				e.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"), 0);
-				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/ao.png"), 1);
-				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/metallic.png"), 2);
-				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/normal.png"), 3);
-				e.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/roughness.png"), 4);
-				e.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-				e.AddComponent<PhysicsComponent>();
-				glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
-				glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
-				glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
-				e.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-				e.GetComponent<TransformComponent>().Position = pos;
-				e.GetComponent<TransformComponent>().Scale = size;
-				e.GetComponent<TransformComponent>().Rotation = rot;
-				e.GetComponent<PhysicsComponent>();
-				e.GetComponent<PhysicsComponent>().BodyPosition = pos;
-				e.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
-				e.GetComponent<PhysicsComponent>().bodyType = e.GetComponent<PhysicsComponent>().BodyType::Static;
-				e.GetComponent<PhysicsComponent>().Mass = 0.f;
-				e.AddComponent<ColliderComponent>();
-				e.GetComponent<ColliderComponent>().ColliderPosition = pos;
-				e.GetComponent<ColliderComponent>().ColliderSize = size;
-				e.GetComponent<ColliderComponent>().ColliderOrientation = glm::quat(rot);
-				e.GetComponent<ColliderComponent>().colliderType = e.GetComponent<ColliderComponent>().ColliderType::Box;
+				m_SelectionContext = e;
+			}
+
+			if (ImGui::MenuItem("Create Default Cube"))
+			{
+				Entity e = m_Context->CreateCubeEntity("Default Cube");
 
 				m_SelectionContext = e;
 			}
@@ -537,7 +518,7 @@ namespace Albedo {
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
 						if (m_AssetManager->ValidateModelPath(meshPath.string()))
-							component.AddMesh(m_AssetManager->LoadModelusingAssimp(meshPath.string()), (uint32_t)entity);
+							component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -602,26 +583,34 @@ namespace Albedo {
 					ImGui::EndDragDropTarget();
 				}
 				ImGui::Separator();
+				if (entity.GetComponent<MaterialComponent>().isPBR)
+				{
+					ImGui::Checkbox("Albedo", &m_Albedo);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
 
-				ImGui::Checkbox("Albedo", &m_Albedo);
-				ImGui::SameLine();
-				ImGui::Button(component.m_TextureNames[component.TextureType::Albedo].c_str());
+					ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::AmbientOcclusion]->GetName().c_str());
 
-				ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
-				ImGui::SameLine();
-				ImGui::Button(component.m_TextureNames[component.TextureType::AmbientOcclusion].c_str());
+					ImGui::Checkbox("Metallic", &m_Metallic);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::Metallic]->GetName().c_str());
 
-				ImGui::Checkbox("Metallic", &m_Metallic);
-				ImGui::SameLine();
-				ImGui::Button(component.m_TextureNames[component.TextureType::Metallic].c_str());
+					ImGui::Checkbox("Normal", &m_Normal);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::Normal]->GetName().c_str());
 
-				ImGui::Checkbox("Normal", &m_Normal);
-				ImGui::SameLine();
-				ImGui::Button(component.m_TextureNames[component.TextureType::Normal].c_str());
-
-				ImGui::Checkbox("Roughness", &m_Roughness);
-				ImGui::SameLine();
-				ImGui::Button(component.m_TextureNames[component.TextureType::Roughness].c_str());
+					ImGui::Checkbox("Roughness", &m_Roughness);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::Roughness]->GetName().c_str());
+				}
+				else
+				{
+					ImGui::Checkbox("Albedo", &m_Albedo);
+					ImGui::SameLine();
+					ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
+				}
 			});
 
 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
@@ -708,7 +697,7 @@ namespace Albedo {
 		DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component)
 			{
 				ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-				ImGui::DragFloat2("Size", glm::value_ptr(component.Offset));
+				ImGui::DragFloat2("Size", glm::value_ptr(component.Size	));
 				ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);

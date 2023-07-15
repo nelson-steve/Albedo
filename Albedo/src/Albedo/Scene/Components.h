@@ -92,7 +92,7 @@ namespace Albedo {
 			Roughness
 		};
 
-		void AddTexture(const Ref<Texture2D> texture, int i = 0)
+		void AddTexture(const Ref<Texture2D> texture, int i)
 		{
 			type = static_cast<TextureType>(i);
 			m_Textures[type] = texture;
@@ -330,7 +330,7 @@ namespace Albedo {
 	{
 		std::string name = "Script Compnent";
 
-		std::string ClassName = "Sandbox.Enemy";
+		std::string ClassName = "Sandbox.Player";
 
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;
@@ -359,8 +359,8 @@ namespace Albedo {
 	};
 
 	using AllComponents =
-		ComponentGroup<MeshComponent, TransformComponent, LightComponent, SkyboxComponent, PhysicsComponent,
-		ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
+		ComponentGroup<MeshComponent, TransformComponent, LightComponent, SkyboxComponent, Physics2DComponent, BoxCollider2DComponent,
+		PhysicsComponent, ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
 		ScriptComponent>;
 
 }

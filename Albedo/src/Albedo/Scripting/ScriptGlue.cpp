@@ -8,6 +8,7 @@
 #include "Albedo/Scene/Components.h"
 
 #include <glm/glm.hpp>
+#include <box2d/box2d.h>
 #include "mono/metadata/object.h"
 #include "mono/metadata/reflection.h"
 
@@ -97,9 +98,9 @@ namespace Albedo {
 		entt::entity entity = static_cast<entt::entity>(entityID);
 		Albedo_CORE_ASSERT(entity != entt::null, "invalid entity");
 
-		//auto& rb2d = Entity::GetComponent<Rigidbody2DComponent>(entity);
-		//b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		//body->ApplyLinearImpulse(b2Vec2(impulse->x, impulse->y), b2Vec2(point->x, point->y), wake);
+		auto& rb2d = Entity::GetComponent<Physics2DComponent>(entity);
+		b2Body* body = (b2Body*)rb2d.RuntimeBody;
+		body->ApplyLinearImpulse(b2Vec2(impulse->x, impulse->y), b2Vec2(point->x, point->y), wake);
 	}
 
 	static void Rigidbody2DComponent_ApplyLinearImpulseToCenter(uint32_t entityID, glm::vec2* impulse, bool wake)
@@ -109,9 +110,9 @@ namespace Albedo {
 		entt::entity entity = static_cast<entt::entity>(entityID);
 		Albedo_CORE_ASSERT(entity != entt::null, "invalid entity");
 
-		//auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-		//b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		//body->ApplyLinearImpulseToCenter(b2Vec2(impulse->x, impulse->y), wake);
+		auto& rb2d = Entity::GetComponent<Physics2DComponent>(entity);;
+		b2Body* body = (b2Body*)rb2d.RuntimeBody;
+		body->ApplyLinearImpulseToCenter(b2Vec2(impulse->x, impulse->y), wake);
 	}
 
 	static bool Input_IsKeyDown(KeyCode keycode)

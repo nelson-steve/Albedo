@@ -12,8 +12,8 @@
 #include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Scripting/ScriptEngine.h"
 #include "Albedo/Physics/Conversions.h"
-#include "box2d/box2d.h"
 
+#include <box2d/box2d.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -201,12 +201,55 @@ namespace Albedo {
 	Entity Scene::CreateMeshEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
+		//entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
+		//entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
+
+		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)entity);
+		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"), 0);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/ao.png"), 1);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/metallic.png"), 2);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/normal.png"), 3);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/roughness.png"), 4);
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
+		entity.AddComponent<PhysicsComponent>();
+		glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
+		glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
+		entity.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+		entity.GetComponent<TransformComponent>().Position = pos;
+		entity.GetComponent<TransformComponent>().Scale = size;
+		entity.GetComponent<TransformComponent>().Rotation = rot;
+		entity.GetComponent<PhysicsComponent>();
+		entity.GetComponent<PhysicsComponent>().BodyPosition = pos;
+		entity.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
+		entity.GetComponent<PhysicsComponent>().bodyType = entity.GetComponent<PhysicsComponent>().BodyType::Static;
+		entity.GetComponent<PhysicsComponent>().Mass = 0.f;
+		entity.AddComponent<ColliderComponent>();
+		entity.GetComponent<ColliderComponent>().ColliderPosition = pos;
+		entity.GetComponent<ColliderComponent>().ColliderSize = size;
+		entity.GetComponent<ColliderComponent>().ColliderOrientation = glm::quat(rot);
+		entity.GetComponent<ColliderComponent>().colliderType = entity.GetComponent<ColliderComponent>().ColliderType::Box;
 		
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreateCubeEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/cube/box.obj"), (uint32_t)entity);
+		entity.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<ScriptComponent>();
+		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
+		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
+
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -333,7 +376,8 @@ namespace Albedo {
 					auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
 
 					b2PolygonShape boxShape;
-					boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+					//boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+					boxShape.SetAsBox(bc2d.Size.x, bc2d.Size.y);
 
 					b2FixtureDef fixtureDef;
 					fixtureDef.shape = &boxShape;
@@ -511,8 +555,8 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(const EditorCamera& camera, Timestep ts)
 	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, ShaderComponent,
-			TransformComponent, MeshComponent, TextureComponent, MaterialComponent, ScriptComponent>();
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, 
+			TextureComponent, MaterialComponent, ScriptComponent>();
 
 		if (m_IsSimulating)
 		{
@@ -528,11 +572,33 @@ namespace Albedo {
 			}
 		}
 
-		// Checking for re initialization of meshes
 		for (auto& entity : view)
 		{
-			auto& mesh = view.get<MeshComponent>(entity);
-			auto& shader = view.get<ShaderComponent>(entity);
+			auto& tex = view.get<TextureComponent>(entity);
+			if (!view.get<MaterialComponent>(entity).isPBR) continue;
+			auto& textures = view.get<TextureComponent>(entity).m_Textures;
+			if (!textures[TextureComponent::TextureType::Albedo].get())
+				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Albedo);
+
+			if (!textures[TextureComponent::TextureType::AmbientOcclusion].get())
+				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::AmbientOcclusion);
+
+			if (!textures[TextureComponent::TextureType::Metallic].get())
+				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Metallic);
+
+			if (!textures[TextureComponent::TextureType::Normal].get())
+				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Normal);
+
+			if (!textures[TextureComponent::TextureType::Roughness].get())
+				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Roughness);
+		}
+
+		// Checking for re initialization of meshes
+		auto meshView = m_Registry.view<MeshComponent, ShaderComponent>();
+		for (auto& entity : meshView)
+		{
+			auto& mesh = meshView.get<MeshComponent>(entity);
+			auto& shader = meshView.get<ShaderComponent>(entity);
 			if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
 				Renderer::Init(m_Registry);
 		}
@@ -604,17 +670,19 @@ namespace Albedo {
 				Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
-			else if (false) // TODO: ONLY FOR PLANES
-			{
-			}
 
 			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
 		}
 
-		for (auto& entity : view)
+		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
+
+		m_Transform = glm::mat4(1.0);
+		for (auto& entity : phyView)
 		{
-			//m_Transform = glm::translate(glm::mat4(1.0), phy.BodyPosition) * glm::scale(glm::mat4(1.0), col.ColliderSize);
-			m_Transform = glm::mat4(1.0);
+			auto& tra = phyView.get<TransformComponent>(entity);
+			auto& bc2d = phyView.get<BoxCollider2DComponent>(entity);
+			m_Transform = glm::translate(glm::mat4(1.0f), tra.Position) * glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 1.0));
+			//m_Transform = glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 0.0));
 			
 			if(m_SceneSetting.ShowCollider)
 			{

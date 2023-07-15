@@ -192,19 +192,34 @@ namespace Albedo {
 			out << YAML::Key << "LightComponent";
 			out << YAML::BeginMap;
 			auto& lc = entity.GetComponent<LightComponent>();
+			
+			out << YAML::Key << "Type" << YAML::Value << lc.type;
 			out << YAML::Key << "Direction" << YAML::Value << lc.direction;
 			out << YAML::Key << "Position" << YAML::Value << lc.position;
 			out << YAML::Key << "Ambient" << YAML::Value << lc.ambient;
 			out << YAML::Key << "Diffuse" << YAML::Value << lc.diffuse;
 			out << YAML::Key << "Specular" << YAML::Value << lc.specular;
-			out << YAML::Key << "Cutt Off" << YAML::Value << lc.cutOff;
-			out << YAML::Key << "Outer Cutt Off" << YAML::Value << lc.outerCutOff;
+			out << YAML::Key << "Cut Off" << YAML::Value << lc.cutOff;
+			out << YAML::Key << "Outer Cut Off" << YAML::Value << lc.outerCutOff;
 			out << YAML::Key << "Constant" << YAML::Value << lc.constant;
 			out << YAML::Key << "Linear" << YAML::Value << lc.linear;
 			out << YAML::Key << "Quadratic" << YAML::Value << lc.quadratic;
 			out << YAML::Key << "Name Of Light" << YAML::Value << lc.nameOfLight;
 
 			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<SkyboxComponent>())
+		{
+			out << YAML::Key << "SkyboxComponent";
+			out << YAML::BeginMap;
+			auto& skyc = entity.GetComponent<SkyboxComponent>();
+			int i = 1;
+			for (const auto& face : skyc.faces)
+			{
+				out << YAML::Key << "Face" + std::to_string(i) << YAML::Value << face;
+				i++;
+			}
 		}
 
 		if (entity.HasComponent<TextureComponent>())
@@ -490,6 +505,39 @@ namespace Albedo {
 					deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModelusingAssimp(path), (uint32_t)deserializedEntity);
 				}
 
+				auto lightComponent = entity["LightComponent"];
+				if (lightComponent)
+				{
+					auto& lc = deserializedEntity.AddComponent<LightComponent>();
+
+					lc.type =  (LightComponent::LightType)lightComponent["Type"].as<int>();
+					lc.direction =  lightComponent["Direction"].as<glm::vec3>();
+					lc.position =  lightComponent["Position"].as<glm::vec3>();
+					lc.ambient =  lightComponent["Ambient"].as<glm::vec3>();
+					lc.diffuse =  lightComponent["Diffuse"].as<glm::vec3>();
+					lc.specular =  lightComponent["Specular"].as<glm::vec3>();
+					lc.cutOff =  lightComponent["Cut Off"].as<float>();
+					lc.outerCutOff =  lightComponent["Outer Cut Off"].as<float>();
+					lc.constant =  lightComponent["Constant"].as<float>();
+					lc.linear =  lightComponent["Linear"].as<float>();
+					lc.quadratic =  lightComponent["Quadratic"].as<float>();
+					lc.nameOfLight =  lightComponent["Name Of Light"].as<std::string>();
+				}
+
+				auto skyboxComponent = entity["SkyboxComponent"];
+				if (skyboxComponent)
+				{
+					std::vector <std::string> faces;
+					faces.push_back(lightComponent["Face1"].as<std::string>());
+					faces.push_back(lightComponent["Face2"].as<std::string>());
+					faces.push_back(lightComponent["Face3"].as<std::string>());
+					faces.push_back(lightComponent["Face4"].as<std::string>());
+					faces.push_back(lightComponent["Face5"].as<std::string>());
+					faces.push_back(lightComponent["Face6"].as<std::string>());
+
+					deserializedEntity.AddComponent<SkyboxComponent>().m_Skybox = Texture2D::Create(faces);
+				}
+
 				auto textureComponent = entity["TextureComponent"];
 				if (textureComponent)
 				{
@@ -506,22 +554,22 @@ namespace Albedo {
 						std::string& roughness = texture["Roughness"].as<std::string>();
 
 						tc.type = tc.TextureType::Albedo;
-						tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+						tc.AddTexture(m_AssetManager->LoadTexture(albedo), (int)TextureComponent::TextureType::Albedo);
 						tc.type = tc.TextureType::AmbientOcclusion;
-						tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion));
+						tc.AddTexture(m_AssetManager->LoadTexture(ambientOcclusion), (int)TextureComponent::TextureType::AmbientOcclusion);
 						tc.type = tc.TextureType::Metallic;
-						tc.AddTexture(m_AssetManager->LoadTexture(metallic));
+						tc.AddTexture(m_AssetManager->LoadTexture(metallic), (int)TextureComponent::TextureType::Metallic);
 						tc.type = tc.TextureType::Normal;
-						tc.AddTexture(m_AssetManager->LoadTexture(normal));
+						tc.AddTexture(m_AssetManager->LoadTexture(normal), (int)TextureComponent::TextureType::Normal);
 						tc.type = tc.TextureType::Roughness;
-						tc.AddTexture(m_AssetManager->LoadTexture(roughness));
+						tc.AddTexture(m_AssetManager->LoadTexture(roughness), (int)TextureComponent::TextureType::Roughness);
 					}
 					else
 					{
 						std::string& albedo = texture["Albedo"].as<std::string>();
 
 						tc.type = tc.TextureType::Albedo;
-						tc.AddTexture(m_AssetManager->LoadTexture(albedo));
+						tc.AddTexture(m_AssetManager->LoadTexture(albedo), (int)TextureComponent::TextureType::Albedo);
 					}
 				}
 
@@ -536,7 +584,7 @@ namespace Albedo {
 				auto materialComponent = entity["MaterialComponent"];
 				if (materialComponent)
 				{
-
+					// TODO: write for material as well
 				}
 
 				auto transformComponent = entity["TransformComponent"];

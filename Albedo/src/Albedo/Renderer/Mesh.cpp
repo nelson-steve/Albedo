@@ -32,8 +32,6 @@ namespace Albedo {
         if (m_SingularData)
         {
             m_MeshBufferData.m_VertexArray = VertexArray::Create();
-            auto x = sizeof(m_SingularMeshData);
-            auto y = Utils::GetVertexSize(m_SingularMeshData);
             m_MeshBufferData.m_VertexBuffer = VertexBuffer::Create(m_SingularMeshData, Utils::GetVertexSize(m_SingularMeshData));
             m_MeshBufferData.m_VertexBuffer->SetLayout(m_Layout);
             m_MeshBufferData.m_VertexArray->AddVertexBuffer(m_MeshBufferData.m_VertexBuffer);
