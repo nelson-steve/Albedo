@@ -37,7 +37,6 @@ namespace Sandbox
                 velocity.Y = -1.0f;
                 Console.WriteLine("S key pressed");
             }
-            
             if (Input.IsKeyDown(KeyCode.A))
             {
                 velocity.X = -1.0f;
@@ -47,6 +46,16 @@ namespace Sandbox
             {
                 velocity.X = 1.0f;
                 Console.WriteLine("D key pressed");
+            }
+            if (Input.IsKeyDown(KeyCode.Q))
+            {
+                velocity.Z = -1.0f;
+                Console.WriteLine("Q key pressed");
+            }
+            if (Input.IsKeyDown(KeyCode.E))
+            {
+                velocity.Z = 1.0f;
+                Console.WriteLine("E key pressed");
             }
 
             //Entity cameraEntity = FindEntityByName("Camera");

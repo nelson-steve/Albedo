@@ -330,7 +330,7 @@ namespace Albedo {
 	{
 		std::string name = "Script Compnent";
 
-		std::string ClassName = "Sandbox.Player";
+		std::string ClassName = "Sandbox.Enemy";
 
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;

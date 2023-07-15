@@ -829,6 +829,31 @@ namespace Albedo {
 #if 1
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
+				if (ImGui::BeginCombo("##classes", component.ClassName.c_str()))
+				{
+					int i = 0;
+					for (const auto& EntityClass : ScriptEngine::GetEntityClasses())
+					{
+						bool is_selected = (component.ClassName == EntityClass.first);
+						if (ImGui::Selectable(EntityClass.first.c_str(), is_selected))
+						{
+							component.ClassName = EntityClass.first;
+							switch (i)
+							{
+								case 0:
+								{
+									break;
+								}
+							}
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+						i++;
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::Separator();
+
 				bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);
 
 				static char buffer[64];
