@@ -29,9 +29,9 @@ namespace Albedo {
 	{
 		switch (bodyType)
 		{
-		case Physics2DComponent::BodyType::Static:    return b2_staticBody;
-		case Physics2DComponent::BodyType::Dynamic:   return b2_dynamicBody;
-		case Physics2DComponent::BodyType::Kinematic: return b2_kinematicBody;
+			case Physics2DComponent::BodyType::Static:    return b2_staticBody;
+			case Physics2DComponent::BodyType::Dynamic:   return b2_dynamicBody;
+			case Physics2DComponent::BodyType::Kinematic: return b2_kinematicBody;
 		}
 
 		Albedo_CORE_ASSERT(false, "Unknown body type");
@@ -41,6 +41,22 @@ namespace Albedo {
 	Scene::Scene()
 	{
 		//TODO: Remove this if not needed
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(Entity dst, Entity src)
+	{
+		([&]()
+			{
+				if (src.HasComponent<Component>())
+					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+	{
+		CopyComponentIfExists<Component...>(dst, src);
 	}
 
 	void Scene::InitDefaults()
@@ -205,33 +221,17 @@ namespace Albedo {
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		//entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
-
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)entity);
-		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"), 0);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/ao.png"), 1);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/metallic.png"), 2);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/normal.png"), 3);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/roughness.png"), 4);
-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		entity.AddComponent<PhysicsComponent>();
-		glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
-		glm::vec3 rot = glm::vec3(0.0, 0.0f, 0.0f);
-		entity.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-		entity.GetComponent<TransformComponent>().Position = pos;
-		entity.GetComponent<TransformComponent>().Scale = size;
-		entity.GetComponent<TransformComponent>().Rotation = rot;
-		entity.GetComponent<PhysicsComponent>();
-		entity.GetComponent<PhysicsComponent>().BodyPosition = pos;
-		entity.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
-		entity.GetComponent<PhysicsComponent>().bodyType = entity.GetComponent<PhysicsComponent>().BodyType::Static;
-		entity.GetComponent<PhysicsComponent>().Mass = 0.f;
-		entity.AddComponent<ColliderComponent>();
-		entity.GetComponent<ColliderComponent>().ColliderPosition = pos;
-		entity.GetComponent<ColliderComponent>().ColliderSize = size;
-		entity.GetComponent<ColliderComponent>().ColliderOrientation = glm::quat(rot);
-		entity.GetComponent<ColliderComponent>().colliderType = entity.GetComponent<ColliderComponent>().ColliderType::Box;
+		entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
+		entity.GetComponent<MaterialComponent>().isPBR = true;
+		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/substance_sphere/substance_sphere.obj"), (uint32_t)entity);
+		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/normal.png"), 3);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/roughness.png"), 4);
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
+		entity.AddComponent<Physics2DComponent>();
+		entity.AddComponent<BoxCollider2DComponent>();
 		
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -241,14 +241,35 @@ namespace Albedo {
 	Entity Scene::CreateCubeEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/cube/box.obj"), (uint32_t)entity);
-		entity.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
+		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
+		entity.AddComponent<Physics2DComponent>();
+		entity.AddComponent<BoxCollider2DComponent>();
+
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreatePlaneEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<ScriptComponent>();
+		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)entity);
+		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/albedo.png"), 0);
+		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/ao.png"), 1);
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
+		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		entity.GetComponent<MaterialComponent>().isPBR = false;
+		entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(false);
+		entity.AddComponent<Physics2DComponent>();
+		entity.AddComponent<BoxCollider2DComponent>();
 
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -265,11 +286,40 @@ namespace Albedo {
 		return entity;
 	}
 
+	
+
 	Entity Scene::CreateSkyboxEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
-		entity.AddComponent<SkyboxComponent>();
+		entity.AddComponent<SkyboxComponent>().faces =
+		{
+			"Assets/Textures/Skybox/lake/right.jpg",
+			"Assets/Textures/Skybox/lake/left.jpg",
+			"Assets/Textures/Skybox/lake/top.jpg",
+			"Assets/Textures/Skybox/lake/bottom.jpg",
+			"Assets/Textures/Skybox/lake/front.jpg",
+			"Assets/Textures/Skybox/lake/back.jpg"
+		};
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreateEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "Entity" : name;
+		return entity;
+	}
+
+	Entity Scene::CreateCameraEntity(const std::string& name)
+	{
+		Entity entity = { m_Registry.create(), this };
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<CameraComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -285,11 +335,20 @@ namespace Albedo {
 		m_StepFrames = frames;
 	}
 
+	void Scene::EnableGravity(bool gravity)
+	{
+		if (gravity)
+			m_PhysicsWorld->SetGravity({ 0.0f, -9.8f });
+		else
+			m_PhysicsWorld->SetGravity({ 0.0f, 0.0f });
+	}
+
 	void Scene::OnRuntimeStart()
 	{
 		m_IsRunning = true;
 
 		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
+		EnableGravity(m_SceneSetting.enableGravity);
 
 		auto view = m_Registry.view<Physics2DComponent>();
 		for (auto e : view)
@@ -353,7 +412,7 @@ namespace Albedo {
 		m_IsSimulating = true;
 
 		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
-
+		EnableGravity(m_SceneSetting.enableGravity);
 		{
 			auto view = m_Registry.view<Physics2DComponent>();
 			for (auto e : view)
@@ -413,6 +472,7 @@ namespace Albedo {
 	void Scene::OnUpdateSimulation(Timestep ts, const EditorCamera& camera)
 	{
 		// Physics
+		EnableGravity(m_SceneSetting.enableGravity);
 		{
 			const int32_t velocityIterations = 6;
 			const int32_t positionIterations = 2;
@@ -515,7 +575,7 @@ namespace Albedo {
 		}
 
 		SceneCamera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
+
 		{
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
 			for (auto entity : view)
@@ -553,13 +613,30 @@ namespace Albedo {
 		}
 	}
 
-	void Scene::OnUpdateEditor(const EditorCamera& camera, Timestep ts)
+	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
 		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, 
 			TextureComponent, MaterialComponent, ScriptComponent>();
 
+		Camera* mainCamera = nullptr;
+
 		if (m_IsSimulating)
 		{
+			// changing to Scene Camera
+			//auto cameraView = m_Registry.view<TransformComponent, CameraComponent>();
+			//for (auto entity : cameraView)
+			//{
+			//	auto [transform, newCamera] = cameraView.get<TransformComponent, CameraComponent>(entity);
+			//
+			//	if (newCamera.Primary)
+			//	{
+			//		mainCamera = &newCamera.Camera;
+			//		((SceneCamera*)mainCamera)->SetPosition(transform.Position);
+			//		camera =  *(EditorCamera*)mainCamera;
+			//		break;
+			//	}
+			//}
+
 			OnUpdateSimulation(ts, camera);
 			OnUpdatePhysics(ts);
 
@@ -695,6 +772,7 @@ namespace Albedo {
 		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
 		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
 		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
+		m_SkyboxShader->SetUniformFloat("darkness", m_SceneSetting.backgroundLight);
 		
 		bool skyboxExists = false;
 		auto skyboxView = m_Registry.view<SkyboxComponent>();
@@ -763,6 +841,15 @@ namespace Albedo {
 				return Entity{ entity, this };
 		}
 		return {};
+	}
+
+	Entity Scene::DuplicateEntity(Entity entity)
+	{
+		// Copy name because we're going to modify component data structure
+		std::string name = entity.GetName();
+		Entity newEntity = CreateEntity(name);
+		CopyComponentIfExists(AllComponents{}, newEntity, entity);
+		return newEntity;
 	}
 
 	template<typename T>

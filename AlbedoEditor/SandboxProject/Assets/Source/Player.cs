@@ -18,10 +18,23 @@ namespace Sandbox
 
             m_Transform = GetComponent<TransformComponent>();
             m_RigidBody = GetComponent<Physics2DComponent>();
+
+            m_RigidBody.EnableGravity(false);
         }
 
         void OnUpdate(float ts)
         {
+            if (m_Transform == null)
+            {
+                Console.WriteLine("TransformComponent not found");
+                return;
+            }
+            if (m_RigidBody == null)
+            {
+                Console.WriteLine("Physics2DComponent not found");
+                return;
+            }
+
             Time += ts;
             // Console.WriteLine($"Player.OnUpdate: {ts}");
 

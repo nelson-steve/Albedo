@@ -49,10 +49,11 @@ namespace Albedo {
 		Albedo_CORE_ASSERT(scene, "coudn't get the scene context");
 		entt::entity entity = static_cast<entt::entity>(entityID);
 		
-		//Albedo_CORE_ASSERT(entity, "Invalid entity");
+		Albedo_CORE_ASSERT(entity != entt::null , "Invalid entity");
 
 		MonoType* managedType = mono_reflection_type_get_type(componentType);
-		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end(), "Component not found");
+		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end(), "ComponentHasFunction function not found");
+		Albedo_CORE_ASSERT(s_EntityHasComponentFuncs.at(managedType)(entity), "Component not found");
 		return s_EntityHasComponentFuncs.at(managedType)(entity);
 	}
 
@@ -115,6 +116,22 @@ namespace Albedo {
 		body->ApplyLinearImpulseToCenter(b2Vec2(impulse->x, impulse->y), wake);
 	}
 
+	static void Rigidbody2DComponent_EnableGravity(uint32_t entityID, bool gravity)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		Albedo_CORE_ASSERT(scene, "couldn't get scene context");
+		entt::entity entity = static_cast<entt::entity>(entityID);
+		Albedo_CORE_ASSERT(entity != entt::null, "invalid entity");
+
+		auto& rb2d = Entity::GetComponent<Physics2DComponent>(entity);
+		rb2d.Gravity = gravity;
+		b2Body* body = (b2Body*)rb2d.RuntimeBody;
+		if(gravity)
+			body->SetGravityScale(1.0f);
+		else
+			body->SetGravityScale(0.0f);
+	}
+
 	static bool Input_IsKeyDown(KeyCode keycode)
 	{
 		return Input::IsKeyPressed(keycode);
@@ -168,6 +185,7 @@ namespace Albedo {
 
 		HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulse);
 		HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulseToCenter);
+		HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_EnableGravity);
 
 		HZ_ADD_INTERNAL_CALL(Input_IsKeyDown);
 	}

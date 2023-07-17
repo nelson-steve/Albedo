@@ -352,7 +352,6 @@ namespace Albedo {
 		shader.m_Shader->SetUniformInt1("u_SpotLightExists", (int)spotLightExits);
 		shader.m_Shader->SetUniformInt1("u_PointLightExists", (int)pointLightExists);
 		shader.m_Shader->SetUniformInt1("u_DirLightExists", (int)dirLightExists);
-		//shader.m_Shader->SetUniformFloat3("u_LightPosition", material.li);
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 		shader.m_Shader->SetUniformFloat3("u_MaterialColor", material.m_Material->GetAlbedoColor());
 		

@@ -41,6 +41,11 @@ namespace Albedo
 
     public class Physics2DComponent : Component
     {
+        public void EnableGravity(bool gravity)
+        {
+            InternalCalls.Rigidbody2DComponent_EnableGravity(Entity.ID, gravity);
+        }
+
         public void ApplyLinearImpulse(Vector2 impulse, Vector2 worldPosition, bool wake)
         {
             InternalCalls.Rigidbody2DComponent_ApplyLinearImpulse(Entity.ID, ref impulse, ref worldPosition, wake);

@@ -278,6 +278,10 @@ namespace Albedo {
 			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Material->GetRoughnessScale();
 			out << YAML::Key << "Exposure" << YAML::Value << tc.m_Material->GetExposure();
 
+			out << YAML::Key << "isPBR" << YAML::Value << tc.isPBR;
+			out << YAML::Key << "Shininess" << YAML::Value << tc.shininess;
+			out << YAML::Key << "Specular" << YAML::Value << tc.specular;
+
 			out << YAML::EndMap; // MaterialComponent
 		}
 
@@ -492,7 +496,7 @@ namespace Albedo {
 
 				Albedo_Core_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
-				Entity deserializedEntity = m_Scene->CreateMeshEntity(name);
+				Entity deserializedEntity = m_Scene->CreateEntity(name);
 
 				auto meshComponent = entity["MeshComponent"];
 				if (meshComponent)
@@ -528,12 +532,12 @@ namespace Albedo {
 				if (skyboxComponent)
 				{
 					std::vector <std::string> faces;
-					faces.push_back(lightComponent["Face1"].as<std::string>());
-					faces.push_back(lightComponent["Face2"].as<std::string>());
-					faces.push_back(lightComponent["Face3"].as<std::string>());
-					faces.push_back(lightComponent["Face4"].as<std::string>());
-					faces.push_back(lightComponent["Face5"].as<std::string>());
-					faces.push_back(lightComponent["Face6"].as<std::string>());
+					faces.push_back(skyboxComponent["Face1"].as<std::string>());
+					faces.push_back(skyboxComponent["Face2"].as<std::string>());
+					faces.push_back(skyboxComponent["Face3"].as<std::string>());
+					faces.push_back(skyboxComponent["Face4"].as<std::string>());
+					faces.push_back(skyboxComponent["Face5"].as<std::string>());
+					faces.push_back(skyboxComponent["Face6"].as<std::string>());
 
 					deserializedEntity.AddComponent<SkyboxComponent>().m_Skybox = Texture2D::Create(faces);
 				}
@@ -584,7 +588,17 @@ namespace Albedo {
 				auto materialComponent = entity["MaterialComponent"];
 				if (materialComponent)
 				{
-					// TODO: write for material as well
+					auto& mc = deserializedEntity.AddComponent<MaterialComponent>();
+
+					mc.m_Material = std::make_shared<Material>();
+					mc.m_Material->SetAlbedoColor(materialComponent["Albedo Color"].as<glm::vec3>());
+					mc.m_Material->SetExposure(materialComponent["Exposure"].as<float>());
+					mc.m_Material->SetRoughnessScale(materialComponent["Roughness"].as<float>());
+					mc.m_Material->SetPBRStatus(materialComponent["isPBR"].as<bool>());
+
+					mc.isPBR = materialComponent["isPBR"].as<bool>();
+					mc.specular = materialComponent["Specular"].as<glm::vec3>();
+					mc.shininess = materialComponent["Shininess"].as<float>();
 				}
 
 				auto transformComponent = entity["TransformComponent"];
@@ -655,9 +669,9 @@ namespace Albedo {
 				auto scriptComponent = entity["ScriptComponent"];
 				if (scriptComponent)
 				{
-#if 0
 					auto& sc = deserializedEntity.AddComponent<ScriptComponent>();
 					sc.ClassName = scriptComponent["ClassName"].as<std::string>();
+#if 0
 
 					auto scriptFields = scriptComponent["ScriptFields"];
 					if (scriptFields)

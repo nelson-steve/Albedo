@@ -40,6 +40,8 @@ namespace Albedo {
 		void OnSceneStop();
 		void OnScenePause();
 
+		void OnDuplicateEntity();
+
 		// UI Panels
 		void UI_Toolbar();
 	private:

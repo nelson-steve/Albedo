@@ -70,6 +70,13 @@ namespace Albedo {
 				m_SelectionContext = e;
 			}
 
+			if (ImGui::MenuItem("Create Default Plane"))
+			{
+				Entity e = m_Context->CreatePlaneEntity("Default Plane");
+			
+				m_SelectionContext = e;
+			}
+
 			if (ImGui::MenuItem("Create Scene Light"))
 			{
 				Entity e = m_Context->CreateLightEntity("Scene Light");
@@ -80,8 +87,6 @@ namespace Albedo {
 			if (ImGui::MenuItem("Create Skybox"))
 			{
 				Entity e = m_Context->CreateSkyboxEntity("Skybox");
-
-				e.AddComponent<SkyboxComponent>();
 
 				m_SelectionContext = e;
 			}
@@ -109,7 +114,10 @@ namespace Albedo {
 
 		ImGui::Begin("Scene Setting");
 		{
-			ImGui::Checkbox("Show Collider", &m_Context->GetSceneSetting().ShowCollider);
+			auto& sceneSetting = m_Context->GetSceneSetting();
+			ImGui::Checkbox("Show Collider", &sceneSetting.ShowCollider);
+			ImGui::DragFloat("Background Light", &sceneSetting.backgroundLight, 0.01f, 0.0, 1.0f);
+			ImGui::Checkbox("Enable Gravity", &sceneSetting.enableGravity);
 		}
 
 		ImGui::End();
@@ -406,15 +414,15 @@ namespace Albedo {
 					ImGui::CloseCurrentPopup();
 				}
 			}
-			if (!m_SelectionContext.HasComponent<LightComponent>())
-			{
-				if (ImGui::MenuItem("Light"))
-				{
-					if (!m_SelectionContext.HasComponent<LightComponent>())
-						m_SelectionContext.AddComponent<LightComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-			}
+			//if (!m_SelectionContext.HasComponent<LightComponent>())
+			//{
+			//	if (ImGui::MenuItem("Light"))
+			//	{
+			//		if (!m_SelectionContext.HasComponent<LightComponent>())
+			//			m_SelectionContext.AddComponent<LightComponent>();
+			//		ImGui::CloseCurrentPopup();
+			//	}
+			//}
 			if (!m_SelectionContext.HasComponent<TextureComponent>())
 			{
 				if (ImGui::MenuItem("Texture"))
@@ -483,6 +491,7 @@ namespace Albedo {
 				ImGui::CloseCurrentPopup();
 			}
 #endif
+
 			if (!m_SelectionContext.HasComponent<ScriptComponent>())
 			{
 				if (ImGui::MenuItem("Script"))
@@ -652,11 +661,6 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
-				ImGui::DragInt("Min tess level", &component.minTessLevel, 1, 0, 1000);
-				ImGui::DragInt("Max tess level", &component.maxTessLevel, 1, 0, 100000);
-				ImGui::DragFloat("Min Distance", &component.minDistance, 1.0f, 0.0f, 1000.0f);
-				ImGui::DragFloat("Max Distance", &component.maxDistance, 1.0f, 0.0f, 10000.0f);
-
 				ImGui::Checkbox("PBR", &component.isPBR);
 
 				component.m_Material->SetPBRStatus(component.isPBR);

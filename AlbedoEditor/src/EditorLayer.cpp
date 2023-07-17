@@ -29,55 +29,6 @@ namespace Albedo {
 	{
 		m_ActiveScene = std::make_shared<Scene>();
 
-		//Entity sceneCamera = m_ActiveScene->CreateEntity("SceneCamera");
-		//sceneCamera.AddComponent<CameraComponent>();
-		//sceneCamera.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/camera/light.obj"), (uint32_t)sceneCamera);
-		//sceneCamera.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/models/fa/Diffuse.jpg", true));
-		//sceneCamera.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		//sceneCamera.AddComponent<TransformComponent>().AddTranform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(glm::radians(180.0), 0.0, 0.0), glm::vec3(0.1));
-		//sceneCamera.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-		//sceneCamera.GetComponent<TransformComponent>().Position = glm::vec3(0.0, 0.0, 75.0);
-
-#if 0
-		{
-			Entity suzanneMesh = m_ActiveScene->CreateEntity("Sphere");
-			suzanneMesh.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/sphere/sphere_wrong_tangents.obj"), (uint32_t)suzanneMesh);
-			suzanneMesh.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/suzanne/albedo.png"));
-			suzanneMesh.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-			suzanneMesh.AddComponent<PhysicsComponent>();
-			glm::vec3 pos(0.0f, 400.0f, 0.0f);
-			glm::vec3 size = glm::vec3(1.0, 1.0f, 1.0f);
-			suzanneMesh.GetComponent<TransformComponent>().Position = pos;
-			//suzanneMesh.GetComponent<TransformComponent>().Scale = size;
-			suzanneMesh.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-			suzanneMesh.GetComponent<PhysicsComponent>().BodyPosition = pos;
-			suzanneMesh.GetComponent<PhysicsComponent>().Mass = 1.0f;
-			suzanneMesh.AddComponent<ColliderComponent>();
-			//suzanneMesh.GetComponent<PhysicsComponent>().PhysicsEnabled = false;
-		}
-		{
-			Entity suzanneMesh1 = m_ActiveScene->CreateEntity("Plane");
-			suzanneMesh1.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/suzanne/suzanne.obj"), (uint32_t)suzanneMesh1);
-			suzanneMesh1.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/concrete/dirty_concrete_metall_1k.png"));
-			suzanneMesh1.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-			suzanneMesh1.AddComponent<PhysicsComponent>();
-			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
-			//glm::vec3 size = glm::vec3(300.0, 300.0f, 300.0f);
-			glm::vec3 size = glm::vec3(50.0, 5.0f, 50.0f);
-			glm::vec3 rot = glm::vec3(0.0, 0.0f, 10.0f);
-			suzanneMesh1.GetComponent<MeshComponent>().m_Mesh->GetRendererConfig().Type = DrawType::Albedo_TRIANGLES;
-			suzanneMesh1.GetComponent<TransformComponent>().Position = pos;
-			//suzanneMesh1.GetComponent<TransformComponent>().Scale = size;
-			suzanneMesh1.GetComponent<TransformComponent>().Rotation = rot;
-			suzanneMesh1.GetComponent<PhysicsComponent>();
-			suzanneMesh1.GetComponent<PhysicsComponent>().BodyPosition = pos;
-			suzanneMesh1.GetComponent<PhysicsComponent>().BodyOrientation = glm::quat(rot);
-			suzanneMesh1.GetComponent<PhysicsComponent>().Mass = 0.f;
-			suzanneMesh1.AddComponent<ColliderComponent>();
-			suzanneMesh1.GetComponent<ColliderComponent>().ColliderPosition = pos;
-			suzanneMesh1.GetComponent<ColliderComponent>().ColliderSize = size;
-		}
-#endif
 		m_IconSimulate = Texture2D::Create("Assets/Textures/UI/PlayButtonWhite.png", false);
 		m_IconStop = Texture2D::Create("Assets/Textures/UI/PauseButtonBlack.png", false);
 
@@ -86,13 +37,6 @@ namespace Albedo {
 		m_IconStep = Texture2D::Create("Assets/Textures/UI/PlayButtonBlack1.png", false);
 
 		m_ActiveScene->InitScene();
-
-		//auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
-		//if (commandLineArgs.Count > 1)
-		//{
-		//	auto sceneFilePath = commandLineArgs[1];
-		//	OpenScene(sceneFilePath);
-		//}
 
 		{
 			FramebufferSpecification fbSpec;
@@ -302,7 +246,7 @@ namespace Albedo {
 					// which we can't undo at the moment without finer window depth/z control.
 					//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
 
-					if (ImGui::MenuItem("New", "Ctrl+N")) NewScene();
+					//if (ImGui::MenuItem("New", "Ctrl+N")) NewScene();
 
 					if (ImGui::MenuItem("Open...", "Ctrl+O")) OpenScene();
 
@@ -326,11 +270,10 @@ namespace Albedo {
 			m_SceneHierarchyPanel.OnImGuiRender();
 			m_ContentBrowserPanel.OnImGuiRender();
 
-			//ImGui::Begin("depth map");
-
-			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainChunk->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
-			//ImGui::Image((ImTextureID)m_ActiveScene->m_TerrainManager->m_TerrainChunks[0]->GetTHeightMap()->GetTextureID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
-
+			//ImGui::Begin("Depth map");
+			//
+			//ImGui::Image((ImTextureID)m_ActiveScene->m_ShadowMap->GetDepthMapID(), ImVec2{200, 200}, ImVec2{0, 1}, ImVec2{1, 0});
+			//
 			//ImGui::End();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -363,7 +306,7 @@ namespace Albedo {
 
 			// Gizmos
 			Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-			if (selectedEntity && m_GizmoType != -1 && false)
+			if (selectedEntity && m_GizmoType != -1 && m_SceneState == SceneState::Edit)
 			{
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
@@ -383,33 +326,36 @@ namespace Albedo {
 				// Entity transform
 				glm::mat4 transform{ 1.0 };
 				glm::vec3 rot{ 0.0 };
-				//TODO : This asserts - fix it!
-				auto& tc = selectedEntity.GetComponent<TransformComponent>();
-				transform = tc.GetTransform();
-				rot = tc.GetRotation();
 
-				// Snapping
-				bool snap = Input::IsKeyPressed(Key::LeftControl);
-				float snapValue = 0.5f; // Snap to 0.5m for translation/scale
-				// Snap to 45 degrees for rotation
-				if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-					snapValue = 45.0f;
-
-				float snapValues[3] = { snapValue, snapValue, snapValue };
-
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-					(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-					nullptr, snap ? snapValues : nullptr);
-
-				if (ImGuizmo::IsUsing())
+				if (selectedEntity.HasComponent<TransformComponent>())
 				{
-					glm::vec3 translation, rotation, scale;
-					Math::DecomposeTransform(transform, translation, rotation, scale);
+					auto& tc = selectedEntity.GetComponent<TransformComponent>();
+					transform = tc.GetTransform();
+					rot = tc.GetRotation();
 
-					glm::vec3 deltaRotation = rotation - rot;
-					tc.Position= translation;
-					tc.Rotation += deltaRotation;
-					tc.Scale = scale;
+					// Snapping
+					bool snap = Input::IsKeyPressed(Key::LeftControl);
+					float snapValue = 0.5f; // Snap to 0.5m for translation/scale
+					// Snap to 45 degrees for rotation
+					if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+						snapValue = 45.0f;
+
+					float snapValues[3] = { snapValue, snapValue, snapValue };
+
+					ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+						(ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
+						nullptr, snap ? snapValues : nullptr);
+
+					if (ImGuizmo::IsUsing())
+					{
+						glm::vec3 translation, rotation, scale;
+						Math::DecomposeTransform(transform, translation, rotation, scale);
+
+						glm::vec3 deltaRotation = rotation - rot;
+						tc.Position = translation;
+						tc.Rotation += deltaRotation;
+						tc.Scale = scale;
+					}
 				}
 			}
 
@@ -550,6 +496,22 @@ namespace Albedo {
 					SaveSceneAs();
 
 				break;
+			}
+
+			// Scene Commands
+			case Key::D:
+			{
+				if (control)
+				OnDuplicateEntity();
+				break;
+			}
+			case Key::X:
+			{
+				if (control)
+				{
+					Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+					m_ActiveScene->DestroyEntity(selectedEntity);
+				}
 			}
 
 			// Gizmos
@@ -738,6 +700,19 @@ namespace Albedo {
 			return;
 
 		m_ActiveScene->SetPaused(true);
+	}
+
+	void EditorLayer::OnDuplicateEntity()
+	{
+		if (m_SceneState != SceneState::Edit)
+			return;
+
+		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		if (selectedEntity)
+		{
+			Entity newEntity = m_ActiveScene->DuplicateEntity(selectedEntity);
+			m_SceneHierarchyPanel.SetSelectedEntity(newEntity);
+		}
 	}
 
 }

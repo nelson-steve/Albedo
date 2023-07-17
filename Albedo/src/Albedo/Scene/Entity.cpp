@@ -1,6 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 
 #include "Entity.h"
+#include "Components.h"
 
 #define STATIC(a) decltype(a) a
 
@@ -14,6 +15,11 @@ namespace Albedo {
 		: m_EntityHandle(handle)
 	{
 		m_Scene = scene;
+	}
+
+	const std::string& Entity::GetName()
+	{
+		return GetComponent<TagComponent>().Tag;
 	}
 
 }

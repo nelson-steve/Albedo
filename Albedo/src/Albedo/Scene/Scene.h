@@ -24,7 +24,9 @@ namespace Albedo {
 
 	struct SceneSetting
 	{
-		bool ShowCollider = true;
+		bool ShowCollider = false;
+		bool enableGravity = true;
+		float backgroundLight = 1.0;
 	};
 
 	class Scene
@@ -38,9 +40,12 @@ namespace Albedo {
 		void ReInitScene();
 
 		Entity CreateMeshEntity(const std::string& name = std::string());
-		Entity CreateCubeEntity(const std::string& name = std::string());
-		Entity CreateLightEntity(const std::string& name = std::string());
-		Entity CreateSkyboxEntity(const std::string& name = std::string());
+		Entity CreateCubeEntity(const std::string& name = "Cube");
+		Entity CreatePlaneEntity(const std::string& name = "Plane");
+		Entity CreateLightEntity(const std::string& name = "Light");
+		Entity CreateSkyboxEntity(const std::string& name = "Skybox");
+		Entity CreateEntity(const std::string& name);
+		Entity CreateCameraEntity(const std::string& name);
 		void DestroyEntity(Entity entity);
 
 		void OnRuntimeStart();
@@ -51,7 +56,7 @@ namespace Albedo {
 
 		void OnUpdateRuntime(Timestep ts);
 		void OnUpdateSimulation(Timestep ts, const EditorCamera& camera);
-		void OnUpdateEditor(const EditorCamera& camera, Timestep ts);
+		void OnUpdateEditor(EditorCamera& camera, Timestep ts);
 		void OnUpdateResize(uint32_t width, uint32_t height);
 
 		void OnUpdatePhysics(Timestep ts);
@@ -61,6 +66,8 @@ namespace Albedo {
 		Entity GetPrimaryCameraEntity();
 		SceneSetting& GetSceneSetting() { return m_SceneSetting; }
 		Entity FindEntityByName(std::string_view name);
+
+		Entity DuplicateEntity(Entity entity);
 		
 		bool IsRunning() const { return m_IsRunning; }
 		bool IsPaused() const { return m_IsPaused; }
@@ -70,6 +77,8 @@ namespace Albedo {
 		void SetMainFramebuffer(Ref<Framebuffer> fbo) { m_Framebuffer = fbo; }
 
 		void Step(int frames = 1);
+
+		void EnableGravity(bool gravity);
 
 		entt::registry& Reg() { return m_Registry; }
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
