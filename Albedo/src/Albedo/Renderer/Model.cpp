@@ -1,216 +1,296 @@
 #include "AlbedoPreCompiledHeader.h"
-#if 0
+
 #include "Model.h"
 
+#include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <stb_image.h>
 
 namespace Albedo {
+	Primitive::Primitive(uint32_t _first_index, uint32_t _index_count, uint32_t _vertex_count, uint32_t mat_index)
+		: first_index(_first_index), index_count(_index_count), vertex_count(_vertex_count), material_index(mat_index) {
+	}
 
-    void Model::loadModel(const std::string& path)
-    {   
-        // read file via ASSIMP
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-        // check for errors
-        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-        {
-            Albedo_Core_ERROR("ERROR::ASSIMP:: ", importer.GetErrorString());
-            return;
-        }
-        // retrieve the directory path of the filepath
-        m_Path = path.substr(0, path.find_last_of('/'));
+	GLTF_Mesh::GLTF_Mesh(const glm::mat4& mat) {
+		skin_data.matrix = mat;
+	}
 
-        // process ASSIMP's root node recursively
-        processNode(scene->mRootNode, scene);
-    }
+	void Model::Load(const std::string& path) {
+		//this->_shader = _shader;
+		tinygltf::Model gltf_model;
+		tinygltf::TinyGLTF loader;
 
-    void Model::Draw(Ref<Shader> shader)
-    {
-        for (unsigned int i = 0; i < m_Meshes.size(); i++)
-            m_Meshes[i].Render(shader);
-    }
+		std::string error;
+		std::string warning;
 
-    void Model::processNode(aiNode* node, const aiScene* scene)
-    {
-        // process each mesh located at the current node
-        for (unsigned int i = 0; i < node->mNumMeshes; i++)
-        {
-            // the node object only contains indices to index the actual objects in the scene. 
-            // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-            aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		bool binary = false;
+		size_t extpos = path.rfind('.', path.length());
+		if (extpos != std::string::npos) {
+			binary = (path.substr(extpos + 1, path.length() - extpos) == "glb");
+		}
 
-            m_Meshes.push_back(processMesh(mesh, scene));
-        }
-        // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-        for (unsigned int i = 0; i < node->mNumChildren; i++)
-        {
-            processNode(node->mChildren[i], scene);
-        }
+		bool fileLoaded = binary ? loader.LoadBinaryFromFile(&gltf_model, &error, &warning, path.c_str()) : loader.LoadASCIIFromFile(&gltf_model, &error, &warning, path.c_str());
 
-    }
+		loader_info _loader_info{};
+		size_t _vertex_count = 0;
+		size_t _index_count = 0;
 
-    Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
-    {
-        std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
-        std::vector<MeshTexture> textures;
+		if (fileLoaded) {
+			_model = gltf_model;
+			//load_textures(gltf_model);
+			//load_materials(gltf_model);
 
-        for (uint32_t i = 0; i < mesh->mNumVertices; i++)
-        {
-            Vertex vertex;
-            glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-            // positions
-            vector.x = mesh->mVertices[i].x;
-            vector.y = mesh->mVertices[i].y;
-            vector.z = mesh->mVertices[i].z;
-            vertex.Position = vector;
+			const tinygltf::Scene& scene = gltf_model.scenes[gltf_model.defaultScene > -1 ? gltf_model.defaultScene : 0];
 
-            if (mesh->HasNormals())
-            {
-                vector.x = mesh->mNormals[i].x;
-                vector.y = mesh->mNormals[i].y;
-                vector.z = mesh->mNormals[i].z;
-                vertex.Normal = vector;
-            }
-            // texture coordinates
-            if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-            {
-                glm::vec2 vec;
-                // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-                // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-                vec.x = mesh->mTextureCoords[0][i].x;
-                vec.y = mesh->mTextureCoords[0][i].y;
-                vertex.TexCoords = vec;
-                // tangent
-                vector.x = mesh->mTangents[i].x;
-                vector.y = mesh->mTangents[i].y;
-                vector.z = mesh->mTangents[i].z;
-                vertex.Tangent = vector;
-                // bitangent
-                vector.x = mesh->mBitangents[i].x;
-                vector.y = mesh->mBitangents[i].y;
-                vector.z = mesh->mBitangents[i].z;
-                vertex.Bitangent = vector;
-            }
-            else
-                vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+			// Get vertex and index buffer sizes up-front
+			for (size_t i = 0; i < scene.nodes.size(); i++) {
+				GetNodeProps(gltf_model.nodes[scene.nodes[i]], gltf_model, _vertex_count, _index_count);
+			}
+			_loader_info.vertex_buffer = new vertex[_vertex_count];
+			_loader_info.index_buffer = new uint32_t[_index_count];
 
-            vertices.push_back(vertex);
-        }
-        // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-        for (uint32_t i = 0; i < mesh->mNumFaces; i++)
-        {
-            aiFace face = mesh->mFaces[i];
-            // retrieve all indices of the face and store them in the indices vector
-            for (unsigned int j = 0; j < face.mNumIndices; j++)
-                indices.push_back(face.mIndices[j]);
-        }
-        // process materials
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-        // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-        // Same applies to other texture as the following list summarizes:
-        // diffuse: texture_diffuseN
-        // specular: texture_specularN
-        // normal: texture_normalN
+			// TODO: scene handling with no default scene
+			for (size_t i = 0; i < scene.nodes.size(); i++) {
+				const tinygltf::Node Node = gltf_model.nodes[scene.nodes[i]];
+				LoadNode(nullptr, Node, scene.nodes[i], gltf_model, _loader_info);
+			}
+		}
+		else {
+			// TODO: throw
+			std::cout << "Could not load gltf file: " << error << std::endl;
+			return;
+		}
 
-        std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+		size_t vertex_buffer_size = _vertex_count * sizeof(vertex);
+		size_t index_buffer_size = _index_count * sizeof(uint32_t);
 
-        std::vector<MeshTexture> ambietOcclusion = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
-        textures.insert(textures.end(), ambietOcclusion.begin(), ambietOcclusion.end());
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
 
-        //std::vector<MeshTexture> metallicMaps = loadMaterialTextures(material, aiTextureType_METALNESS, "texture_metallic");
-        //textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
-        // 1. diffuse maps
-        std::vector<MeshTexture> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
-        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-#if 1
-        // 2. specular maps
-        std::vector<MeshTexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-        // 3. normal maps
-        //std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-        //textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-        // 4. height maps
-        std::vector<MeshTexture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-#endif
+		glGenBuffers(1, &vertices_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vertices_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex_buffer_size, _loader_info.vertex_buffer, GL_STATIC_DRAW);
 
-        // return a mesh object created from the extracted mesh data
-        return Mesh(vertices, indices, textures);
-    }
+		auto size = sizeof(_loader_info.index_buffer);
+		glGenBuffers(1, &indices_vbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_size, _loader_info.index_buffer, GL_STATIC_DRAW);
 
-    std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
-    {
-        std::vector<MeshTexture> textures;
-        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-        {
-            aiString str;
-            mat->GetTexture(type, i, &str);
-            // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-            bool skip = false;
-            for (unsigned int j = 0; j < m_Textures_loaded.size(); j++)
-            {
-                if (std::strcmp(m_Textures_loaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    textures.push_back(m_Textures_loaded[j]);
-                    skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-                    break;
-                }
-            }
-            if (!skip)
-            {   // if texture hasn't been loaded already, load it
-                MeshTexture texture;
-                texture.id = TextureFromFile(str.C_Str(), m_Path);
-                texture.type = typeName;
-                texture.path = str.C_Str();
-                textures.push_back(texture);
-                m_Textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-            }
-        }
-        return textures;
-    }
+		glBindBuffer(GL_ARRAY_BUFFER, vertices_vbo);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		//glEnableVertexAttribArray(1);
+		//glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+		//
+		//glEnableVertexAttribArray(2);
+		//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(7 * sizeof(float)));
 
-    uint32_t Model::TextureFromFile(const char* path, const std::string& directory, bool gamma)
-    {
-        std::string filename = std::string(path);
-        filename = directory + '/' + filename;
+		//glVertexAttribPointer(vaa, size, accessor.componentType,
+		//	accessor.normalized ? GL_TRUE : GL_FALSE,
+		//	byteStride, BUFFER_OFFSET(accessor.byteOffset));
 
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
 
-        int width, height, nrComponents;
-        unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-        if (data)
-        {
-            GLenum format;
-            if (nrComponents == 1)
-                format = GL_RED;
-            else if (nrComponents == 3)
-                format = GL_RGB;
-            else if (nrComponents == 4)
-                format = GL_RGBA;
+		assert(vertex_buffer_size > 0);
 
-            glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
+		delete[] _loader_info.vertex_buffer;
+		delete[] _loader_info.index_buffer;
+	}
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	void draw_node(Node* _node)
+	{
+		if (_node->mesh) {
+			for (Primitive* _primitive : _node->mesh->primitives) {
+				//uint32_t end = _primitive->first_index - _primitive->index_count;
+				//glDrawRangeElements(GL_TRIANGLES, _primitive->first_index, _primitive->index_count, _primitive->index_count, GL_UNSIGNED_BYTE, 0);
+				//glDrawElements(GL_TRIANGLES, _primitive->index_count, GL_UNSIGNED_INT, 0);
+				glDrawArrays(GL_TRIANGLES, 0, _primitive->vertex_count);
+			}
+		}
+		for (auto& child : _node->children) {
+			draw_node(child);
+		}
+	}
 
-            stbi_image_free(data);
-        }
-        else
-        {
-            std::cout << "Texture failed to load at path: " << path << std::endl;
-            stbi_image_free(data);
-        }
-        return textureID;
-    }
+	void Model::draw(Ref<Shader> shader) {
+		glBindVertexArray(vao);
+		for (auto& node : nodes) {
+			draw_node(node);
+		}
+	}
 
+	void Model::LoadNode(Node* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& model, loader_info _loader_info) {
+		Node* new_node = new Node{};
+		new_node->index = nodeIndex;
+		new_node->parent = parent;
+		new_node->name = gltf_node.name;
+		new_node->matrix = glm::mat4(1.0f);
+
+		std::cout << gltf_node.name << std::endl;
+
+		// Generate local Node matrix
+		glm::vec3 translation = glm::vec3(0.0f);
+		if (gltf_node.translation.size() == 3) {
+			translation = glm::make_vec3(gltf_node.translation.data());
+			new_node->translation = translation;
+		}
+		glm::mat4 rotation = glm::mat4(1.0f);
+		if (gltf_node.rotation.size() == 4) {
+			glm::quat q = glm::make_quat(gltf_node.rotation.data());
+			new_node->rotation = glm::mat4(q);
+		}
+		glm::vec3 scale = glm::vec3(1.0f);
+		if (gltf_node.scale.size() == 3) {
+			scale = glm::make_vec3(gltf_node.scale.data());
+			new_node->scale = scale;
+		}
+		if (gltf_node.matrix.size() == 16) {
+			new_node->matrix = glm::make_mat4x4(gltf_node.matrix.data());
+		};
+
+		// Node with children
+		if (gltf_node.children.size() > 0) {
+			for (size_t i = 0; i < gltf_node.children.size(); i++) {
+				LoadNode(new_node, model.nodes[gltf_node.children[i]], gltf_node.children[i], model, _loader_info);
+			}
+		}
+
+		// Node contains Mesh data
+		if (gltf_node.mesh > -1) {
+			const tinygltf::Mesh _mesh = model.meshes[gltf_node.mesh];
+			GLTF_Mesh* new_mesh = new GLTF_Mesh(new_node->matrix);
+			for (size_t j = 0; j < _mesh.primitives.size(); j++) {
+				const tinygltf::Primitive& _primitive = _mesh.primitives[j];
+				uint32_t vertexStart = static_cast<uint32_t>(_loader_info.vertex_pos);
+				uint32_t indexStart = static_cast<uint32_t>(_loader_info.index_pos);
+				uint32_t indexCount = 0;
+				uint32_t vertexCount = 0;
+				glm::vec3 posMin{};
+				glm::vec3 posMax{};
+				bool hasSkin = false;
+				bool hasIndices = _primitive.indices > -1;
+				// Vertices
+				{
+					const float* bufferPos = nullptr;
+					const void* bufferJoints = nullptr;
+					const float* bufferWeights = nullptr;
+
+					int posByteStride;
+					int jointByteStride;
+					int weightByteStride;
+
+					int jointComponentType;
+
+					// Position attribute is required
+					assert(_primitive.attributes.find("POSITION") != _primitive.attributes.end());
+
+					const tinygltf::Accessor& posAccessor = model.accessors[_primitive.attributes.find("POSITION")->second];
+					const tinygltf::BufferView& posView = model.bufferViews[posAccessor.bufferView];
+					bufferPos = reinterpret_cast<const float*>(&(model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
+					posMin = glm::vec3(posAccessor.minValues[0], posAccessor.minValues[1], posAccessor.minValues[2]);
+					posMax = glm::vec3(posAccessor.maxValues[0], posAccessor.maxValues[1], posAccessor.maxValues[2]);
+					vertexCount = static_cast<uint32_t>(posAccessor.count);
+					posByteStride = posAccessor.ByteStride(posView) ? (posAccessor.ByteStride(posView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
+
+					for (size_t v = 0; v < posAccessor.count; v++) {
+						vertex& vert = _loader_info.vertex_buffer[_loader_info.vertex_pos];
+						vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * posByteStride]), 1.0f);
+
+						_loader_info.vertex_pos++;
+					}
+				}
+				// Indices
+				if (hasIndices)
+				{
+					const tinygltf::Accessor& accessor = model.accessors[_primitive.indices > -1 ? _primitive.indices : 0];
+					const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+					indexCount = static_cast<uint32_t>(accessor.count);
+					const void* dataPtr = &(buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+
+					switch (accessor.componentType) {
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+						const uint32_t* buf = static_cast<const uint32_t*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++) {
+							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
+							_loader_info.index_pos++;
+						}
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+						const uint16_t* buf = static_cast<const uint16_t*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++) {
+							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
+							_loader_info.index_pos++;
+						}
+						break;
+					}
+					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+						const uint8_t* buf = static_cast<const uint8_t*>(dataPtr);
+						for (size_t index = 0; index < accessor.count; index++) {
+							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
+							_loader_info.index_pos++;
+						}
+						break;
+					}
+					default:
+						std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
+						return;
+					}
+				}
+				Primitive* new_primitive = new Primitive(indexStart, indexCount, vertexCount, _primitive.material > -1 ? _primitive.material : -1);
+				new_mesh->primitives.push_back(new_primitive);
+			}
+			new_node->mesh = new_mesh;
+		}
+		if (parent) {
+			parent->children.push_back(new_node);
+		}
+		else {
+			nodes.push_back(new_node);
+		}
+		linear_nodes.push_back(new_node);
+	}
+
+	void Model::GetNodeProps(const tinygltf::Node& node, const tinygltf::Model& model, size_t& vertexCount, size_t& indexCount) {
+		if (node.children.size() > 0) {
+			for (size_t i = 0; i < node.children.size(); i++) {
+				GetNodeProps(model.nodes[node.children[i]], model, vertexCount, indexCount);
+			}
+		}
+		if (node.mesh > -1) {
+			const tinygltf::Mesh Mesh = model.meshes[node.mesh];
+			for (size_t i = 0; i < Mesh.primitives.size(); i++) {
+				auto Primitive = Mesh.primitives[i];
+				vertexCount += model.accessors[Primitive.attributes.find("POSITION")->second].count;
+				if (Primitive.indices > -1) {
+					indexCount += model.accessors[Primitive.indices].count;
+				}
+			}
+		}
+	}
+
+	Node* Model::FindNode(Node* parent, uint32_t index) {
+		Node* node_found = nullptr;
+		if (parent->index == index) {
+			return parent;
+		}
+		for (auto& child : parent->children) {
+			node_found = FindNode(child, index);
+			if (node_found) {
+				break;
+			}
+		}
+		return node_found;
+	}
+
+	Node* Model::NodeFromIndex(uint32_t index) {
+		Node* node_found = nullptr;
+		for (auto& node : nodes) {
+			node_found = FindNode(node, index);
+			if (node_found) {
+				break;
+			}
+		}
+		return node_found;
+	}
 }
-#endif

@@ -10,9 +10,7 @@
 
 AlbedoApp2D::AlbedoApp2D()
 	:Layer("Sandbox2D"), m_CameraController(1280.0f / 720.0f)
-{
-
-}
+{}
 
 void AlbedoApp2D::OnAttach()
 {

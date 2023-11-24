@@ -93,7 +93,7 @@ namespace Albedo {
         int m_IndicesSize;
 
         Ref<VertexArray> m_VAO;
-        glm::uvec2 m_Size{ 10.0 };
+        glm::uvec2 m_Size = glm::uvec2(10.0f);
         float m_TileScale{ 2.35 }; // Scaling factor of X and Z coord (per tile)
         float m_HeightScale{ 70.0 }; // Scaling factor of Y coord, the height
 

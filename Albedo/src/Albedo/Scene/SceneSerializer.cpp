@@ -170,18 +170,18 @@ namespace Albedo {
 			out << YAML::EndMap; // TagComponent
 		}
 
-		if (entity.HasComponent<MeshComponent>())
+		if (entity.HasComponent<ModelComponent>())
 		{
 			out << YAML::Key << "MeshComponent";
 			out << YAML::BeginMap;
-			auto& mc = entity.GetComponent<MeshComponent>();
+			auto& mc = entity.GetComponent<ModelComponent>();
 			out << YAML::Key << "Color" << YAML::Value << mc.Color;
 
-			auto& mesh = mc.m_Mesh;
+			auto& mesh = mc.m_Model;
 			out << YAML::Key << "Mesh" << YAML::Value;
 			out << YAML::BeginMap;
-			out << YAML::Key << "Name" << YAML::Value << mesh->GetName();
-			out << YAML::Key << "Path" << YAML::Value << mesh->GetPath();
+			//out << YAML::Key << "Name" << YAML::Value << mesh->GetName();
+			//out << YAML::Key << "Path" << YAML::Value << mesh->GetPath();
 			out << YAML::EndMap;
 
 			out << YAML::EndMap;
@@ -506,7 +506,7 @@ namespace Albedo {
 					auto& mesh = meshComponent["Mesh"];
 					std::string& name = mesh["Name"].as<std::string>();
 					std::string& path = mesh["Path"].as<std::string>();
-					deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModelusingAssimp(path), (uint32_t)deserializedEntity);
+					//deserializedEntity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModelusingAssimp(path), (uint32_t)deserializedEntity);
 				}
 
 				auto lightComponent = entity["LightComponent"];

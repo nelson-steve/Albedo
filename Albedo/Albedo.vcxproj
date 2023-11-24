@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\tinygltf\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -100,7 +100,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\tinygltf\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -126,7 +126,7 @@
       <PrecompiledHeaderFile>AlbedoPreCompiledHeader.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PX_PHYSX_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;Albedo_Platform_Windows;Albedo_Build_DLL;GLFW_INCLUDE_NONE;Albedo_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;dependencies\GLFW\include;dependencies\Glad\include;dependencies\imgui;dependencies\glm;dependencies\stb_image;dependencies\tinyobj\include;dependencies\tinygltf\include;dependencies\entt\include;dependencies\FileWatch\include;dependencies\yaml-cpp\include;dependencies\ImGuizmo;dependencies\Physx\include;dependencies\Box2d\include;dependencies\mono\include;dependencies\assimp\include;dependencies\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -565,13 +565,15 @@
     <ClInclude Include="dependencies\glm\glm\vec4.hpp" />
     <ClInclude Include="dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="dependencies\stb_image\stb_image.h" />
+    <ClInclude Include="dependencies\tinygltf\include\json.hpp" />
+    <ClInclude Include="dependencies\tinygltf\include\stb_image_write.h" />
+    <ClInclude Include="dependencies\tinygltf\include\tiny_gltf.h" />
     <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h" />
     <ClInclude Include="src\Albedo.h" />
     <ClInclude Include="src\Albedo\Cameras\Camera.h" />
     <ClInclude Include="src\Albedo\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCamera.h" />
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h" />
-    <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Albedo\Core\Application.h" />
     <ClInclude Include="src\Albedo\Core\Core.h" />
     <ClInclude Include="src\Albedo\Core\EntryPoint.h" />
@@ -651,13 +653,13 @@
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="dependencies\tinygltf\tiny_gltf.cpp" />
     <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCamera.cpp" />
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp" />
-    <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Albedo\Core\Application.cpp" />
     <ClCompile Include="src\Albedo\Core\Log.cpp" />
     <ClCompile Include="src\Albedo\ImGui\ImGuiBuild.cpp" />

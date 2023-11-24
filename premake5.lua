@@ -30,6 +30,7 @@ IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
 IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
 IncludeDir["Box2d"]  	= "%{wks.location}/Albedo/dependencies/Box2d/include"
 IncludeDir["Assimp"]  	= "%{wks.location}/Albedo/dependencies/assimp/include"
+IncludeDir["tinygltf"]  	= "%{wks.location}/Albedo/dependencies/tinygltf/include"
 
 LibraryDir = {}
 LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
@@ -89,7 +90,11 @@ project "Albedo"
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp",
 		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
-		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp"
+		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp",
+		"%{prj.name}/dependencies/tinygltf/include/tiny_gltf.h",
+		"%{prj.name}/dependencies/tinygltf/include/json.hpp",
+		"%{prj.name}/dependencies/tinygltf/include/stb_image_write.h",
+		"%{prj.name}/dependencies/tinygltf/tiny_gltf.cpp"
 	}
 
 	defines
@@ -107,6 +112,7 @@ project "Albedo"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.FileWatch}",
 		"%{IncludeDir.yaml_cpp}",
@@ -213,6 +219,7 @@ project "AlbedoEditor"
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Assimp}"
@@ -269,6 +276,7 @@ project "Sandbox"
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",

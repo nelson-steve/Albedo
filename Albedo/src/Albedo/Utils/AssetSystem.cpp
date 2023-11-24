@@ -2,6 +2,7 @@
 
 #include "AssetSystem.h"
 #include "Albedo/Renderer/Buffer.h"
+#include "Albedo/Renderer/Model.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -24,7 +25,15 @@ namespace Albedo {
 
 	}
 
-	const Ref<Mesh> AssetSystem::LoadModelusingAssimp(const std::string& path)
+	const Ref<Model> AssetSystem::LoadModel(const std::string& path) {
+		Ref<Model> model = std::make_shared<Model>();
+
+		model->Load(path);
+
+		return model;
+	}
+
+	const Ref<Mesh> AssetSystem::_LoadModelusingAssimp(const std::string& path)
 	{
 		//auto& m = LoadModel(path);
 		//return m;
@@ -137,7 +146,7 @@ namespace Albedo {
 		return tempMesh;
 	}
 
-	const Ref<Mesh> AssetSystem::LoadModel(const std::string& path)
+	const Ref<Mesh> AssetSystem::_LoadModel(const std::string& path)
 	{
  		if (path == "")
 		{

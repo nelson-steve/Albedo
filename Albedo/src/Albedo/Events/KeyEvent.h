@@ -1,27 +1,28 @@
 #pragma once
 
 #include "Event.h"
+#include "Albedo/Core/KeyCodes.h"
 
 namespace Albedo {
 
 	class Albedo_API KeyEvent : public Event {
 	public:
 		KeyEvent() {}
-		inline int GetKeyCode() const { return m_KeyCode; }
+		inline KeyCode GetKeyCode() const { return m_KeyCode; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyboard)
 	protected:
-		KeyEvent(int keycode)
+		KeyEvent(KeyCode keycode)
 			:m_KeyCode(keycode) {}
 	protected:
-		int m_KeyCode;
+		KeyCode m_KeyCode;
 	};
 
 	class Albedo_API KeyPressedEvent : public KeyEvent {
 	public:
 		KeyPressedEvent() {}
 		KeyPressedEvent(int keycode, int repeatcount)
-			:KeyEvent(keycode), m_RepeatCount(repeatcount) {}
+			:KeyEvent(static_cast<KeyCode>(keycode)), m_RepeatCount(repeatcount) {}
 
 		inline int GetRepeatCount() const { return m_RepeatCount; }
 
@@ -38,7 +39,7 @@ namespace Albedo {
 	class Albedo_API KeyReleasedEvent : public KeyEvent {
 	public:
 		KeyReleasedEvent(int keycode)
-			:KeyEvent(keycode) {}
+			:KeyEvent(static_cast<KeyCode>(keycode)) {}
 
 		std::string ToString() {
 			std::stringstream ss;

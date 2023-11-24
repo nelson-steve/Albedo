@@ -10,6 +10,7 @@
 #include"Albedo/Cameras/OrthographicCamera.h"
 #include "ScriptableEntity.h"
 #include "Albedo/Renderer/Mesh.h"
+#include "Albedo/Renderer/Model.h"
 
 namespace Albedo {
 
@@ -24,19 +25,34 @@ namespace Albedo {
 			: Tag(tag) {}
 	};
 
-	struct MeshComponent
-	{
-		std::string name = "Mesh Compnent";
+	//struct MeshComponent
+	//{
+	//	std::string name = "Mesh Compnent";
+	//
+	//	void AddMesh(const Ref<Mesh> mesh, int id) { m_Mesh = mesh; mesh->SetInitializationStatus(true); ID = id; }
+	//
+	//	glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+	//	Ref<Mesh> m_Mesh;
+	//	int ID = -1;
+	//	bool initialize = true;
+	//
+	//	MeshComponent() = default;
+	//	MeshComponent(const MeshComponent&) = default;
+	//};
 
-		void AddMesh(const Ref<Mesh> mesh, int id) { m_Mesh = mesh; mesh->SetInitializationStatus(true); ID = id; }
+	struct ModelComponent
+	{
+		std::string name = "Model Compnent";
+
+		void AddMesh(const Ref<Model> model, int id) { m_Model = model; ID = id; }
 
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-		Ref<Mesh> m_Mesh;
+		Ref<Model> m_Model;
 		int ID = -1;
 		bool initialize = true;
 
-		MeshComponent() = default;
-		MeshComponent(const MeshComponent&) = default;
+		ModelComponent() = default;
+		ModelComponent(const ModelComponent&) = default;
 	};
 
 	struct LightComponent
@@ -355,7 +371,7 @@ namespace Albedo {
 	};
 
 	using AllComponents =
-		ComponentGroup<MeshComponent, TransformComponent, LightComponent, SkyboxComponent, Physics2DComponent, BoxCollider2DComponent,
+		ComponentGroup<ModelComponent, TransformComponent, LightComponent, SkyboxComponent, Physics2DComponent, BoxCollider2DComponent,
 		PhysicsComponent, ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
 		ScriptComponent>;
 

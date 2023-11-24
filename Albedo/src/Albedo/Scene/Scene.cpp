@@ -62,15 +62,15 @@ namespace Albedo {
 	void Scene::InitDefaults()
 	{
 		tex = m_AssetManager->LoadTexture("Assets/Textures/Wood.png", true);
-		m_Collider = m_AssetManager->LoadModelusingAssimp("Assets/models/cube/box.obj");
-		m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
-		m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
-		m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
-		m_ColliderShader = m_AssetManager->LoadShader("Assets/Shaders/ColliderShader.glsl");
+		//m_Collider = m_AssetManager->LoadModelusingAssimp("Assets/models/cube/box.obj");
+		//m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
+		//m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
+		//m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
+		//m_ColliderShader = m_AssetManager->LoadShader("Assets/Shaders/ColliderShader.glsl");
 
-		m_Collider->InitMesh(-1);
-		m_Quad->InitMesh(-1);
-		m_Cube->InitMesh(-1);
+		//m_Collider->InitMesh(-1);
+		//m_Quad->InitMesh(-1);
+		//m_Cube->InitMesh(-1);
 
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
 		m_DepthShader = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
@@ -217,13 +217,13 @@ namespace Albedo {
 	Entity Scene::CreateMeshEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		//entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
+		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
 		entity.GetComponent<MaterialComponent>().isPBR = true;
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/substance_sphere/substance_sphere.obj"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/gltf_models/Fox/glTF/Fox.gltf"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
@@ -241,7 +241,7 @@ namespace Albedo {
 	Entity Scene::CreateCubeEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
@@ -261,7 +261,7 @@ namespace Albedo {
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		entity.AddComponent<MeshComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/ao.png"), 1);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
@@ -593,14 +593,14 @@ namespace Albedo {
 
 		if (mainCamera)
 		{
-			auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, TextureComponent>();
+			auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, TextureComponent>();
 
 			for (auto entity : view)
 			{
-				auto& mesh = view.get<MeshComponent>(entity);
+				auto& model = view.get<ModelComponent>(entity);
 				auto& shader = view.get<ShaderComponent>(entity);
-				if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
-					InitScene();
+				//if (model.m_Model->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
+				//	InitScene();
 			}
 			for (auto entity : view)
 			{
@@ -608,14 +608,14 @@ namespace Albedo {
 
 				// TODO: fix
 				//Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-				//Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+				//Renderer::Render(view.get<ModelComponent>(entity), view.get<ModelComponent>(entity).m_Mesh->GetRendererConfig());
 			}
 		}
 	}
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
-		auto view = m_Registry.view<ShaderComponent, TransformComponent, MeshComponent, 
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, 
 			TextureComponent, MaterialComponent, ScriptComponent>();
 
 		Camera* mainCamera = nullptr;
@@ -671,13 +671,13 @@ namespace Albedo {
 		}
 
 		// Checking for re initialization of meshes
-		auto meshView = m_Registry.view<MeshComponent, ShaderComponent>();
+		auto meshView = m_Registry.view<ModelComponent, ShaderComponent>();
 		for (auto& entity : meshView)
 		{
-			auto& mesh = meshView.get<MeshComponent>(entity);
+			auto& mesh = meshView.get<ModelComponent>(entity);
 			auto& shader = meshView.get<ShaderComponent>(entity);
-			if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
-				Renderer::Init(m_Registry);
+			//if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
+			//	Renderer::Init(m_Registry);
 		}
 
 		// Getting light components
@@ -748,7 +748,7 @@ namespace Albedo {
 					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
 
-			Renderer::Render(view.get<MeshComponent>(entity), view.get<MeshComponent>(entity).m_Mesh->GetRendererConfig());
+			Renderer::Render(view.get<ModelComponent>(entity), view.get<ShaderComponent>(entity).m_Shader);
 		}
 
 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
@@ -924,7 +924,7 @@ namespace Albedo {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
+	void Scene::OnComponentAdded<ModelComponent>(Entity entity, ModelComponent& component)
 	{
 	}
 

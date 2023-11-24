@@ -3,7 +3,6 @@
 #include "RenderCommand.h"
 #include "Albedo/Scene/Components.h"
 #include "Shader.h"
-#include "Model.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Platform/OpenGL/ShadowMap.h"
@@ -30,7 +29,7 @@ namespace Albedo {
 			const TextureComponent& texture, const MaterialComponent& material);
 		static void	  Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);
 		static void   RenderOverlay(const Ref<Mesh> mesh);
-		static void   Render(const MeshComponent& mesh, RendererConfig config);
+		static void   Render(const ModelComponent& mesh, const Ref<Shader> shader);
 		static GLenum AlbedoDrawTypeToGLType(DrawType type);
 		static void   Shutdown();
 		static void   OnWindowResize(uint32_t width, uint32_t height);

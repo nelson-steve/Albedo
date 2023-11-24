@@ -34,6 +34,12 @@
     <Filter Include="dependencies\stb_image">
       <UniqueIdentifier>{26BD49FD-12B7-724F-FB23-0960E7BCD8BB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dependencies\tinygltf">
+      <UniqueIdentifier>{4C2B09E2-B897-C4DC-818B-5C3AEDB6E644}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dependencies\tinygltf\include">
+      <UniqueIdentifier>{BFDE8251-2BF7-697B-F4A3-F914607BFE14}</UniqueIdentifier>
+    </Filter>
     <Filter Include="dependencies\tinyobj">
       <UniqueIdentifier>{DA867C92-C615-065C-6F34-1A575BA21602}</UniqueIdentifier>
     </Filter>
@@ -1350,6 +1356,15 @@
     <ClInclude Include="dependencies\stb_image\stb_image.h">
       <Filter>dependencies\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\tinygltf\include\json.hpp">
+      <Filter>dependencies\tinygltf\include</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\tinygltf\include\stb_image_write.h">
+      <Filter>dependencies\tinygltf\include</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\tinygltf\include\tiny_gltf.h">
+      <Filter>dependencies\tinygltf\include</Filter>
+    </ClInclude>
     <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h">
       <Filter>dependencies\tinyobj\include</Filter>
     </ClInclude>
@@ -1366,9 +1381,6 @@
       <Filter>src\Albedo\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h">
-      <Filter>src\Albedo\Cameras</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Cameras\PerspectiveCamera.h">
       <Filter>src\Albedo\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Core\Application.h">
@@ -1592,6 +1604,9 @@
     <ClCompile Include="dependencies\stb_image\stb_image.cpp">
       <Filter>dependencies\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="dependencies\tinygltf\tiny_gltf.cpp">
+      <Filter>dependencies\tinygltf</Filter>
+    </ClCompile>
     <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
       <Filter>dependencies\tinyobj\include</Filter>
     </ClCompile>
@@ -1602,9 +1617,6 @@
       <Filter>src\Albedo\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp">
-      <Filter>src\Albedo\Cameras</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Cameras\PerspectiveCamera.cpp">
       <Filter>src\Albedo\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Core\Application.cpp">

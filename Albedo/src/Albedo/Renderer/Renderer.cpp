@@ -11,15 +11,15 @@ namespace Albedo {
 
 	void Renderer::Init(const entt::registry& reg)
 	{
-		auto group = reg.view<MeshComponent, ShaderComponent, MaterialComponent>();
+		auto group = reg.view<ModelComponent, ShaderComponent, MaterialComponent>();
 
 		for (auto view : group)
 		{
-			if (group.get<MeshComponent>(view).m_Mesh->GetInitializationStatus())
-			{
-				group.get<MeshComponent>(view).m_Mesh->InitMesh(group.get<MeshComponent>(view).ID);
-				group.get<MeshComponent>(view).m_Mesh->SetInitializationStatus(false);
-			}
+			//if (group.get<ModelComponent>(view).m_Mesh->GetInitializationStatus())
+			//{
+			//	group.get<ModelComponent>(view).m_Mesh->InitMesh(group.get<MeshComponent>(view).ID);
+			//	group.get<ModelComponent>(view).m_Mesh->SetInitializationStatus(false);
+			//}
 		}
 
 		for (auto view : group)
@@ -52,7 +52,7 @@ namespace Albedo {
 	void Renderer::PreRenderPass(Ref<Shader> depthShader, Ref<ShadowMap> fbo, 
 		const entt::registry& reg, const glm::vec3& dir, Ref<Texture2D> tex)
 	{
-		auto view = reg.view<TransformComponent, MeshComponent>();
+		auto view = reg.view<TransformComponent, ModelComponent>();
 
 		fbo->Bind();
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -71,15 +71,17 @@ namespace Albedo {
 		{
 			//if (view.<LightComponent>(entity))
 			//	continue;
-			auto& mesh = view.get<MeshComponent>(entity);
+			auto& mesh = view.get<ModelComponent>(entity);
 			auto& transform = view.get<TransformComponent>(entity);
 			depthShader->SetUniformMat4("u_Transform", transform.GetTransform());
 			//tex->Bind();
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
-			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
-			glDrawArrays(AlbedoDrawTypeToGLType(mesh.m_Mesh->GetRendererConfig().Type), 0, mesh.m_Mesh->GetVertices().size());
-			mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
+
+			mesh.m_Model->draw(depthShader);
+			//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
+			//glDrawArrays(AlbedoDrawTypeToGLType(mesh.m_Mesh->GetRendererConfig().Type), 0, mesh.m_Mesh->GetVertices().size());
+			//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
 		}
 
 		//Render(simpleDepthShader);
@@ -400,25 +402,26 @@ namespace Albedo {
 		mesh->GetMeshBufferData().m_VertexArray->UnBind();
 	}
 
-	void Renderer::Render(const MeshComponent& mesh, RendererConfig config)
+	void Renderer::Render(const ModelComponent& mesh, const Ref<Shader> shader)
 	{
-		if(config.PolygonMode)	
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
-		if(mesh.m_Mesh->IsSingularData())
-			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
-		else
-		{
-			//glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
-			//glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
-			//glDrawElementsInstanced(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0, 1);
-			glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
-			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
-			//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
-		}
-		mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
-		if(config.PolygonMode) 
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//if(config.PolygonMode)
+		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
+		//if(mesh.m_Mesh->IsSingularData())
+		//	glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, sizeof(mesh.m_Mesh->GetSingularMeshData()));
+		//else
+		//{
+		//	//glDrawElements(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
+		//	//glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
+		//	//glDrawElementsInstanced(AlbedoDrawTypeToGLType(config.Type), mesh.m_Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0, 1);
+		//	glDrawArrays(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size());
+		//	//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
+		//	//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
+		//}
+		mesh.m_Model->draw(shader);
+		//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
+		//if(config.PolygonMode) 
+		//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	void Renderer::Shutdown()

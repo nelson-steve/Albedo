@@ -56,9 +56,9 @@ namespace Albedo {
 		// Right-click on blank space
 		if (ImGui::BeginPopupContextWindow(0, 1))
 		{
-			if (ImGui::MenuItem("Create Default Mesh"))
+			if (ImGui::MenuItem("Create Default Model"))
 			{
-				Entity e = m_Context->CreateMeshEntity("Default Mesh");
+				Entity e = m_Context->CreateMeshEntity("Default Model");
 
 				m_SelectionContext = e;
 			}
@@ -181,9 +181,9 @@ namespace Albedo {
 				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
 					ImGui::TreePop();
 			}
-			if (entity.HasComponent<MeshComponent>())
+			if (entity.HasComponent<ModelComponent>())
 			{
-				auto e = entity.GetComponent<MeshComponent>();
+				auto e = entity.GetComponent<ModelComponent>();
 				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
 					ImGui::TreePop();
@@ -405,12 +405,12 @@ namespace Albedo {
 					ImGui::CloseCurrentPopup();
 				}
 			}
-			if (!m_SelectionContext.HasComponent<MeshComponent>())
+			if (!m_SelectionContext.HasComponent<ModelComponent>())
 			{
 				if (ImGui::MenuItem("Mesh"))
 				{
-					if (!m_SelectionContext.HasComponent<MeshComponent>())
-						m_SelectionContext.AddComponent<MeshComponent>();
+					if (!m_SelectionContext.HasComponent<ModelComponent>())
+						m_SelectionContext.AddComponent<ModelComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -515,7 +515,7 @@ namespace Albedo {
 				DrawVec3Control("Scale", component.Scale, 1.0f, 70);
 			});
 
-		DrawComponent<MeshComponent>("Mesh", entity, [&](auto& component)
+		DrawComponent<ModelComponent>("Model", entity, [&](auto& component)
 			{
 				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 				//ImGui::SameLine(65.0f, 1.0f);
@@ -526,18 +526,18 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						if (m_AssetManager->ValidateModelPath(meshPath.string()))
-							component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+						//if (m_AssetManager->ValidateModelPath(meshPath.string()))
+						//	component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}
-				if (component.m_Mesh)
-				{
-					const std::string& s = "Vertices " + std::to_string(component.m_Mesh->GetTotalVertices());
-					ImGui::Text(s.c_str());
-				}
-				const std::string& s = "Name " + component.m_Mesh->GetName();
-				ImGui::Button(s.c_str());
+				//if (component.m_Model)
+				//{
+				//	const std::string& s = "Vertices " + std::to_string(component.m_Mesh->GetTotalVertices());
+				//	ImGui::Text(s.c_str());
+				//}
+				//const std::string& s = "Name " + component.m_Mesh->GetName();
+				//ImGui::Button(s.c_str());
 			});
 
 		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
