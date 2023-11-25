@@ -1,21 +1,86 @@
 #include "AlbedoPreCompiledHeader.h"
 
+#include "VertexArray.h"
 #include "Model.h"
+#include "Platform/OpenGL/Utils.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 namespace Albedo {
+
 	Primitive::Primitive(uint32_t _first_index, uint32_t _index_count, uint32_t _vertex_count, uint32_t mat_index)
 		: first_index(_first_index), index_count(_index_count), vertex_count(_vertex_count), material_index(mat_index) {
 	}
 
-	GLTF_Mesh::GLTF_Mesh(const glm::mat4& mat) {
-		skin_data.matrix = mat;
+	void Model::LoadTextureSamplers(const tinygltf::Model& model) {
+		for (tinygltf::Sampler smpl : model.samplers) {
+			TextureSampler sampler{};
+			sampler.minFilter = Utils::GetGLFilterMode(smpl.minFilter);
+			sampler.magFilter = Utils::GetGLFilterMode(smpl.magFilter);
+			sampler.addressModeS = Utils::GetGLWrapMode(smpl.wrapS);
+			sampler.addressModeT = Utils::GetGLWrapMode(smpl.wrapT);
+			sampler.addressModeW = sampler.addressModeT;
+			m_TextureSamplers.push_back(sampler);
+		}
+	}
+	void Model::LoadTextures(const tinygltf::Model& model) {
+		for (const tinygltf::Texture& tex : model.textures) {
+			tinygltf::Image image = model.images[tex.source];
+			TextureSampler sampler;
+			if (tex.sampler == -1) {
+				// No sampler specified, use a default one
+				sampler.magFilter = GL_LINEAR;
+				sampler.minFilter = GL_LINEAR;
+				sampler.addressModeS = GL_REPEAT;
+				sampler.addressModeT = GL_REPEAT;
+				sampler.addressModeW = GL_REPEAT;
+			}
+			else {
+				sampler = m_TextureSamplers[tex.sampler];
+			}
+			Ref<Texture2D> texture;
+			texture = Texture2D::Create(image, sampler);
+			m_Textures.push_back(texture);
+		}
 	}
 
-	void Model::Load(const std::string& path) {
-		//this->_shader = _shader;
+	void Model::LoadMaterials(tinygltf::Model& model) {
+		for (tinygltf::Material mat : model.materials) {
+			GLTF_Material material{};
+			if (mat.values.find("baseColorTexture") != mat.values.end()) {
+				material.albedo = m_Textures[mat.values["baseColorTexture"].TextureIndex()]; 
+			}
+			if (mat.values.find("metallicRoughnessTexture") != mat.values.end()) {
+				material.metallicRoughness = m_Textures[mat.values["metallicRoughnessTexture"].TextureIndex()];
+			}
+			if (mat.values.find("roughnessFactor") != mat.values.end()) {
+				material.roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
+			}
+			if (mat.values.find("metallicFactor") != mat.values.end()) {
+				material.metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
+			}
+			if (mat.values.find("baseColorFactor") != mat.values.end()) {
+				material.baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
+			}
+			if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end()) {
+				material.normal = m_Textures[mat.additionalValues["normalTexture"].TextureIndex()];
+			}
+			if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end()) {
+				material.emissive = m_Textures[mat.additionalValues["emissiveTexture"].TextureIndex()];
+			}
+			if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end()) {
+				material.occlusion = m_Textures[mat.additionalValues["occlusionTexture"].TextureIndex()];
+			}
+
+			material.index = static_cast<uint32_t>(m_Materials.size());
+			m_Materials.push_back(material);
+		}
+		//if(model.materials.size() <= 0)
+			//m_Materials.push_back(Material());
+	}
+
+	bool Model::Load(const std::string& path) {
 		tinygltf::Model gltf_model;
 		tinygltf::TinyGLTF loader;
 
@@ -34,60 +99,44 @@ namespace Albedo {
 		size_t _vertex_count = 0;
 		size_t _index_count = 0;
 
-		if (fileLoaded) {
-			_model = gltf_model;
-			//load_textures(gltf_model);
-			//load_materials(gltf_model);
-
-			const tinygltf::Scene& scene = gltf_model.scenes[gltf_model.defaultScene > -1 ? gltf_model.defaultScene : 0];
-
-			// Get vertex and index buffer sizes up-front
-			for (size_t i = 0; i < scene.nodes.size(); i++) {
-				GetNodeProps(gltf_model.nodes[scene.nodes[i]], gltf_model, _vertex_count, _index_count);
-			}
-			_loader_info.vertex_buffer = new vertex[_vertex_count];
-			_loader_info.index_buffer = new uint32_t[_index_count];
-
-			// TODO: scene handling with no default scene
-			for (size_t i = 0; i < scene.nodes.size(); i++) {
-				const tinygltf::Node Node = gltf_model.nodes[scene.nodes[i]];
-				LoadNode(nullptr, Node, scene.nodes[i], gltf_model, _loader_info);
-			}
-		}
-		else {
-			// TODO: throw
-			std::cout << "Could not load gltf file: " << error << std::endl;
-			return;
+		if (!fileLoaded) {
+			//Albedo_Core_ERROR("Could not load gltf file: ", error);
+			std::cout << "Could not load gltf file: " << path << std::endl;
+			return false;
 		}
 
-		size_t vertex_buffer_size = _vertex_count * sizeof(vertex);
+		LoadTextureSamplers(gltf_model);
+		LoadTextures(gltf_model);
+		LoadMaterials(gltf_model);
+
+		const tinygltf::Scene& scene = gltf_model.scenes[gltf_model.defaultScene > -1 ? gltf_model.defaultScene : 0];
+
+		// Get vertex and index buffer sizes up-front
+		for (size_t i = 0; i < scene.nodes.size(); i++) {
+			GetNodeProps(gltf_model.nodes[scene.nodes[i]], gltf_model, _vertex_count, _index_count);
+		}
+		_loader_info.vertex_buffer = new Vertex[_vertex_count];
+		_loader_info.index_buffer = new uint32_t[_index_count];
+
+		// TODO: scene handling with no default scene
+		for (size_t i = 0; i < scene.nodes.size(); i++) {
+			const tinygltf::Node Node = gltf_model.nodes[scene.nodes[i]];
+			LoadNode(nullptr, Node, scene.nodes[i], gltf_model, _loader_info);
+		}
+
+		size_t vertex_buffer_size = _vertex_count * sizeof(Vertex);
 		size_t index_buffer_size = _index_count * sizeof(uint32_t);
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		m_VAO = VertexArray::Create();
 
-		glGenBuffers(1, &vertices_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vertices_vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertex_buffer_size, _loader_info.vertex_buffer, GL_STATIC_DRAW);
+		m_VBO = VertexBuffer::Create(_loader_info.vertex_buffer, vertex_buffer_size);
 
-		auto size = sizeof(_loader_info.index_buffer);
-		glGenBuffers(1, &indices_vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_size, _loader_info.index_buffer, GL_STATIC_DRAW);
+		BufferLayout layout ({
+			{ShaderDataType::Float3, "a_Position"},
+			});
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertices_vbo);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		//glEnableVertexAttribArray(1);
-		//glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-		//
-		//glEnableVertexAttribArray(2);
-		//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(7 * sizeof(float)));
-
-		//glVertexAttribPointer(vaa, size, accessor.componentType,
-		//	accessor.normalized ? GL_TRUE : GL_FALSE,
-		//	byteStride, BUFFER_OFFSET(accessor.byteOffset));
-
+		m_VBO->SetLayout(layout);
+		m_VAO->AddVertexBuffer(m_VBO);
 
 		assert(vertex_buffer_size > 0);
 
@@ -110,8 +159,8 @@ namespace Albedo {
 		}
 	}
 
-	void Model::draw(Ref<Shader> shader) {
-		glBindVertexArray(vao);
+	void Model::draw() {
+		m_VAO->Bind();
 		for (auto& node : nodes) {
 			draw_node(node);
 		}
@@ -122,29 +171,6 @@ namespace Albedo {
 		new_node->index = nodeIndex;
 		new_node->parent = parent;
 		new_node->name = gltf_node.name;
-		new_node->matrix = glm::mat4(1.0f);
-
-		std::cout << gltf_node.name << std::endl;
-
-		// Generate local Node matrix
-		glm::vec3 translation = glm::vec3(0.0f);
-		if (gltf_node.translation.size() == 3) {
-			translation = glm::make_vec3(gltf_node.translation.data());
-			new_node->translation = translation;
-		}
-		glm::mat4 rotation = glm::mat4(1.0f);
-		if (gltf_node.rotation.size() == 4) {
-			glm::quat q = glm::make_quat(gltf_node.rotation.data());
-			new_node->rotation = glm::mat4(q);
-		}
-		glm::vec3 scale = glm::vec3(1.0f);
-		if (gltf_node.scale.size() == 3) {
-			scale = glm::make_vec3(gltf_node.scale.data());
-			new_node->scale = scale;
-		}
-		if (gltf_node.matrix.size() == 16) {
-			new_node->matrix = glm::make_mat4x4(gltf_node.matrix.data());
-		};
 
 		// Node with children
 		if (gltf_node.children.size() > 0) {
@@ -156,7 +182,7 @@ namespace Albedo {
 		// Node contains Mesh data
 		if (gltf_node.mesh > -1) {
 			const tinygltf::Mesh _mesh = model.meshes[gltf_node.mesh];
-			GLTF_Mesh* new_mesh = new GLTF_Mesh(new_node->matrix);
+			GLTF_Mesh* new_mesh = new GLTF_Mesh();
 			for (size_t j = 0; j < _mesh.primitives.size(); j++) {
 				const tinygltf::Primitive& _primitive = _mesh.primitives[j];
 				uint32_t vertexStart = static_cast<uint32_t>(_loader_info.vertex_pos);
@@ -191,7 +217,7 @@ namespace Albedo {
 					posByteStride = posAccessor.ByteStride(posView) ? (posAccessor.ByteStride(posView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
 
 					for (size_t v = 0; v < posAccessor.count; v++) {
-						vertex& vert = _loader_info.vertex_buffer[_loader_info.vertex_pos];
+						Vertex& vert = _loader_info.vertex_buffer[_loader_info.vertex_pos];
 						vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * posByteStride]), 1.0f);
 
 						_loader_info.vertex_pos++;

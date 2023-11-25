@@ -3,12 +3,14 @@
 #include "Albedo/Renderer/Buffer.h"
 
 namespace Albedo {
+	struct Vertex;
 
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
 		OpenGLVertexBuffer(uint32_t size);
 		OpenGLVertexBuffer(const float* vertices, uint32_t size);
+		OpenGLVertexBuffer(const Vertex* vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<float>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<glm::vec3>& vertices, uint32_t size);
 		OpenGLVertexBuffer(const std::vector<uint32_t>& instances, uint32_t size);

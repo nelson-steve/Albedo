@@ -208,7 +208,7 @@ namespace Albedo {
 		for (auto entity : view)
 		{
 			auto& mat = view.get<MaterialComponent>(entity);
-			mat.m_Material = std::make_shared<Material>();
+			//mat.m_Material = std::make_shared<Material>();
 		}
 
 		Renderer::Init(m_Registry);
@@ -220,10 +220,10 @@ namespace Albedo {
 		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
-		entity.GetComponent<MaterialComponent>().isPBR = true;
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/gltf_models/Fox/glTF/Fox.gltf"), (uint32_t)entity);
+		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
+		//entity.GetComponent<MaterialComponent>().isPBR = true;
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Fox/glTF/Fox.gltf"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
@@ -241,12 +241,12 @@ namespace Albedo {
 	Entity Scene::CreateCubeEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
 		entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
@@ -261,14 +261,14 @@ namespace Albedo {
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadModel("Assets/models/board/board.obj"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/models/board/board.obj"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/ao.png"), 1);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
-		entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		entity.GetComponent<MaterialComponent>().isPBR = false;
-		entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(false);
-		entity.AddComponent<Physics2DComponent>();
+		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+		//entity.GetComponent<MaterialComponent>().isPBR = false;
+		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(false);
+		//entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
 
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -652,7 +652,7 @@ namespace Albedo {
 		for (auto& entity : view)
 		{
 			auto& tex = view.get<TextureComponent>(entity);
-			if (!view.get<MaterialComponent>(entity).isPBR) continue;
+			//if (!view.get<MaterialComponent>(entity).isPBR) continue;
 			auto& textures = view.get<TextureComponent>(entity).m_Textures;
 			if (!textures[TextureComponent::TextureType::Albedo].get())
 				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Albedo);
@@ -731,23 +731,24 @@ namespace Albedo {
 #endif
 		}
 
-		for (auto& entity : view)
+		auto temp_view = m_Registry.view<ShaderComponent, ModelComponent, TransformComponent>();
+		for (auto& entity : temp_view)
 		{
 			//Renderer::Setup();
 
-			if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
+			//if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
 			{
-				Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
+				//Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
 			}
-			else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
+			//else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
 			{
 				//Renderer::Setup(camera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity),
 				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-				Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-					view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
+				//Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
+				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
-
+			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
 			Renderer::Render(view.get<ModelComponent>(entity), view.get<ShaderComponent>(entity).m_Shader);
 		}
 

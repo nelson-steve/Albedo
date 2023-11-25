@@ -1,5 +1,6 @@
 #include "AlbedoPreCompiledHeader.h"
 
+#include "Albedo/Renderer/Model.h"
 #include "OpenGLBuffer.h"
 #include "Platform/OpenGL/Utils.h"
 
@@ -8,7 +9,7 @@
 namespace Albedo {
 
 	//////////////////////////////////////////
-	///////////////VertexBuffer///////////////
+	/////////////// VertexBuffer /////////////
 	//////////////////////////////////////////
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
@@ -22,6 +23,14 @@ namespace Albedo {
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const float* vertices, uint32_t size)
+	{
+		Albedo_PROFILE_FUNCTION();
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const Vertex* vertices, uint32_t size)
 	{
 		Albedo_PROFILE_FUNCTION();
 		glGenBuffers(1, &m_RendererID);

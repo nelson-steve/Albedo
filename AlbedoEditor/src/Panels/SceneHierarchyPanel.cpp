@@ -592,34 +592,34 @@ namespace Albedo {
 					ImGui::EndDragDropTarget();
 				}
 				ImGui::Separator();
-				if (entity.GetComponent<MaterialComponent>().isPBR)
-				{
-					ImGui::Checkbox("Albedo", &m_Albedo);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
-
-					ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::AmbientOcclusion]->GetName().c_str());
-
-					ImGui::Checkbox("Metallic", &m_Metallic);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::Metallic]->GetName().c_str());
-
-					ImGui::Checkbox("Normal", &m_Normal);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::Normal]->GetName().c_str());
-
-					ImGui::Checkbox("Roughness", &m_Roughness);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::Roughness]->GetName().c_str());
-				}
-				else
-				{
-					ImGui::Checkbox("Albedo", &m_Albedo);
-					ImGui::SameLine();
-					ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
-				}
+				//if (entity.GetComponent<MaterialComponent>().isPBR)
+				//{
+				//	ImGui::Checkbox("Albedo", &m_Albedo);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
+				//
+				//	ImGui::Checkbox("Ambient Occlusion", &m_AmbientOcclusion);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::AmbientOcclusion]->GetName().c_str());
+				//
+				//	ImGui::Checkbox("Metallic", &m_Metallic);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::Metallic]->GetName().c_str());
+				//
+				//	ImGui::Checkbox("Normal", &m_Normal);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::Normal]->GetName().c_str());
+				//
+				//	ImGui::Checkbox("Roughness", &m_Roughness);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::Roughness]->GetName().c_str());
+				//}
+				//else
+				//{
+				//	ImGui::Checkbox("Albedo", &m_Albedo);
+				//	ImGui::SameLine();
+				//	ImGui::Button(component.m_Textures[component.TextureType::Albedo]->GetName().c_str());
+				//}
 			});
 
 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
@@ -661,16 +661,16 @@ namespace Albedo {
 
 		DrawComponent<MaterialComponent>("Material", entity, [&](auto& component)
 			{
-				ImGui::Checkbox("PBR", &component.isPBR);
+				//ImGui::Checkbox("PBR", &component.isPBR);
 
-				component.m_Material->SetPBRStatus(component.isPBR);
+				//component.m_Material->SetPBRStatus(component.isPBR);
 
-				ImGui::DragFloat("Shininess", &component.shininess, 0.1f, 0.001f, 40.0f);
-				component.m_Material->SetShininess(component.shininess);
-				ImGui::DragFloat("Exposure", &exposure, 0.1f, 0.0f, 10.0f);
-				component.m_Material->SetExposure(exposure);
-				ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 5.0f);
-				component.m_Material->SetRoughnessScale(roughness);
+				//ImGui::DragFloat("Shininess", &component.shininess, 0.1f, 0.001f, 40.0f);
+				//component.m_Material->SetShininess(component.shininess);
+				//ImGui::DragFloat("Exposure", &exposure, 0.1f, 0.0f, 10.0f);
+				//component.m_Material->SetExposure(exposure);
+				//ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 5.0f);
+				//component.m_Material->SetRoughnessScale(roughness);
 			});
 
 		DrawComponent<Physics2DComponent>("Rigidbody 2D", entity, [](auto& component)

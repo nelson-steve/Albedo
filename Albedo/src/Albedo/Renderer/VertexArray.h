@@ -1,9 +1,8 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include "Buffer.h"
+
+#include <vector>
 
 namespace Albedo {
 	class VertexArray {

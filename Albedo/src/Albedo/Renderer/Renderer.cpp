@@ -30,20 +30,20 @@ namespace Albedo {
 			if (!shader.m_Shader->GetInitializationStatus()) continue;
 
 			shader.m_Shader->Bind();
-			if (mat.m_Material->IsPBR())
-			{
-				shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
-				shader.m_Shader->SetUniformInt1("u_AOMap", 1);
-				shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
-				shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
-				shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
-				shader.m_Shader->SetUniformInt1("u_ShadowMap", 5);
-			}
-			else
-			{
-				shader.m_Shader->SetUniformInt1("u_DiffuseMap", 0);
-				shader.m_Shader->SetUniformInt1("u_ShadowMap", 1);
-			}
+			//if (mat.m_Material->IsPBR())
+			//{
+			//	shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
+			//	shader.m_Shader->SetUniformInt1("u_AOMap", 1);
+			//	shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
+			//	shader.m_Shader->SetUniformInt1("u_NormalMap", 3);
+			//	shader.m_Shader->SetUniformInt1("u_RoughnessMap", 4);
+			//	shader.m_Shader->SetUniformInt1("u_ShadowMap", 5);
+			//}
+			//else
+			//{
+			//	shader.m_Shader->SetUniformInt1("u_DiffuseMap", 0);
+			//	shader.m_Shader->SetUniformInt1("u_ShadowMap", 1);
+			//}
 
 			shader.m_Shader->SetInitializationStatus(false);
 		}
@@ -78,7 +78,7 @@ namespace Albedo {
 			//glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D, woodTexture);
 
-			mesh.m_Model->draw(depthShader);
+			mesh.m_Model->draw();
 			//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->Bind();
 			//glDrawArrays(AlbedoDrawTypeToGLType(mesh.m_Mesh->GetRendererConfig().Type), 0, mesh.m_Mesh->GetVertices().size());
 			//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
@@ -120,7 +120,7 @@ namespace Albedo {
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
 		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		//shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 
 		int i = 0;
 		for (const LightComponent& l : lights)
@@ -132,9 +132,10 @@ namespace Albedo {
 			shader.m_Shader->SetUniformFloat3(s, l.ambient);
 			i++;
 		}
-		shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
+		//shader.m_Shader->SetUniformFloat("u_Exposure", material.m_Material->GetExposure());
+		shader.m_Shader->SetUniformFloat("u_Exposure", 0.4f);
 		shader.m_Shader->SetUniformInt1("u_NoOfLights", lights.size());
-		shader.m_Shader->SetUniformFloat("u_RoughnessScale", material.m_Material->GetRoughnessScale());
+		shader.m_Shader->SetUniformFloat("u_RoughnessScale", 0.3f);
 
 		if (texture.m_Textures.size() <= texture.totalTypes)
 		{
@@ -263,8 +264,8 @@ namespace Albedo {
 
 		}
 		//shader.m_Shader->SetUniformFloat3("u_LightPosition", p);
-		shader.m_Shader->SetUniformFloat("u_Shininess", material.m_Material->GetShininess());
-		shader.m_Shader->SetUniformFloat3("u_Specular", material.specular);
+		//shader.m_Shader->SetUniformFloat("u_Shininess", material.m_Material->GetShininess());
+		//shader.m_Shader->SetUniformFloat3("u_Specular", material.specular);
 
 		shader.m_Shader->SetUniformFloat3("u_MaterialColor", glm::vec3(1.0f));
 		shader.m_Shader->SetUniformMat4("u_LightSpaceMatrix", lightSpaceMatrix);
@@ -349,13 +350,14 @@ namespace Albedo {
 		}
 
 		shader.m_Shader->SetUniformInt1("u_NoOfPointLights", noOfPointLights);
-		shader.m_Shader->SetUniformFloat("u_Shininess", material.shininess);
-		shader.m_Shader->SetUniformFloat3("u_Specular", material.specular);
+		shader.m_Shader->SetUniformFloat("u_Shininess", 0.4f);
+		shader.m_Shader->SetUniformFloat3("u_Specular", glm::vec3(1.0f));
 		shader.m_Shader->SetUniformInt1("u_SpotLightExists", (int)spotLightExits);
 		shader.m_Shader->SetUniformInt1("u_PointLightExists", (int)pointLightExists);
 		shader.m_Shader->SetUniformInt1("u_DirLightExists", (int)dirLightExists);
 		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
-		shader.m_Shader->SetUniformFloat3("u_MaterialColor", material.m_Material->GetAlbedoColor());
+		//shader.m_Shader->SetUniformFloat3("u_MaterialColor", material.m_Material->GetAlbedoColor());
+		shader.m_Shader->SetUniformFloat3("u_MaterialColor", glm::vec3(1.0f));
 		
 		for (const auto& tex : texture.m_Textures)
 		{
@@ -392,7 +394,7 @@ namespace Albedo {
 		shader->Bind();
 		shader->SetUniformMat4("u_Transform", transform);
 		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader->SetUniformInt1("u_Default", 0);
+		//shader->SetUniformInt1("u_Default", 0);
 	}
 
 	void Renderer::RenderOverlay(const Ref<Mesh> mesh)
@@ -418,7 +420,7 @@ namespace Albedo {
 		//	//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 		//	//glDrawArraysInstanced(AlbedoDrawTypeToGLType(config.Type), 0, mesh.m_Mesh->GetVertices().size(), 100);
 		//}
-		mesh.m_Model->draw(shader);
+		mesh.m_Model->draw();
 		//mesh.m_Mesh->GetMeshBufferData().m_VertexArray->UnBind();
 		//if(config.PolygonMode) 
 		//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

@@ -2,12 +2,7 @@
 
 #include "RenderCommand.h"
 #include "Albedo/Scene/Components.h"
-#include "Shader.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Platform/OpenGL/ShadowMap.h"
 #include "Albedo/Cameras/EditorCamera.h"
-#include "RendererConfig.h"
 #include <entt.hpp>
 
 namespace Albedo {

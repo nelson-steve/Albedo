@@ -1,6 +1,7 @@
 #include "AlbedoPreCompiledHeader.h"
 #include "OpenGLTexture.h"
 #include "Utils.h"
+#include "Albedo/Renderer/Model.h"
 
 #include <glad/glad.h>
 #include "stb_image.h"
@@ -150,6 +151,27 @@ namespace Albedo {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const tinygltf::Image& image, const TextureSampler& sampler) {
+		glGenTextures(1, &m_TextureID);
+		this->Bind();
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sampler.minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler.magFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler.addressModeS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler.addressModeT);
+
+		m_Width = image.width;
+		m_Height = image.height;
+		if (image.component == 4)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image.image[0]);
+		else if (image.component == 3)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, &image.image[0]);
+		else
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RED, GL_UNSIGNED_BYTE, &image.image[0]);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool flipped)

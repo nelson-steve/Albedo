@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "Albedo/Core/Core.h"
+#include <tiny_gltf.h>
 
 
 namespace Albedo {
@@ -94,6 +94,8 @@ namespace Albedo {
 		uint32_t m_Height						= 0;
 	};
 
+	struct TextureSampler;
+
 	class Texture
 	{
 	public:
@@ -131,6 +133,7 @@ namespace Albedo {
 	public:
 		static Ref<Texture2D> Create(const TextureConfiguration& config);
 		static Ref<Texture2D> Create(const std::string& path, bool flipped);
+		static Ref<Texture2D> Create(const tinygltf::Image& image, const TextureSampler& sampler);
 		static Ref<Texture2D> Create(const std::vector<std::string> faces);
 		static Ref<Texture2D> Create(unsigned int width, unsigned int height);
 	};

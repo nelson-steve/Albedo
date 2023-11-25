@@ -25,10 +25,13 @@ namespace Albedo {
 
 	}
 
-	const Ref<Model> AssetSystem::LoadModel(const std::string& path) {
+	const Ref<Model> AssetSystem::LoadGLTFModel(const std::string& path) {
+		// load model data
 		Ref<Model> model = std::make_shared<Model>();
-
 		model->Load(path);
+
+
+		// load material (textures)
 
 		return model;
 	}
@@ -146,7 +149,7 @@ namespace Albedo {
 		return tempMesh;
 	}
 
-	const Ref<Mesh> AssetSystem::_LoadModel(const std::string& path)
+	const Ref<Mesh> AssetSystem::LoadModel(const std::string& path)
 	{
  		if (path == "")
 		{

@@ -21,8 +21,7 @@ namespace Albedo
 
 		template<typename T>
 		static GLenum AlbedoToOpenGLENUMType(T type)
-		{
-		}
+		{}
 
 		template<>
 		static GLenum AlbedoToOpenGLENUMType<Config::TextureType>(Config::TextureType type)
@@ -156,6 +155,44 @@ namespace Albedo
 				Albedo_Core_ERROR("unknown type");
 				break;
 			}
+		}
+
+		static GLenum GetGLWrapMode(int32_t wrapMode)
+		{
+			switch (wrapMode) {
+			case -1:
+			case 10497:
+				return GL_REPEAT;
+			case 33071:
+				return GL_CLAMP_TO_EDGE;
+			case 33648:
+				return GL_MIRRORED_REPEAT;
+			}
+
+			std::cerr << "Unknown wrap mode for getVkWrapMode: " << wrapMode << std::endl;
+			return GL_REPEAT;
+		}
+
+		static GLint GetGLFilterMode(int32_t filterMode)
+		{
+			switch (filterMode) {
+			case -1:
+			case 9728:
+				return GL_NEAREST;
+			case 9729:
+				return GL_LINEAR;
+			case 9984:
+				return GL_NEAREST;
+			case 9985:
+				return GL_NEAREST;
+			case 9986:
+				return GL_LINEAR;
+			case 9987:
+				return GL_LINEAR;
+			}
+
+			std::cerr << "Unknown filter mode for getVkFilterMode: " << filterMode << std::endl;
+			return GL_LINEAR;
 		}
 
 	} // Utils namespace

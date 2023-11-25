@@ -1,5 +1,6 @@
 #include "AlbedoPreCompiledHeader.h"
 
+#include "Model.h"
 #include "Buffer.h"
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
@@ -19,6 +20,18 @@ namespace Albedo {
 	}
 
 	Ref<VertexBuffer> VertexBuffer::Create(const float* vertices, uint32_t size)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: //assert
+			//case RendererAPI::API::Direct3d: //assert
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+		}
+		//assert();
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Create(const Vertex* vertices, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{

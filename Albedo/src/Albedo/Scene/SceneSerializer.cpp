@@ -175,7 +175,7 @@ namespace Albedo {
 			out << YAML::Key << "MeshComponent";
 			out << YAML::BeginMap;
 			auto& mc = entity.GetComponent<ModelComponent>();
-			out << YAML::Key << "Color" << YAML::Value << mc.Color;
+			//out << YAML::Key << "Color" << YAML::Value << mc.Color;
 
 			auto& mesh = mc.m_Model;
 			out << YAML::Key << "Mesh" << YAML::Value;
@@ -234,19 +234,19 @@ namespace Albedo {
 			out << YAML::Key << "Type" << YAML::Value << tc.type;
 
 			auto& mc = entity.GetComponent<MaterialComponent>();
-			out << YAML::Key << "isPBR" << YAML::Value << mc.isPBR;
-			if (mc.isPBR)
-			{
-				out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
-				out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
-				out << YAML::Key << "Metallic" << YAML::Value << tc.m_Textures[tc.TextureType::Metallic]->GetPath();
-				out << YAML::Key << "Normal" << YAML::Value << tc.m_Textures[tc.TextureType::Normal]->GetPath();
-				out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
-			}
-			else
-			{
-				out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
-			}
+			//out << YAML::Key << "isPBR" << YAML::Value << mc.isPBR;
+			//if (mc.isPBR)
+			//{
+			//	out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+			//	out << YAML::Key << "Ambient Occlusion" << YAML::Value << tc.m_Textures[tc.TextureType::AmbientOcclusion]->GetPath();
+			//	out << YAML::Key << "Metallic" << YAML::Value << tc.m_Textures[tc.TextureType::Metallic]->GetPath();
+			//	out << YAML::Key << "Normal" << YAML::Value << tc.m_Textures[tc.TextureType::Normal]->GetPath();
+			//	out << YAML::Key << "Roughness" << YAML::Value << tc.m_Textures[tc.TextureType::Roughness]->GetPath();
+			//}
+			//else
+			//{
+			//	out << YAML::Key << "Albedo" << YAML::Value << tc.m_Textures[tc.TextureType::Albedo]->GetPath();
+			//}
 			
 			out << YAML::EndMap;
 
@@ -274,13 +274,13 @@ namespace Albedo {
 			out << YAML::BeginMap; // MaterialComponent
 
 			auto& tc = entity.GetComponent<MaterialComponent>();
-			out << YAML::Key << "Albedo Color" << YAML::Value << tc.m_Material->GetAlbedoColor();
-			out << YAML::Key << "Roughness" << YAML::Value << tc.m_Material->GetRoughnessScale();
-			out << YAML::Key << "Exposure" << YAML::Value << tc.m_Material->GetExposure();
+			//out << YAML::Key << "Albedo Color" << YAML::Value << tc.m_Material->GetAlbedoColor();
+			//out << YAML::Key << "Roughness" << YAML::Value << tc.m_Material->GetRoughnessScale();
+			//out << YAML::Key << "Exposure" << YAML::Value << tc.m_Material->GetExposure();
 
-			out << YAML::Key << "isPBR" << YAML::Value << tc.isPBR;
-			out << YAML::Key << "Shininess" << YAML::Value << tc.shininess;
-			out << YAML::Key << "Specular" << YAML::Value << tc.specular;
+			//out << YAML::Key << "isPBR" << YAML::Value << tc.isPBR;
+			//out << YAML::Key << "Shininess" << YAML::Value << tc.shininess;
+			//out << YAML::Key << "Specular" << YAML::Value << tc.specular;
 
 			out << YAML::EndMap; // MaterialComponent
 		}
@@ -590,15 +590,15 @@ namespace Albedo {
 				{
 					auto& mc = deserializedEntity.AddComponent<MaterialComponent>();
 
-					mc.m_Material = std::make_shared<Material>();
-					mc.m_Material->SetAlbedoColor(materialComponent["Albedo Color"].as<glm::vec3>());
-					mc.m_Material->SetExposure(materialComponent["Exposure"].as<float>());
-					mc.m_Material->SetRoughnessScale(materialComponent["Roughness"].as<float>());
-					mc.m_Material->SetPBRStatus(materialComponent["isPBR"].as<bool>());
+					//mc.m_Material = std::make_shared<Material>();
+					//mc.m_Material->SetAlbedoColor(materialComponent["Albedo Color"].as<glm::vec3>());
+					//mc.m_Material->SetExposure(materialComponent["Exposure"].as<float>());
+					//mc.m_Material->SetRoughnessScale(materialComponent["Roughness"].as<float>());
+					//mc.m_Material->SetPBRStatus(materialComponent["isPBR"].as<bool>());
 
-					mc.isPBR = materialComponent["isPBR"].as<bool>();
-					mc.specular = materialComponent["Specular"].as<glm::vec3>();
-					mc.shininess = materialComponent["Shininess"].as<float>();
+					//mc.isPBR = materialComponent["isPBR"].as<bool>();
+					//mc.specular = materialComponent["Specular"].as<glm::vec3>();
+					//mc.shininess = materialComponent["Shininess"].as<float>();
 				}
 
 				auto transformComponent = entity["TransformComponent"];

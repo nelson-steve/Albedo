@@ -16,9 +16,9 @@ namespace Albedo {
 		bool ValidateTexturePath(const std::string& path);
 		bool ValidateModelPath(const std::string& path);
 
+		const Ref<Model>	 LoadGLTFModel(const std::string& path);
 		const Ref<Mesh>		 _LoadModelusingAssimp(const std::string& path);
-		const Ref<Model>	 LoadModel(const std::string& path);
-		const Ref<Mesh>		 _LoadModel(const std::string& path);
+		const Ref<Mesh>		 LoadModel(const std::string& path);
 		const Ref<Texture2D> LoadTexture(const std::string& path, bool flipped = true);
 		const Ref<Shader>	 LoadShader(const std::string& path);
 		const Ref<Mesh>		 LoadDefaultCube();

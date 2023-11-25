@@ -80,5 +80,4 @@ namespace Albedo {
         bool m_SingularData = true;
         MeshBufferData m_MeshBufferData;
     };
-
 }

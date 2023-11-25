@@ -215,6 +215,8 @@ project "AlbedoEditor"
 		"Albedo/src",
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Physx}",
 		"%{IncludeDir.Box2d}",

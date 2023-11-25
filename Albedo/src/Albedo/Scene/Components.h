@@ -25,20 +25,15 @@ namespace Albedo {
 			: Tag(tag) {}
 	};
 
-	//struct MeshComponent
-	//{
-	//	std::string name = "Mesh Compnent";
-	//
-	//	void AddMesh(const Ref<Mesh> mesh, int id) { m_Mesh = mesh; mesh->SetInitializationStatus(true); ID = id; }
-	//
-	//	glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-	//	Ref<Mesh> m_Mesh;
-	//	int ID = -1;
-	//	bool initialize = true;
-	//
-	//	MeshComponent() = default;
-	//	MeshComponent(const MeshComponent&) = default;
-	//};
+	struct MaterialComponent
+	{
+		std::string name = "Material Component";
+
+		Ref<GLTF_Material> m_Material;
+
+		MaterialComponent() = default;
+		MaterialComponent(const MaterialComponent&) = default;
+	};
 
 	struct ModelComponent
 	{
@@ -46,10 +41,8 @@ namespace Albedo {
 
 		void AddMesh(const Ref<Model> model, int id) { m_Model = model; ID = id; }
 
-		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Model> m_Model;
 		int ID = -1;
-		bool initialize = true;
 
 		ModelComponent() = default;
 		ModelComponent(const ModelComponent&) = default;
@@ -139,20 +132,6 @@ namespace Albedo {
 
 		ShaderComponent() = default;
 		ShaderComponent(const ShaderComponent&) = default;
-	};
-
-	struct MaterialComponent
-	{
-		std::string name = "Material Component";
-
-		Ref<Material> m_Material;
-		bool isPBR = false;
-		float shininess = 0.001;
-		glm::vec3 specular{ 0.1 };
-		bool initialize = true;
-
-		MaterialComponent() = default;
-		MaterialComponent(const MaterialComponent&) = default;
 	};
 
 	struct TransformComponent

@@ -1,7 +1,6 @@
 #include <AlbedoPreCompiledHeader.h>
+
 #include "Application.h"
-#include "Log.h"
-#include "Input.h"
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Utils/AssetSystem.h"
 #include "Albedo/Scripting/ScriptEngine.h"

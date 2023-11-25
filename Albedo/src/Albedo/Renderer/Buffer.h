@@ -1,10 +1,13 @@
 #pragma once
 
 #include "Albedo/Core/Core.h"
+
 #include <vector>
 #include <glm/glm.hpp>
 
 namespace Albedo {
+	struct Vertex;
+
 	enum class ShaderDataType
 	{
 		None = 0,
@@ -117,6 +120,7 @@ namespace Albedo {
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
 		static Ref<VertexBuffer> Create(uint32_t size);
+		static Ref<VertexBuffer> Create(const Vertex* vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<float>& vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const std::vector<glm::vec3>& vertices, uint32_t size);

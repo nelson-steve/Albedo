@@ -2,6 +2,8 @@
 
 #include "Albedo/Renderer/Texture.h"
 
+#include <tiny_gltf.h>
+
 namespace Albedo {
 
 	class OpenGLTexture2D : public Texture2D
@@ -9,6 +11,7 @@ namespace Albedo {
 	public:
 		OpenGLTexture2D(const TextureConfiguration& config);
 		OpenGLTexture2D(unsigned int width, unsigned int height);
+		OpenGLTexture2D(const tinygltf::Image& image, const TextureSampler& sampler);
 		OpenGLTexture2D(const std::string& path, bool flipped);
 		OpenGLTexture2D(const std::vector<std::string> faces);
 		virtual ~OpenGLTexture2D();
