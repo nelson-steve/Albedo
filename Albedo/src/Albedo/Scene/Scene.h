@@ -3,7 +3,6 @@
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
 #include "Albedo/Renderer/Material.h"
-#include "Albedo/Renderer/Mesh.h"
 #include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"

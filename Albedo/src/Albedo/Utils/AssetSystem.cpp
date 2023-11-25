@@ -14,7 +14,7 @@ namespace Albedo {
 
 	AssetSystem::AssetSystem()
 	{
-		LoadDefaultQuad();
+		//LoadDefaultQuad();
 		//LoadDefaultCube();
 		//LoadDefaultCircle();
 		//LoadDefaultSkybox();
@@ -35,8 +35,8 @@ namespace Albedo {
 
 		return model;
 	}
-
-	const Ref<Mesh> AssetSystem::_LoadModelusingAssimp(const std::string& path)
+#if 0
+	const Ref<Mesh> _LoadModelusingAssimp(const std::string& path)
 	{
 		//auto& m = LoadModel(path);
 		//return m;
@@ -253,7 +253,7 @@ namespace Albedo {
 
 		return tempMesh;
 	}
-
+#endif
 	const Ref<Texture2D> AssetSystem::LoadTexture(const std::string& path, bool flipped)
 	{
 		if (path == "")
@@ -328,46 +328,46 @@ namespace Albedo {
 
 		return tempShader;
 	}
-
-	const Ref<Mesh> AssetSystem::LoadDefaultCube()
+#if 0
+	const Ref<Mesh> LoadDefaultCube()
 	{
-		if (m_DefaultCubeLoaded) return m_Meshes[0];
-		else m_DefaultCubeLoaded = true;
-
-		{
-			m_Meshes.resize(1);
-			m_Meshes[0] = std::make_shared<Mesh>();
-			m_Meshes[0]->SetDataSingularityStatus(true);
-			m_Meshes[0]->SetName("Default Cube");
-			m_Meshes[0]->SetSingularMeshData(cubeVertices);
-			m_Meshes[0]->SetVerticesDataLayout
-			({
-				{ShaderDataType::Float3, "a_Position"},
-				{ShaderDataType::Float3, "a_Normal"},
-				{ShaderDataType::Float2, "a_UV"}
-			});
-		}
-			return m_Meshes[0];
+		//if (m_DefaultCubeLoaded) return m_Meshes[0];
+		//else m_DefaultCubeLoaded = true;
+		//
+		//{
+		//	m_Meshes.resize(1);
+		//	m_Meshes[0] = std::make_shared<Mesh>();
+		//	m_Meshes[0]->SetDataSingularityStatus(true);
+		//	m_Meshes[0]->SetName("Default Cube");
+		//	m_Meshes[0]->SetSingularMeshData(cubeVertices);
+		//	m_Meshes[0]->SetVerticesDataLayout
+		//	({
+		//		{ShaderDataType::Float3, "a_Position"},
+		//		{ShaderDataType::Float3, "a_Normal"},
+		//		{ShaderDataType::Float2, "a_UV"}
+		//	});
+		//}
+		//	return m_Meshes[0];
 	}
 
-	const Ref<Mesh> AssetSystem::LoadDefaultQuad()
+	const Ref<Mesh> LoadDefaultQuad()
 	{
-		if (m_DefaultQuadLoaded) return m_Meshes[1];
-		else m_DefaultQuadLoaded = true;
-
-		{
-			m_Meshes.resize(2);
-			m_Meshes[1] = std::make_shared<Mesh>();
-			m_Meshes[1]->SetDataSingularityStatus(true);
-			m_Meshes[1]->SetSingularMeshData(quadVertices);
-			m_Meshes[1]->SetVerticesDataLayout
-			({
-				{ShaderDataType::Float3, "a_Position"},
-				{ShaderDataType::Float3, "a_Normal"},
-				{ShaderDataType::Float2, "a_UV"}
-			});
-		}
-			return m_Meshes[1];
+		//if (m_DefaultQuadLoaded) return m_Meshes[1];
+		//else m_DefaultQuadLoaded = true;
+		//
+		//{
+		//	m_Meshes.resize(2);
+		//	m_Meshes[1] = std::make_shared<Mesh>();
+		//	m_Meshes[1]->SetDataSingularityStatus(true);
+		//	m_Meshes[1]->SetSingularMeshData(quadVertices);
+		//	m_Meshes[1]->SetVerticesDataLayout
+		//	({
+		//		{ShaderDataType::Float3, "a_Position"},
+		//		{ShaderDataType::Float3, "a_Normal"},
+		//		{ShaderDataType::Float2, "a_UV"}
+		//	});
+		//}
+		//	return m_Meshes[1];
 	}
 
 	const Ref<Mesh> AssetSystem::LoadDefaultCircle()
@@ -414,4 +414,5 @@ namespace Albedo {
 		}
 		return m_Meshes[2];
 	}
+#endif
 }

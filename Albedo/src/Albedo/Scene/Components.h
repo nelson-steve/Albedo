@@ -9,7 +9,6 @@
 #include "Albedo/Scene/SceneCamera.h"
 #include"Albedo/Cameras/OrthographicCamera.h"
 #include "ScriptableEntity.h"
-#include "Albedo/Renderer/Mesh.h"
 #include "Albedo/Renderer/Model.h"
 
 namespace Albedo {

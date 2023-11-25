@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Albedo/Renderer/Texture.h"
-#include "Albedo/Renderer/Mesh.h"
 #include "Albedo/Renderer/Model.h"
+#include "Albedo/Renderer/Shader.h"
 
 namespace Albedo {
 
@@ -17,26 +17,26 @@ namespace Albedo {
 		bool ValidateModelPath(const std::string& path);
 
 		const Ref<Model>	 LoadGLTFModel(const std::string& path);
-		const Ref<Mesh>		 _LoadModelusingAssimp(const std::string& path);
-		const Ref<Mesh>		 LoadModel(const std::string& path);
+		//const Ref<Mesh>		 _LoadModelusingAssimp(const std::string& path);
+		//const Ref<Mesh>		 LoadModel(const std::string& path);
 		const Ref<Texture2D> LoadTexture(const std::string& path, bool flipped = true);
 		const Ref<Shader>	 LoadShader(const std::string& path);
-		const Ref<Mesh>		 LoadDefaultCube();
-		const Ref<Mesh>		 LoadDefaultQuad();
-		const Ref<Mesh>		 LoadDefaultSkybox();
-		const Ref<Mesh>		 LoadDefaultCircle();
+		//const Ref<Mesh>		 LoadDefaultCube();
+		//const Ref<Mesh>		 LoadDefaultQuad();
+		//const Ref<Mesh>		 LoadDefaultSkybox();
+		//const Ref<Mesh>		 LoadDefaultCircle();
 
-		const Ref<Mesh> GetMesh(uint32_t index) const 
-		{
-			if (m_Meshes.empty()) return nullptr;
-			return m_Meshes[index];
-		}
+		//const Ref<Mesh> GetMesh(uint32_t index) const 
+		//{
+		//	if (m_Meshes.empty()) return nullptr;
+		//	return m_Meshes[index];
+		//}
 
-		uint32_t AddMesh(Ref<Mesh> mesh) 
-		{
-			if(!MeshExists(mesh))
-				m_Meshes.push_back(mesh);
-		}
+		//uint32_t AddMesh(Ref<Mesh> mesh) 
+		//{
+		//	if(!MeshExists(mesh))
+		//		m_Meshes.push_back(mesh);
+		//}
 
 		void AddTexture(Ref<Texture2D> texture) 
 		{
@@ -44,18 +44,18 @@ namespace Albedo {
 				m_Textures.push_back(texture);
 		}
 
-		bool MeshExists(Ref<Mesh> mesh)
-		{
-			for (auto& mesh_ : m_Meshes)
-			{
-				if (mesh_ == mesh)
-				{
-					Albedo_Core_WARN("The mesh {} exists", mesh->GetName());
-					return true;
-				}
-			}
-			return false;
-		}
+		//bool MeshExists(Ref<Mesh> mesh)
+		//{
+		//	for (auto& mesh_ : m_Meshes)
+		//	{
+		//		if (mesh_ == mesh)
+		//		{
+		//			Albedo_Core_WARN("The mesh {} exists", mesh->GetName());
+		//			return true;
+		//		}
+		//	}
+		//	return false;
+		//}
 
 		bool TextureExists(Ref<Texture2D> texture)
 		{
@@ -189,7 +189,7 @@ namespace Albedo {
 			 1.0f, -1.0f,  1.0f
 		};
 
-	std::vector<Ref<Mesh>>		m_Meshes;
+	//std::vector<Ref<Mesh>>		m_Meshes;
 	std::vector<Ref<Texture2D>> m_Textures;
 	std::vector<Ref<Shader>>    m_Shaders;
 		

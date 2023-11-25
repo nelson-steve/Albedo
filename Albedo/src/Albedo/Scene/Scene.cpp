@@ -74,8 +74,8 @@ namespace Albedo {
 
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
 		m_DepthShader = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
-		m_Skybox = m_AssetManager->LoadDefaultSkybox();
-		m_Skybox->InitMesh(-1);
+		//m_Skybox = m_AssetManager->LoadDefaultSkybox();
+		//m_Skybox->InitMesh(-1);
 
 #if ALBEDO_PHYSX
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
@@ -794,9 +794,9 @@ namespace Albedo {
 		}
 				
 		glDepthMask(GL_FALSE);
-		m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
+		//m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
+		//m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
 		glDepthMask(GL_TRUE);
 		//Renderer::RenderOverlay(m_Skybox);
 	}
