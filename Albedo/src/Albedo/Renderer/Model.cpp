@@ -196,6 +196,7 @@ namespace Albedo {
 					shader->SetUniformInt1("u_EmissiveSet", material.texCoordSets.emissive);
 
 				glDrawArrays(GL_TRIANGLES, 0, primitive->vertex_count);
+				//glDrawRangeElements(GL_EL)
 			}
 		}
 		for (auto& child : _node->children) {

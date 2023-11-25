@@ -356,8 +356,10 @@ namespace Albedo {
 	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetUniformMat4("u_Transform", transform);
 		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader->SetUniformMat4("u_Model", transform);
+		shader->SetUniformMat3("u_NormalMatrix", glm::mat4(transform));
+		shader->SetUniformFloat3("u_CamPos", camera.GetPosition());
 
 		shader->SetUniformInt1("u_Albedo", 0);
 		shader->SetUniformInt1("u_MetallicRoughness", 1);
