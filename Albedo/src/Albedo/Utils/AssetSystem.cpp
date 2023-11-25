@@ -25,13 +25,36 @@ namespace Albedo {
 
 	}
 
+	void AssetSystem::LoadNullTexture() {
+		// load empty texture
+		m_NullTexture = Texture2D::Create(1, 1);
+		unsigned char pixels[] = { 0, 0, 0, 0 };
+		m_NullTexture->SetData(pixels, Texture::DataType::UNSIGNED_BYTE);
+	}
+
 	const Ref<Model> AssetSystem::LoadGLTFModel(const std::string& path) {
 		// load model data
 		Ref<Model> model = std::make_shared<Model>();
 		model->Load(path);
 
-
-		// load material (textures)
+		// Setting null texture for textures that weren't loaded in materials
+		for (auto& mat : model->GetMaterials()) {
+			if (mat.albedoExists == -1) {
+				mat.albedo = m_NullTexture;
+			}
+			if (mat.metallicRoughnessExists == -1) {
+				mat.metallicRoughness = m_NullTexture;
+			}
+			if (mat.normalExists == -1) {
+				mat.normal = m_NullTexture;
+			}
+			if (mat.occlusionExists == -1) {
+				mat.occlusion = m_NullTexture;
+			}
+			if (mat.emissiveExists == -1) {
+				mat.emissive = m_NullTexture;
+			}
+		}
 
 		return model;
 	}

@@ -12,6 +12,7 @@ namespace Albedo {
 		AssetSystem();
 		~AssetSystem();
 
+		void LoadNullTexture();
 		bool ValidateShaderPath(const std::string& path);
 		bool ValidateTexturePath(const std::string& path);
 		bool ValidateModelPath(const std::string& path);
@@ -192,6 +193,7 @@ namespace Albedo {
 	//std::vector<Ref<Mesh>>		m_Meshes;
 	std::vector<Ref<Texture2D>> m_Textures;
 	std::vector<Ref<Shader>>    m_Shaders;
+	Ref<Texture2D> m_NullTexture;
 		
 	inline static bool m_DefaultCubeLoaded   = false;
 	inline static bool m_DefaultQuadLoaded   = false;

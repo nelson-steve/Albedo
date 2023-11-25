@@ -40,6 +40,7 @@ namespace Albedo {
 
 	Scene::Scene()
 	{
+		m_AssetManager->LoadNullTexture();
 		//TODO: Remove this if not needed
 	}
 
@@ -223,13 +224,13 @@ namespace Albedo {
 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
 		//entity.GetComponent<MaterialComponent>().isPBR = true;
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Fox/glTF/Fox.gltf"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Suzanne/glTF/Suzanne.gltf"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/normal.png"), 3);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/roughness.png"), 4);
-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
+		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
 		
