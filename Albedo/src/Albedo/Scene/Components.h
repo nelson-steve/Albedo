@@ -28,7 +28,7 @@ namespace Albedo {
 	{
 		std::string name = "Material Component";
 
-		Ref<GLTF_Material> m_Material;
+		//Ref<GLTF_Material> m_Material;
 
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;

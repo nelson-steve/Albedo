@@ -9,84 +9,30 @@
 
 namespace Albedo {
 
-	Primitive::Primitive(uint32_t _first_index, uint32_t _index_count, uint32_t _vertex_count, uint32_t mat_index)
-		: first_index(_first_index), index_count(_index_count), vertex_count(_vertex_count), material_index(mat_index) {
-	}
-
-	void Model::LoadTextureSamplers(const tinygltf::Model& model) {
-		for (tinygltf::Sampler smpl : model.samplers) {
-			TextureSampler sampler{};
-			sampler.minFilter = Utils::GetGLFilterMode(smpl.minFilter);
-			sampler.magFilter = Utils::GetGLFilterMode(smpl.magFilter);
-			sampler.addressModeS = Utils::GetGLWrapMode(smpl.wrapS);
-			sampler.addressModeT = Utils::GetGLWrapMode(smpl.wrapT);
-			sampler.addressModeW = sampler.addressModeT;
-			m_TextureSamplers.push_back(sampler);
-		}
-	}
 	void Model::LoadTextures(const tinygltf::Model& model) {
-		for (const tinygltf::Texture& tex : model.textures) {
-			tinygltf::Image image = model.images[tex.source];
-			TextureSampler sampler;
-			if (tex.sampler == -1) {
-				// No sampler specified, use a default one
-				sampler.magFilter = GL_LINEAR;
-				sampler.minFilter = GL_LINEAR;
-				sampler.addressModeS = GL_REPEAT;
-				sampler.addressModeT = GL_REPEAT;
-				sampler.addressModeW = GL_REPEAT;
-			}
-			else {
-				sampler = m_TextureSamplers[tex.sampler];
-			}
-			Ref<Texture2D> texture;
-			texture = Texture2D::Create(image, sampler);
-			m_Textures.push_back(texture);
-		}
-	}
+		tinygltf::Sampler defaultSampler;
+		defaultSampler.minFilter = GL_LINEAR;
+		defaultSampler.magFilter = GL_LINEAR;
+		defaultSampler.wrapS = GL_REPEAT;
+		defaultSampler.wrapT = GL_REPEAT;
 
-	void Model::LoadMaterials(tinygltf::Model& model) {
-		for (tinygltf::Material mat : model.materials) {
-			GLTF_Material material{};
-			if (mat.values.find("baseColorTexture") != mat.values.end()) {
-				material.albedo = m_Textures[mat.values["baseColorTexture"].TextureIndex()];
-				material.texCoordSets.albedo = mat.values["baseColorTexture"].TextureTexCoord();
-				material.albedoExists = 1;
-			}
-			if (mat.values.find("metallicRoughnessTexture") != mat.values.end()) {
-				material.metallicRoughness = m_Textures[mat.values["metallicRoughnessTexture"].TextureIndex()];
-				material.texCoordSets.metallicRoughness = mat.values["metallicRoughnessTexture"].TextureTexCoord();
-				material.metallicRoughnessExists = 1;
-			}
-			if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end()) {
-				material.normal = m_Textures[mat.additionalValues["normalTexture"].TextureIndex()];
-				material.texCoordSets.normal = mat.additionalValues["normalTexture"].TextureTexCoord();
-				material.normalExists = 1;
-			}
-			if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end()) {
-				material.emissive = m_Textures[mat.additionalValues["emissiveTexture"].TextureIndex()];
-				material.texCoordSets.emissive = mat.additionalValues["emissiveTexture"].TextureTexCoord();
-				material.emissiveExists = 1;
-			}
-			if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end()) {
-				material.occlusion = m_Textures[mat.additionalValues["occlusionTexture"].TextureIndex()];
-				material.texCoordSets.occlusion = mat.additionalValues["occlusionTexture"].TextureTexCoord();
-				material.albedoExists = 1;
-			}
-			if (mat.values.find("roughnessFactor") != mat.values.end()) {
-				material.roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
-			}
-			if (mat.values.find("metallicFactor") != mat.values.end()) {
-				material.metallicFactor = static_cast<float>(mat.values["metallicFactor"].Factor());
-			}
-			if (mat.values.find("baseColorFactor") != mat.values.end()) {
-				material.baseColorFactor = glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data());
-			}
+		for (size_t i = 0; i < model.textures.size(); ++i) {
+			Ref<Texture2D> temp_texture;
+			const auto& texture = model.textures[i];
+			assert(texture.source >= 0);
+			const auto& image = model.images[texture.source];
 
-			material.index = static_cast<uint32_t>(m_Materials.size());
-			m_Materials.push_back(material);
+			const auto& sampler =
+				texture.sampler >= 0 ? model.samplers[texture.sampler] : defaultSampler;
+			TextureSampler temp_sampler{};
+			temp_sampler.minFilter = sampler.minFilter;
+			temp_sampler.magFilter = sampler.magFilter;
+			temp_sampler.wrapS = sampler.wrapS;
+			temp_sampler.wrapT = sampler.wrapT;
+			temp_texture = Texture2D::Create(image, temp_sampler);
+
+			m_Textures.push_back(temp_texture);
 		}
-		//m_Materials.push_back(GLTF_Material());
 	}
 
 	bool Model::Load(const std::string& path) {
@@ -113,6 +59,11 @@ namespace Albedo {
 			return false;
 		}
 		m_model = gltf_model;
+
+		LoadTextures(gltf_model);
+		m_NullTexture = Texture2D::Create(1, 1);
+		unsigned char pixels[] = { 0, 0, 0, 0 };
+		m_NullTexture->SetData(pixels, Texture::DataType::UNSIGNED_BYTE);
 
 		//std::vector<GLuint> bufferObjects(gltf_model.buffers.size(), 0);
 		std::vector<GLuint> bufferObjects(gltf_model.buffers.size(), 0);
@@ -235,107 +186,142 @@ namespace Albedo {
 		}
 		glBindVertexArray(0);
 
+
+
 		// end
 		return true;
-
-		LoadTextureSamplers(gltf_model);
-		LoadTextures(gltf_model);
-		LoadMaterials(gltf_model);
-
-		const tinygltf::Scene& scene = gltf_model.scenes[gltf_model.defaultScene > -1 ? gltf_model.defaultScene : 0];
-
-		// Get vertex and index buffer sizes up-front
-		for (size_t i = 0; i < scene.nodes.size(); i++) {
-			GetNodeProps(gltf_model.nodes[scene.nodes[i]], gltf_model, _vertex_count, _index_count);
-		}
-		m_LoaderInfo.vertex_buffer = new Vertex[_vertex_count];
-		m_LoaderInfo.index_buffer = new uint32_t[_index_count];
-
-		// TODO: scene handling with no default scene
-		for (size_t i = 0; i < scene.nodes.size(); i++) {
-			const tinygltf::Node Node = gltf_model.nodes[scene.nodes[i]];
-			LoadNode(nullptr, Node, scene.nodes[i], gltf_model, m_LoaderInfo);
-		}
-
-		size_t vertex_buffer_size = _vertex_count * sizeof(Vertex);
-		size_t index_buffer_size = _index_count * sizeof(uint32_t);
-
-		m_VAO = VertexArray::Create();
-
-		m_VBO = VertexBuffer::Create(m_LoaderInfo.vertex_buffer, vertex_buffer_size);
-
-		BufferLayout layout ({
-			{ShaderDataType::Float3, "a_Position"},
-			//{ShaderDataType::Float3, "a_Normal"},
-			//{ShaderDataType::Float2, "a_UV0"},
-			//{ShaderDataType::Float2, "a_UV1"},
-			//{ShaderDataType::Float4, "a_Color"},
-			});
-
-		m_VBO->SetLayout(layout);
-		m_VAO->AddVertexBuffer(m_VBO);
-
-		assert(vertex_buffer_size > 0);
-
-		//delete[] _loader_info.vertex_buffer;
-		//delete[] _loader_info.index_buffer;
 	}
 
-	void Model::DrawNode(Node* _node, Ref<Shader> shader)
-	{
-		shader->Bind();
-		if (_node->mesh) {
-			for (Primitive* primitive : _node->mesh->primitives) {
-				GLTF_Material material;
-				if (primitive->material_index > -1)
-					material = m_Materials[primitive->material_index];
-				else
-					material = m_Materials.back();
-				//if(material.albedoExists > -1) 
-					material.albedo->Bind(0);
-				//if(material.metallicRoughnessExists > -1) 
-					material.metallicRoughness->Bind(1);
-				//if(material.normalExists > -1) 
-					material.normal->Bind(2);
-				//if(material.occlusionExists > -1) 
-					material.occlusion->Bind(3);
-				//if(material.emissiveExists > -1) 
-					material.emissive->Bind(4);
+	void Model::BindMaterial(Ref<Shader> shader, int materialIndex) {
+		if (materialIndex >= 0) {
+			const auto& material = m_model.materials[materialIndex];
+			const auto& pbrMetallicRoughness = material.pbrMetallicRoughness;
+			shader->SetUniformFloat4("u_BaseColorFactor", glm::vec4(
+				(float)pbrMetallicRoughness.baseColorFactor[0],
+				(float)pbrMetallicRoughness.baseColorFactor[1],
+				(float)pbrMetallicRoughness.baseColorFactor[2],
+				(float)pbrMetallicRoughness.baseColorFactor[3]));
+			shader->SetUniformInt1("u_BaseColorTexture", 0);
 
-				shader->SetUniformInt1("u_AlbedoExists", material.albedoExists);
-				shader->SetUniformInt1("u_MetallicRoughnessExists", material.metallicRoughnessExists);
-				shader->SetUniformInt1("u_NormalExists", material.normalExists);
-				shader->SetUniformInt1("u_OcclusionExists", material.occlusionExists);
-				shader->SetUniformInt1("u_EmissiveExists", material.emissiveExists);
-
-				if (material.albedoExists > -1)
-					shader->SetUniformInt1("u_AlbedoSet", material.texCoordSets.albedo);
-				if (material.metallicRoughnessExists > -1)
-					shader->SetUniformInt1("u_MetallicRoughnessSet", material.texCoordSets.metallicRoughness);
-				if (material.normalExists > -1)
-					shader->SetUniformInt1("u_NormalSet", material.texCoordSets.normal);
-				if (material.occlusionExists > -1)
-					shader->SetUniformInt1("u_OcclusionSet", material.texCoordSets.occlusion);
-				if (material.emissiveExists > -1)
-					shader->SetUniformInt1("u_EmissiveSet", material.texCoordSets.emissive);
-
-				//glDrawArrays(GL_TRIANGLES, 0, primitive->vertex_count);
-				//glDrawElementsBaseVertex(GL_TRIANGLES, primitive->index_count, GL_UNSIGNED_INT,
-					//m_LoaderInfo.index_buffer, primitive->index_count);
-				//glDrawRangeElements(GL_TRIANGLES, primitive->first_index, 2, primitive->index_count, GL_UNSIGNED_INT, m_LoaderInfo.index_buffer);
-				glDrawElements(GL_TRIANGLES, primitive->index_count, GL_UNSIGNED_INT, m_LoaderInfo.index_buffer);
-				//glDrawArraysInstanced(GL_TRIANGLES, primitive->first_index, primitive->index_count, 1);
-				//glDrawRangeElements(GL_TRIANGLES, primitive->first_index, primitive->index_count, )
+			if (pbrMetallicRoughness.baseColorTexture.index >= 0) {
+				const auto& texture =
+					m_model.textures[pbrMetallicRoughness.baseColorTexture.index];
+				if (texture.source >= 0) {
+					m_Textures[texture.source]->Bind(0);
+					//textureObject = textureObjects[texture.source];
+				}
+				else {
+					m_NullTexture->Bind(0);
+				}
 			}
+			if (pbrMetallicRoughness.metallicRoughnessTexture.index >= 0) {
+				const auto& texture =
+					m_model.textures[pbrMetallicRoughness.metallicRoughnessTexture
+					.index];
+				if (texture.source >= 0) {
+					m_Textures[texture.source]->Bind(1);
+					//textureObject = textureObjects[texture.source];
+				}
+				else {
+					m_NullTexture->Bind(1);
+				}
+			}
+			if (material.emissiveTexture.index >= 0) {
+				const auto& texture = m_model.textures[material.emissiveTexture.index];
+				if (texture.source >= 0) {
+					m_Textures[texture.source]->Bind(2);
+					//textureObject = textureObjects[texture.source];
+				}
+				else {
+					m_NullTexture->Bind(2);
+				}
+			}
+			if (material.occlusionTexture.index >= 0) {
+				const auto& texture = m_model.textures[material.occlusionTexture.index];
+				if (texture.source >= 0) {
+					m_Textures[texture.source]->Bind(3);
+					//textureObject = textureObjects[texture.source];
+				}
+				else {
+					m_NullTexture->Bind(3);
+				}
+			}
+			shader->SetUniformFloat("", pbrMetallicRoughness.metallicFactor);
+			shader->SetUniformFloat("", pbrMetallicRoughness.roughnessFactor);
+			shader->SetUniformFloat3("", glm::vec3(
+				(float)material.emissiveFactor[0],
+				(float)material.emissiveFactor[1],
+				(float)material.emissiveFactor[2]));
+			shader->SetUniformFloat("", (float)material.occlusionTexture.strength);
+			//if (uMetallicFactor >= 0) {
+			//	glUniform1f(
+			//		uMetallicFactor, (float)pbrMetallicRoughness.metallicFactor);
+			//}
+			//if (uRoughnessFactor >= 0) {
+			//	glUniform1f(
+			//		uRoughnessFactor, (float)pbrMetallicRoughness.roughnessFactor);
+			//}
+			//if (uEmissiveFactor >= 0) {
+			//	glUniform3f(uEmissiveFactor, (float)material.emissiveFactor[0],
+			//		(float)material.emissiveFactor[1],
+			//		(float)material.emissiveFactor[2]);
+			//}
+			//if (uOcclusionStrength >= 0) {
+			//	glUniform1f(
+			//		uOcclusionStrength, (float)material.occlusionTexture.strength);
+			//}
 		}
-		for (auto& child : _node->children) {
-			DrawNode(child, shader);
+		else {
+			// Apply default material
+			// Defined here:
+			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-material
+			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#reference-pbrmetallicroughness3
+			//if (uBaseColorFactor >= 0) {
+			//	glUniform4f(uBaseColorFactor, 1, 1, 1, 1);
+			//}
+			//if (uBaseColorTexture >= 0) {
+			//	glActiveTexture(GL_TEXTURE0);
+			//	glBindTexture(GL_TEXTURE_2D, whiteTexture);
+			//	glUniform1i(uBaseColorTexture, 0);
+			//}
+			//if (uMetallicFactor >= 0) {
+			//	glUniform1f(uMetallicFactor, 1.f);
+			//}
+			//if (uRoughnessFactor >= 0) {
+			//	glUniform1f(uRoughnessFactor, 1.f);
+			//}
+			//if (uMetallicRoughnessTexture >= 0) {
+			//	glActiveTexture(GL_TEXTURE1);
+			//	glBindTexture(GL_TEXTURE_2D, 0);
+			//	glUniform1i(uMetallicRoughnessTexture, 1);
+			//}
+			//if (uEmissiveFactor >= 0) {
+			//	glUniform3f(uEmissiveFactor, 0.f, 0.f, 0.f);
+			//}
+			//if (uEmissiveTexture >= 0) {
+			//	glActiveTexture(GL_TEXTURE2);
+			//	glBindTexture(GL_TEXTURE_2D, 0);
+			//	glUniform1i(uEmissiveTexture, 2);
+			//}
+			//if (uOcclusionStrength >= 0) {
+			//	glUniform1f(uOcclusionStrength, 0.f);
+			//}
+			//if (uOcclusionTexture >= 0) {
+			//	glActiveTexture(GL_TEXTURE3);
+			//	glBindTexture(GL_TEXTURE_2D, 0);
+			//	glUniform1i(uOcclusionTexture, 3);
+			//}
 		}
-	}
+		};
 
 	void Model::Draw(Ref<Shader> shader) {
+		shader->SetUniformInt1("u_BaseColorTexture", 0);
+		shader->SetUniformInt1("u_MetallicRoughnessTexture", 1);
+		shader->SetUniformInt1("u_EmissiveTexture", 2);
+		shader->SetUniformInt1("u_OcclusionTexture", 3);
+
 		// The recursive function that should draw a node
-   // We use a std::function because a simple lambda cannot be recursive
+	    // We use a std::function because a simple lambda cannot be recursive
 		const std::function<void(int, const glm::mat4&)> drawNode =
 			[&](int nodeIdx, const glm::mat4& parentMatrix) {
 			const auto& node = m_model.nodes[nodeIdx];
@@ -345,29 +331,13 @@ namespace Albedo {
 			// If the node references a mesh (a node can also reference a
 			// camera, or a light)
 			if (node.mesh >= 0) {
-				//const auto mvMatrix =
-				//	camera->GetViewMatrix() * modelMatrix; // Also called localToCamera matrix
-				//const auto mvpMatrix =
-				//	camera->GetProjection() * mvMatrix; // Also called localToScreen matrix
-				// Normal matrix is necessary to maintain normal vectors
-				// orthogonal to tangent vectors
-				// https://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/
-				//const auto normalMatrix = glm::transpose(glm::inverse(mvMatrix));
-
-				//glUniformMatrix4fv(modelViewProjMatrixLocation, 1, GL_FALSE,
-				//	glm::value_ptr(mvpMatrix));
-				//glUniformMatrix4fv(
-				//	modelViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
-				//glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE,
-				//	glm::value_ptr(normalMatrix));
-
 				const auto& mesh = m_model.meshes[node.mesh];
 				const auto& vaoRange = meshToVertexArrays[node.mesh];
 				for (size_t pIdx = 0; pIdx < mesh.primitives.size(); ++pIdx) {
 					const auto vao = vertexArrayObjects[vaoRange.begin + pIdx];
 					const auto& primitive = mesh.primitives[pIdx];
 
-					//bindMaterial(primitive.material);
+					BindMaterial(shader, primitive.material);
 
 					glBindVertexArray(vao);
 					if (primitive.indices >= 0) {
@@ -399,191 +369,5 @@ namespace Albedo {
 				drawNode(nodeIdx, glm::mat4(1));
 			}
 		}
-
-		// end
-		return;
-
-		m_VAO->Bind();
-		for (auto& node : nodes) {
-			DrawNode(node, shader);
-		}
-	}
-
-	void Model::LoadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, const tinygltf::Model& model, loader_info _loader_info) {
-		Node* new_node = new Node{};
-		new_node->index = nodeIndex;
-		new_node->parent = parent;
-		new_node->name = node.name;
-
-		// Node with children
-		if (node.children.size() > 0) {
-			for (size_t i = 0; i < node.children.size(); i++) {
-				LoadNode(new_node, model.nodes[node.children[i]], node.children[i], model, _loader_info);
-			}
-		}
-
-		if (node.mesh > -1) {
-			const tinygltf::Mesh mesh = model.meshes[node.mesh];
-			GLTF_Mesh* newMesh = new GLTF_Mesh();
-			for (size_t j = 0; j < mesh.primitives.size(); j++) {
-				const tinygltf::Primitive& primitive = mesh.primitives[j];
-				uint32_t vertexStart = static_cast<uint32_t>(_loader_info.vertex_pos);
-				uint32_t indexStart = static_cast<uint32_t>(_loader_info.index_pos);
-				uint32_t indexCount = 0;
-				uint32_t vertexCount = 0;
-				glm::vec3 posMin{};
-				glm::vec3 posMax{};
-				bool hasSkin = false;
-				bool hasIndices = primitive.indices > -1;
-				// Vertices
-				{
-					const float* bufferPos = nullptr;
-					const float* bufferNormals = nullptr;
-					const float* bufferTexCoordSet0 = nullptr;
-					const float* bufferTexCoordSet1 = nullptr;
-
-					int posByteStride;
-					int normByteStride;
-					int uv0ByteStride;
-					int uv1ByteStride;
-
-					// Position attribute is required
-					assert(primitive.attributes.find("POSITION") != primitive.attributes.end());
-
-					const tinygltf::Accessor& posAccessor = model.accessors[primitive.attributes.find("POSITION")->second];
-					const tinygltf::BufferView& posView = model.bufferViews[posAccessor.bufferView];
-					bufferPos = reinterpret_cast<const float*>(&(model.buffers[posView.buffer].data[posAccessor.byteOffset + posView.byteOffset]));
-					posMin = glm::vec3(posAccessor.minValues[0], posAccessor.minValues[1], posAccessor.minValues[2]);
-					posMax = glm::vec3(posAccessor.maxValues[0], posAccessor.maxValues[1], posAccessor.maxValues[2]);
-					vertexCount = static_cast<uint32_t>(posAccessor.count);
-					posByteStride = posAccessor.ByteStride(posView) ? (posAccessor.ByteStride(posView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
-
-					if (primitive.attributes.find("NORMAL") != primitive.attributes.end()) {
-						const tinygltf::Accessor& normAccessor = model.accessors[primitive.attributes.find("NORMAL")->second];
-						const tinygltf::BufferView& normView = model.bufferViews[normAccessor.bufferView];
-						bufferNormals = reinterpret_cast<const float*>(&(model.buffers[normView.buffer].data[normAccessor.byteOffset + normView.byteOffset]));
-						normByteStride = normAccessor.ByteStride(normView) ? (normAccessor.ByteStride(normView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
-					}
-
-					// UVs
-					if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) {
-						const tinygltf::Accessor& uvAccessor = model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
-						const tinygltf::BufferView& uvView = model.bufferViews[uvAccessor.bufferView];
-						bufferTexCoordSet0 = reinterpret_cast<const float*>(&(model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
-						uv0ByteStride = uvAccessor.ByteStride(uvView) ? (uvAccessor.ByteStride(uvView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC2);
-					}
-					if (primitive.attributes.find("TEXCOORD_1") != primitive.attributes.end()) {
-						const tinygltf::Accessor& uvAccessor = model.accessors[primitive.attributes.find("TEXCOORD_1")->second];
-						const tinygltf::BufferView& uvView = model.bufferViews[uvAccessor.bufferView];
-						bufferTexCoordSet1 = reinterpret_cast<const float*>(&(model.buffers[uvView.buffer].data[uvAccessor.byteOffset + uvView.byteOffset]));
-						uv1ByteStride = uvAccessor.ByteStride(uvView) ? (uvAccessor.ByteStride(uvView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC2);
-					}
-
-					for (size_t v = 0; v < posAccessor.count; v++) {
-						Vertex& vert = _loader_info.vertex_buffer[_loader_info.vertex_pos];
-						vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * posByteStride]), 1.0f);
-						//vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * normByteStride]) : glm::vec3(0.0f)));
-						//vert.uv0 = bufferTexCoordSet0 ? glm::make_vec2(&bufferTexCoordSet0[v * uv0ByteStride]) : glm::vec3(0.0f);
-						//vert.uv1 = bufferTexCoordSet1 ? glm::make_vec2(&bufferTexCoordSet1[v * uv1ByteStride]) : glm::vec3(0.0f);
-						//vert.color = bufferColorSet0 ? glm::make_vec4(&bufferColorSet0[v * color0ByteStride]) : glm::vec4(1.0f);
-
-						_loader_info.vertex_pos++;
-					}
-				}
-				// Indices
-				if (hasIndices)
-				{
-					const tinygltf::Accessor& accessor = model.accessors[primitive.indices > -1 ? primitive.indices : 0];
-					const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
-					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
-					indexCount = static_cast<uint32_t>(accessor.count);
-					const void* dataPtr = &(buffer.data[accessor.byteOffset + bufferView.byteOffset]);
-
-					switch (accessor.componentType) {
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
-						const uint32_t* buf = static_cast<const uint32_t*>(dataPtr);
-						for (size_t index = 0; index < accessor.count; index++) {
-							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
-							_loader_info.index_pos++;
-						}
-						break;
-					}
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
-						const uint16_t* buf = static_cast<const uint16_t*>(dataPtr);
-						for (size_t index = 0; index < accessor.count; index++) {
-							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
-							_loader_info.index_pos++;
-						}
-						break;
-					}
-					case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
-						const uint8_t* buf = static_cast<const uint8_t*>(dataPtr);
-						for (size_t index = 0; index < accessor.count; index++) {
-							_loader_info.index_buffer[_loader_info.index_pos] = buf[index] + vertexStart;
-							_loader_info.index_pos++;
-						}
-						break;
-					}
-					default:
-						std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
-						return;
-					}
-				}
-				Primitive* newPrimitive = new Primitive(indexStart, indexCount, vertexCount, primitive.material > -1 ? primitive.material : -1);
-				newMesh->primitives.push_back(newPrimitive);
-			}
-			new_node->mesh = newMesh;
-		}
-		if (parent) {
-			parent->children.push_back(new_node);
-		}
-		else {
-			nodes.push_back(new_node);
-		}
-		linear_nodes.push_back(new_node);
-	}
-
-	void Model::GetNodeProps(const tinygltf::Node& node, const tinygltf::Model& model, size_t& vertexCount, size_t& indexCount) {
-		if (node.children.size() > 0) {
-			for (size_t i = 0; i < node.children.size(); i++) {
-				GetNodeProps(model.nodes[node.children[i]], model, vertexCount, indexCount);
-			}
-		}
-		if (node.mesh > -1) {
-			const tinygltf::Mesh mesh = model.meshes[node.mesh];
-			for (size_t i = 0; i < mesh.primitives.size(); i++) {
-				auto primitive = mesh.primitives[i];
-				vertexCount += model.accessors[primitive.attributes.find("POSITION")->second].count;
-				if (primitive.indices > -1) {
-					indexCount += model.accessors[primitive.indices].count;
-				}
-			}
-		}
-	}
-
-	Node* Model::FindNode(Node* parent, uint32_t index) {
-		Node* node_found = nullptr;
-		if (parent->index == index) {
-			return parent;
-		}
-		for (auto& child : parent->children) {
-			node_found = FindNode(child, index);
-			if (node_found) {
-				break;
-			}
-		}
-		return node_found;
-	}
-
-	Node* Model::NodeFromIndex(uint32_t index) {
-		Node* node_found = nullptr;
-		for (auto& node : nodes) {
-			node_found = FindNode(node, index);
-			if (node_found) {
-				break;
-			}
-		}
-		return node_found;
-	}
+	};
 }
