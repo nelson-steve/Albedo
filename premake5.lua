@@ -277,6 +277,8 @@ project "Sandbox"
 		"Albedo/src",
 		"Albedo/dependencies",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.Physx}",
@@ -324,7 +326,7 @@ project "AlbedoScripting"
 
 	files 
 	{
-		"Source/Albedo/**.cs"
+		"%{prj.name}/Source/Albedo/**.cs"
 	}
 
 	filter "configurations:Debug"

@@ -224,7 +224,8 @@ namespace Albedo {
 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
 		//entity.GetComponent<MaterialComponent>().isPBR = true;
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Suzanne/glTF/Suzanne.gltf"), (uint32_t)entity);
+		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
@@ -638,14 +639,14 @@ namespace Albedo {
 			//	}
 			//}
 
-			OnUpdateSimulation(ts, camera);
-			OnUpdatePhysics(ts);
+			//OnUpdateSimulation(ts, camera);
+			//OnUpdatePhysics(ts);
 
 			auto view = m_Registry.view<ScriptComponent>();
 			for (auto e : view)
 			{
 				Entity entity = { e, this };
-				ScriptEngine::OnUpdateEntity(entity, ts);
+				//ScriptEngine::OnUpdateEntity(entity, ts);
 				//Ref<ScriptInstance> instance = ScriptEngine::GetEntityScriptInstance(entity);
 			}
 		}
@@ -716,7 +717,7 @@ namespace Albedo {
 		//
 		// Shadow map render pass
 		//
-		Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, lightDirection, tex);
+		//Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, lightDirection, tex);
 
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -752,7 +753,8 @@ namespace Albedo {
 			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
 			Renderer::Render(view.get<ModelComponent>(entity), view.get<ShaderComponent>(entity).m_Shader);
 		}
-
+		// end
+		return;
 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
 
 		m_Transform = glm::mat4(1.0);

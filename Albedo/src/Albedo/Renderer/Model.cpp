@@ -104,7 +104,6 @@ namespace Albedo {
 
 		bool fileLoaded = binary ? loader.LoadBinaryFromFile(&gltf_model, &error, &warning, path.c_str()) : loader.LoadASCIIFromFile(&gltf_model, &error, &warning, path.c_str());
 
-		loader_info _loader_info{};
 		size_t _vertex_count = 0;
 		size_t _index_count = 0;
 
@@ -113,6 +112,131 @@ namespace Albedo {
 			std::cout << "Could not load gltf file: " << path << std::endl;
 			return false;
 		}
+		m_model = gltf_model;
+
+		//std::vector<GLuint> bufferObjects(gltf_model.buffers.size(), 0);
+		std::vector<GLuint> bufferObjects(gltf_model.buffers.size(), 0);
+
+		glGenBuffers(GLsizei(gltf_model.buffers.size()), bufferObjects.data());
+		for (size_t i = 0; i < gltf_model.buffers.size(); ++i) {
+			glBindBuffer(GL_ARRAY_BUFFER, bufferObjects[i]);
+			glBufferData(GL_ARRAY_BUFFER, gltf_model.buffers[i].data.size(),
+				gltf_model.buffers[i].data.data(), GL_STATIC_DRAW);
+			//glBufferStorage(GL_ARRAY_BUFFER, gltf_model.buffers[i].data.size(),
+			//	gltf_model.buffers[i].data.data(), 0);
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		//std::vector<GLuint> vertexArrayObjects; // We don't know the size yet
+		vertexArrayObjects; // We don't know the size yet
+
+		//std::vector<VaoRange> meshToVertexArrays;
+		// For each mesh of model we keep its range of VAOs
+		meshToVertexArrays.resize(gltf_model.meshes.size());
+
+		const GLuint VERTEX_ATTRIB_POSITION_IDX = 0;
+		const GLuint VERTEX_ATTRIB_NORMAL_IDX = 1;
+		const GLuint VERTEX_ATTRIB_TEXCOORD0_IDX = 2;
+
+		for (size_t i = 0; i < gltf_model.meshes.size(); ++i) {
+			const auto& mesh = gltf_model.meshes[i];
+
+			auto& vaoRange = meshToVertexArrays[i];
+			vaoRange.begin =
+				GLsizei(vertexArrayObjects.size()); // Range for this mesh will be at
+			// the end of vertexArrayObjects
+			vaoRange.count =
+				GLsizei(mesh.primitives.size()); // One VAO for each primitive
+
+			// Add enough elements to store our VAOs identifiers
+			vertexArrayObjects.resize(
+				vertexArrayObjects.size() + mesh.primitives.size());
+
+			glGenVertexArrays(vaoRange.count, &vertexArrayObjects[vaoRange.begin]);
+			for (size_t pIdx = 0; pIdx < mesh.primitives.size(); ++pIdx) {
+				const auto vao = vertexArrayObjects[vaoRange.begin + pIdx];
+				const auto& primitive = mesh.primitives[pIdx];
+				glBindVertexArray(vao);
+				{ // POSITION attribute
+				  // scope, so we can declare const variable with the same name on each
+				  // scope
+					const auto iterator = primitive.attributes.find("POSITION");
+					if (iterator != end(primitive.attributes)) {
+						const auto accessorIdx = (*iterator).second;
+						const auto& accessor = gltf_model.accessors[accessorIdx];
+						const auto& bufferView = gltf_model.bufferViews[accessor.bufferView];
+						const auto bufferIdx = bufferView.buffer;
+
+						glEnableVertexAttribArray(VERTEX_ATTRIB_POSITION_IDX);
+						assert(GL_ARRAY_BUFFER == bufferView.target);
+						// Theorically we could also use bufferView.target, but it is safer
+						// Here it is important to know that the next call
+						// (glVertexAttribPointer) use what is currently bound
+						glBindBuffer(GL_ARRAY_BUFFER, bufferObjects[bufferIdx]);
+
+						// tinygltf converts strings type like "VEC3, "VEC2" to the number of
+						// components, stored in accessor.type
+						const auto byteOffset = accessor.byteOffset + bufferView.byteOffset;
+						glVertexAttribPointer(VERTEX_ATTRIB_POSITION_IDX, accessor.type,
+							accessor.componentType, GL_FALSE, GLsizei(bufferView.byteStride),
+							(const GLvoid*)byteOffset);
+					}
+				}
+				// todo Refactor to remove code duplication (loop over "POSITION",
+				// "NORMAL" and their corresponding VERTEX_ATTRIB_*)
+				{ // NORMAL attribute
+					const auto iterator = primitive.attributes.find("NORMAL");
+					if (iterator != end(primitive.attributes)) {
+						const auto accessorIdx = (*iterator).second;
+						const auto& accessor = gltf_model.accessors[accessorIdx];
+						const auto& bufferView = gltf_model.bufferViews[accessor.bufferView];
+						const auto bufferIdx = bufferView.buffer;
+
+						glEnableVertexAttribArray(VERTEX_ATTRIB_NORMAL_IDX);
+						assert(GL_ARRAY_BUFFER == bufferView.target);
+						glBindBuffer(GL_ARRAY_BUFFER, bufferObjects[bufferIdx]);
+						glVertexAttribPointer(VERTEX_ATTRIB_NORMAL_IDX, accessor.type,
+							accessor.componentType, GL_FALSE, GLsizei(bufferView.byteStride),
+							(const GLvoid*)(accessor.byteOffset + bufferView.byteOffset));
+					}
+				}
+				{ // TEXCOORD_0 attribute
+					const auto iterator = primitive.attributes.find("TEXCOORD_0");
+					if (iterator != end(primitive.attributes)) {
+						const auto accessorIdx = (*iterator).second;
+						const auto& accessor = gltf_model.accessors[accessorIdx];
+						const auto& bufferView = gltf_model.bufferViews[accessor.bufferView];
+						const auto bufferIdx = bufferView.buffer;
+
+						glEnableVertexAttribArray(VERTEX_ATTRIB_TEXCOORD0_IDX);
+						assert(GL_ARRAY_BUFFER == bufferView.target);
+						glBindBuffer(GL_ARRAY_BUFFER, bufferObjects[bufferIdx]);
+						glVertexAttribPointer(VERTEX_ATTRIB_TEXCOORD0_IDX, accessor.type,
+							accessor.componentType, GL_FALSE, GLsizei(bufferView.byteStride),
+							(const GLvoid*)(accessor.byteOffset + bufferView.byteOffset));
+					}
+				}
+				// Index array if defined
+				if (primitive.indices >= 0) {
+					const auto accessorIdx = primitive.indices;
+					const auto& accessor = gltf_model.accessors[accessorIdx];
+					const auto& bufferView = gltf_model.bufferViews[accessor.bufferView];
+					const auto bufferIdx = bufferView.buffer;
+
+					assert(GL_ELEMENT_ARRAY_BUFFER == bufferView.target);
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+						bufferObjects[bufferIdx]); // Binding the index buffer to
+					// GL_ELEMENT_ARRAY_BUFFER while the VAO
+					// is bound is enough to tell OpenGL we
+					// want to use that index buffer for that
+					// VAO
+				}
+			}
+		}
+		glBindVertexArray(0);
+
+		// end
+		return true;
 
 		LoadTextureSamplers(gltf_model);
 		LoadTextures(gltf_model);
@@ -124,13 +248,13 @@ namespace Albedo {
 		for (size_t i = 0; i < scene.nodes.size(); i++) {
 			GetNodeProps(gltf_model.nodes[scene.nodes[i]], gltf_model, _vertex_count, _index_count);
 		}
-		_loader_info.vertex_buffer = new Vertex[_vertex_count];
-		_loader_info.index_buffer = new uint32_t[_index_count];
+		m_LoaderInfo.vertex_buffer = new Vertex[_vertex_count];
+		m_LoaderInfo.index_buffer = new uint32_t[_index_count];
 
 		// TODO: scene handling with no default scene
 		for (size_t i = 0; i < scene.nodes.size(); i++) {
 			const tinygltf::Node Node = gltf_model.nodes[scene.nodes[i]];
-			LoadNode(nullptr, Node, scene.nodes[i], gltf_model, _loader_info);
+			LoadNode(nullptr, Node, scene.nodes[i], gltf_model, m_LoaderInfo);
 		}
 
 		size_t vertex_buffer_size = _vertex_count * sizeof(Vertex);
@@ -138,14 +262,14 @@ namespace Albedo {
 
 		m_VAO = VertexArray::Create();
 
-		m_VBO = VertexBuffer::Create(_loader_info.vertex_buffer, vertex_buffer_size);
+		m_VBO = VertexBuffer::Create(m_LoaderInfo.vertex_buffer, vertex_buffer_size);
 
 		BufferLayout layout ({
 			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float3, "a_Normal"},
-			{ShaderDataType::Float2, "a_UV0"},
-			{ShaderDataType::Float2, "a_UV1"},
-			{ShaderDataType::Float3, "a_Color"},
+			//{ShaderDataType::Float3, "a_Normal"},
+			//{ShaderDataType::Float2, "a_UV0"},
+			//{ShaderDataType::Float2, "a_UV1"},
+			//{ShaderDataType::Float4, "a_Color"},
 			});
 
 		m_VBO->SetLayout(layout);
@@ -153,8 +277,8 @@ namespace Albedo {
 
 		assert(vertex_buffer_size > 0);
 
-		delete[] _loader_info.vertex_buffer;
-		delete[] _loader_info.index_buffer;
+		//delete[] _loader_info.vertex_buffer;
+		//delete[] _loader_info.index_buffer;
 	}
 
 	void Model::DrawNode(Node* _node, Ref<Shader> shader)
@@ -195,8 +319,13 @@ namespace Albedo {
 				if (material.emissiveExists > -1)
 					shader->SetUniformInt1("u_EmissiveSet", material.texCoordSets.emissive);
 
-				glDrawArrays(GL_TRIANGLES, 0, primitive->vertex_count);
-				//glDrawRangeElements(GL_EL)
+				//glDrawArrays(GL_TRIANGLES, 0, primitive->vertex_count);
+				//glDrawElementsBaseVertex(GL_TRIANGLES, primitive->index_count, GL_UNSIGNED_INT,
+					//m_LoaderInfo.index_buffer, primitive->index_count);
+				//glDrawRangeElements(GL_TRIANGLES, primitive->first_index, 2, primitive->index_count, GL_UNSIGNED_INT, m_LoaderInfo.index_buffer);
+				glDrawElements(GL_TRIANGLES, primitive->index_count, GL_UNSIGNED_INT, m_LoaderInfo.index_buffer);
+				//glDrawArraysInstanced(GL_TRIANGLES, primitive->first_index, primitive->index_count, 1);
+				//glDrawRangeElements(GL_TRIANGLES, primitive->first_index, primitive->index_count, )
 			}
 		}
 		for (auto& child : _node->children) {
@@ -205,29 +334,97 @@ namespace Albedo {
 	}
 
 	void Model::Draw(Ref<Shader> shader) {
+		// The recursive function that should draw a node
+   // We use a std::function because a simple lambda cannot be recursive
+		const std::function<void(int, const glm::mat4&)> drawNode =
+			[&](int nodeIdx, const glm::mat4& parentMatrix) {
+			const auto& node = m_model.nodes[nodeIdx];
+			const glm::mat4 modelMatrix = glm::mat4(1.0f);
+				//getLocalToWorldMatrix(node, parentMatrix);
+
+			// If the node references a mesh (a node can also reference a
+			// camera, or a light)
+			if (node.mesh >= 0) {
+				//const auto mvMatrix =
+				//	camera->GetViewMatrix() * modelMatrix; // Also called localToCamera matrix
+				//const auto mvpMatrix =
+				//	camera->GetProjection() * mvMatrix; // Also called localToScreen matrix
+				// Normal matrix is necessary to maintain normal vectors
+				// orthogonal to tangent vectors
+				// https://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/
+				//const auto normalMatrix = glm::transpose(glm::inverse(mvMatrix));
+
+				//glUniformMatrix4fv(modelViewProjMatrixLocation, 1, GL_FALSE,
+				//	glm::value_ptr(mvpMatrix));
+				//glUniformMatrix4fv(
+				//	modelViewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
+				//glUniformMatrix4fv(normalMatrixLocation, 1, GL_FALSE,
+				//	glm::value_ptr(normalMatrix));
+
+				const auto& mesh = m_model.meshes[node.mesh];
+				const auto& vaoRange = meshToVertexArrays[node.mesh];
+				for (size_t pIdx = 0; pIdx < mesh.primitives.size(); ++pIdx) {
+					const auto vao = vertexArrayObjects[vaoRange.begin + pIdx];
+					const auto& primitive = mesh.primitives[pIdx];
+
+					//bindMaterial(primitive.material);
+
+					glBindVertexArray(vao);
+					if (primitive.indices >= 0) {
+						const auto& accessor = m_model.accessors[primitive.indices];
+						const auto& bufferView = m_model.bufferViews[accessor.bufferView];
+						const auto byteOffset =
+							accessor.byteOffset + bufferView.byteOffset;
+						glDrawElements(primitive.mode, GLsizei(accessor.count),
+							accessor.componentType, (const GLvoid*)byteOffset);
+					}
+					else {
+						// Take first accessor to get the count
+						const auto accessorIdx = (*begin(primitive.attributes)).second;
+						const auto& accessor = m_model.accessors[accessorIdx];
+						glDrawArrays(primitive.mode, 0, GLsizei(accessor.count));
+					}
+				}
+			}
+
+			// Draw children
+			for (const auto childNodeIdx : node.children) {
+				drawNode(childNodeIdx, modelMatrix);
+			}
+			};
+
+		// Draw the scene referenced by gltf file
+		if (m_model.defaultScene >= 0) {
+			for (const auto nodeIdx : m_model.scenes[m_model.defaultScene].nodes) {
+				drawNode(nodeIdx, glm::mat4(1));
+			}
+		}
+
+		// end
+		return;
+
 		m_VAO->Bind();
 		for (auto& node : nodes) {
 			DrawNode(node, shader);
 		}
 	}
 
-	void Model::LoadNode(Node* parent, const tinygltf::Node& gltf_node, uint32_t nodeIndex, const tinygltf::Model& model, loader_info _loader_info) {
+	void Model::LoadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, const tinygltf::Model& model, loader_info _loader_info) {
 		Node* new_node = new Node{};
 		new_node->index = nodeIndex;
 		new_node->parent = parent;
-		new_node->name = gltf_node.name;
+		new_node->name = node.name;
 
 		// Node with children
-		if (gltf_node.children.size() > 0) {
-			for (size_t i = 0; i < gltf_node.children.size(); i++) {
-				LoadNode(new_node, model.nodes[gltf_node.children[i]], gltf_node.children[i], model, _loader_info);
+		if (node.children.size() > 0) {
+			for (size_t i = 0; i < node.children.size(); i++) {
+				LoadNode(new_node, model.nodes[node.children[i]], node.children[i], model, _loader_info);
 			}
 		}
 
-		// Node contains Mesh data
-		if (gltf_node.mesh > -1) {
-			const tinygltf::Mesh mesh = model.meshes[gltf_node.mesh];
-			GLTF_Mesh* new_mesh = new GLTF_Mesh();
+		if (node.mesh > -1) {
+			const tinygltf::Mesh mesh = model.meshes[node.mesh];
+			GLTF_Mesh* newMesh = new GLTF_Mesh();
 			for (size_t j = 0; j < mesh.primitives.size(); j++) {
 				const tinygltf::Primitive& primitive = mesh.primitives[j];
 				uint32_t vertexStart = static_cast<uint32_t>(_loader_info.vertex_pos);
@@ -244,13 +441,11 @@ namespace Albedo {
 					const float* bufferNormals = nullptr;
 					const float* bufferTexCoordSet0 = nullptr;
 					const float* bufferTexCoordSet1 = nullptr;
-					const float* bufferColorSet0 = nullptr;
 
 					int posByteStride;
 					int normByteStride;
 					int uv0ByteStride;
 					int uv1ByteStride;
-					int color0ByteStride;
 
 					// Position attribute is required
 					assert(primitive.attributes.find("POSITION") != primitive.attributes.end());
@@ -270,6 +465,7 @@ namespace Albedo {
 						normByteStride = normAccessor.ByteStride(normView) ? (normAccessor.ByteStride(normView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
 					}
 
+					// UVs
 					if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end()) {
 						const tinygltf::Accessor& uvAccessor = model.accessors[primitive.attributes.find("TEXCOORD_0")->second];
 						const tinygltf::BufferView& uvView = model.bufferViews[uvAccessor.bufferView];
@@ -283,20 +479,13 @@ namespace Albedo {
 						uv1ByteStride = uvAccessor.ByteStride(uvView) ? (uvAccessor.ByteStride(uvView) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC2);
 					}
 
-					if (primitive.attributes.find("COLOR_0") != primitive.attributes.end()) {
-						const tinygltf::Accessor& accessor = model.accessors[primitive.attributes.find("COLOR_0")->second];
-						const tinygltf::BufferView& view = model.bufferViews[accessor.bufferView];
-						bufferColorSet0 = reinterpret_cast<const float*>(&(model.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
-						color0ByteStride = accessor.ByteStride(view) ? (accessor.ByteStride(view) / sizeof(float)) : tinygltf::GetNumComponentsInType(TINYGLTF_TYPE_VEC3);
-					}
-
 					for (size_t v = 0; v < posAccessor.count; v++) {
 						Vertex& vert = _loader_info.vertex_buffer[_loader_info.vertex_pos];
 						vert.pos = glm::vec4(glm::make_vec3(&bufferPos[v * posByteStride]), 1.0f);
-						vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * normByteStride]) : glm::vec3(0.0f)));
-						vert.uv0 = bufferTexCoordSet0 ? glm::make_vec2(&bufferTexCoordSet0[v * uv0ByteStride]) : glm::vec3(0.0f);
-						vert.uv1 = bufferTexCoordSet1 ? glm::make_vec2(&bufferTexCoordSet1[v * uv1ByteStride]) : glm::vec3(0.0f);
-						vert.color = bufferColorSet0 ? glm::make_vec4(&bufferColorSet0[v * color0ByteStride]) : glm::vec4(1.0f);
+						//vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * normByteStride]) : glm::vec3(0.0f)));
+						//vert.uv0 = bufferTexCoordSet0 ? glm::make_vec2(&bufferTexCoordSet0[v * uv0ByteStride]) : glm::vec3(0.0f);
+						//vert.uv1 = bufferTexCoordSet1 ? glm::make_vec2(&bufferTexCoordSet1[v * uv1ByteStride]) : glm::vec3(0.0f);
+						//vert.color = bufferColorSet0 ? glm::make_vec4(&bufferColorSet0[v * color0ByteStride]) : glm::vec4(1.0f);
 
 						_loader_info.vertex_pos++;
 					}
@@ -341,10 +530,10 @@ namespace Albedo {
 						return;
 					}
 				}
-				Primitive* new_primitive = new Primitive(indexStart, indexCount, vertexCount, primitive.material > -1 ? primitive.material : -1);
-				new_mesh->primitives.push_back(new_primitive);
+				Primitive* newPrimitive = new Primitive(indexStart, indexCount, vertexCount, primitive.material > -1 ? primitive.material : -1);
+				newMesh->primitives.push_back(newPrimitive);
 			}
-			new_node->mesh = new_mesh;
+			new_node->mesh = newMesh;
 		}
 		if (parent) {
 			parent->children.push_back(new_node);
@@ -362,12 +551,12 @@ namespace Albedo {
 			}
 		}
 		if (node.mesh > -1) {
-			const tinygltf::Mesh Mesh = model.meshes[node.mesh];
-			for (size_t i = 0; i < Mesh.primitives.size(); i++) {
-				auto Primitive = Mesh.primitives[i];
-				vertexCount += model.accessors[Primitive.attributes.find("POSITION")->second].count;
-				if (Primitive.indices > -1) {
-					indexCount += model.accessors[Primitive.indices].count;
+			const tinygltf::Mesh mesh = model.meshes[node.mesh];
+			for (size_t i = 0; i < mesh.primitives.size(); i++) {
+				auto primitive = mesh.primitives[i];
+				vertexCount += model.accessors[primitive.attributes.find("POSITION")->second].count;
+				if (primitive.indices > -1) {
+					indexCount += model.accessors[primitive.indices].count;
 				}
 			}
 		}

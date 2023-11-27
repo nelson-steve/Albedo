@@ -55,6 +55,7 @@ namespace Albedo {
         uint32_t first_index;
         uint32_t index_count;
         uint32_t vertex_count;
+        uint32_t vertex_offset;
         int32_t material_index;
         Primitive(uint32_t first_index, uint32_t index_count, uint32_t vertex_count, uint32_t mat_index);
     };
@@ -75,10 +76,10 @@ namespace Albedo {
 
     struct Vertex {
         glm::vec3 pos;
-        glm::vec3 normal;
-        glm::vec2 uv0;
-        glm::vec2 uv1;
-        glm::vec3 color;
+        //glm::vec3 normal;
+        //glm::vec2 uv0;
+        //glm::vec2 uv1;
+        //glm::vec4 color;
     };
 
     class Model {
@@ -120,11 +121,22 @@ namespace Albedo {
             Vertex* vertex_buffer;
             size_t vertex_pos = 0;
             size_t index_pos = 0;
-        };
+        } m_LoaderInfo;
 
         Ref<VertexArray> m_VAO;
         Ref<VertexBuffer> m_VBO;
         Ref<IndexBuffer> m_IBO;
+
+        struct VaoRange
+        {
+            GLsizei begin; // Index of first element in vertexArrayObjects
+            GLsizei count; // Number of elements in range
+        };
+
+        tinygltf::Model m_model;
+        //std::vector<GLuint> bufferObjects;
+        std::vector<GLuint> vertexArrayObjects;
+        std::vector<VaoRange> meshToVertexArrays;
     };
 
 }
