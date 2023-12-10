@@ -34,108 +34,70 @@ namespace Albedo {
 		m_Height = config.m_Height;
 
 		GLenum dataFormat = Utils::AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
-		GLenum texLayout  = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
-		GLenum dataType   = Utils::AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
-		GLenum texType	  = Utils::AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
+		GLenum texLayout = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
+		GLenum dataType = Utils::AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
+		GLenum texType = Utils::AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
 
-		GLint inFormat    = Utils::AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
-		GLint minFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
-		GLint magFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
-
-		if (config.m_TextureType == Config::TextureType::Cubemap)
-			isCubemap = true;
+		GLint inFormat = Utils::AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
+		GLint minFilter = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
+		GLint magFilter = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
 
 		glGenTextures(1, &m_TextureID);
-		glBindTexture(texType, m_TextureID);
+		glBindTexture(GL_TEXTURE_2D, m_TextureID);
 
-		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
-		glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
-		glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
-		if (config.m_TextureType == Config::TextureType::Cubemap)
-			glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texLayout);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texLayout);
 
-		if (config.m_NullData && config.m_TextureType == Config::TextureType::Cubemap)
-		{
-			for (unsigned int i = 0; i < 6; ++i)
-			{
-				if (!config.m_Width || !config.m_Height)
-					Albedo_Core_WARN("texture width or height is zero");
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
-			}
-		}
-		else if (config.m_NullData && config.m_TextureType == Config::TextureType::Texture2D)
+		if (config.m_NullData)
 		{
 			if (!config.m_Width || !config.m_Height)
 				Albedo_Core_WARN("texture width or height is zero");
 			glTexImage2D(texType, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
 		}
-		else if (!config.m_NullData)
+		else
 		{
-			if (config.Path.empty() && config.Faces.empty())
+			if (config.Path.empty())
 				Albedo_CORE_ASSERT(false, "no paths specified");
 			int width, height, nrChannels;
-			unsigned char* dataRGB = nullptr;
-			float* dataHDR = nullptr;
 			stbi_set_flip_vertically_on_load(config.m_Flipped);
-			if (config.m_TextureType == Config::TextureType::Texture2D)
-			{
-				if (config.m_InternalFormat == Config::InternalFormat::RGB ||
-					config.m_InternalFormat == Config::InternalFormat::RGBA)
-				{
-					dataRGB = stbi_load(config.Path.c_str(), &width, &height, &nrChannels, 0);
-				}
-				else if (config.m_InternalFormat == Config::InternalFormat::RGB16F)
-				{
-					dataHDR = stbi_loadf(config.Path.c_str(), &width, &height, &nrChannels, 0);
-				}
-				if (dataRGB || dataHDR)
-				{
-					void* data;
-					if (dataRGB) data = dataRGB;
-					else if (dataHDR) data = dataHDR;
 
+			if (stbi_is_hdr(config.Path.c_str()))
+			{
+				float* dataHDR = stbi_loadf(config.Path.c_str(), &width, &height, &nrChannels, 0);
+				if (dataHDR) {
 					if (nrChannels == 4)
-					{
-						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGBA, dataType, data);
-					}
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, dataHDR);
 					else if (nrChannels == 3)
-					{
-						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
-					}
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, dataHDR);
 					else
-						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RED, dataType, data);
-					if (config.m_TextureType == Config::TextureType::Texture2D)
-						glGenerateMipmap(GL_TEXTURE_2D);
-					stbi_image_free(data);
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RED, GL_FLOAT, dataHDR);
+					glGenerateMipmap(GL_TEXTURE_2D);
+					stbi_image_free(dataHDR);
 				}
 				else
-				{
 					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
-				}
-				m_Width = width;
-				m_Height = height;
 			}
-			else if (config.m_TextureType == Config::TextureType::Cubemap)
+			else
 			{
-				Albedo_CORE_ASSERT(!config.Faces.empty(), "Invalid cubemap paths");
-				for (unsigned int i = 0; i < 6; i++)
-				{
-					unsigned char* data = stbi_load(config.Faces[i].c_str(), &width, &height, &nrChannels, 0);
-					if (data)
-					{
-						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
-						stbi_image_free(data);
-					}
+				unsigned char* dataRGB = stbi_load(config.Path.c_str(), &width, &height, &nrChannels, 0);
+				if (dataRGB) {
+					if (nrChannels == 4)
+						glTexImage2D(texType, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataRGB);
+					else if (nrChannels == 3)
+						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, dataRGB);
 					else
-					{
-						Albedo_Core_ERROR("Cubemap texture failed to load at path: ", config.Faces[i]);
-						//std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-						stbi_image_free(data);
-					}
+						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, dataRGB);
+					glGenerateMipmap(GL_TEXTURE_2D);
+					stbi_image_free(dataRGB);
 				}
+				else
+					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
 			}
+			m_Width = width;
+			m_Height = height;
 		}
 	}
 

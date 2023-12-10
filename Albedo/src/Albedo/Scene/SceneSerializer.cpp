@@ -215,11 +215,6 @@ namespace Albedo {
 			out << YAML::BeginMap;
 			auto& skyc = entity.GetComponent<SkyboxComponent>();
 			int i = 1;
-			for (const auto& face : skyc.faces)
-			{
-				out << YAML::Key << "Face" + std::to_string(i) << YAML::Value << face;
-				i++;
-			}
 		}
 
 		if (entity.HasComponent<TextureComponent>())

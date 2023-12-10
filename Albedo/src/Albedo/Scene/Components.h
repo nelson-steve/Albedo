@@ -36,7 +36,7 @@ namespace Albedo {
 
 	struct ModelComponent
 	{
-		std::string name = "Model Compnent";
+		std::string name = "Model Component";
 
 		void AddMesh(const Ref<Model> model, int id) { m_Model = model; ID = id; }
 
@@ -80,8 +80,9 @@ namespace Albedo {
 	struct SkyboxComponent
 	{
 		Ref<Texture2D> m_Skybox;
+		Ref<Model> m_Model;
 
-		std::vector<std::string> faces;
+		std::string path = "Assets/Textures/hdr/environment.hdr";
 
 		SkyboxComponent() = default;
 		SkyboxComponent(const SkyboxComponent&) = default;

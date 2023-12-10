@@ -996,38 +996,38 @@ namespace Albedo {
 			{
 				ImGui::Text("Skybox Component");
 
-				component.faces.resize(6);
-				std::vector<std::string> sideNames = 
-				{
-					"Right",
-					"Left",
-					"Top",
-					"Bottom",
-					"Front",
-					"Back"
-				};
-				for (int i = 0; i < 6; i++)
-				{
-					ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
-					if (ImGui::BeginDragDropTarget())
-					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-						{
-							const wchar_t* path = (const wchar_t*)payload->Data;
-							std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
-							if (m_AssetManager->ValidateTexturePath(texturePath.string()))
-								component.faces[i] = texturePath.string();
-						}
-						ImGui::EndDragDropTarget();
-					}
-					ImGui::SameLine();
-					ImGui::Text(sideNames[i].c_str());
-					if (!component.faces[i].empty())
-					{
-						ImGui::SameLine();
-						ImGui::Text(component.faces[i].c_str());
-					}
-				}
+				//component.faces.resize(6);
+				//std::vector<std::string> sideNames = 
+				//{
+				//	"Right",
+				//	"Left",
+				//	"Top",
+				//	"Bottom",
+				//	"Front",
+				//	"Back"
+				//};
+				//for (int i = 0; i < 6; i++)
+				//{
+				//	ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
+				//	if (ImGui::BeginDragDropTarget())
+				//	{
+				//		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+				//		{
+				//			const wchar_t* path = (const wchar_t*)payload->Data;
+				//			std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
+				//			if (m_AssetManager->ValidateTexturePath(texturePath.string()))
+				//				component.faces[i] = texturePath.string();
+				//		}
+				//		ImGui::EndDragDropTarget();
+				//	}
+				//	ImGui::SameLine();
+				//	ImGui::Text(sideNames[i].c_str());
+				//	if (!component.faces[i].empty())
+				//	{
+				//		ImGui::SameLine();
+				//		ImGui::Text(component.faces[i].c_str());
+				//	}
+				//}
 
 				//for (const auto& face : component.faces)
 				//{
@@ -1035,14 +1035,14 @@ namespace Albedo {
 				//		continue;
 				//	ImGui::Text(face.c_str());
 				//}
-				if (ImGui::Button("Reload Skybox"))
-				{
-					TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
-						Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
-						Config::DataFormat::RGB, false, false);
-					config.Faces = component.faces;
-					component.m_Skybox = Texture2D::Create(config);
-				}
+				//if (ImGui::Button("Reload Skybox"))
+				//{
+				//	TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
+				//		Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
+				//		Config::DataFormat::RGB, false, false);
+				//	//config.Faces = component.faces;
+				//	component.m_Skybox = Texture2D::Create(config);
+				//}
 
 			});
 

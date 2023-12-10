@@ -22,9 +22,10 @@ namespace Albedo {
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
 		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material);
+		static void   SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform);
 		static void	  Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);
 		static void   RenderOverlay(const Ref<Mesh> mesh);
-		static void   Render(const ModelComponent& mesh, const Ref<Shader> shader);
+		static void   Render(const Ref<Model> model, const Ref<Shader> shader);
 		static GLenum AlbedoDrawTypeToGLType(DrawType type);
 		static void   Shutdown();
 		static void   OnWindowResize(uint32_t width, uint32_t height);

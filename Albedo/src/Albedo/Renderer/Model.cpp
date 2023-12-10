@@ -315,11 +315,6 @@ namespace Albedo {
 		};
 
 	void Model::Draw(Ref<Shader> shader) {
-		shader->SetUniformInt1("u_BaseColorTexture", 0);
-		shader->SetUniformInt1("u_MetallicRoughnessTexture", 1);
-		shader->SetUniformInt1("u_EmissiveTexture", 2);
-		shader->SetUniformInt1("u_OcclusionTexture", 3);
-
 		// The recursive function that should draw a node
 	    // We use a std::function because a simple lambda cannot be recursive
 		const std::function<void(int, const glm::mat4&)> drawNode =
@@ -337,7 +332,8 @@ namespace Albedo {
 					const auto vao = vertexArrayObjects[vaoRange.begin + pIdx];
 					const auto& primitive = mesh.primitives[pIdx];
 
-					BindMaterial(shader, primitive.material);
+					if(false == m_IsSkybox)
+						BindMaterial(shader, primitive.material);
 
 					glBindVertexArray(vao);
 					if (primitive.indices >= 0) {

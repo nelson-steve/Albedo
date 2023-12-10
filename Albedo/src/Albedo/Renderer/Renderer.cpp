@@ -353,6 +353,18 @@ namespace Albedo {
 		}
 	}
 
+	void Renderer::SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform)
+	{
+		shader.m_Shader->Bind();
+		shader.m_Shader->SetUniformMat4("u_Projection", camera.GetProjection());
+		shader.m_Shader->SetUniformMat4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+		shader.m_Shader->SetUniformMat4("u_Model", glm::mat4(1.0f));
+
+		shader.m_Shader->SetUniformInt1("u_EquirectangularMap", 0);
+
+		skybox.m_Skybox->Bind(0);
+	}
+
 	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
 		shader->Bind();
@@ -375,11 +387,11 @@ namespace Albedo {
 		mesh->GetMeshBufferData().m_VertexArray->UnBind();
 	}
 
-	void Renderer::Render(const ModelComponent& mesh, const Ref<Shader> shader)
+	void Renderer::Render(const Ref<Model> model, const Ref<Shader> shader)
 	{
 		//if(config.PolygonMode)
 		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		mesh.m_Model->Draw(shader);
+		model->Draw(shader);
 		//if(config.PolygonMode) 
 		//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}

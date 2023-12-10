@@ -86,16 +86,16 @@ namespace Albedo {
 			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
 				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
 				Config::DataFormat::RGB, false, false);
-			config.Faces =
-			{
-				"Assets/Textures/Skybox/lake/right.jpg",
-				"Assets/Textures/Skybox/lake/left.jpg",
-				"Assets/Textures/Skybox/lake/top.jpg",
-				"Assets/Textures/Skybox/lake/bottom.jpg",
-				"Assets/Textures/Skybox/lake/front.jpg",
-				"Assets/Textures/Skybox/lake/back.jpg"
-			};
-			skyboxTemp = Texture2D::Create(config);
+			//config.Faces =
+			//{
+			//	"Assets/Textures/Skybox/lake/right.jpg",
+			//	"Assets/Textures/Skybox/lake/left.jpg",
+			//	"Assets/Textures/Skybox/lake/top.jpg",
+			//	"Assets/Textures/Skybox/lake/bottom.jpg",
+			//	"Assets/Textures/Skybox/lake/front.jpg",
+			//	"Assets/Textures/Skybox/lake/back.jpg"
+			//};
+			//skyboxTemp = Texture2D::Create(config);
 		}
  
 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
@@ -199,8 +199,8 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
-		if(!m_DefaultsInitialized)
-			InitDefaults();
+		//if(!m_DefaultsInitialized)
+			//InitDefaults();
 
 		// Physx not working correctly
 		//InitPhysicsObjects();
@@ -294,15 +294,19 @@ namespace Albedo {
 	{
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
-		entity.AddComponent<SkyboxComponent>().faces =
-		{
-			"Assets/Textures/Skybox/lake/right.jpg",
-			"Assets/Textures/Skybox/lake/left.jpg",
-			"Assets/Textures/Skybox/lake/top.jpg",
-			"Assets/Textures/Skybox/lake/bottom.jpg",
-			"Assets/Textures/Skybox/lake/front.jpg",
-			"Assets/Textures/Skybox/lake/back.jpg"
-		};
+		entity.AddComponent<SkyboxComponent>();
+		TextureConfiguration config{};
+		config.m_MinFilter = Config::MinMagFilters::LINEAR;
+		config.m_MagFilter = Config::MinMagFilters::LINEAR;
+		config.m_TextureLayout = Config::TextureLayout::ClampToEdge;
+		config.Path = entity.GetComponent<SkyboxComponent>().path;
+		config.m_NullData = false;
+		config.m_Flipped = true;
+		entity.GetComponent<SkyboxComponent>().m_Skybox = Texture2D::Create(config);
+		entity.GetComponent<SkyboxComponent>().m_Model = m_AssetManager->LoadGLTFModel("Assets/gltf_models/Cube/glTF/Cube.gltf");
+		entity.GetComponent<SkyboxComponent>().m_Model->SetSkybox(true);
+			entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/SkyboxShader.glsl"));
+
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -733,6 +737,16 @@ namespace Albedo {
 #endif
 		}
 
+		auto skybox_view = m_Registry.view<ShaderComponent, SkyboxComponent, TransformComponent>();
+		for (auto& entity : skybox_view)
+		{
+			glDepthMask(GL_FALSE);
+			Renderer::SetupSkybox(camera, skybox_view.get<SkyboxComponent>(entity), skybox_view.get<ShaderComponent>(entity),
+				skybox_view.get<TransformComponent>(entity).GetTransform());
+			Renderer::Render(skybox_view.get<SkyboxComponent>(entity).m_Model, skybox_view.get<ShaderComponent>(entity).m_Shader);
+			glDepthMask(GL_TRUE);
+		}
+
 		auto temp_view = m_Registry.view<ShaderComponent, ModelComponent, TransformComponent>();
 		for (auto& entity : temp_view)
 		{
@@ -751,8 +765,9 @@ namespace Albedo {
 				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
 			}
 			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
-			Renderer::Render(view.get<ModelComponent>(entity), view.get<ShaderComponent>(entity).m_Shader);
+			Renderer::Render(view.get<ModelComponent>(entity).m_Model, view.get<ShaderComponent>(entity).m_Shader);
 		}
+
 		// end
 		return;
 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
