@@ -37,6 +37,14 @@ namespace Albedo {
             GLsizei count; // Number of elements in range
         };
 
+        struct {
+            int albedo = -1;
+            int metallicroughness = -1;
+            int emissive = -1;
+            int occlusion = -1;
+            int normal = -1;
+        } m_UVs;
+
         std::string m_Path;
         bool m_IsSkybox = false;
         tinygltf::Model m_model;

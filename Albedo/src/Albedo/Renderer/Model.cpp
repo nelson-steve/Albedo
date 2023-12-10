@@ -90,6 +90,7 @@ namespace Albedo {
 		const GLuint VERTEX_ATTRIB_POSITION_IDX = 0;
 		const GLuint VERTEX_ATTRIB_NORMAL_IDX = 1;
 		const GLuint VERTEX_ATTRIB_TEXCOORD0_IDX = 2;
+		const GLuint VERTEX_ATTRIB_TEXCOORD1_IDX = 3;
 
 		for (size_t i = 0; i < gltf_model.meshes.size(); ++i) {
 			const auto& mesh = gltf_model.meshes[i];
@@ -169,6 +170,23 @@ namespace Albedo {
 							(const GLvoid*)(accessor.byteOffset + bufferView.byteOffset));
 					}
 				}
+
+				{ // TEXCOORD_0 attribute
+					const auto iterator = primitive.attributes.find("TEXCOORD_1");
+					if (iterator != end(primitive.attributes)) {
+						const auto accessorIdx = (*iterator).second;
+						const auto& accessor = gltf_model.accessors[accessorIdx];
+						const auto& bufferView = gltf_model.bufferViews[accessor.bufferView];
+						const auto bufferIdx = bufferView.buffer;
+
+						glEnableVertexAttribArray(VERTEX_ATTRIB_TEXCOORD1_IDX);
+						assert(GL_ARRAY_BUFFER == bufferView.target);
+						glBindBuffer(GL_ARRAY_BUFFER, bufferObjects[bufferIdx]);
+						glVertexAttribPointer(VERTEX_ATTRIB_TEXCOORD1_IDX, accessor.type,
+							accessor.componentType, GL_FALSE, GLsizei(bufferView.byteStride),
+							(const GLvoid*)(accessor.byteOffset + bufferView.byteOffset));
+					}
+				}
 				// Index array if defined
 				if (primitive.indices >= 0) {
 					const auto accessorIdx = primitive.indices;
@@ -210,7 +228,7 @@ namespace Albedo {
 					m_model.textures[pbrMetallicRoughness.baseColorTexture.index];
 				if (texture.source >= 0) {
 					m_Textures[texture.source]->Bind(0);
-					//textureObject = textureObjects[texture.source];
+					m_UVs.albedo = pbrMetallicRoughness.baseColorTexture.texCoord;
 				}
 				else {
 					m_NullTexture->Bind(0);
@@ -222,7 +240,7 @@ namespace Albedo {
 					.index];
 				if (texture.source >= 0) {
 					m_Textures[texture.source]->Bind(1);
-					//textureObject = textureObjects[texture.source];
+					m_UVs.metallicroughness = pbrMetallicRoughness.metallicRoughnessTexture.texCoord;
 				}
 				else {
 					m_NullTexture->Bind(1);
@@ -232,7 +250,7 @@ namespace Albedo {
 				const auto& texture = m_model.textures[material.emissiveTexture.index];
 				if (texture.source >= 0) {
 					m_Textures[texture.source]->Bind(2);
-					//textureObject = textureObjects[texture.source];
+					m_UVs.emissive = material.emissiveTexture.texCoord;
 				}
 				else {
 					m_NullTexture->Bind(2);
@@ -242,12 +260,19 @@ namespace Albedo {
 				const auto& texture = m_model.textures[material.occlusionTexture.index];
 				if (texture.source >= 0) {
 					m_Textures[texture.source]->Bind(3);
-					//textureObject = textureObjects[texture.source];
+					m_UVs.normal = material.occlusionTexture.texCoord;
 				}
 				else {
 					m_NullTexture->Bind(3);
 				}
 			}
+
+			shader->SetUniformInt1("u_AlbedoUV", m_UVs.albedo);
+			shader->SetUniformInt1("u_MetallicRoughnessUV", m_UVs.metallicroughness);
+			shader->SetUniformInt1("u_EmissiveUV", m_UVs.emissive);
+			shader->SetUniformInt1("u_OcclusionUV", m_UVs.occlusion);
+			shader->SetUniformInt1("u_NormalUV", m_UVs.normal);
+			
 			shader->SetUniformFloat("", pbrMetallicRoughness.metallicFactor);
 			shader->SetUniformFloat("", pbrMetallicRoughness.roughnessFactor);
 			shader->SetUniformFloat3("", glm::vec3(

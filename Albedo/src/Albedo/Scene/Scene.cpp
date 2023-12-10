@@ -40,8 +40,6 @@ namespace Albedo {
 
 	Scene::Scene()
 	{
-		m_AssetManager->LoadNullTexture();
-		//TODO: Remove this if not needed
 	}
 
 	template<typename... Component>
@@ -86,16 +84,6 @@ namespace Albedo {
 			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
 				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
 				Config::DataFormat::RGB, false, false);
-			//config.Faces =
-			//{
-			//	"Assets/Textures/Skybox/lake/right.jpg",
-			//	"Assets/Textures/Skybox/lake/left.jpg",
-			//	"Assets/Textures/Skybox/lake/top.jpg",
-			//	"Assets/Textures/Skybox/lake/bottom.jpg",
-			//	"Assets/Textures/Skybox/lake/front.jpg",
-			//	"Assets/Textures/Skybox/lake/back.jpg"
-			//};
-			//skyboxTemp = Texture2D::Create(config);
 		}
  
 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);

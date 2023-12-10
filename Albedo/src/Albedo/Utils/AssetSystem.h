@@ -12,7 +12,6 @@ namespace Albedo {
 		AssetSystem();
 		~AssetSystem();
 
-		void LoadNullTexture();
 		bool ValidateShaderPath(const std::string& path);
 		bool ValidateTexturePath(const std::string& path);
 		bool ValidateModelPath(const std::string& path);
