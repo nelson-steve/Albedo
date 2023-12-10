@@ -25,6 +25,7 @@ namespace Albedo {
         bool Load(const std::string& path);
         void Draw(Ref<Shader> shader);
         void SetSkybox(bool skybox) { m_IsSkybox = skybox; }
+        const std::string& GetPath() const { return m_Path; }
     private:
         void LoadTextures(const tinygltf::Model& model);
         void LoadMaterials(tinygltf::Model& model);
@@ -36,6 +37,7 @@ namespace Albedo {
             GLsizei count; // Number of elements in range
         };
 
+        std::string m_Path;
         bool m_IsSkybox = false;
         tinygltf::Model m_model;
         //std::vector<GLuint> bufferObjects;

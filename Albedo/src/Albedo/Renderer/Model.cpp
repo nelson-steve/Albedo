@@ -36,6 +36,8 @@ namespace Albedo {
 	}
 
 	bool Model::Load(const std::string& path) {
+		m_Path = path;
+
 		tinygltf::Model gltf_model;
 		tinygltf::TinyGLTF loader;
 

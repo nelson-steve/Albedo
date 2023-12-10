@@ -334,7 +334,7 @@ namespace Albedo {
 		std::string& extension = path.substr(pos + 1, path.size());
 
 		// currently only support obj
-		if (extension == "obj")
+		if (extension == "gltf")
 			return true;
 
 		return false;

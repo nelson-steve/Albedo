@@ -526,8 +526,8 @@ namespace Albedo {
 						const wchar_t* path = (const wchar_t*)payload->Data;
 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
 						//component.initialize = true; // TODO: See if this needs to be here or not
-						//if (m_AssetManager->ValidateModelPath(meshPath.string()))
-						//	component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+						if (m_AssetManager->ValidateModelPath(meshPath.string()))
+							component.AddMesh(m_AssetManager->LoadGLTFModel(meshPath.string()), (uint32_t)entity);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -536,8 +536,8 @@ namespace Albedo {
 				//	const std::string& s = "Vertices " + std::to_string(component.m_Mesh->GetTotalVertices());
 				//	ImGui::Text(s.c_str());
 				//}
-				//const std::string& s = "Name " + component.m_Mesh->GetName();
-				//ImGui::Button(s.c_str());
+				const std::string& s = "Path " + component.m_Model->GetPath();
+				ImGui::Button(s.c_str());
 			});
 
 		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
@@ -624,22 +624,6 @@ namespace Albedo {
 
 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
 			{
-				std::string items[] = { "Vertex", "Fragment", "Compute", "Geometry"};
-				if (ImGui::BeginCombo("##shaders", m_CurrentShader.c_str()))
-				{
-					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-					{
-						bool is_selected = (m_CurrentShader == items[n]);
-						if (ImGui::Selectable(items[n].c_str(), is_selected))
-							m_CurrentShader = items[n];
-						if(is_selected)
-						{
-							ImGui::SetItemDefaultFocus();
-						}
-					}
-					ImGui::EndCombo();
-				}
-				ImGui::SameLine();
 				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
 				if (ImGui::BeginDragDropTarget())
 				{
