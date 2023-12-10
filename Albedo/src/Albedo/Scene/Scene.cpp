@@ -224,8 +224,8 @@ namespace Albedo {
 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
 		//entity.GetComponent<MaterialComponent>().isPBR = true;
-		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
+		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
@@ -735,6 +735,15 @@ namespace Albedo {
 			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
 			view.get<ColliderComponent>(entity).ColliderPosition = pos;
 #endif
+		}
+
+		auto shader_view = m_Registry.view<ShaderComponent>();
+		for (auto& entity : shader_view) {
+			if (shader_view.get<ShaderComponent>(entity).tobeinitialized) {
+				std::string path = shader_view.get<ShaderComponent>(entity).m_Shader->GetPath();
+				shader_view.get<ShaderComponent>(entity).m_Shader = Shader::Create(path);
+				shader_view.get<ShaderComponent>(entity).tobeinitialized = false;
+			}
 		}
 
 		auto skybox_view = m_Registry.view<ShaderComponent, SkyboxComponent, TransformComponent>();

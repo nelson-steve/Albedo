@@ -128,7 +128,7 @@ namespace Albedo {
 		}
 
 		Ref<Shader> m_Shader;
-		bool initialize = true;
+		bool tobeinitialized = false;
 
 		ShaderComponent() = default;
 		ShaderComponent(const ShaderComponent&) = default;

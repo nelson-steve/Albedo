@@ -57,7 +57,7 @@ namespace Albedo {
 		unsigned int m_ShaderID;
 		std::string m_Name;
 		std::string m_Path;
-		bool m_InitializationStatus;
+		bool m_InitializationStatus = false;
 	};
 
 }

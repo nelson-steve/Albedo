@@ -655,6 +655,10 @@ namespace Albedo {
 				}
 				ImGui::Separator();
 
+				if (ImGui::Button("Reload Shader")) {
+					component.tobeinitialized = true;
+				}
+
 				const std::string& s = "Name " + component.m_Shader->GetName();
 				ImGui::Button(s.c_str());
 			});
