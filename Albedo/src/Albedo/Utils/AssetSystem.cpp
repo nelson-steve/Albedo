@@ -14,10 +14,6 @@ namespace Albedo {
 
 	AssetSystem::AssetSystem()
 	{
-		//LoadDefaultQuad();
-		//LoadDefaultCube();
-		//LoadDefaultCircle();
-		//LoadDefaultSkybox();
 	}
 
 	AssetSystem::~AssetSystem()

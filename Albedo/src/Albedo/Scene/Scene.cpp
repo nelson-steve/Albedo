@@ -61,20 +61,9 @@ namespace Albedo {
 	void Scene::InitDefaults()
 	{
 		tex = m_AssetManager->LoadTexture("Assets/Textures/Wood.png", true);
-		//m_Collider = m_AssetManager->LoadModelusingAssimp("Assets/models/cube/box.obj");
-		//m_Cube = m_AssetManager->LoadModelusingAssimp("Assets/Models/suzanne/suzanne.obj");
-		//m_Quad = m_AssetManager->LoadModelusingAssimp("Assets/Models/plane/plane2.obj");
-		//m_Collider->GetRendererConfig().Type = DrawType::Albedo_LINE_LOOP;
-		//m_ColliderShader = m_AssetManager->LoadShader("Assets/Shaders/ColliderShader.glsl");
-
-		//m_Collider->InitMesh(-1);
-		//m_Quad->InitMesh(-1);
-		//m_Cube->InitMesh(-1);
 
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
 		m_DepthShader = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
-		//m_Skybox = m_AssetManager->LoadDefaultSkybox();
-		//m_Skybox->InitMesh(-1);
 
 #if ALBEDO_PHYSX
 		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
@@ -87,8 +76,6 @@ namespace Albedo {
 		}
  
 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
-
-		m_DefaultsInitialized = true;
 	}
 
 	void Scene::InitPhysicsObjects()
@@ -206,19 +193,9 @@ namespace Albedo {
 	Entity Scene::CreateMeshEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadDefaultQuad(), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
-		//entity.GetComponent<MaterialComponent>().isPBR = true;
 		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
-		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
-		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/normal.png"), 3);
-		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/roughness.png"), 4);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
@@ -234,10 +211,7 @@ namespace Albedo {
 		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
-		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
 		entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
 
@@ -255,10 +229,6 @@ namespace Albedo {
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/ao.png"), 1);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
-		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
-		//entity.GetComponent<MaterialComponent>().isPBR = false;
-		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(false);
-		//entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<BoxCollider2DComponent>();
 
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -643,37 +613,6 @@ namespace Albedo {
 			}
 		}
 
-		for (auto& entity : view)
-		{
-			auto& tex = view.get<TextureComponent>(entity);
-			//if (!view.get<MaterialComponent>(entity).isPBR) continue;
-			auto& textures = view.get<TextureComponent>(entity).m_Textures;
-			if (!textures[TextureComponent::TextureType::Albedo].get())
-				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Albedo);
-
-			if (!textures[TextureComponent::TextureType::AmbientOcclusion].get())
-				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::AmbientOcclusion);
-
-			if (!textures[TextureComponent::TextureType::Metallic].get())
-				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Metallic);
-
-			if (!textures[TextureComponent::TextureType::Normal].get())
-				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Normal);
-
-			if (!textures[TextureComponent::TextureType::Roughness].get())
-				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Roughness);
-		}
-
-		// Checking for re initialization of meshes
-		auto meshView = m_Registry.view<ModelComponent, ShaderComponent>();
-		for (auto& entity : meshView)
-		{
-			auto& mesh = meshView.get<ModelComponent>(entity);
-			auto& shader = meshView.get<ShaderComponent>(entity);
-			//if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
-			//	Renderer::Init(m_Registry);
-		}
-
 		// Getting light components
 		auto& lightComponents = m_Registry.view<LightComponent>();
 		std::vector<LightComponent> lights;
@@ -747,26 +686,10 @@ namespace Albedo {
 		auto temp_view = m_Registry.view<ShaderComponent, ModelComponent, TransformComponent>();
 		for (auto& entity : temp_view)
 		{
-			//Renderer::Setup();
-
-			//if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
-			{
-				//Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-			}
-			//else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
-			{
-				//Renderer::Setup(camera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity),
-				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
-				//Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
-				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
-			}
 			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
 			Renderer::Render(view.get<ModelComponent>(entity).m_Model, view.get<ShaderComponent>(entity).m_Shader);
 		}
 
-		// end
-		return;
 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
 
 		m_Transform = glm::mat4(1.0);
@@ -783,37 +706,6 @@ namespace Albedo {
 				Renderer::RenderOverlay(m_Collider);
 			}
 		}
-
-		m_SkyboxShader->Bind();
-		m_SkyboxShader->SetUniformMat4("projection", camera.GetProjection());
-		m_SkyboxShader->SetUniformMat4("view", camera.GetViewMatrix());
-		m_SkyboxShader->SetUniformInt1("environmentMap", 0);
-		m_SkyboxShader->SetUniformFloat("darkness", m_SceneSetting.backgroundLight);
-		
-		bool skyboxExists = false;
-		auto skyboxView = m_Registry.view<SkyboxComponent>();
-		for (auto& e : skyboxView)
-		{
-			auto& skybox = skyboxView.get<SkyboxComponent>(e);
-			if(skybox.m_Skybox)
-			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.m_Skybox->GetTextureID());
-				skyboxExists = true;
-			}
-		}
-		if (!skyboxExists)
-		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTemp->GetTextureID());
-		}
-				
-		glDepthMask(GL_FALSE);
-		//m_Skybox->GetMeshBufferData().m_VertexArray->Bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//m_Skybox->GetMeshBufferData().m_VertexArray->UnBind();
-		glDepthMask(GL_TRUE);
-		//Renderer::RenderOverlay(m_Skybox);
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
