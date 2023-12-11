@@ -20,6 +20,7 @@ namespace Albedo {
 
 	class Entity;
 	class PhysicsSolver;
+	class PhysicsWorld;
 
 	struct SceneSetting
 	{
@@ -101,7 +102,8 @@ namespace Albedo {
 		SceneSetting m_SceneSetting;
 
 		b2World* m_PhysicsWorld = nullptr;
-	
+		//Ref<PhysicsWorld> m_PhysicsWorld3D;
+
 		bool m_DefaultsInitialized = false;
 		bool fbo = true;
 		Ref<Texture2D> skyboxTemp;

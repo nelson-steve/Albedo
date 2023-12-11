@@ -369,7 +369,7 @@ namespace Albedo {
 	{
 		shader->Bind();
 		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader->SetUniformMat4("u_Model", glm::mat4(1.0f));
+		shader->SetUniformMat4("u_Model", transform);
 		shader->SetUniformMat3("u_NormalMatrix", glm::mat4(transform));
 		shader->SetUniformFloat3("u_CamPos", camera.GetPosition());
 

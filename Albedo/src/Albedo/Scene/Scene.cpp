@@ -19,7 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define ALBEDO_PHYSX 0;
+#define ALBEDO_PHYSX 1;
 
 namespace Albedo {
 
@@ -80,10 +80,23 @@ namespace Albedo {
 
 	void Scene::InitPhysicsObjects()
 	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
+		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent>();
 
 		for (auto entity : view)
 		{
+			auto& tra = view.get<TransformComponent>(entity);
+			auto& phy = view.get<PhysicsComponent>(entity);
+			auto& col = view.get<ColliderComponent>(entity);
+
+			glm::vec3 pos{ 0.0f };
+			glm::vec3 rot{ 0.0f };
+			phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>(pos, rot, 1.0f);
+			m_PhysicsSolver->AddActor(*phy.dynamicBody);
+		}
+
+		for (auto entity : view)
+		{
+			break;
 			auto& tra = view.get<TransformComponent>(entity);
 			auto& phy = view.get<PhysicsComponent>(entity);
 			auto& col = view.get<ColliderComponent>(entity);
@@ -174,16 +187,19 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
+		//m_PhysicsWorld3D = std::make_shared<PhysicsWorld>();
+		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
+		m_PhysicsSolver->Init();
 		//if(!m_DefaultsInitialized)
 			//InitDefaults();
 
 		// Physx not working correctly
-		//InitPhysicsObjects();
+		InitPhysicsObjects();
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
 		for (auto entity : view)
 		{
-			auto& mat = view.get<MaterialComponent>(entity);
+			//auto& mat = view.get<MaterialComponent>(entity);
 			//mat.m_Material = std::make_shared<Material>();
 		}
 
@@ -194,11 +210,18 @@ namespace Albedo {
 	{
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
+		auto tra = entity.GetComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		entity.AddComponent<Physics2DComponent>();
-		entity.AddComponent<BoxCollider2DComponent>();
+		//entity.AddComponent<Physics2DComponent>();
+		entity.AddComponent<PhysicsComponent>();
+		entity.GetComponent<PhysicsComponent>().bodyType = PhysicsComponent::BodyType::Dynamic;
+		entity.AddComponent<ColliderComponent>();
+		//entity.AddComponent<BoxCollider2DComponent>();
+		entity.GetComponent<PhysicsComponent>().dynamicBody = 
+			std::make_shared<RigidBodyDynamicComponent>(tra.GetPosition(), tra.GetRotation(), 0.001f);
+		m_PhysicsSolver->AddActor(*entity.GetComponent<PhysicsComponent>().dynamicBody);
 		
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -467,13 +490,10 @@ namespace Albedo {
 
 	void Scene::OnUpdatePhysics(Timestep ts)
 	{
-
-
 #if ALBEDO_PHYSX
 		m_PhysicsSolver->UpdatePhysics(ts);
 
 		auto view = m_Registry.view<TransformComponent, PhysicsComponent, ColliderComponent>();
-
 
 		for (auto entity : view)
 		{
@@ -481,7 +501,7 @@ namespace Albedo {
 			auto& col = view.get<ColliderComponent>(entity);
 			auto& tra = view.get<TransformComponent>(entity);
 
-			if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody)
+			if (phy.bodyType == phy.BodyType::Dynamic)
 			{
 				auto& p = phy.dynamicBody->GetRigidActor()->getGlobalPose().p;
 				auto& q = phy.dynamicBody->GetRigidActor()->getGlobalPose().q;
@@ -579,6 +599,8 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
 	{
+		OnUpdatePhysics(ts);
+
 		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, 
 			TextureComponent, MaterialComponent, ScriptComponent>();
 
@@ -637,11 +659,11 @@ namespace Albedo {
 		{
 
 #if ALBEDO_PHYSX
-			auto& pos = view.get<TransformComponent>(entity).Position;
-			auto& rot = view.get<TransformComponent>(entity).Rotation;
-			view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-			view.get<ColliderComponent>(entity).ColliderPosition = pos;
+			//auto& pos = view.get<TransformComponent>(entity).Position;
+			//auto& rot = view.get<TransformComponent>(entity).Rotation;
+			//view.get<PhysicsComponent>(entity).BodyPosition = pos;
+			//view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+			//view.get<ColliderComponent>(entity).ColliderPosition = pos;
 #endif
 		}
 
@@ -656,11 +678,11 @@ namespace Albedo {
 		for (auto& entity : view)
 		{
 #if ALBEDO_PHYSX
-			auto& pos = view.get<TransformComponent>(entity).Position;
-			auto& rot = view.get<TransformComponent>(entity).Rotation;
-			view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-			view.get<ColliderComponent>(entity).ColliderPosition = pos;
+			//auto& pos = view.get<TransformComponent>(entity).Position;
+			//auto& rot = view.get<TransformComponent>(entity).Rotation;
+			//view.get<PhysicsComponent>(entity).BodyPosition = pos;
+			//view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
+			//view.get<ColliderComponent>(entity).ColliderPosition = pos;
 #endif
 		}
 
@@ -686,7 +708,7 @@ namespace Albedo {
 		auto temp_view = m_Registry.view<ShaderComponent, ModelComponent, TransformComponent>();
 		for (auto& entity : temp_view)
 		{
-			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
+			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).GetTransform());
 			Renderer::Render(view.get<ModelComponent>(entity).m_Model, view.get<ShaderComponent>(entity).m_Shader);
 		}
 

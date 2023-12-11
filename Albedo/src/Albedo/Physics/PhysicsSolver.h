@@ -34,6 +34,8 @@ namespace Albedo {
         virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override;
         virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count) override {}
     public:
+        physx::PxRigidStatic* groundPlane;
+        physx::PxMaterial* terrainMaterial;
         static physx::PxPhysics* phys;
         static physx::PxPvd* pvd;
         static physx::PxCooking* cooking;

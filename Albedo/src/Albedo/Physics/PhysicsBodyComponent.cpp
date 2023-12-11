@@ -21,7 +21,7 @@ namespace Albedo {
 		defaultConfig = new RidigBodyDynamicConfig();
 
 		rigidActor = PhysicsSolver::phys->createRigidDynamic(glmToPhysx::ToTransform(defaultConfig->position));	//will be set pre-tick to the entity's location
-		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, defaultConfig->enableGravity);
+		rigidActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
 		rigidActor->setGlobalPose(glmToPhysx::ToTransform(defaultConfig->position, defaultConfig->rotation));
 		static_cast<physx::PxRigidBody*>(rigidActor)->setLinearVelocity(glmToPhysx::ToVec3(defaultConfig->linearVelocity));
 		static_cast<physx::PxRigidBody*>(rigidActor)->setAngularVelocity(glmToPhysx::ToVec3(defaultConfig->angularVelocity));

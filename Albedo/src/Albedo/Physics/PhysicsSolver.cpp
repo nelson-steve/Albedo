@@ -99,11 +99,11 @@ namespace Albedo {
         desc.solverType = physx::PxSolverType::ePGS;
         //desc.flags |= physx::PxSceneFlag::eREQUIRE_RW_LOCK;
 
-#if ENABLE_GPU
-        PxCudaContextManagerDesc cudaContextManagerDesc;
-        gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
-        sceneDesc.cudaContextManager = gCudaContextManager;
-        sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
+#if 1
+        physx::PxCudaContextManagerDesc cudaContextManagerDesc;
+        physx::PxCudaContextManager* contextManager = PxCreateCudaContextManager(*foundation, cudaContextManagerDesc, PxGetProfilerCallback());
+        desc.cudaContextManager = contextManager;
+        desc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;
 #endif
 
         // initialize cooking library with defaults
@@ -137,12 +137,12 @@ namespace Albedo {
             Albedo_CORE_ASSERT(false, "PhysX Scene failed to create");
         }
 
-        //physx::PxMaterial* terrainMaterial;
-        //terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
         //
-        //physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(0, 1, 0, 30), *terrainMaterial);
+        //terrainMaterial = phys->createMaterial(0.4f, 0.4f, .5f);
+        //groundPlane = physx::PxCreatePlane(*phys, physx::PxPlane(1, 0, 0, 100), *terrainMaterial);
+        //assert(groundPlane);
         //scene->addActor(*groundPlane);
-        scene->setGravity(physx::PxVec3{0.0, -1.0, 0.0});
+        scene->setGravity(physx::PxVec3{0.0, -9.81, 0.0});
     }
 
     PhysicsSolver::~PhysicsSolver()

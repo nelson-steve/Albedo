@@ -138,27 +138,23 @@ namespace Albedo {
 	{
 		std::string name = "Transform Compnent";
 
-		void AddTranform(const glm::mat4 tranform) { Transform = tranform; }
 		const glm::vec3& GetPosition() const { return Position; }
 		const glm::vec3& GetRotation() const { return Rotation; }
 		const glm::vec3& GetScale() const { return Scale; }
 
 		void AddTranform(const glm::vec3& pos)
 		{
-			Transform = glm::translate(glm::mat4(1.0f), pos);
 			Position = pos;
 		}
 
 		void AddTranform(const glm::vec4& rot)
 		{
-			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
-			Transform = Transform * rotation;
+			Rotation = rot;
 		}
 
 		void AddTranform(const glm::vec3& pos, const glm::vec4& rot)
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
-			Transform = glm::translate(glm::mat4(1.0f), pos) * rotation;
 			Position = pos;
 			Rotation = rot;
 		}
@@ -166,13 +162,11 @@ namespace Albedo {
 		void AddTranform(const glm::vec3& pos, const glm::vec4& rot, const glm::vec3& scale) 
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
-			Transform =  glm::translate(glm::mat4(1.0f), pos) * rotation * glm::scale(glm::mat4(1.0f), scale);
 			Position = pos;
 			Rotation = rot;
 			Scale = scale;
 		}
 
-		glm::mat4 Transform{ 1.0f };
 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale	   = { 1.0f, 1.0f, 1.0f };
@@ -259,7 +253,7 @@ namespace Albedo {
 		std::string phyTypeName = "Dynamic";
 
 		Ref<PhysicsMaterial> physicsMaterial;
-		Ref<RigidBodyDynamicComponent> dynamicBody;	
+		Ref<RigidBodyDynamicComponent> dynamicBody;
 		Ref<RigidBodyStaticComponent> staticBody;
 		bool initialize = true;
 
