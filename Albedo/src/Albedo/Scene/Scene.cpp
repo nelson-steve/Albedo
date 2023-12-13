@@ -9,7 +9,6 @@
 #include "Albedo/Core/Application.h"
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Scripting/ScriptEngine.h"
-#include "Albedo/Physics/Conversions.h"
 
 #include <reactphysics3d/reactphysics3d.h>
 #include <box2d/box2d.h>
@@ -103,8 +102,6 @@ namespace Albedo {
 		entity.GetComponent<PhysicsComponent>().bodyType = PhysicsComponent::BodyType::Dynamic;
 		entity.AddComponent<ColliderComponent>();
 		//entity.AddComponent<BoxCollider2DComponent>();
-		entity.GetComponent<PhysicsComponent>().dynamicBody = 
-			std::make_shared<RigidBodyDynamicComponent>(tra.GetPosition(), tra.GetRotation(), 0.001f);
 		//m_PhysicsSolver->AddActor(*entity.GetComponent<PhysicsComponent>().dynamicBody);
 		
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -609,7 +606,7 @@ namespace Albedo {
 			if(m_SceneSetting.ShowCollider)
 			{
 				Renderer::Setup(camera, m_ColliderShader, m_Transform);
-				Renderer::RenderOverlay(m_Collider);
+				//Renderer::RenderOverlay(m_Collider);
 			}
 		}
 	}

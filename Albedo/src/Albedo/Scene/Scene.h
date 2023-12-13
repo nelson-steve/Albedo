@@ -3,7 +3,6 @@
 #include "Albedo/Cameras/EditorCamera.h"
 #include "Albedo/Core/Timestep.h"
 #include "Albedo/Renderer/Material.h"
-#include "Albedo/Physics/PhysicsCollider.h"
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
 #include "Albedo/TerrainGeneration/TerrainManager.h"
@@ -120,12 +119,8 @@ namespace Albedo {
 
 		Ref<Shader> m_TerrainShader;
 		Ref<Shader> m_CubeShader;
-		Ref<Mesh> m_Cube;
 		Ref<Texture2D> tex;
 
-		Ref<Mesh> m_Skybox;
-		Ref<Mesh> m_Collider;
-		Ref<Mesh> m_Quad;
 		Ref<Shader> m_ColliderShader;
 		glm::mat4 m_Transform = glm::mat4(1.0);
 		//Shader paths

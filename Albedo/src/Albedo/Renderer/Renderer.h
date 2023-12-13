@@ -3,6 +3,7 @@
 #include "RenderCommand.h"
 #include "Albedo/Scene/Components.h"
 #include "Albedo/Cameras/EditorCamera.h"
+#include "Mesh.h"
 #include <entt.hpp>
 
 namespace Albedo {

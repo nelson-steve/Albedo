@@ -25,9 +25,6 @@
 
 #include "Albedo/Renderer/Material.h"
 
-#include "Albedo/Physics/PhysicsWorld.h"
-#include "Albedo/Physics/PhysicsMaterial.h"
-
 #include "Albedo/Core/Core.h"
 
 #include "Albedo/Cameras/OrthographicCamera.h"
