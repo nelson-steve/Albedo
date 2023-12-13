@@ -1437,33 +1437,6 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\Conversions.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsBodyComponent.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsBodyConfig.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsCollider.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsConfig.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsMaterial.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsSolver.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsTaskDispatcher.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1639,24 +1612,6 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Math\Math.cpp">
       <Filter>src\Albedo\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsBodyComponent.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsCollider.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsMaterial.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsSolver.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsTaskDispatcher.cpp">
-      <Filter>src\Albedo\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp">
-      <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>

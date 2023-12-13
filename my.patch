@@ -1,0 +1,5692 @@
+diff --git a/Albedo/src/Albedo/Renderer/Model.cpp b/Albedo/src/Albedo/Renderer/Model.cpp
+index 15093f6..ec61b48 100644
+--- a/Albedo/src/Albedo/Renderer/Model.cpp
++++ b/Albedo/src/Albedo/Renderer/Model.cpp
+@@ -312,7 +312,7 @@ namespace Albedo {
+ 			//	glUniform1i(uOcclusionTexture, 3);
+ 			//}
+ 		}
+-	};
++		};
+ 
+ 	void Model::Draw(Ref<Shader> shader) {
+ 		shader->SetUniformInt1("u_BaseColorTexture", 0);
+@@ -321,15 +321,15 @@ namespace Albedo {
+ 		shader->SetUniformInt1("u_OcclusionTexture", 3);
+ 
+ 		// The recursive function that should draw a node
+-		// We use a std::function because a simple lambda cannot be recursive
++	    // We use a std::function because a simple lambda cannot be recursive
+ 		const std::function<void(int, const glm::mat4&)> drawNode =
+ 			[&](int nodeIdx, const glm::mat4& parentMatrix) {
+ 			const auto& node = m_model.nodes[nodeIdx];
+ 			const glm::mat4 modelMatrix = glm::mat4(1.0f);
+-			//getLocalToWorldMatrix(node, parentMatrix);
++				//getLocalToWorldMatrix(node, parentMatrix);
+ 
+-		// If the node references a mesh (a node can also reference a
+-		// camera, or a light)
++			// If the node references a mesh (a node can also reference a
++			// camera, or a light)
+ 			if (node.mesh >= 0) {
+ 				const auto& mesh = m_model.meshes[node.mesh];
+ 				const auto& vaoRange = meshToVertexArrays[node.mesh];
+diff --git a/Albedo/src/Albedo/Renderer/Model.h b/Albedo/src/Albedo/Renderer/Model.h
+index 9df9b05..e9e7d5b 100644
+--- a/Albedo/src/Albedo/Renderer/Model.h
++++ b/Albedo/src/Albedo/Renderer/Model.h
+@@ -24,8 +24,6 @@ namespace Albedo {
+         Model() {}
+         bool Load(const std::string& path);
+         void Draw(Ref<Shader> shader);
+-        void SetPBR(bool pbr) { m_PBR = pbr; }
+-        const std::string& GetPath() const { return m_Path; }
+     private:
+         void LoadTextures(const tinygltf::Model& model);
+         void LoadMaterials(tinygltf::Model& model);
+@@ -37,16 +35,6 @@ namespace Albedo {
+             GLsizei count; // Number of elements in range
+         };
+ 
+-        struct {
+-            int albedo = -1;
+-            int metallicroughness = -1;
+-            int emissive = -1;
+-            int occlusion = -1;
+-            int normal = -1;
+-        } m_UVs;
+-
+-        std::string m_Path;
+-        bool m_PBR = true;
+         tinygltf::Model m_model;
+         //std::vector<GLuint> bufferObjects;
+         std::vector<GLuint> vertexArrayObjects;
+diff --git a/Albedo/src/Albedo/Renderer/Renderer.cpp b/Albedo/src/Albedo/Renderer/Renderer.cpp
+index df01c5c..88d81cc 100644
+--- a/Albedo/src/Albedo/Renderer/Renderer.cpp
++++ b/Albedo/src/Albedo/Renderer/Renderer.cpp
+@@ -353,27 +353,19 @@ namespace Albedo {
+ 		}
+ 	}
+ 
+-	void Renderer::SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform)
+-	{
+-		shader.m_Shader->Bind();
+-		shader.m_Shader->SetUniformMat4("u_Projection", camera.GetProjection());
+-		shader.m_Shader->SetUniformMat4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+-		shader.m_Shader->SetUniformMat4("u_Model", glm::mat4(1.0f));
+-
+-		shader.m_Shader->SetUniformInt1("u_EquirectangularMap", 0);
+-
+-		skybox.m_Skybox->Bind(0);
+-
+-		shader.m_Shader->Unbind();
+-	}
+-
+ 	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
+ 	{
+ 		shader->Bind();
+ 		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+-		shader->SetUniformMat4("u_Model", transform);
+-		shader->SetUniformMat3("u_NormalMatrix", glm::mat3(transform));
++		shader->SetUniformMat4("u_Model", glm::mat4(1.0f));
++		shader->SetUniformMat3("u_NormalMatrix", glm::mat4(transform));
+ 		shader->SetUniformFloat3("u_CamPos", camera.GetPosition());
++
++		shader->SetUniformInt1("u_Albedo", 0);
++		shader->SetUniformInt1("u_MetallicRoughness", 1);
++		shader->SetUniformInt1("u_Normal", 2);
++		shader->SetUniformInt1("u_Occlusion", 3);
++		shader->SetUniformInt1("u_Emissive", 4);
+ 	}
+ 
+ 	void Renderer::RenderOverlay(const Ref<Mesh> mesh)
+@@ -383,12 +375,11 @@ namespace Albedo {
+ 		mesh->GetMeshBufferData().m_VertexArray->UnBind();
+ 	}
+ 
+-	void Renderer::Render(const Ref<Model> model, const Ref<Shader> shader)
++	void Renderer::Render(const ModelComponent& mesh, const Ref<Shader> shader)
+ 	{
+-		shader->Bind();
+ 		//if(config.PolygonMode)
+ 		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+-		model->Draw(shader);
++		mesh.m_Model->Draw(shader);
+ 		//if(config.PolygonMode) 
+ 		//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+ 	}
+diff --git a/Albedo/src/Albedo/Renderer/Renderer.h b/Albedo/src/Albedo/Renderer/Renderer.h
+index b5caaa7..1b2bcb3 100644
+--- a/Albedo/src/Albedo/Renderer/Renderer.h
++++ b/Albedo/src/Albedo/Renderer/Renderer.h
+@@ -18,14 +18,13 @@ namespace Albedo {
+ 		static void   SetupPlane(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+ 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights,
+ 			const Ref<ShadowMap> shadowMap);
+-		static void   SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform);
+ 		static void   Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+ 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
+ 		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+ 			const TextureComponent& texture, const MaterialComponent& material);
+ 		static void	  Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);
+ 		static void   RenderOverlay(const Ref<Mesh> mesh);
+-		static void   Render(const Ref<Model> model, const Ref<Shader> shader);
++		static void   Render(const ModelComponent& mesh, const Ref<Shader> shader);
+ 		static GLenum AlbedoDrawTypeToGLType(DrawType type);
+ 		static void   Shutdown();
+ 		static void   OnWindowResize(uint32_t width, uint32_t height);
+diff --git a/Albedo/src/Albedo/Scene/Components.h b/Albedo/src/Albedo/Scene/Components.h
+index dee8676..21eec4d 100644
+--- a/Albedo/src/Albedo/Scene/Components.h
++++ b/Albedo/src/Albedo/Scene/Components.h
+@@ -36,13 +36,12 @@ namespace Albedo {
+ 
+ 	struct ModelComponent
+ 	{
+-		std::string name = "Model Component";
++		std::string name = "Model Compnent";
+ 
+ 		void AddMesh(const Ref<Model> model, int id) { m_Model = model; ID = id; }
+ 
+ 		Ref<Model> m_Model;
+ 		int ID = -1;
+-		bool tobeinitialized = false;
+ 
+ 		ModelComponent() = default;
+ 		ModelComponent(const ModelComponent&) = default;
+@@ -50,8 +49,6 @@ namespace Albedo {
+ 
+ 	struct LightComponent
+ 	{
+-		std::string name = "Light Compnent";
+-
+ 		enum LightType
+ 		{
+ 			Point,
+@@ -61,8 +58,8 @@ namespace Albedo {
+ 		
+ 		LightType type		= LightType::Directional;
+ 		
+-		glm::vec3 direction = glm::vec3(0.0f, 1.0f, 0.0f);
+-		glm::vec3 position  = glm::vec3(0.0);
++		glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
++		glm::vec3 position  = glm::vec3(1.0);
+ 		glm::vec3 ambient   = glm::vec3(0.05f, 0.05f, 0.05f);
+ 		glm::vec3 diffuse   = glm::vec3(0.4f, 0.4f, 0.4f);
+ 		glm::vec3 specular  = glm::vec3(0.5f, 0.5f, 0.5f);
+@@ -74,6 +71,7 @@ namespace Albedo {
+ 		float quadratic		= 0.0;
+ 
+ 		std::string nameOfLight = "Directional";
++		//glm::vec3 color = glm::vec3(1.0);
+ 
+ 		LightComponent() = default;
+ 		LightComponent(const LightComponent&) = default;
+@@ -81,12 +79,9 @@ namespace Albedo {
+ 
+ 	struct SkyboxComponent
+ 	{
+-		std::string name = "Skybox Compnent";
+-
+ 		Ref<Texture2D> m_Skybox;
+-		Ref<Model> m_Model;
+ 
+-		std::string path = "Assets/Textures/hdr/environment.hdr";
++		std::vector<std::string> faces;
+ 
+ 		SkyboxComponent() = default;
+ 		SkyboxComponent(const SkyboxComponent&) = default;
+@@ -132,7 +127,7 @@ namespace Albedo {
+ 		}
+ 
+ 		Ref<Shader> m_Shader;
+-		bool tobeinitialized = false;
++		bool initialize = true;
+ 
+ 		ShaderComponent() = default;
+ 		ShaderComponent(const ShaderComponent&) = default;
+@@ -140,43 +135,43 @@ namespace Albedo {
+ 
+ 	struct TransformComponent
+ 	{
+-		std::string name = "Transform Component";
++		std::string name = "Transform Compnent";
++
++		void AddTranform(const glm::mat4 tranform) { Transform = tranform; }
++		const glm::vec3& GetPosition() const { return Position; }
++		const glm::vec3& GetRotation() const { return Rotation; }
++		const glm::vec3& GetScale() const { return Scale; }
+ 
+ 		void AddTranform(const glm::vec3& pos)
+ 		{
++			Transform = glm::translate(glm::mat4(1.0f), pos);
+ 			Position = pos;
+ 		}
+ 
+ 		void AddTranform(const glm::vec4& rot)
+ 		{
+ 			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
++			Transform = Transform * rotation;
+ 		}
+ 
+ 		void AddTranform(const glm::vec3& pos, const glm::vec4& rot)
+ 		{
++			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
++			Transform = glm::translate(glm::mat4(1.0f), pos) * rotation;
+ 			Position = pos;
+ 			Rotation = rot;
+ 		}
+ 
+ 		void AddTranform(const glm::vec3& pos, const glm::vec4& rot, const glm::vec3& scale) 
+ 		{
++			glm::mat4 rotation = glm::toMat4(glm::quat(rot));
++			Transform =  glm::translate(glm::mat4(1.0f), pos) * rotation * glm::scale(glm::mat4(1.0f), scale);
+ 			Position = pos;
+ 			Rotation = rot;
+ 			Scale = scale;
+ 		}
+ 
+-		const glm::vec3& GetPosition() const { return Position; }
+-		const glm::vec3& GetRotation() const { return Rotation; }
+-		const glm::vec3& GetScale() const { return Scale; }
+-
+-		glm::mat4 GetTransform() const
+-		{
+-			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+-			return glm::translate(glm::mat4(1.0f), Position)
+-				* rotation
+-				* glm::scale(glm::mat4(1.0f), Scale);
+-		}
+-
++		glm::mat4 Transform{ 1.0f };
+ 		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+ 		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+ 		glm::vec3 Scale	   = { 1.0f, 1.0f, 1.0f };
+@@ -187,6 +182,16 @@ namespace Albedo {
+ 
+ 		TransformComponent(const glm::vec3& position)
+ 			: Position(position) {}
++
++		//void SetPosition(const glm::mat4& pos) { Position = pos; }
++
++		glm::mat4 GetTransform() const
++		{
++			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
++			return glm::translate(glm::mat4(1.0f), Position)
++				* rotation
++				* glm::scale(glm::mat4(1.0f), Scale);
++		}
+ 	};
+ 
+ 	// Physics
+diff --git a/Albedo/src/Albedo/Scene/Scene.cpp b/Albedo/src/Albedo/Scene/Scene.cpp
+index 4f7246e..ddc995b 100644
+--- a/Albedo/src/Albedo/Scene/Scene.cpp
++++ b/Albedo/src/Albedo/Scene/Scene.cpp
+@@ -95,7 +95,7 @@ namespace Albedo {
+ 				"Assets/Textures/Skybox/lake/front.jpg",
+ 				"Assets/Textures/Skybox/lake/back.jpg"
+ 			};
+-			//skyboxTemp = Texture2D::Create(config);
++			skyboxTemp = Texture2D::Create(config);
+ 		}
+  
+ 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
+@@ -224,8 +224,8 @@ namespace Albedo {
+ 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+ 		//entity.GetComponent<MaterialComponent>().m_Material->SetPBRStatus(true);
+ 		//entity.GetComponent<MaterialComponent>().isPBR = true;
+-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
+-		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
++		//entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
++		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/FlightHelmet/glTF/FlightHelmet.gltf"), (uint32_t)entity);
+ 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/albedo.png"), 0);
+ 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/ao.png"), 1);
+ 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/substance_sphere/marble/metallic.png"), 2);
+@@ -243,13 +243,13 @@ namespace Albedo {
+ 	Entity Scene::CreateCubeEntity(const std::string& name)
+ 	{
+ 		Entity entity = { m_Registry.create(), this };
+-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Cube/glTF/Cube.gltf"), (uint32_t)entity);
++		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
+ 		entity.AddComponent<TransformComponent>();
+ 		entity.AddComponent<ScriptComponent>();
+ 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShaderBasic.glsl"));
++		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
+ 		//entity.AddComponent<MaterialComponent>().m_Material = std::make_shared<Material>();
+-		//entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
++		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Textures/rocky.jpg"), 0);
+ 		entity.AddComponent<Physics2DComponent>();
+ 		entity.AddComponent<BoxCollider2DComponent>();
+ 
+@@ -288,23 +288,21 @@ namespace Albedo {
+ 		return entity;
+ 	}
+ 
++	
++
+ 	Entity Scene::CreateSkyboxEntity(const std::string& name)
+ 	{
+ 		Entity entity = { m_Registry.create(), this };
+ 		entity.AddComponent<TransformComponent>();
+-		entity.AddComponent<SkyboxComponent>();
+-		TextureConfiguration config{};
+-		config.m_MinFilter = Config::MinMagFilters::LINEAR;
+-		config.m_MagFilter= Config::MinMagFilters::LINEAR;
+-		config.m_TextureLayout = Config::TextureLayout::ClampToEdge;
+-		config.Path = entity.GetComponent<SkyboxComponent>().path;
+-		config.m_NullData = false;
+-		config.m_Flipped = true;
+-		entity.GetComponent<SkyboxComponent>().m_Skybox = Texture2D::Create(config);
+-		entity.GetComponent<SkyboxComponent>().m_Model = m_AssetManager->LoadGLTFModel("Assets/gltf_models/Cube/glTF/Cube.gltf");
+-		entity.GetComponent<SkyboxComponent>().m_Model->SetPBR(false);
+-		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/SkyboxShader.glsl"));
+-
++		entity.AddComponent<SkyboxComponent>().faces =
++		{
++			"Assets/Textures/Skybox/lake/right.jpg",
++			"Assets/Textures/Skybox/lake/left.jpg",
++			"Assets/Textures/Skybox/lake/top.jpg",
++			"Assets/Textures/Skybox/lake/bottom.jpg",
++			"Assets/Textures/Skybox/lake/front.jpg",
++			"Assets/Textures/Skybox/lake/back.jpg"
++		};
+ 		auto& tag = entity.AddComponent<TagComponent>();
+ 		tag.Tag = name.empty() ? "Entity" : name;
+ 		return entity;
+@@ -619,6 +617,11 @@ namespace Albedo {
+ 
+ 	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
+ 	{
++		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, 
++			TextureComponent, MaterialComponent, ScriptComponent>();
++
++		Camera* mainCamera = nullptr;
++
+ 		if (m_IsSimulating)
+ 		{
+ 			// changing to Scene Camera
+@@ -648,6 +651,37 @@ namespace Albedo {
+ 			}
+ 		}
+ 
++		for (auto& entity : view)
++		{
++			auto& tex = view.get<TextureComponent>(entity);
++			//if (!view.get<MaterialComponent>(entity).isPBR) continue;
++			auto& textures = view.get<TextureComponent>(entity).m_Textures;
++			if (!textures[TextureComponent::TextureType::Albedo].get())
++				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Albedo);
++
++			if (!textures[TextureComponent::TextureType::AmbientOcclusion].get())
++				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::AmbientOcclusion);
++
++			if (!textures[TextureComponent::TextureType::Metallic].get())
++				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Metallic);
++
++			if (!textures[TextureComponent::TextureType::Normal].get())
++				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Normal);
++
++			if (!textures[TextureComponent::TextureType::Roughness].get())
++				tex.AddTexture(m_AssetManager->LoadTexture("Assets/Textures/DarkGrey.jpg"), (int)TextureComponent::TextureType::Roughness);
++		}
++
++		// Checking for re initialization of meshes
++		auto meshView = m_Registry.view<ModelComponent, ShaderComponent>();
++		for (auto& entity : meshView)
++		{
++			auto& mesh = meshView.get<ModelComponent>(entity);
++			auto& shader = meshView.get<ShaderComponent>(entity);
++			//if (mesh.m_Mesh->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
++			//	Renderer::Init(m_Registry);
++		}
++
+ 		// Getting light components
+ 		auto& lightComponents = m_Registry.view<LightComponent>();
+ 		std::vector<LightComponent> lights;
+@@ -668,7 +702,7 @@ namespace Albedo {
+ 			l = lights[0].position;
+ 
+ 
+-		//for (auto& entity : view)
++		for (auto& entity : view)
+ 		{
+ 
+ #if ALBEDO_PHYSX
+@@ -688,7 +722,7 @@ namespace Albedo {
+ 		m_Framebuffer->Bind();
+ 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
+-		//for (auto& entity : view)
++		for (auto& entity : view)
+ 		{
+ #if ALBEDO_PHYSX
+ 			auto& pos = view.get<TransformComponent>(entity).Position;
+@@ -699,43 +733,28 @@ namespace Albedo {
+ #endif
+ 		}
+ 
+-		auto model_view = m_Registry.view<ModelComponent>();
+-		for (auto& entity : model_view) {
+-			if (model_view.get<ModelComponent>(entity).tobeinitialized) {
+-				std::string path = model_view.get<ModelComponent>(entity).m_Model->GetPath();
+-				model_view.get<ModelComponent>(entity).m_Model->Load(path);
+-				model_view.get<ModelComponent>(entity).tobeinitialized = false;
+-			}
+-		}
+-
+-		auto shader_view = m_Registry.view<ShaderComponent>();
+-		for (auto& entity : shader_view) {
+-			if (shader_view.get<ShaderComponent>(entity).tobeinitialized) {
+-				std::string path = shader_view.get<ShaderComponent>(entity).m_Shader->GetPath();
+-				shader_view.get<ShaderComponent>(entity).m_Shader = Shader::Create(path);
+-				shader_view.get<ShaderComponent>(entity).tobeinitialized = false;
+-			}
+-		}
+-		auto skybox_view = m_Registry.view<ShaderComponent, SkyboxComponent, TransformComponent>();
+-		for (auto& entity : skybox_view)
+-		{
+-			glDepthMask(GL_FALSE);
+-			Renderer::SetupSkybox(camera, skybox_view.get<SkyboxComponent>(entity), skybox_view.get<ShaderComponent>(entity),
+-				skybox_view.get<TransformComponent>(entity).GetTransform());
+-			Renderer::Render(skybox_view.get<SkyboxComponent>(entity).m_Model, skybox_view.get<ShaderComponent>(entity).m_Shader);
+-			glDepthMask(GL_TRUE);
+-		}
+-
+ 		auto temp_view = m_Registry.view<ShaderComponent, ModelComponent, TransformComponent>();
+ 		for (auto& entity : temp_view)
+ 		{
+-			Renderer::Setup(camera, temp_view.get<ShaderComponent>(entity).m_Shader, temp_view.get<TransformComponent>(entity).GetTransform());
+-			Renderer::Render(temp_view.get<ModelComponent>(entity).m_Model, temp_view.get<ShaderComponent>(entity).m_Shader);
++			//Renderer::Setup();
++
++			//if (view.get<MaterialComponent>(entity).m_Material->IsPBR())
++			{
++				//Renderer::SetupPBR(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
++				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
++			}
++			//else if (!view.get<MaterialComponent>(entity).m_Material->IsPBR())
++			{
++				//Renderer::Setup(camera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity),
++				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights);
++				//Renderer::SetupPlane(camera, (view.get<ShaderComponent>(entity)), view.get<TransformComponent>(entity),
++				//	view.get<TextureComponent>(entity), view.get<MaterialComponent>(entity), lights, m_ShadowMap);
++			}
++			Renderer::Setup(camera, view.get<ShaderComponent>(entity).m_Shader, view.get<TransformComponent>(entity).Transform);
++			Renderer::Render(view.get<ModelComponent>(entity), view.get<ShaderComponent>(entity).m_Shader);
+ 		}
+ 		// end
+ 		return;
+-
+-
+ 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
+ 
+ 		m_Transform = glm::mat4(1.0);
+diff --git a/Albedo/src/Albedo/Scene/SceneSerializer.cpp b/Albedo/src/Albedo/Scene/SceneSerializer.cpp
+index d353dcd..544f876 100644
+--- a/Albedo/src/Albedo/Scene/SceneSerializer.cpp
++++ b/Albedo/src/Albedo/Scene/SceneSerializer.cpp
+@@ -215,11 +215,11 @@ namespace Albedo {
+ 			out << YAML::BeginMap;
+ 			auto& skyc = entity.GetComponent<SkyboxComponent>();
+ 			int i = 1;
+-			//for (const auto& face : skyc.faces)
+-			//{
+-			//	out << YAML::Key << "Face" + std::to_string(i) << YAML::Value << face;
+-			//	i++;
+-			//}
++			for (const auto& face : skyc.faces)
++			{
++				out << YAML::Key << "Face" + std::to_string(i) << YAML::Value << face;
++				i++;
++			}
+ 		}
+ 
+ 		if (entity.HasComponent<TextureComponent>())
+diff --git a/Albedo/src/Albedo/Utils/AssetSystem.cpp b/Albedo/src/Albedo/Utils/AssetSystem.cpp
+index a5931aa..e48a3d8 100644
+--- a/Albedo/src/Albedo/Utils/AssetSystem.cpp
++++ b/Albedo/src/Albedo/Utils/AssetSystem.cpp
+@@ -333,9 +333,8 @@ namespace Albedo {
+ 		size_t pos = path.find_last_of('.');
+ 		std::string& extension = path.substr(pos + 1, path.size());
+ 
+-		//if (extension == "obj")
+-		//	return true;
+-		if (extension == "gltf")
++		// currently only support obj
++		if (extension == "obj")
+ 			return true;
+ 
+ 		return false;
+diff --git a/Albedo/src/Platform/OpenGL/OpenGLShader.h b/Albedo/src/Platform/OpenGL/OpenGLShader.h
+index 3020fe7..6a67dcf 100644
+--- a/Albedo/src/Platform/OpenGL/OpenGLShader.h
++++ b/Albedo/src/Platform/OpenGL/OpenGLShader.h
+@@ -57,7 +57,7 @@ namespace Albedo {
+ 		unsigned int m_ShaderID;
+ 		std::string m_Name;
+ 		std::string m_Path;
+-		bool m_InitializationStatus = false;
++		bool m_InitializationStatus;
+ 	};
+ 
+ }
+\ No newline at end of file
+diff --git a/Albedo/src/Platform/OpenGL/OpenGLTexture.cpp b/Albedo/src/Platform/OpenGL/OpenGLTexture.cpp
+index 504f209..f0d9897 100644
+--- a/Albedo/src/Platform/OpenGL/OpenGLTexture.cpp
++++ b/Albedo/src/Platform/OpenGL/OpenGLTexture.cpp
+@@ -34,13 +34,16 @@ namespace Albedo {
+ 		m_Height = config.m_Height;
+ 
+ 		GLenum dataFormat = Utils::AlbedoToOpenGLENUMType<Config::DataFormat>(config.m_DataFormat);
+-		GLenum texLayout = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
+-		GLenum dataType = Utils::AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
+-		GLenum texType = Utils::AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
++		GLenum texLayout  = Utils::AlbedoToOpenGLENUMType<Config::TextureLayout>(config.m_TextureLayout);
++		GLenum dataType   = Utils::AlbedoToOpenGLENUMType<Config::DataType>(config.m_DataType);
++		GLenum texType	  = Utils::AlbedoToOpenGLENUMType<Config::TextureType>(config.m_TextureType);
+ 
+-		GLint inFormat = Utils::AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
+-		GLint minFilter = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
+-		GLint magFilter = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
++		GLint inFormat    = Utils::AlbedoToOpenGLINTType<Config::InternalFormat>(config.m_InternalFormat);
++		GLint minFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MinFilter);
++		GLint magFilter   = Utils::AlbedoToOpenGLINTType<Config::MinMagFilters>(config.m_MagFilter);
++
++		if (config.m_TextureType == Config::TextureType::Cubemap)
++			isCubemap = true;
+ 
+ 		glGenTextures(1, &m_TextureID);
+ 		glBindTexture(texType, m_TextureID);
+@@ -50,54 +53,89 @@ namespace Albedo {
+ 
+ 		glTexParameteri(texType, GL_TEXTURE_WRAP_S, texLayout);
+ 		glTexParameteri(texType, GL_TEXTURE_WRAP_T, texLayout);
++		if (config.m_TextureType == Config::TextureType::Cubemap)
++			glTexParameteri(texType, GL_TEXTURE_WRAP_R, texLayout);
+ 
+-		if (config.m_NullData)
++		if (config.m_NullData && config.m_TextureType == Config::TextureType::Cubemap)
++		{
++			for (unsigned int i = 0; i < 6; ++i)
++			{
++				if (!config.m_Width || !config.m_Height)
++					Albedo_Core_WARN("texture width or height is zero");
++				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
++			}
++		}
++		else if (config.m_NullData && config.m_TextureType == Config::TextureType::Texture2D)
+ 		{
+ 			if (!config.m_Width || !config.m_Height)
+ 				Albedo_Core_WARN("texture width or height is zero");
+ 			glTexImage2D(texType, 0, inFormat, config.m_Width, config.m_Height, 0, dataFormat, dataType, nullptr);
+ 		}
+-		else
++		else if (!config.m_NullData)
+ 		{
+-			if (config.Path.empty())
++			if (config.Path.empty() && config.Faces.empty())
+ 				Albedo_CORE_ASSERT(false, "no paths specified");
+ 			int width, height, nrChannels;
++			unsigned char* dataRGB = nullptr;
++			float* dataHDR = nullptr;
+ 			stbi_set_flip_vertically_on_load(config.m_Flipped);
+-
+-			if (stbi_is_hdr(config.Path.c_str()))
++			if (config.m_TextureType == Config::TextureType::Texture2D)
+ 			{
+-				float* dataHDR = stbi_loadf(config.Path.c_str(), &width, &height, &nrChannels, 0);
+-				if (dataHDR) {
++				if (config.m_InternalFormat == Config::InternalFormat::RGB ||
++					config.m_InternalFormat == Config::InternalFormat::RGBA)
++				{
++					dataRGB = stbi_load(config.Path.c_str(), &width, &height, &nrChannels, 0);
++				}
++				else if (config.m_InternalFormat == Config::InternalFormat::RGB16F)
++				{
++					dataHDR = stbi_loadf(config.Path.c_str(), &width, &height, &nrChannels, 0);
++				}
++				if (dataRGB || dataHDR)
++				{
++					void* data;
++					if (dataRGB) data = dataRGB;
++					else if (dataHDR) data = dataHDR;
++
+ 					if (nrChannels == 4)
+-						glTexImage2D(texType, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, dataHDR);
++					{
++						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGBA, dataType, data);
++					}
+ 					else if (nrChannels == 3)
+-						glTexImage2D(texType, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, dataHDR);
++					{
++						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
++					}
+ 					else
+-						glTexImage2D(texType, 0, GL_RGB16F, width, height, 0, GL_RED, GL_FLOAT, dataHDR);
+-					glGenerateMipmap(GL_TEXTURE_2D);
+-					stbi_image_free(dataHDR);
++						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RED, dataType, data);
++					if (config.m_TextureType == Config::TextureType::Texture2D)
++						glGenerateMipmap(GL_TEXTURE_2D);
++					stbi_image_free(data);
+ 				}
+ 				else
++				{
+ 					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
++				}
++				m_Width = width;
++				m_Height = height;
+ 			}
+-			else
++			else if (config.m_TextureType == Config::TextureType::Cubemap)
+ 			{
+-				unsigned char* dataRGB = stbi_load(config.Path.c_str(), &width, &height, &nrChannels, 0);
+-				if (dataRGB) {
+-					if (nrChannels == 4)
+-						glTexImage2D(texType, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataRGB);
+-					else if (nrChannels == 3)
+-						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, dataRGB);
++				Albedo_CORE_ASSERT(!config.Faces.empty(), "Invalid cubemap paths");
++				for (unsigned int i = 0; i < 6; i++)
++				{
++					unsigned char* data = stbi_load(config.Faces[i].c_str(), &width, &height, &nrChannels, 0);
++					if (data)
++					{
++						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, dataType, data);
++						stbi_image_free(data);
++					}
+ 					else
+-						glTexImage2D(texType, 0, GL_RGB, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, dataRGB);
+-					glGenerateMipmap(GL_TEXTURE_2D);
+-					stbi_image_free(dataRGB);
++					{
++						Albedo_Core_ERROR("Cubemap texture failed to load at path: ", config.Faces[i]);
++						//std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
++						stbi_image_free(data);
++					}
+ 				}
+-				else
+-					Albedo_Core_WARN("Failed to load texture: {}", config.Path);
+ 			}
+-			m_Width = width;
+-			m_Height = height;
+ 		}
+ 	}
+ 
+@@ -163,32 +201,19 @@ namespace Albedo {
+ 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+ 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
++		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+ 
+ 		int width, height, nrChannels;
+ 		stbi_set_flip_vertically_on_load(flipped);
+-		void* data;
+-		GLenum dataType = GL_RGB;
+-		GLenum Format = GL_RGB;
+-		if (stbi_is_hdr(path.c_str())) {
+-			data = stbi_loadf(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+-			dataType = GL_FLOAT;
+-			if (nrChannels == 4) Format = GL_RGBA16F;
+-			else if (nrChannels == 3) Format = GL_RGB16F;
+-		}
+-		else {
+-			data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+-			dataType = GL_UNSIGNED_BYTE;
+-			if (nrChannels == 4) Format = GL_RGBA;
+-			else if (nrChannels == 3) Format = GL_RGB;
+-		}
++		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+ 		if (data)
+ 		{
+ 			if(nrChannels == 4)
+-				glTexImage2D(GL_TEXTURE_2D, 0, Format, width, height, 0, GL_RGBA, dataType, data);
++				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+ 			else if(nrChannels == 3)
+-				glTexImage2D(GL_TEXTURE_2D, 0, Format, width, height, 0, GL_RGB, dataType, data);
++				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+ 			else
+-				glTexImage2D(GL_TEXTURE_2D, 0, Format, width, height, 0, GL_RED, dataType, data);
++				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+ 			glGenerateMipmap(GL_TEXTURE_2D);
+ 
+ 			//glTexSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, data);
+diff --git a/AlbedoEditor/Shaders/BRDF.glsl b/AlbedoEditor/Shaders/BRDF.glsl
+deleted file mode 100644
+index 5a7f123..0000000
+--- a/AlbedoEditor/Shaders/BRDF.glsl
++++ /dev/null
+@@ -1,127 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 a_Position;
+-layout (location = 1) in vec2 a_UV;
+-
+-out vec2 TexCoords;
+-
+-void main()
+-{
+-    TexCoords = a_UV;
+-	gl_Position = vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec2 FragColor;
+-in vec2 TexCoords;
+-
+-const float PI = 3.14159265359;
+-// ----------------------------------------------------------------------------
+-// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+-// efficient VanDerCorpus calculation.
+-float RadicalInverse_VdC(uint bits) 
+-{
+-     bits = (bits << 32u) | (bits >> 32u);
+-     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+-     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+-     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+-     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+-     return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+-}
+-// ----------------------------------------------------------------------------
+-vec2 Hammersley(uint i, uint N)
+-{
+-	return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+-}
+-// ----------------------------------------------------------------------------
+-vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
+-{
+-	float a = roughness*roughness;
+-	
+-	float phi = 2.0 * PI * Xi.x;
+-	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+-	float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+-	
+-	// from spherical coordinates to cartesian coordinates - halfway vector
+-	vec3 H;
+-	H.x = cos(phi) * sinTheta;
+-	H.y = sin(phi) * sinTheta;
+-	H.z = cosTheta;
+-	
+-	// from tangent-space H vector to world-space sample vector
+-	vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+-	vec3 tangent   = normalize(cross(up, N));
+-	vec3 bitangent = cross(N, tangent);
+-	
+-	vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+-	return normalize(sampleVec);
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    // note that we use a different k for IBL
+-    float a = roughness;
+-    float k = (a * a) / 2.0;
+-
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec2 IntegrateBRDF(float NdotV, float roughness)
+-{
+-    vec3 V;
+-    V.x = sqrt(1.0 - NdotV*NdotV);
+-    V.y = 0.0;
+-    V.z = NdotV;
+-
+-    float A = 0.0;
+-    float B = 0.0; 
+-
+-    vec3 N = vec3(0.0, 0.0, 1.0);
+-    
+-    const uint SAMPLE_COUNT = 1024u;
+-    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+-    {
+-        // generates a sample vector that's biased towards the
+-        // preferred alignment direction (importance sampling).
+-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+-        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+-        vec3 L = normalize(2.0 * dot(V, H) * H - V);
+-
+-        float NdotL = max(L.z, 0.0);
+-        float NdotH = max(H.z, 0.0);
+-        float VdotH = max(dot(V, H), 0.0);
+-
+-        if(NdotL > 0.0)
+-        {
+-            float G = GeometrySmith(N, V, L, roughness);
+-            float G_Vis = (G * VdotH) / (NdotH * NdotV);
+-            float Fc = pow(1.0 - VdotH, 5.0);
+-
+-            A += (1.0 - Fc) * G_Vis;
+-            B += Fc * G_Vis;
+-        }
+-    }
+-    A /= float(SAMPLE_COUNT);
+-    B /= float(SAMPLE_COUNT);
+-    return vec2(A, B);
+-}
+-// ----------------------------------------------------------------------------
+-void main() 
+-{
+-    vec2 integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y);
+-    FragColor = integratedBRDF;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/Background.glsl b/AlbedoEditor/Shaders/Background.glsl
+deleted file mode 100644
+index 7dc4c8c..0000000
+--- a/AlbedoEditor/Shaders/Background.glsl
++++ /dev/null
+@@ -1,36 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-
+-out vec3 WorldPos;
+-
+-void main()
+-{
+-    WorldPos = aPos;
+-
+-	mat4 rotView = mat4(mat3(view));
+-	vec4 clipPos = projection * rotView * vec4(WorldPos, 1.0);
+-
+-	gl_Position = clipPos.xyww;
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec3 WorldPos;
+-
+-uniform samplerCube environmentMap;
+-uniform float darkness;
+-
+-void main()
+-{		
+-    vec3 envColor = textureLod(environmentMap, WorldPos, 0.0).rgb;
+-    // HDR tonemap and gamma correct
+-    envColor = envColor / (envColor + vec3(1.0));
+-    envColor = pow(envColor, vec3(1.0/2.2)); 
+-    
+-    FragColor = vec4(envColor, 1.0) * darkness;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/BatchTextureShader.glsl b/AlbedoEditor/Shaders/BatchTextureShader.glsl
+deleted file mode 100644
+index bf10586..0000000
+--- a/AlbedoEditor/Shaders/BatchTextureShader.glsl
++++ /dev/null
+@@ -1,86 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec4 a_Color;
+-layout(location = 2) in vec2 a_TexCoord;
+-layout(location = 3) in int a_TexID;
+-layout(location = 4) in int a_EntityID;
+-
+-uniform mat4 u_ProjectionView;
+-
+-out vec4 v_Color;
+-out vec2 v_TexCoord;
+-flat out int v_TexID;
+-flat out int v_EntityID;
+-
+-void main()
+-{
+-	v_Color = a_Color;
+-	v_TexCoord = a_TexCoord;
+-	v_TexID = a_TexID;
+-	v_EntityID = a_EntityID;
+-	gl_Position = u_ProjectionView * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-layout(location = 0) out vec4 color;
+-layout(location = 1) out int color2;
+-
+-in vec4 v_Color;
+-in vec2 v_TexCoord;
+-flat in int v_TexID;
+-flat in int v_EntityID;
+-
+-uniform vec4 u_Color;
+-uniform sampler2D u_Textures[32];
+-
+-void main()
+-{
+-	int v_TilingFactor = 1;
+-	vec4 texColor = v_Color;
+-
+-	switch(v_TexID)
+-		{
+-			case  0: texColor *= texture(u_Textures[ 0], v_TexCoord * v_TilingFactor); break;
+-			case  1: texColor *= texture(u_Textures[ 1], v_TexCoord * v_TilingFactor); break;
+-			case  2: texColor *= texture(u_Textures[ 2], v_TexCoord * v_TilingFactor); break;
+-			case  3: texColor *= texture(u_Textures[ 3], v_TexCoord * v_TilingFactor); break;
+-			case  4: texColor *= texture(u_Textures[ 4], v_TexCoord * v_TilingFactor); break;
+-			case  5: texColor *= texture(u_Textures[ 5], v_TexCoord * v_TilingFactor); break;
+-			case  6: texColor *= texture(u_Textures[ 6], v_TexCoord * v_TilingFactor); break;
+-			case  7: texColor *= texture(u_Textures[ 7], v_TexCoord * v_TilingFactor); break;
+-			case  8: texColor *= texture(u_Textures[ 8], v_TexCoord * v_TilingFactor); break;
+-			case  9: texColor *= texture(u_Textures[ 9], v_TexCoord * v_TilingFactor); break;
+-			case 10: texColor *= texture(u_Textures[10], v_TexCoord * v_TilingFactor); break;
+-			case 11: texColor *= texture(u_Textures[11], v_TexCoord * v_TilingFactor); break;
+-			case 12: texColor *= texture(u_Textures[12], v_TexCoord * v_TilingFactor); break;
+-			case 13: texColor *= texture(u_Textures[13], v_TexCoord * v_TilingFactor); break;
+-			case 14: texColor *= texture(u_Textures[14], v_TexCoord * v_TilingFactor); break;
+-			case 15: texColor *= texture(u_Textures[15], v_TexCoord * v_TilingFactor); break;
+-			case 16: texColor *= texture(u_Textures[16], v_TexCoord * v_TilingFactor); break;
+-			case 17: texColor *= texture(u_Textures[17], v_TexCoord * v_TilingFactor); break;
+-			case 18: texColor *= texture(u_Textures[18], v_TexCoord * v_TilingFactor); break;
+-			case 19: texColor *= texture(u_Textures[19], v_TexCoord * v_TilingFactor); break;
+-			case 20: texColor *= texture(u_Textures[20], v_TexCoord * v_TilingFactor); break;
+-			case 21: texColor *= texture(u_Textures[21], v_TexCoord * v_TilingFactor); break;
+-			case 22: texColor *= texture(u_Textures[22], v_TexCoord * v_TilingFactor); break;
+-			case 23: texColor *= texture(u_Textures[23], v_TexCoord * v_TilingFactor); break;
+-			case 24: texColor *= texture(u_Textures[24], v_TexCoord * v_TilingFactor); break;
+-			case 25: texColor *= texture(u_Textures[25], v_TexCoord * v_TilingFactor); break;
+-			case 26: texColor *= texture(u_Textures[26], v_TexCoord * v_TilingFactor); break;
+-			case 27: texColor *= texture(u_Textures[27], v_TexCoord * v_TilingFactor); break;
+-			case 28: texColor *= texture(u_Textures[28], v_TexCoord * v_TilingFactor); break;
+-			case 29: texColor *= texture(u_Textures[29], v_TexCoord * v_TilingFactor); break;
+-			case 30: texColor *= texture(u_Textures[30], v_TexCoord * v_TilingFactor); break;
+-			case 31: texColor *= texture(u_Textures[31], v_TexCoord * v_TilingFactor); break;
+-		}
+-
+-	color = texColor;
+-	color2 = v_EntityID;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ColliderShader.glsl b/AlbedoEditor/Shaders/ColliderShader.glsl
+deleted file mode 100644
+index bc69199..0000000
+--- a/AlbedoEditor/Shaders/ColliderShader.glsl
++++ /dev/null
+@@ -1,20 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 a_Position;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-
+-void main()
+-{
+-    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-void main()
+-{    
+-    Color = vec4(1.0, 1.0, 0.0, 1.0);
+-}
+diff --git a/AlbedoEditor/Shaders/CubeInstancingShader.glsl b/AlbedoEditor/Shaders/CubeInstancingShader.glsl
+deleted file mode 100644
+index a930b7a..0000000
+--- a/AlbedoEditor/Shaders/CubeInstancingShader.glsl
++++ /dev/null
+@@ -1,40 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 aOffset;
+-
+-uniform mat4 u_ProjectionView;
+-uniform vec4 u_Color;
+-uniform mat4 u_Transform;
+-
+-out vec4 v_Color;
+-
+-uniform vec3 offsets[100];
+-
+-void main()
+-{
+-	v_Color = u_Color;
+-	vec3 offset = offsets[gl_InstanceID];
+-	gl_Position = u_ProjectionView * vec4(a_Position + offset, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-layout(location = 0) out vec4 color;
+-
+-in vec4 v_Color;
+-
+-uniform sampler2D u_Texture;
+-
+-void main()
+-{
+-	int v_TilingFactor = 1;
+-
+-	//color *= texture(u_Texture, v_TexCoord * v_TilingFactor);
+-	color = v_Color;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/CubeLightingMapShader.glsl b/AlbedoEditor/Shaders/CubeLightingMapShader.glsl
+deleted file mode 100644
+index ea405dc..0000000
+--- a/AlbedoEditor/Shaders/CubeLightingMapShader.glsl
++++ /dev/null
+@@ -1,84 +0,0 @@
+-///////////////////////////////////////// - VERTEX SHADER - /////////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec2 a_TexCoord;
+-layout(location = 2) in vec3 a_Normals;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform int  u_TextureEnabled;
+-
+-out vec2 v_TexCoord;
+-out vec3 v_FragPos;
+-out vec3 v_Normal;
+-flat out int v_TextureEnabled;
+-
+-void main()
+-{
+-	v_FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-	v_TextureEnabled = u_TextureEnabled;
+-	v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normals;
+-	v_TexCoord = a_TexCoord;
+-	gl_Position = u_ProjectionView * vec4(v_FragPos, 1.0);
+-}
+-
+-///////////////////////////////////////// - FRAGMENT SHADER - /////////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-out vec4 color;
+-
+-struct Material {
+-    sampler2D u_DiffuseMap;
+-    sampler2D u_SpecularMap;		
+-    float u_Shininess;
+-}; 
+-
+-struct Light {
+-    vec3 u_Position;
+-
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-};
+-
+-in vec2 v_TexCoord;
+-in vec3 v_FragPos;
+-in vec3 v_Normal;
+-
+-uniform vec3	 u_CameraPos;
+-uniform Light	 light;
+-uniform Material material;
+-
+-void main()
+-{
+-	vec3 ambient = light.u_Ambient * texture(material.u_DiffuseMap, v_TexCoord).rgb;
+-	
+-	vec3 normal = normalize(v_Normal);
+-	vec3 lightDir = normalize(light.u_Position - v_FragPos);
+-	float diff = max(dot(normal, lightDir), 0.0);
+-	vec3 diffuse = light.u_Diffuse * diff * texture(material.u_DiffuseMap, v_TexCoord).rgb;
+-	
+-	vec3 viewDir = normalize(u_CameraPos - v_FragPos);
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-    vec3 specular = light.u_Specular * spec * texture(material.u_SpecularMap, v_TexCoord).rgb;
+-	
+-	// attenuation
+-    float distance    = length(light.u_Position - v_FragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));
+-
+-    ambient   *= attenuation;  
+-    diffuse   *= attenuation;
+-    specular  *= attenuation; 
+-	
+-	vec3 result = ambient + diffuse + specular;
+-	color = vec4(result, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/CubeLightingShader.glsl b/AlbedoEditor/Shaders/CubeLightingShader.glsl
+deleted file mode 100644
+index 52c2063..0000000
+--- a/AlbedoEditor/Shaders/CubeLightingShader.glsl
++++ /dev/null
+@@ -1,72 +0,0 @@
+-///////////////////////////////////////// - VERTEX SHADER - /////////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec2 a_TexCoord;
+-layout(location = 2) in vec3 a_Normals;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Model;
+-uniform mat4 u_Transform;
+-uniform int  u_TextureEnabled;
+-
+-out vec2 v_TexCoord;
+-out vec3 v_FragPos;
+-out vec3 v_Normal;
+-flat out int v_TextureEnabled;
+-
+-void main()
+-{
+-	v_FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-	v_TextureEnabled = u_TextureEnabled;
+-	v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normals;
+-	v_TexCoord = a_TexCoord;
+-	gl_Position = u_ProjectionView * vec4(v_FragPos, 1.0);
+-}
+-
+-///////////////////////////////////////// - FRAGMENT SHADER - /////////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-out vec4 color;
+-
+-in vec2 v_TexCoord;
+-in vec3 v_FragPos;
+-in vec3 v_Normal; 
+-flat in int v_TextureEnabled;
+-
+-uniform vec3 u_LightPos;
+-uniform vec3 u_CameraPos;
+-uniform vec3 u_LightColor;
+-uniform vec3 u_MaterialColor;
+-uniform sampler2D u_Texture;
+-
+-void main()
+-{
+-	float ambientStrength = 0.3;
+-	vec3 ambient = ambientStrength * u_LightColor;
+-
+-	vec3 normal = normalize(v_Normal);
+-	vec3 lightDir = normalize(u_LightPos - v_FragPos);
+-	float diff = max(dot(normal, lightDir), 0.0);
+-	vec3 diffuse = diff * u_LightColor;
+-
+-	float specularStrength = 0.5;
+-    vec3 viewDir = normalize(u_CameraPos - v_FragPos);
+-    vec3 reflectDir = reflect(-lightDir, normal);  
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+-    vec3 specular = specularStrength * spec * u_LightColor;
+-
+-	vec3 result = (ambient + diffuse + specular) * u_MaterialColor;
+-
+-	if(v_TextureEnabled == 1)
+-	{
+-		color = texture(u_Texture, v_TexCoord) * vec4(result, 1.0);
+-	}
+-	else
+-	{
+-		color = vec4(result, 1.0);
+-	}
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/CubeMultipleLightsShader.glsl b/AlbedoEditor/Shaders/CubeMultipleLightsShader.glsl
+deleted file mode 100644
+index f9cb8c1..0000000
+--- a/AlbedoEditor/Shaders/CubeMultipleLightsShader.glsl
++++ /dev/null
+@@ -1,164 +0,0 @@
+-///////////////////////////////////////// - VERTEX SHADER - /////////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec2 a_TexCoord;
+-layout(location = 2) in vec3 a_Normals;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform int  u_TextureEnabled;
+-
+-out vec2 v_TexCoord;
+-out vec3 v_FragPos;
+-out vec3 v_Normal;
+-
+-void main()
+-{
+-	v_FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-	v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normals;
+-	v_TexCoord = a_TexCoord;
+-	gl_Position = u_ProjectionView * vec4(v_FragPos, 1.0);
+-}
+-
+-///////////////////////////////////////// - FRAGMENT SHADER - /////////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-out vec4 color;
+-
+-struct Material {
+-    sampler2D u_DiffuseMap;
+-    sampler2D u_SpecularMap;		
+-    float u_Shininess;
+-};
+-
+-struct DirLight {
+-    vec3 u_Direction;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct PointLight {
+-    vec3 u_Position;
+-    
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct SpotLight {
+-    vec3  u_Position;
+-    vec3  u_Direction;
+-    float u_CutOff;
+-    float u_OuterCutOff;
+-  
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-  
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;       
+-};
+-
+-#define NR_POINT_LIGHTS 4
+-
+-in vec2 v_TexCoord;
+-in vec3 v_FragPos;
+-in vec3 v_Normal;
+-
+-uniform vec3	   u_CameraPos;
+-uniform DirLight   dirLight;
+-uniform PointLight pointLights[NR_POINT_LIGHTS];
+-uniform SpotLight  spotLight;
+-uniform Material   material;
+-
+-// function prototypes
+-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
+-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+-
+-void main()
+-{
+-    vec3 normal  = normalize(v_Normal);
+-	vec3 viewDir = normalize(u_CameraPos - v_FragPos);
+-
+-    vec3 result = CalcDirLight(dirLight, normal, viewDir);
+-
+-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+-        result += CalcPointLight(pointLights[i], normal, v_FragPos, viewDir);
+-
+-    result += CalcSpotLight(spotLight, normal, v_FragPos, viewDir);
+-
+-    color = vec4(result, 1.0);
+-}
+-
+-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(-light.u_Direction);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-    //
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(material.u_DiffuseMap, v_TexCoord));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(material.u_DiffuseMap,  v_TexCoord));
+-    vec3 specular = light.u_Specular * spec * vec3(texture(material.u_SpecularMap, v_TexCoord));
+-    return (ambient + diffuse + specular);
+-}
+-
+-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(material.u_DiffuseMap, v_TexCoord));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(material.u_DiffuseMap, v_TexCoord));
+-    vec3 specular = light.u_Specular * spec * vec3(texture(material.u_SpecularMap, v_TexCoord));
+-    ambient  *= attenuation;
+-    diffuse  *= attenuation;
+-    specular *= attenuation;
+-    return (ambient + diffuse + specular);
+-}
+-
+-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    float theta = dot(lightDir, normalize(-light.u_Direction)); 
+-    float epsilon = light.u_CutOff - light.u_OuterCutOff;
+-    float intensity = clamp((theta - light.u_OuterCutOff) / epsilon, 0.0, 1.0);
+-
+-    vec3 ambient  = light.u_Ambient * vec3(texture(material.u_DiffuseMap, v_TexCoord));
+-    vec3 diffuse  = light.u_Diffuse * diff * vec3(texture(material.u_DiffuseMap, v_TexCoord));
+-    vec3 specular = light.u_Specular * spec * vec3(texture(material.u_SpecularMap, v_TexCoord));
+-    ambient  *= attenuation * intensity;
+-    diffuse  *= attenuation * intensity;
+-    specular *= attenuation * intensity;
+-    return (ambient + diffuse + specular);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/CubeShader.glsl b/AlbedoEditor/Shaders/CubeShader.glsl
+deleted file mode 100644
+index 931cf97..0000000
+--- a/AlbedoEditor/Shaders/CubeShader.glsl
++++ /dev/null
+@@ -1,33 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec2 a_TexCoord;
+-layout(location = 2) in vec3 a_Normals;
+-
+-uniform mat4 u_ProjectionView;
+-uniform vec4 u_MaterialColor;
+-uniform mat4 u_Transform;
+-
+-out vec4 v_Color;
+-
+-void main()
+-{
+-	v_Color = u_MaterialColor;
+-	gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-layout(location = 0) out vec4 color;
+-
+-in vec4 v_Color;
+-
+-void main()
+-{
+-	color = v_Color;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/Cubemap.glsl b/AlbedoEditor/Shaders/Cubemap.glsl
+deleted file mode 100644
+index 2e6ce4e..0000000
+--- a/AlbedoEditor/Shaders/Cubemap.glsl
++++ /dev/null
+@@ -1,35 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-layout (location = 1) in vec3 aNormal;
+-
+-out vec3 Normal;
+-out vec3 Position;
+-
+-uniform mat4 model;
+-uniform mat4 view;
+-uniform mat4 projection;
+-
+-void main()
+-{
+-    Normal = mat3(transpose(inverse(model))) * aNormal;
+-    Position = vec3(model * vec4(aPos, 1.0));
+-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-
+-in vec3 Normal;
+-in vec3 Position;
+-
+-uniform vec3 cameraPos;
+-uniform samplerCube skybox;
+-
+-void main()
+-{    
+-    vec3 I = normalize(Position - cameraPos);
+-    vec3 R = reflect(I, normalize(Normal));
+-    FragColor = vec4(texture(skybox, R).rgb, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/DepthMapShader.glsl b/AlbedoEditor/Shaders/DepthMapShader.glsl
+deleted file mode 100644
+index c2c1a06..0000000
+--- a/AlbedoEditor/Shaders/DepthMapShader.glsl
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_TexCoord;
+-
+-uniform mat4 u_LightSpaceMatrix;
+-uniform mat4 u_Transform;
+-
+-void main()
+-{
+-    gl_Position = u_LightSpaceMatrix * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-void main()
+-{             
+-    gl_FragDepth = gl_FragCoord.z;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/EquirectangulartoCubemap.glsl b/AlbedoEditor/Shaders/EquirectangulartoCubemap.glsl
+deleted file mode 100644
+index b97adca..0000000
+--- a/AlbedoEditor/Shaders/EquirectangulartoCubemap.glsl
++++ /dev/null
+@@ -1,38 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-
+-out vec3 WorldPos;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-
+-void main()
+-{
+-    WorldPos = aPos;  
+-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec3 WorldPos;
+-
+-uniform sampler2D equirectangularMap;
+-
+-const vec2 invAtan = vec2(0.1591, 0.3183);
+-vec2 SampleSphericalMap(vec3 v)
+-{
+-    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+-    uv *= invAtan;
+-    uv += 0.5;
+-    return uv;
+-}
+-
+-void main()
+-{		
+-    vec2 uv = SampleSphericalMap(normalize(WorldPos));
+-    vec3 color = texture(equirectangularMap, uv).rgb;
+-    
+-    FragColor = vec4(color, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/FlatColorShader.glsl b/AlbedoEditor/Shaders/FlatColorShader.glsl
+deleted file mode 100644
+index 4cf15e5..0000000
+--- a/AlbedoEditor/Shaders/FlatColorShader.glsl
++++ /dev/null
+@@ -1,24 +0,0 @@
+-#type vertex
+-#version 330 core
+-
+-layout(location = 0) in vec3 a_Position;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-
+-void main()
+-{
+-	gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-
+-layout(location = 0) out vec4 color;
+-
+-uniform vec4 u_Color;
+-
+-void main()
+-{
+-	color = u_Color;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/IrradiancetoConvolution.glsl b/AlbedoEditor/Shaders/IrradiancetoConvolution.glsl
+deleted file mode 100644
+index 241fed4..0000000
+--- a/AlbedoEditor/Shaders/IrradiancetoConvolution.glsl
++++ /dev/null
+@@ -1,54 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-
+-out vec3 WorldPos;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-
+-void main()
+-{
+-    WorldPos = aPos;  
+-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec3 WorldPos;
+-
+-uniform samplerCube environmentMap;
+-
+-const float PI = 3.14159265359;
+-
+-void main()
+-{		
+-    vec3 N = normalize(WorldPos);
+-
+-    vec3 irradiance = vec3(0.0);   
+-    
+-    // tangent space calculation from origin point
+-    vec3 up    = vec3(0.0, 1.0, 0.0);
+-    vec3 right = normalize(cross(up, N));
+-    up         = normalize(cross(N, right));
+-       
+-    float sampleDelta = 0.025;
+-    float nrSamples = 0.0f;
+-    for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
+-    {
+-        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
+-        {
+-            // spherical to cartesian (in tangent space)
+-            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+-            // tangent space to world
+-            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N; 
+-
+-            irradiance += texture(environmentMap, sampleVec).rgb * cos(theta) * sin(theta);
+-            nrSamples++;
+-        }
+-    }
+-    irradiance = PI * irradiance * (1.0 / float(nrSamples));
+-    
+-    FragColor = vec4(irradiance, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/LineShader.glsl b/AlbedoEditor/Shaders/LineShader.glsl
+deleted file mode 100644
+index 51779c2..0000000
+--- a/AlbedoEditor/Shaders/LineShader.glsl
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-
+-uniform mat4 u_ProjectionView;
+-uniform vec4 u_Color;
+-uniform mat4 u_Transform;
+-
+-out vec4 v_Color;
+-
+-void main()
+-{
+-	v_Color = u_Color;
+-	gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-layout(location = 0) out vec4 color;
+-
+-in vec4 v_Color;
+-
+-void main()
+-{
+-	//color = texture(u_Texture, v_TexCoord) * vec4(1.0f, 1.0f, 1.0f, 1.0f);
+-	color = v_Color;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ModelPBRShader - shadows.glsl b/AlbedoEditor/Shaders/ModelPBRShader - shadows.glsl
+deleted file mode 100644
+index 4699564..0000000
+--- a/AlbedoEditor/Shaders/ModelPBRShader - shadows.glsl	
++++ /dev/null
+@@ -1,233 +0,0 @@
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV;
+-//layout(location = 3) in mat4 m_Positions;
+-
+-
+-//precision highp float;
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform mat4 u_LightSpaceMatrix;
+-
+-out vec2 v_TexCoords;
+-out vec3 v_WorldPos;
+-out vec3 v_Normal;
+-out vec4 FragPosLightSpace;
+-
+-//uniform vec3 offsets[100];
+-
+-void main()
+-{
+-    v_WorldPos  = vec3(u_Transform * vec4(a_Position, 1.0));
+-    v_Normal    = normalize(a_Normal);
+-    v_TexCoords = a_UV;  
+-    FragPosLightSpace = u_LightSpaceMatrix * vec4(v_WorldPos, 1.0);
+-    //gl_Position = u_ProjectionView * m_Positions * u_Transform * vec4(a_Position, 1.0);
+-    gl_Position = u_ProjectionView  * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-
+-#type fragment
+-#version 430 core
+-
+-//precision highp float;
+-layout (location = 0) out vec4 FragColor;
+-
+-in vec2 v_TexCoords;
+-in vec3 v_WorldPos;
+-in vec3 v_Normal;
+-in vec4 FragPosLightSpace;
+-
+-// material parameters
+-uniform sampler2D u_AlbedoMap;
+-uniform sampler2D u_AOMap;
+-uniform sampler2D u_MetallicMap;
+-uniform sampler2D u_NormalMap;
+-uniform sampler2D u_RoughnessMap;
+-uniform sampler2D u_ShadowMap;
+-
+-uniform float     u_RoughnessScale;
+-// lights
+-//uniform vec3 lightPositions[4];
+-//#define MAX_LIGHTS 128
+-//uniform int u_NoOfLights;
+-uniform vec3  u_LightPosition;
+-uniform vec3  u_LightColor;
+-uniform float u_Exposure;
+-uniform vec3  u_CameraPosition;
+-
+-const float PI = 3.14159265359;
+-// ----------------------------------------------------------------------------
+-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
+-// Don't worry if you don't get what's going on; you generally want to do normal
+-// mapping the usual way for performance anways; I do plan make a note of this
+-// technique somewhere later in the normal mapping tutorial.
+-vec3 getNormalFromMap()
+-{
+-    vec3 tangentNormal = texture(u_NormalMap, v_TexCoords).xyz * 2.0 - 1.0;
+-    
+-    vec3 Q1  = dFdx(v_WorldPos);
+-    vec3 Q2  = dFdy(v_WorldPos);
+-    vec2 st1 = dFdx(v_TexCoords);
+-    vec2 st2 = dFdy(v_TexCoords);
+-    
+-    vec3 N   = normalize(v_Normal);
+-    vec3 T   = normalize(Q1*st2.t - Q2*st1.t);
+-    vec3 B   = -normalize(cross(N, T));
+-    mat3 TBN = mat3(T, B, N);
+-    
+-    return normalize(TBN * tangentNormal);
+-    //return vec3(0.0, 0.0, 0.0);
+-}
+-
+-float ShadowCalculation(vec4 fragPosLightSpace)
+-{
+-    //// perform perspective divide
+-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+-    //// transform to [0,1] range
+-    projCoords = projCoords * 0.5 + 0.5;
+-    //// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+-    float closestDepth = texture(u_ShadowMap, projCoords.xy).r; 
+-    //// get depth of current fragment from light's perspective
+-    float currentDepth = projCoords.z;
+-    //// calculate bias (based on depth map resolution and slope)
+-    vec3 normal = normalize(v_Normal);
+-    vec3 lightDir = normalize(u_LightPosition - v_WorldPos);
+-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+-    //// check whether current frag pos is in shadow
+-    //// float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+-    //// PCF
+-    float shadow = 0.0;
+-    vec2 texelSize = 1.0 / textureSize(u_ShadowMap, 0);
+-    for(int x = -1; x <= 1; ++x)
+-    {
+-        for(int y = -1; y <= 1; ++y)
+-        {
+-            float pcfDepth = texture(u_ShadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+-        }    
+-    }
+-    shadow /= 9.0;
+-    
+-    //// keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+-    if(projCoords.z > 1.0)
+-        shadow = 0.0;
+-    //    
+-    return shadow;
+-    //return 0.0;
+-}
+-
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-    
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-    
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-    
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-    
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-    
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+-}
+-// ----------------------------------------------------------------------------
+-void main()
+-{
+-    vec3  albedo    = pow(texture(u_AlbedoMap, v_TexCoords).rgb, vec3(2.2));
+-    float metallic  = texture(u_MetallicMap, v_TexCoords).r;
+-    float roughness = texture(u_RoughnessMap, v_TexCoords).r;
+-    float ao        = texture(u_AOMap, v_TexCoords).r;
+-
+-    vec3 N = getNormalFromMap();
+-    vec3 V = normalize(u_CameraPosition - v_WorldPos);
+-
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
+-    vec3 F0 = vec3(0.04);
+-    F0 = mix(F0, albedo, metallic);
+-
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    for(int i = 0; i < 1; ++i)
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(u_LightPosition - v_WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(u_LightPosition - v_WorldPos);
+-        float attenuation = 1.0 / (distance * distance) + 0.9;
+-        vec3 radiance = u_LightColor  * attenuation;
+-
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);
+-        float G   = GeometrySmith(N, V, L, roughness);
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+-
+-        vec3 nominator    = NDF * G * F;
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+-        vec3 specular = nominator / denominator;
+-
+-        // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;
+-
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);
+-
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }
+-
+-    // ambient lighting (note that the next IBL tutorial will replace
+-    // this ambient lighting with environment lighting).
+-    vec3 ambient = vec3(0.03) * albedo * ao;
+-
+-    //float shadow = ShadowCalculation(FragPosLightSpace);
+-
+-    vec3 color = ambient + Lo;
+-
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    //color = pow(color, vec3(1.0/2.2));
+-    color = pow(color, vec3(1.0/u_Exposure));
+-
+-    FragColor = vec4(color, 1.0);
+-    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ModelPBRShader.glsl b/AlbedoEditor/Shaders/ModelPBRShader.glsl
+deleted file mode 100644
+index 1470cba..0000000
+--- a/AlbedoEditor/Shaders/ModelPBRShader.glsl
++++ /dev/null
+@@ -1,187 +0,0 @@
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV;
+-//layout(location = 3) in mat4 m_Positions;
+-
+-
+-//precision highp float;
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-
+-out vec2 v_TexCoords;
+-out vec3 v_WorldPos;
+-out vec3 v_Normal;
+-
+-//uniform vec3 offsets[100];
+-
+-void main()
+-{
+-    v_WorldPos  = vec3(u_Transform * vec4(a_Position, 1.0));
+-    v_Normal    = normalize(a_Normal);
+-    v_TexCoords = a_UV;  
+-    //gl_Position = u_ProjectionView * m_Positions * u_Transform * vec4(a_Position, 1.0);
+-    gl_Position = u_ProjectionView  * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-
+-#type fragment
+-#version 430 core
+-
+-//precision highp float;
+-layout (location = 0) out vec4 FragColor;
+-
+-in vec2 v_TexCoords;
+-in vec3 v_WorldPos;
+-in vec3 v_Normal;
+-
+-// material parameters
+-uniform sampler2D u_AlbedoMap;
+-uniform sampler2D u_AOMap;
+-uniform sampler2D u_MetallicMap;
+-uniform sampler2D u_NormalMap;
+-uniform sampler2D u_RoughnessMap;
+-
+-uniform float     u_RoughnessScale;
+-// lights
+-#define MAX_LIGHTS 128
+-uniform int u_NoOfLights;
+-uniform vec3  u_LightPosition[MAX_LIGHTS];
+-uniform vec3  u_LightColor[MAX_LIGHTS];
+-uniform float u_Exposure;
+-uniform vec3  u_CameraPosition;
+-
+-const float PI = 3.14159265359;
+-// ----------------------------------------------------------------------------
+-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
+-// Don't worry if you don't get what's going on; you generally want to do normal
+-// mapping the usual way for performance anways; I do plan make a note of this
+-// technique somewhere later in the normal mapping tutorial.
+-vec3 getNormalFromMap()
+-{
+-    vec3 tangentNormal = texture(u_NormalMap, v_TexCoords).xyz * 2.0 - 1.0;
+-    
+-    vec3 Q1  = dFdx(v_WorldPos);
+-    vec3 Q2  = dFdy(v_WorldPos);
+-    vec2 st1 = dFdx(v_TexCoords);
+-    vec2 st2 = dFdy(v_TexCoords);
+-    
+-    vec3 N   = normalize(v_Normal);
+-    vec3 T   = normalize(Q1*st2.t - Q2*st1.t);
+-    vec3 B   = -normalize(cross(N, T));
+-    mat3 TBN = mat3(T, B, N);
+-    
+-    return normalize(TBN * tangentNormal);
+-    //return vec3(0.0, 0.0, 0.0);
+-}
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-    
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-    
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-    
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-    
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-    
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+-}
+-// ----------------------------------------------------------------------------
+-void main()
+-{
+-    vec3  albedo    = pow(texture(u_AlbedoMap, v_TexCoords).rgb, vec3(2.2));
+-    float metallic  = texture(u_MetallicMap, v_TexCoords).r;
+-    float roughness = texture(u_RoughnessMap, v_TexCoords).r;
+-    float ao        = texture(u_AOMap, v_TexCoords).r;
+-
+-    vec3 N = getNormalFromMap();
+-    vec3 V = normalize(u_CameraPosition - v_WorldPos);
+-
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
+-    vec3 F0 = vec3(0.04);
+-    F0 = mix(F0, albedo, metallic);
+-
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    for(int i = 0; i < u_NoOfLights; ++i)
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(u_LightPosition[i] - v_WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(u_LightPosition[i] - v_WorldPos);
+-        float attenuation = 1.0 / (distance * distance) + 0.9;
+-        vec3 radiance = u_LightColor[i]  * attenuation;
+-
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);
+-        float G   = GeometrySmith(N, V, L, roughness);
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+-
+-        vec3 nominator    = NDF * G * F;
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+-        vec3 specular = nominator / denominator;
+-
+-        // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;
+-
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);
+-
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }
+-
+-    // ambient lighting (note that the next IBL tutorial will replace
+-    // this ambient lighting with environment lighting).
+-    vec3 ambient = vec3(0.03) * albedo * ao;
+-
+-    vec3 color = ambient + Lo;
+-
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    //color = pow(color, vec3(1.0/2.2));
+-    color = pow(color, vec3(1.0/u_Exposure));
+-
+-    FragColor = vec4(color, 1.0);
+-    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ModelShader.glsl b/AlbedoEditor/Shaders/ModelShader.glsl
+deleted file mode 100644
+index 5b7db7a..0000000
+--- a/AlbedoEditor/Shaders/ModelShader.glsl
++++ /dev/null
+@@ -1,188 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV0;
+-layout(location = 3) in vec2 a_UV1;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Model;
+-uniform mat3 u_NormalMatrix;
+-
+-out vec2 v_UV0;
+-out vec2 v_UV1;
+-out vec3 v_Normal;
+-out vec3 v_WorldPos;
+-
+-void main()
+-{
+-    v_WorldPos = a_Position;
+-    v_UV0 = a_UV0;
+-    v_UV1 = a_UV1;
+-    v_Normal = u_NormalMatrix * a_Normal;
+-    gl_Position = u_ProjectionView * u_Model * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-uniform vec3 u_CamPos;
+-
+-in vec2 v_UV0;
+-in vec2 v_UV1;
+-in vec3 v_Normal;
+-in vec3 v_WorldPos;
+-
+-const float PI = 3.14159265359;
+-
+-uniform vec4 u_BaseColorFactor;
+-uniform float u_MetallicFactor;
+-uniform float u_RoughnessFactor;
+-uniform float u_EmissiveFactor;
+-uniform float u_OcclusionStrength;
+-
+-uniform sampler2D u_Albedo;
+-uniform sampler2D u_MetallicRoughness;
+-uniform sampler2D u_Emissive;
+-uniform sampler2D u_Occlusion;
+-uniform sampler2D u_Normal;
+-
+-uniform int u_AlbedoUV;
+-uniform int u_MetallicRoughnessUV;
+-uniform int u_EmissiveUV;
+-uniform int u_OcclusionUV;
+-uniform int u_NormalUV;
+-
+-
+-vec3 getNormalFromMap()
+-{
+-    vec3 tangentNormal = texture(u_Normal, v_UV0).xyz * 2.0 - 1.0;
+-
+-    vec3 Q1  = dFdx(v_WorldPos);
+-    vec3 Q2  = dFdy(v_WorldPos);
+-    vec2 st1 = dFdx(v_UV0);
+-    vec2 st2 = dFdy(v_UV0);
+-
+-    vec3 N   = normalize(v_Normal);
+-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+-    vec3 B  = -normalize(cross(N, T));
+-    mat3 TBN = mat3(T, B, N);
+-
+-    return normalize(TBN * tangentNormal);
+-}
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-}
+-
+-void main()
+-{
+-    vec3 albedo     = pow(texture(u_Albedo, v_UV0).rgb, vec3(2.2));
+-    float metallic  = texture(u_MetallicRoughness, v_UV0).r;
+-    float roughness = texture(u_MetallicRoughness, v_UV0).r;
+-    float ao        = texture(u_Occlusion, v_UV0).r;
+-
+-    vec3 N = getNormalFromMap();
+-    vec3 V = normalize(u_CamPos - v_WorldPos);
+-
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
+-    vec3 F0 = vec3(0.04); 
+-    F0 = mix(F0, albedo, metallic);
+-
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    
+-    vec3 lightPos = vec3(0.0f, 1.0f, 0.0f);
+-    vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
+-    for(int i = 0; i < 1; ++i) 
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(lightPos - v_WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(lightPos - v_WorldPos);
+-        float attenuation = 1.0 / (distance * distance);
+-        vec3 radiance = lightColor * attenuation;
+-
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);   
+-        float G   = GeometrySmith(N, V, L, roughness);      
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+-           
+-        vec3 numerator    = NDF * G * F; 
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+-        vec3 specular = numerator / denominator;
+-        
+-        // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals 
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;	  
+-
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);        
+-
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }
+-    // ambient lighting (note that the next IBL tutorial will replace 
+-    // this ambient lighting with environment lighting).
+-    vec3 ambient = vec3(0.2) * albedo * ao;
+-    
+-    vec3 color = ambient + Lo;
+-
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    color = pow(color, vec3(1.0/2.2)); 
+-
+-    //Color = vec4(color, 1.0);
+-    if(u_MetallicRoughnessUV == 0)
+-        color = texture(u_Emissive, v_UV0).rgb;
+-    else
+-        color = texture(u_Emissive, v_UV1).rgb;
+-    //Color = vec4(color, 1.0f);
+-    Color = texture(u_Emissive, v_UV0);
+-}
+diff --git a/AlbedoEditor/Shaders/ModelShaderBasic.glsl b/AlbedoEditor/Shaders/ModelShaderBasic.glsl
+deleted file mode 100644
+index c88f805..0000000
+--- a/AlbedoEditor/Shaders/ModelShaderBasic.glsl
++++ /dev/null
+@@ -1,36 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV0;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Model;
+-uniform mat3 u_NormalMatrix;
+-
+-out vec2 v_UV0;
+-out vec3 v_Normal;
+-out vec3 v_WorldPos;
+-
+-void main()
+-{
+-    v_WorldPos = a_Position;
+-    v_UV0 = a_UV0;
+-    v_Normal = u_NormalMatrix * a_Normal;
+-    gl_Position = u_ProjectionView * u_Model * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-uniform vec3 u_CamPos;
+-
+-in vec2 v_UV0;
+-in vec3 v_Normal;
+-in vec3 v_WorldPos;
+-
+-void main()
+-{
+-    Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+-}
+diff --git a/AlbedoEditor/Shaders/ModelShaderPink.glsl b/AlbedoEditor/Shaders/ModelShaderPink.glsl
+deleted file mode 100644
+index cdbe4fd..0000000
+--- a/AlbedoEditor/Shaders/ModelShaderPink.glsl
++++ /dev/null
+@@ -1,21 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 a_Position;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-
+-void main()
+-{
+-    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-void main()
+-{
+-    vec3 pinkColor = vec3(0.97, 0.78, 0.86);    
+-    Color = vec4(pinkColor, 1.0);
+-}
+diff --git a/AlbedoEditor/Shaders/MultipleLights.glsl b/AlbedoEditor/Shaders/MultipleLights.glsl
+deleted file mode 100644
+index 837755a..0000000
+--- a/AlbedoEditor/Shaders/MultipleLights.glsl
++++ /dev/null
+@@ -1,191 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV;
+-
+-out vec2 TexCoords;
+-
+-out VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-    vec4 FragPosLightSpace;
+-} vs_out;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-
+-void main()
+-{
+-    vs_out.FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-    vs_out.Normal = mat3(transpose(inverse(u_Transform))) * a_Normal;
+-    vs_out.TexCoords = a_UV;
+-    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-out vec4 FragColor;
+-
+-in VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-} fs_in;
+-
+-struct DirLight {
+-    vec3 u_Direction;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct PointLight {
+-    vec3 u_Position;
+-    
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct SpotLight {
+-    vec3  u_Position;
+-    vec3  u_Direction;
+-    float u_CutOff;
+-    float u_OuterCutOff;
+-  
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-  
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;       
+-};
+-
+-#define TOTAL_POINT_LIGHTS 128
+-
+-uniform sampler2D u_DiffuseMap;
+-
+-uniform DirLight   u_DirLight;
+-uniform PointLight u_PointLights[TOTAL_POINT_LIGHTS];
+-uniform SpotLight  u_SpotLight;
+-uniform int u_NoOfPointLights;
+-uniform float u_Shininess;
+-uniform vec3 u_Specular;
+-uniform int u_SpotLightExists;
+-uniform int u_PointLightExists;
+-uniform int u_DirLightExists;
+-
+-uniform vec3 u_LightPosition;
+-uniform vec3 u_CameraPosition;
+-uniform vec3 u_MaterialColor;
+-
+-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(-light.u_Direction);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-    
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(u_DiffuseMap,  fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * spec;
+-
+-    return (ambient + diffuse + specular);
+-}
+-
+-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * spec;
+-    ambient  *= attenuation;
+-    diffuse  *= attenuation;
+-    specular *= attenuation;
+-    return (ambient + diffuse + specular);
+-}
+-
+-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    float theta = dot(lightDir, normalize(-light.u_Direction)); 
+-    float epsilon = light.u_CutOff - light.u_OuterCutOff;
+-    float intensity = clamp((theta - light.u_OuterCutOff) / epsilon, 0.0, 1.0);
+-
+-    vec3 ambient  = light.u_Ambient * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse * diff * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * spec;
+-    ambient  *= attenuation * intensity;
+-    diffuse  *= attenuation * intensity;
+-    specular *= attenuation * intensity;
+-    return (ambient + diffuse + specular);
+-}
+-
+-void main()
+-{
+-    vec3 color = texture(u_DiffuseMap, fs_in.TexCoords).rgb;
+-    //vec3 normal = normalize(fs_in.Normal);
+-    vec3 normal = normalize(fs_in.Normal);
+-    vec3 lightColor = vec3(0.3);
+-    // ambient
+-    vec3 ambient = 0.3 * lightColor;
+-    // diffuse
+-    vec3 lightDir = normalize(u_LightPosition - fs_in.FragPos);
+-    float diff = max(dot(lightDir, normal), 0.0);
+-    vec3 diffuse = diff * lightColor;
+-    // specular
+-    vec3 viewDir = normalize(u_CameraPosition - fs_in.FragPos);
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = 0.0;
+-    vec3 halfwayDir = normalize(lightDir + viewDir);  
+-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+-    vec3 specular = spec * lightColor;    
+-    //vec3 lighting = (1.0 - shadow) * color;
+-    vec3 lighting = vec3(0.1) * color;
+-    lighting = CalcDirLight(u_DirLight, normal, viewDir);
+-    //if(u_DirLightExists == 1)
+-    //{
+-    //}
+-    //vec3 lighting;
+-    for(int i = 0; i < u_NoOfPointLights; i++)
+-    {
+-        lighting += CalcPointLight(u_PointLights[i], normal, fs_in.FragPos, viewDir);
+-    }
+-    lighting += CalcSpotLight(u_SpotLight, normal, fs_in.FragPos, viewDir);
+-    //lighting *= color;
+-    //lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+-    //
+-    FragColor = vec4(lighting, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/PBRShader.glsl b/AlbedoEditor/Shaders/PBRShader.glsl
+deleted file mode 100644
+index 40f3fd8..0000000
+--- a/AlbedoEditor/Shaders/PBRShader.glsl
++++ /dev/null
+@@ -1,177 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-layout (location = 1) in vec3 aNormal;
+-layout (location = 2) in vec2 aTexCoords;
+-
+-out vec2 TexCoords;
+-out vec3 WorldPos;
+-out vec3 Normal;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-uniform mat4 model;
+-uniform mat3 normalMatrix;
+-
+-void main()
+-{
+-    TexCoords = aTexCoords;
+-    WorldPos = vec3(model * vec4(aPos, 1.0));
+-    Normal = normalMatrix * aNormal;   
+-
+-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec2 TexCoords;
+-in vec3 WorldPos;
+-in vec3 Normal;
+-
+-// material parameters
+-uniform vec3 albedo;
+-uniform float metallic;
+-uniform float roughness;
+-uniform float ao;
+-
+-// IBL
+-uniform samplerCube irradianceMap;
+-uniform samplerCube prefilterMap;
+-uniform sampler2D brdfLUT;
+-
+-// lights
+-uniform vec3 lightPositions;
+-uniform vec3 lightColors;
+-
+-uniform vec3 camPos;
+-
+-const float PI = 3.14159265359;
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-    
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-
+-    return nom / denom;
+-    //return 0.0;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-    
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-    
+-    return nom / denom;
+-    //return 0.0;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-    
+-    return ggx1 * ggx2;
+-    //return 0.0;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-    //return vec3(1.0, 1.0, 1.0);
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+-{
+-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-    //return vec3(1.0, 1.0, 1.0);
+-}   
+-// ----------------------------------------------------------------------------
+-void main()
+-{		
+-    vec3 N = Normal;
+-    vec3 V = normalize(camPos - WorldPos);
+-    vec3 R = reflect(-V, N); 
+-    
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
+-    vec3 F0 = vec3(0.04); 
+-    F0 = mix(F0, albedo, metallic);
+-    
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    for(int i = 0; i < 4; ++i) 
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(lightPositions - WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(lightPositions - WorldPos);
+-        float attenuation = 1.0 / (distance * distance);
+-        vec3 radiance = lightColors * attenuation;
+-    
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);   
+-        float G   = GeometrySmith(N, V, L, roughness);    
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);        
+-        
+-        vec3 numerator    = NDF * G * F;
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+-        vec3 specular = numerator / denominator;
+-        
+-         // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals 
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;	                
+-            
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);        
+-    
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }   
+-    
+-    // ambient lighting (we now use IBL as the ambient term)
+-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+-    
+-    vec3 kS = F;
+-    vec3 kD = 1.0 - kS;
+-    kD *= 1.0 - metallic;	  
+-    
+-    vec3 irradiance = texture(irradianceMap, N).rgb;
+-    vec3 diffuse      = irradiance * albedo;
+-    
+-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+-    const float MAX_REFLECTION_LOD = 4.0;
+-    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+-    vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+-    
+-    vec3 ambient = (kD * diffuse + specular) * ao;
+-    
+-    vec3 color = ambient + Lo;
+-    
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    color = pow(color, vec3(1.0/2.2)); 
+-
+-    FragColor = vec4(color , 1.0);
+-    //FragColor = vec4(1.0, 1.0, 1.0 , 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/PBRShaderFinal.glsl b/AlbedoEditor/Shaders/PBRShaderFinal.glsl
+deleted file mode 100644
+index 706b77a..0000000
+--- a/AlbedoEditor/Shaders/PBRShaderFinal.glsl
++++ /dev/null
+@@ -1,199 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-layout (location = 1) in vec3 aNormal;
+-layout (location = 2) in vec2 aTexCoords;
+-
+-out vec2 TexCoords;
+-out vec3 WorldPos;
+-out vec3 Normal;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-uniform mat4 model;
+-uniform mat3 normalMatrix;
+-
+-void main()
+-{
+-    TexCoords = aTexCoords;
+-    WorldPos = vec3(model * vec4(aPos, 1.0));
+-    Normal = normalMatrix * aNormal;   
+-
+-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec2 TexCoords;
+-in vec3 WorldPos;
+-in vec3 Normal;
+-
+-// IBL
+-uniform samplerCube irradianceMap;
+-uniform samplerCube prefilterMap;
+-uniform sampler2D brdfLUT;
+-
+-// material parameters
+-uniform sampler2D albedoMap;
+-uniform sampler2D normalMap;
+-uniform sampler2D metallicMap;
+-uniform sampler2D roughnessMap;
+-uniform sampler2D aoMap;
+-
+-// lights
+-uniform vec3 lightPositions;
+-uniform vec3 lightColors;
+-
+-uniform vec3 camPos;
+-
+-const float PI = 3.14159265359;
+-
+-vec3 getNormalFromMap()
+-{
+-    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+-
+-    vec3 Q1  = dFdx(WorldPos);
+-    vec3 Q2  = dFdy(WorldPos);
+-    vec2 st1 = dFdx(TexCoords);
+-    vec2 st2 = dFdy(TexCoords);
+-
+-    vec3 N   = normalize(Normal);
+-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+-    vec3 B  = -normalize(cross(N, T));
+-    mat3 TBN = mat3(T, B, N);
+-
+-    return normalize(TBN * tangentNormal);
+-}
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-    
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-    
+-    return nom / denom;
+-    //return 0.0;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-    
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-    //return vec3(1.0, 1.0, 1.0);
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+-{
+-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-    //return vec3(1.0, 1.0, 1.0);
+-}   
+-// ----------------------------------------------------------------------------
+-void main()
+-{		
+-// material properties
+-    vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
+-    float metallic = texture(metallicMap, TexCoords).r;
+-    float roughness = texture(roughnessMap, TexCoords).r;
+-    float ao = texture(aoMap, TexCoords).r;
+-       
+-    // input lighting data
+-    vec3 N = getNormalFromMap();
+-    vec3 V = normalize(camPos - WorldPos);
+-    vec3 R = reflect(-V, N); 
+-
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
+-    vec3 F0 = vec3(0.04); 
+-    F0 = mix(F0, albedo, metallic);
+-
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    for(int i = 0; i < 1; ++i) 
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(lightPositions - WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(lightPositions - WorldPos);
+-        float attenuation = 1.0 / (distance * distance);
+-        vec3 radiance = lightColors * attenuation;
+-
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);   
+-        float G   = GeometrySmith(N, V, L, roughness);    
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);        
+-        
+-        vec3 numerator    = NDF * G * F;
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+-        vec3 specular = numerator / denominator;
+-        
+-         // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals 
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;	                
+-            
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);        
+-
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }   
+-    
+-    // ambient lighting (we now use IBL as the ambient term)
+-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+-    
+-    vec3 kS = F;
+-    vec3 kD = 1.0 - kS;
+-    kD *= 1.0 - metallic;	  
+-    
+-    vec3 irradiance = texture(irradianceMap, N).rgb;
+-    vec3 diffuse      = irradiance * albedo;
+-    
+-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+-    const float MAX_REFLECTION_LOD = 4.0;
+-    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+-    vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+-
+-    vec3 ambient = (kD * diffuse + specular) * ao;
+-    
+-    vec3 color = ambient + Lo;
+-
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    color = pow(color, vec3(1.0/2.2)); 
+-
+-    FragColor = vec4(color , 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/Prefilter.glsl b/AlbedoEditor/Shaders/Prefilter.glsl
+deleted file mode 100644
+index b8360f0..0000000
+--- a/AlbedoEditor/Shaders/Prefilter.glsl
++++ /dev/null
+@@ -1,122 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout (location = 0) in vec3 aPos;
+-
+-out vec3 WorldPos;
+-
+-uniform mat4 projection;
+-uniform mat4 view;
+-
+-void main()
+-{
+-    WorldPos = aPos;  
+-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-out vec4 FragColor;
+-in vec3 WorldPos;
+-
+-uniform samplerCube environmentMap;
+-uniform float roughness;
+-
+-const float PI = 3.14159265359;
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+-// efficient VanDerCorpus calculation.
+-float RadicalInverse_VdC(uint bits) 
+-{
+-     bits = (bits << 16u) | (bits >> 16u);
+-     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+-     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+-     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+-     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+-     return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+-}
+-// ----------------------------------------------------------------------------
+-vec2 Hammersley(uint i, uint N)
+-{
+-	return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+-}
+-// ----------------------------------------------------------------------------
+-vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
+-{
+-	float a = roughness*roughness;
+-	
+-	float phi = 2.0 * PI * Xi.x;
+-	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+-	float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+-	
+-	// from spherical coordinates to cartesian coordinates - halfway vector
+-	vec3 H;
+-	H.x = cos(phi) * sinTheta;
+-	H.y = sin(phi) * sinTheta;
+-	H.z = cosTheta;
+-	
+-	// from tangent-space H vector to world-space sample vector
+-	vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+-	vec3 tangent   = normalize(cross(up, N));
+-	vec3 bitangent = cross(N, tangent);
+-	
+-	vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+-	return normalize(sampleVec);
+-}
+-// ----------------------------------------------------------------------------
+-void main()
+-{		
+-    vec3 N = normalize(WorldPos);
+-    
+-    // make the simplifying assumption that V equals R equals the normal 
+-    vec3 R = N;
+-    vec3 V = R;
+-
+-    const uint SAMPLE_COUNT = 1024u;
+-    vec3 prefilteredColor = vec3(0.0);
+-    float totalWeight = 0.0;
+-    
+-    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+-    {
+-        // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
+-        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+-        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+-        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+-
+-        float NdotL = max(dot(N, L), 0.0);
+-        if(NdotL > 0.0)
+-        {
+-            // sample from the environment's mip level based on roughness/pdf
+-            float D   = DistributionGGX(N, H, roughness);
+-            float NdotH = max(dot(N, H), 0.0);
+-            float HdotV = max(dot(H, V), 0.0);
+-            float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
+-
+-            float resolution = 512.0; // resolution of source cubemap (per face)
+-            float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
+-            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+-
+-            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+-            
+-            prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL;
+-            totalWeight      += NdotL;
+-        }
+-    }
+-
+-    prefilteredColor = prefilteredColor / totalWeight;
+-
+-    FragColor = vec4(prefilteredColor, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/RenderToTextureShader.glsl b/AlbedoEditor/Shaders/RenderToTextureShader.glsl
+deleted file mode 100644
+index 2bf1fcc..0000000
+--- a/AlbedoEditor/Shaders/RenderToTextureShader.glsl
++++ /dev/null
+@@ -1,41 +0,0 @@
+-///////////////////////////////////////// - VERTEX SHADER - /////////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout (location = 0) in vec3 a_Position;
+-layout (location = 1) in vec2 a_TexCoord;
+-
+-out vec2 TexCoords;
+-
+-void main()
+-{
+-    TexCoords = a_TexCoord;
+-    gl_Position = vec4(a_Position, 1.0);
+-}
+-
+-///////////////////////////////////////// - FRAGMENT SHADER - /////////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-out vec4 FragColor;
+-
+-in vec2 TexCoords;
+-
+-uniform sampler2D depthMap;
+-uniform float near_plane;
+-uniform float far_plane;
+-
+-// required when using a perspective projection matrix
+-float LinearizeDepth(float depth)
+-{
+-    float z = depth * 2.0 - 1.0; // Back to NDC 
+-    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));	
+-}
+-
+-void main()
+-{             
+-    float depthValue = texture(depthMap, TexCoords).r;
+-    // FragColor = vec4(vec3(LinearizeDepth(depthValue) / far_plane), 1.0); // perspective
+-    FragColor = vec4(vec3(depthValue), 1.0); // orthographic
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ShadowMappingShader.glsl b/AlbedoEditor/Shaders/ShadowMappingShader.glsl
+deleted file mode 100644
+index 7856f1f..0000000
+--- a/AlbedoEditor/Shaders/ShadowMappingShader.glsl
++++ /dev/null
+@@ -1,111 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV;
+-
+-out vec2 TexCoords;
+-
+-out VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-    vec4 FragPosLightSpace;
+-} vs_out;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform mat4 u_LightSpaceMatrix;
+-
+-void main()
+-{
+-    vs_out.FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-    vs_out.Normal = transpose(inverse(mat3(u_Transform))) * a_Normal;
+-    vs_out.TexCoords = a_UV;
+-    vs_out.FragPosLightSpace = u_LightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+-    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-out vec4 FragColor;
+-
+-in VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-    vec4 FragPosLightSpace;
+-} fs_in;
+-
+-uniform sampler2D u_DiffuseMap;
+-uniform sampler2D u_ShadowMap;
+-
+-uniform vec3 u_LightPosition;
+-uniform vec3 u_CameraPosition;
+-uniform vec3 u_MaterialColor;
+-
+-float ShadowCalculation(vec4 fragPosLightSpace)
+-{
+-    // perform perspective divide
+-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+-    // transform to [0,1] range
+-    projCoords = projCoords * 0.5 + 0.5;
+-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+-    float closestDepth = texture(u_ShadowMap, projCoords.xy).r; 
+-    // get depth of current fragment from light's perspective
+-    float currentDepth = projCoords.z;
+-    // calculate bias (based on depth map resolution and slope)
+-    vec3 normal = normalize(fs_in.Normal);
+-    vec3 lightDir = normalize(u_LightPosition - fs_in.FragPos);
+-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+-    // check whether current frag pos is in shadow
+-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+-    // PCF
+-    float shadow = 0.0;
+-    vec2 texelSize = 1.0 / textureSize(u_ShadowMap, 0);
+-    for(int x = -1; x <= 1; ++x)
+-    {
+-        for(int y = -1; y <= 1; ++y)
+-        {
+-            float pcfDepth = texture(u_ShadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+-        }    
+-    }
+-    shadow /= 9.0;
+-    
+-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+-    if(projCoords.z > 1.0)
+-        shadow = 0.0;
+-        
+-    return shadow;
+-}
+-
+-void main()
+-{           
+-    vec3 color = texture(u_DiffuseMap, fs_in.TexCoords).rgb;
+-    vec3 normal = normalize(fs_in.Normal);
+-    vec3 lightColor = vec3(0.3);
+-    // ambient
+-    vec3 ambient = 0.3 * lightColor;
+-    // diffuse
+-    vec3 lightDir = normalize(u_LightPosition - fs_in.FragPos);
+-    float diff = max(dot(lightDir, normal), 0.0);
+-    vec3 diffuse = diff * lightColor;
+-    // specular
+-    vec3 viewDir = normalize(u_CameraPosition - fs_in.FragPos);
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = 0.0;
+-    vec3 halfwayDir = normalize(lightDir + viewDir);  
+-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+-    vec3 specular = spec * lightColor;    
+-    // calculate shadow
+-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+-    //
+-    FragColor = vec4(lighting, 1.0);
+-    //FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/ShadowswithMultipleLights.glsl b/AlbedoEditor/Shaders/ShadowswithMultipleLights.glsl
+deleted file mode 100644
+index f537c51..0000000
+--- a/AlbedoEditor/Shaders/ShadowswithMultipleLights.glsl
++++ /dev/null
+@@ -1,239 +0,0 @@
+-/////////////////////////////////////// - VERTEX SHADER - ///////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV;
+-
+-out vec2 TexCoords;
+-
+-out VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-    vec4 FragPosLightSpace;
+-} vs_out;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform mat4 u_LightSpaceMatrix;
+-
+-void main()
+-{
+-    vs_out.FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-    vs_out.Normal = transpose(inverse(mat3(u_Transform))) * a_Normal;
+-    vs_out.TexCoords = a_UV;
+-    vs_out.FragPosLightSpace = u_LightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+-    gl_Position = u_ProjectionView * u_Transform * vec4(a_Position, 1.0);
+-}
+-
+-/////////////////////////////////////// - FRAGMENT SHADER - ///////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-out vec4 FragColor;
+-
+-in VS_OUT {
+-    vec3 FragPos;
+-    vec3 Normal;
+-    vec2 TexCoords;
+-    vec4 FragPosLightSpace;
+-} fs_in;
+-
+-struct DirLight {
+-    vec3 u_Direction;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct PointLight {
+-    vec3 u_Position;
+-    
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct SpotLight {
+-    vec3  u_Position;
+-    vec3  u_Direction;
+-    float u_CutOff;
+-    float u_OuterCutOff;
+-  
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-  
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;       
+-};
+-
+-#define TOTAL_POINT_LIGHTS 128
+-
+-uniform sampler2D u_DiffuseMap;
+-uniform sampler2D u_ShadowMap;
+-
+-uniform DirLight   u_DirLight;
+-uniform PointLight u_PointLights[TOTAL_POINT_LIGHTS];
+-uniform SpotLight  u_SpotLight;
+-uniform int u_NoOfPointLights;
+-uniform float u_Shininess;
+-uniform vec3 u_Specular;
+-uniform int u_SpotLightExists;
+-uniform int u_PointLightExists;
+-uniform int u_DirLightExists;
+-
+-uniform vec3 u_LightPosition;
+-uniform vec3 u_CameraPosition;
+-uniform vec3 u_MaterialColor;
+-
+-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadow, vec3 color)
+-{
+-    vec3 lightDir = normalize(-light.u_Direction);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-    
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(u_DiffuseMap,  fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * (spec * u_Specular);
+-
+-    return (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+-}
+-
+-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float shadow, vec3 color)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    vec3 ambient  = light.u_Ambient  * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * spec;
+-    ambient  *= attenuation;
+-    diffuse  *= attenuation;
+-    specular *= attenuation;
+-    return (ambient + diffuse + specular) * color;
+-}
+-
+-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float shadow, vec3 color)
+-{
+-    vec3 lightDir = normalize(light.u_Position - fragPos);
+-
+-    float diff = max(dot(normal, lightDir), 0.0);
+-
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Shininess);
+-
+-    float distance = length(light.u_Position - fragPos);
+-    float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-
+-    float theta = dot(lightDir, normalize(-light.u_Direction)); 
+-    float epsilon = light.u_CutOff - light.u_OuterCutOff;
+-    float intensity = clamp((theta - light.u_OuterCutOff) / epsilon, 0.0, 1.0);
+-
+-    vec3 ambient  = light.u_Ambient * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 diffuse  = light.u_Diffuse * diff * vec3(texture(u_DiffuseMap, fs_in.TexCoords));
+-    vec3 specular = light.u_Specular * (spec * u_Specular);
+-    ambient  *= attenuation * intensity;
+-    diffuse  *= attenuation * intensity;
+-    specular *= attenuation * intensity;
+-    return (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+-}
+-
+-float ShadowCalculation(vec4 fragPosLightSpace)
+-{
+-    // perform perspective divide
+-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+-    // transform to [0,1] range
+-    projCoords = projCoords * 0.5 + 0.5;
+-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+-    float closestDepth = texture(u_ShadowMap, projCoords.xy).r; 
+-    // get depth of current fragment from light's perspective
+-    float currentDepth = projCoords.z;
+-    // calculate bias (based on depth map resolution and slope)
+-    vec3 normal = normalize(fs_in.Normal);
+-    vec3 lightDir = normalize(-u_DirLight.u_Direction);
+-    //vec3 lightDir = normalize(u_LightPosition - fs_in.FragPos);
+-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+-    // check whether current frag pos is in shadow
+-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+-    // PCF
+-    float shadow = 0.0;
+-    vec2 texelSize = 1.0 / textureSize(u_ShadowMap, 0);
+-    for(int x = -1; x <= 1; ++x)
+-    {
+-        for(int y = -1; y <= 1; ++y)
+-        {
+-            float pcfDepth = texture(u_ShadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+-        }    
+-    }
+-    shadow /= 9.0;
+-    
+-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+-    if(projCoords.z > 1.0)
+-        shadow = 0.0;
+-        
+-    return shadow;
+-}
+-
+-void main()
+-{
+-    vec3 color = texture(u_DiffuseMap, fs_in.TexCoords).rgb;
+-    vec3 normal = normalize(fs_in.Normal);
+-    vec3 lightColor = vec3(0.3);
+-    // ambient
+-    vec3 ambient = 0.3 * lightColor;
+-    // diffuse
+-    vec3 lightDir = normalize(u_LightPosition - fs_in.FragPos);
+-    float diff = max(dot(lightDir, normal), 0.0);
+-    vec3 diffuse = diff * lightColor;
+-    // specular
+-    vec3 viewDir = normalize(u_CameraPosition - fs_in.FragPos);
+-    vec3 reflectDir = reflect(-lightDir, normal);
+-    float spec = 0.0;
+-    vec3 halfwayDir = normalize(lightDir + viewDir);  
+-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+-    vec3 specular = spec * lightColor;    
+-    // calculate shadow
+-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+-    //vec3 lighting = (1.0 - shadow) * color;
+-    vec3 lighting = vec3(0.1) * color;
+-    if(u_DirLightExists == 1)
+-    {
+-        lighting = CalcDirLight(u_DirLight, normal, viewDir, shadow, color);
+-    }
+-    //vec3 lighting;
+-    if(u_PointLightExists == 1)
+-    {
+-        for(int i = 0; i < u_NoOfPointLights; i++)
+-        {
+-            lighting += CalcPointLight(u_PointLights[i], normal, fs_in.FragPos, viewDir, shadow, color);
+-        }
+-    }
+-    if(u_SpotLightExists == 1)
+-    {
+-        lighting += CalcSpotLight(u_SpotLight, normal, fs_in.FragPos, viewDir, shadow, color);
+-    }
+-    //lighting *= color;
+-    //lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+-    //
+-    FragColor = vec4(lighting, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/SkyboxShader.glsl b/AlbedoEditor/Shaders/SkyboxShader.glsl
+deleted file mode 100644
+index 7105995..0000000
+--- a/AlbedoEditor/Shaders/SkyboxShader.glsl
++++ /dev/null
+@@ -1,44 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV0;
+-
+-uniform mat4 u_Projection;
+-uniform mat4 u_View;
+-uniform mat4 u_Model;
+-
+-out vec2 v_UV0;
+-out vec3 v_LocalPos;
+-
+-void main()
+-{
+-    v_LocalPos = a_Position;
+-    v_UV0 = a_UV0;
+-    gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-in vec2 v_UV0;
+-in vec3 v_LocalPos;
+-
+-uniform sampler2D u_EquirectangularMap;
+-
+-const vec2 invAtan = vec2(0.1591, 0.3183);
+-vec2 SampleSphericalMap(vec3 v)
+-{
+-    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+-    uv *= invAtan;
+-    uv += 0.5;
+-    return uv;
+-}
+-
+-void main()
+-{
+-    vec2 uv = SampleSphericalMap(normalize(v_LocalPos)); // make sure to normalize localPos
+-    vec3 color = texture(u_EquirectangularMap, uv).rgb;
+-    Color = vec4(color, 1.0f);
+-}
+diff --git a/AlbedoEditor/Shaders/Terrain.glsl b/AlbedoEditor/Shaders/Terrain.glsl
+deleted file mode 100644
+index 2924e18..0000000
+--- a/AlbedoEditor/Shaders/Terrain.glsl
++++ /dev/null
+@@ -1,117 +0,0 @@
+-#type vertex
+-#version 410 core
+-layout (location = 0) in vec3 aPos;
+-layout (location = 1) in vec2 aTex;
+-
+-out vec2 TexCoord;
+-
+-void main()
+-{
+-    gl_Position = vec4(aPos, 1.0);
+-    TexCoord = aTex;
+-}
+-
+-#type fragment
+-#version 410 core
+-
+-in float Height;
+-
+-out vec4 FragColor;
+-
+-void main()
+-{
+-    float h = (Height + 16)/64.0f;
+-    FragColor = vec4(h, h, h, 1.0);
+-}
+-
+-#type tess_control
+-layout(vertices=4) out;
+-
+-uniform mat4 model;
+-uniform mat4 view;
+-
+-in vec2 TexCoord[];
+-out vec2 TextureCoord[];
+-
+-void main()
+-{
+-    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+-    TextureCoord[gl_InvocationID] = TexCoord[gl_InvocationID];
+-
+-    if(gl_InvocationID == 0)
+-    {
+-        const int MIN_TESS_LEVEL = 4;
+-        const int MAX_TESS_LEVEL = 64;
+-        const float MIN_DISTANCE = 0;
+-        const float MAX_DISTANCE = 8000;
+-
+-        vec4 eyeSpacePos00 = view * model * gl_in[0].gl_Position;
+-        vec4 eyeSpacePos01 = view * model * gl_in[1].gl_Position;
+-        vec4 eyeSpacePos10 = view * model * gl_in[2].gl_Position;
+-        vec4 eyeSpacePos11 = view * model * gl_in[3].gl_Position;
+-
+-        // "distance" from camera scaled between 0 and 1
+-        float distance00 = clamp( (abs(eyeSpacePos00.z) - MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0 );
+-        float distance01 = clamp( (abs(eyeSpacePos01.z) - MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0 );
+-        float distance10 = clamp( (abs(eyeSpacePos10.z) - MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0 );
+-        float distance11 = clamp( (abs(eyeSpacePos11.z) - MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0 );
+-
+-        float tessLevel0 = mix( MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(distance10, distance00) );
+-        float tessLevel1 = mix( MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(distance00, distance01) );
+-        float tessLevel2 = mix( MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(distance01, distance11) );
+-        float tessLevel3 = mix( MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(distance11, distance10) );
+-
+-        gl_TessLevelOuter[0] = tessLevel0;
+-        gl_TessLevelOuter[1] = tessLevel1;
+-        gl_TessLevelOuter[2] = tessLevel2;
+-        gl_TessLevelOuter[3] = tessLevel3;
+-
+-        gl_TessLevelInner[0] = max(tessLevel1, tessLevel3);
+-        gl_TessLevelInner[1] = max(tessLevel0, tessLevel2);
+-    }
+-}
+-
+-#type tess_evaluation
+-#version 410 core
+-layout(quads, fractional_odd_spacing, ccw) in;
+-
+-uniform sampler2D heightMap;
+-uniform mat4 model;
+-uniform mat4 view;
+-uniform mat4 projection;
+-
+-in vec2 TextureCoord[];
+-
+-out float Height;
+-
+-void main()
+-{
+-    float u = gl_TessCoord.x;
+-    float v = gl_TessCoord.y;
+-
+-    vec2 t00 = TextureCoord[0];
+-    vec2 t01 = TextureCoord[1];
+-    vec2 t10 = TextureCoord[2];
+-    vec2 t11 = TextureCoord[3];
+-
+-    vec2 t0 = (t01 - t00) * u + t00;
+-    vec2 t1 = (t11 - t10) * u + t10;
+-    vec2 texCoord = (t1 - t0) * v + t0;
+-
+-    Height = texture(heightMap, texCoord).y * 64.0 - 16.0;
+-
+-    vec4 p00 = gl_in[0].gl_Position;
+-    vec4 p01 = gl_in[1].gl_Position;
+-    vec4 p10 = gl_in[2].gl_Position;
+-    vec4 p11 = gl_in[3].gl_Position;
+-
+-    vec4 uVec = p01 - p00;
+-    vec4 vVec = p10 - p00;
+-    vec4 normal = normalize( vec4(cross(vVec.xyz, uVec.xyz), 0) );
+-
+-    vec4 p0 = (p01 - p00) * u + p00;
+-    vec4 p1 = (p11 - p10) * u + p10;
+-    vec4 p = (p1 - p0) * v + p0 + normal * (Height*40);
+-
+-    gl_Position = projection * view * model * p;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/TerrainCompute2DShader.glsl b/AlbedoEditor/Shaders/TerrainCompute2DShader.glsl
+deleted file mode 100644
+index d868941..0000000
+--- a/AlbedoEditor/Shaders/TerrainCompute2DShader.glsl
++++ /dev/null
+@@ -1,82 +0,0 @@
+-	#type compute
+-#version 430 core
+-
+-#define PI 3.1415926535897932384626433832795
+-
+-#define GROUP_SIZE 16
+-
+-layout (local_size_x = GROUP_SIZE, local_size_y = GROUP_SIZE) in;
+-
+-layout (rgba32f, binding = 0) uniform image2D heightmap;
+-//layout (r32f, binding = 1) uniform image2D intermediate_height_buffer;
+-
+-shared float workGroupHeight[GROUP_SIZE][GROUP_SIZE];
+-
+-layout(std140) uniform GenerationUniform
+-{
+-	dvec2 tileOffset;
+-	//double tileScale;
+-	//double pad;
+-	//mat4 normalTransform;
+-	//dmat4 pointTransform;
+-	//ivec2 gridDimensions;
+-};
+-
+-float rand(vec2 c){
+-	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
+-}
+-
+-float noise(vec2 p, float freq ){
+-	float unit = 1024/freq;
+-	vec2 ij = floor(p/unit);
+-	vec2 xy = mod(p,unit)/unit;
+-	//xy = 3.*xy*xy-2.*xy*xy*xy;
+-	xy = .5*(1.-cos(PI*xy));
+-	float a = rand((ij+vec2(0.,0.)));
+-	float b = rand((ij+vec2(1.,0.)));
+-	float c = rand((ij+vec2(0.,1.)));
+-	float d = rand((ij+vec2(1.,1.)));
+-	float x1 = mix(a, b, xy.x);
+-	float x2 = mix(c, d, xy.x);
+-	return mix(x1, x2, xy.y);
+-}
+-
+-float pNoise(vec2 p, int res){
+-	float persistance = .5;
+-	float n = 0.;
+-	float normK = 0.;
+-	float f = 4.;
+-	float amp = 1.;
+-	int iCount = 0;
+-	for (int i = 0; i<70; i++){
+-		n+=amp*noise(p + vec2(tileOffset), f);
+-		f*=2.;
+-		normK+=amp;
+-		amp*=persistance;
+-		if (iCount == res) break;
+-		iCount++;
+-	}
+-	float nf = n/normK;
+-	return nf*nf*nf*nf;
+-}
+-
+-void main()
+-{
+-    ivec2 coord = ivec2(gl_GlobalInvocationID.xy);
+-	
+-	workGroupHeight[gl_LocalInvocationID.x][gl_LocalInvocationID.y] = float(gl_GlobalInvocationID.x/GROUP_SIZE);
+-
+-    vec2 pixel = vec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
+-    int res = 64;
+-    float persist = .5;
+-    float freq = 4.;
+-    float amp = 1.;
+-    int oct = 50;
+-    //float n = pNoise(pixel, res, persist, freq, amp, oct);
+-    float n = pNoise(pixel, 256);
+-	vec4 finalColor = vec4(n, n, n, 1.0);
+-	//vec4 finalColor = vec4(1.0, 0.0, 0.0, 1.0);
+-	
+-	//Store the final normal and height maps
+-	imageStore(heightmap, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), finalColor);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/TerrainCompute3DShader.glsl b/AlbedoEditor/Shaders/TerrainCompute3DShader.glsl
+deleted file mode 100644
+index 1ce1ed0..0000000
+--- a/AlbedoEditor/Shaders/TerrainCompute3DShader.glsl
++++ /dev/null
+@@ -1,117 +0,0 @@
+-#type compute
+-#version 430 core
+-
+-#define PI 3.1415926535897932384626433832795
+-
+-#define GROUP_SIZE 16
+-
+-layout (local_size_x = GROUP_SIZE, local_size_y = GROUP_SIZE) in;
+-
+-layout (rgba32f, binding = 0) uniform image2D heightmap;
+-//layout (r32f, binding = 1) uniform image2D intermediate_height_buffer;
+-
+-shared float workGroupHeight[GROUP_SIZE][GROUP_SIZE];
+-
+-layout(std140) uniform GenerationUniform
+-{
+-	dvec2 tileOffset;
+-	//double tileScale;
+-	//double pad;
+-	//mat4 normalTransform;
+-	//dmat4 pointTransform;
+-	//ivec2 gridDimensions;
+-};
+-
+-//	Classic Perlin 3D Noise 
+-//	by Stefan Gustavson
+-//
+-vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+-vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+-vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
+-
+-float cnoise(vec3 P){
+-  vec3 Pi0 = floor(P); // Integer part for indexing
+-  vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
+-  Pi0 = mod(Pi0, 289.0);
+-  Pi1 = mod(Pi1, 289.0);
+-  vec3 Pf0 = fract(P); // Fractional part for interpolation
+-  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+-  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+-  vec4 iy = vec4(Pi0.yy, Pi1.yy);
+-  vec4 iz0 = Pi0.zzzz;
+-  vec4 iz1 = Pi1.zzzz;
+-
+-  vec4 ixy = permute(permute(ix) + iy);
+-  vec4 ixy0 = permute(ixy + iz0);
+-  vec4 ixy1 = permute(ixy + iz1);
+-
+-  vec4 gx0 = ixy0 / 7.0;
+-  vec4 gy0 = fract(floor(gx0) / 7.0) - 0.5;
+-  gx0 = fract(gx0);
+-  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+-  vec4 sz0 = step(gz0, vec4(0.0));
+-  gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+-  gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+-
+-  vec4 gx1 = ixy1 / 7.0;
+-  vec4 gy1 = fract(floor(gx1) / 7.0) - 0.5;
+-  gx1 = fract(gx1);
+-  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+-  vec4 sz1 = step(gz1, vec4(0.0));
+-  gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+-  gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+-
+-  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+-  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+-  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+-  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+-  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+-  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+-  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+-  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+-
+-  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+-  g000 *= norm0.x;
+-  g010 *= norm0.y;
+-  g100 *= norm0.z;
+-  g110 *= norm0.w;
+-  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+-  g001 *= norm1.x;
+-  g011 *= norm1.y;
+-  g101 *= norm1.z;
+-  g111 *= norm1.w;
+-
+-  float n000 = dot(g000, Pf0);
+-  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+-  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+-  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+-  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+-  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+-  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+-  float n111 = dot(g111, Pf1);
+-
+-  vec3 fade_xyz = fade(Pf0);
+-  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+-  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+-  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+-  return 2.2 * n_xyz;
+-}
+-
+-void main()
+-{
+-    ivec2 coord = ivec2(gl_GlobalInvocationID.xy);
+-	
+-	workGroupHeight[gl_LocalInvocationID.x][gl_LocalInvocationID.y] = float(gl_GlobalInvocationID.x/GROUP_SIZE);
+-
+-    vec3 pixel = vec3(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, 0.0);
+-    int res = 64;
+-    float persist = .5;
+-    float freq = 4.;
+-    float amp = 1.;
+-    int oct = 50;
+-    float n = cnoise(pixel);
+-	vec4 finalColor = vec4(n, n, n, 1.0);
+-	
+-	//Store the final normal and height maps
+-	imageStore(heightmap, ivec2(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y), finalColor);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/TerrainMVP.glsl b/AlbedoEditor/Shaders/TerrainMVP.glsl
+deleted file mode 100644
+index c6aa055..0000000
+--- a/AlbedoEditor/Shaders/TerrainMVP.glsl
++++ /dev/null
+@@ -1,99 +0,0 @@
+-#type vertex
+-#version 430 core
+-layout(location = 0) in vec3 inPos;
+-layout(location = 1) in vec3 inNormal;
+-layout(location = 2) in vec2 inUV;
+-
+-layout(location = 0) out vec3 outPos;
+-layout(location = 1) out vec3 outNormal;
+-layout(location = 2) out vec2 outUV;
+-
+-uniform mat4 MVP;
+-
+-void main()
+-{
+-    const vec4 kWorldPos = MVP * vec4(inPos, 1.0);
+-    gl_Position = kWorldPos;
+-
+-    // TODO model
+-    outPos = inPos.xyz;
+-    outNormal = inNormal;
+-    outUV = inUV;
+-}
+-
+-#type fragment
+-#version 430 core
+-layout(location = 0) in vec3 inPos;
+-layout(location = 1) in vec3 inNormal;
+-layout(location = 2) in vec2 inUV;
+-
+-layout(location = 0) out vec4 outColor;
+-
+-#define EPSILON 1e-5
+-#define REGION_MAX_COUNT 8
+-
+-struct Region
+-{
+-    float scale;            ///< texture scale
+-    int texIndex;           ///< texture index in the texture array
+-    float blendStrength;
+-    float startHeight;
+-    vec3 tint;              ///< rgb: tint, a: tintStrength
+-};
+-
+-uniform sampler2DArray texArray;
+-uniform sampler2D land;
+-
+-uniform int u_RegionCount;
+-uniform float u_MinHeight;
+-uniform float u_MaxHeight;
+-
+-uniform Region regions[REGION_MAX_COUNT];
+-
+-float InverseLerp(float a, float b, float x) {
+-    return clamp( (x-a) / (b-a), 0.0, 1.0);
+-}
+-
+-vec3 GetTriplanarMapping(const in vec3 kBlendAxis, const in float kScale,
+-                         const in int kTexIndex)
+-{
+-    const vec3 kScaledPos = inPos / kScale;
+-
+-    return texture(texArray, vec3(kScaledPos.yz, kTexIndex) ).rgb * kBlendAxis.x +
+-           texture(texArray, vec3(kScaledPos.xz, kTexIndex) ).rgb * kBlendAxis.y +
+-           texture(texArray, vec3(kScaledPos.xy, kTexIndex) ).rgb * kBlendAxis.z;
+-}
+-
+-void main()
+-{
+-    vec3 blendAxis = abs(inNormal);
+-    blendAxis /= blendAxis.x + blendAxis.y + blendAxis.z;
+-
+-    const float kHeightPercent = InverseLerp(u_MinHeight, u_MaxHeight, inPos.y);
+-
+-    vec3 color = vec3(0);
+-    const int kRegionCount = min(u_RegionCount, REGION_MAX_COUNT);
+-
+-    for (int i = 0; i < kRegionCount; ++i)
+-    {
+-        const Region region = regions[i];
+-
+-        const vec3 kTextureColor = GetTriplanarMapping(blendAxis, region.scale, region.texIndex);
+-        //vec3 kTextureColor = vec3(1.0);
+-        const vec3 kBaseColor = mix(kTextureColor, region.tint.rgb, 0.5);
+-        //const vec3 kBaseColor = vec3(1.0);
+-
+-        const float kBlendStrengthHalf = region.blendStrength/2;
+-        const float kWeight = InverseLerp(-kBlendStrengthHalf - EPSILON,
+-                                           kBlendStrengthHalf,
+-                                           kHeightPercent - region.startHeight);
+-        color = mix(color, kBaseColor, kWeight);
+-        //color = regions[1].tint;
+-    }
+-
+-    //color = ComputeLighting(color);
+-
+-    //color = pow(color, vec3(0.4545));
+-    outColor = vec4(color, 1.0);
+-    //outColor = texture(land, inUV);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/TerrainShader.glsl b/AlbedoEditor/Shaders/TerrainShader.glsl
+deleted file mode 100644
+index d9bba23..0000000
+--- a/AlbedoEditor/Shaders/TerrainShader.glsl
++++ /dev/null
+@@ -1,30 +0,0 @@
+-#type vertex
+-#version 430 core
+-layout (location = 0) in vec3 a_Position;
+-
+-out float Height;
+-//out vec3 Position;
+-
+-uniform mat4 model;
+-uniform mat4 view;
+-uniform mat4 projection;
+-
+-void main()
+-{
+-    Height = a_Position.y;
+-    //Position = (view * model * vec4(a_Position, 1.0)).xyz;
+-    gl_Position = projection * view * model * vec4(a_Position, 1.0);
+-
+-}
+-
+-#type fragment
+-#version 430 core
+-out vec4 FragColor;
+-
+-in float Height;
+-
+-void main()
+-{    
+-    float h = (Height + 16)/32.0f;	// shift and scale the height into a grayscale value
+-    FragColor = vec4(h, h, h, 1.0);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/TerrainShader_GPU.glsl b/AlbedoEditor/Shaders/TerrainShader_GPU.glsl
+deleted file mode 100644
+index bde443c..0000000
+--- a/AlbedoEditor/Shaders/TerrainShader_GPU.glsl
++++ /dev/null
+@@ -1,230 +0,0 @@
+-#type vertex
+-#version 410 core
+-
+-out vec2 tc;
+-
+-void main()
+-{
+-  vec2 patchTexCoords[] = vec2[](vec2(0.0, 0.0), vec2(1.0, 0.0), vec2(0.0, 1.0), vec2(1.0, 1.0));
+-
+-  int x = gl_InstanceID % 64;
+-  int y = gl_InstanceID / 64;
+-  tc = vec2((x + patchTexCoords[gl_VertexID].x) / 64.0, (64 - y + patchTexCoords[gl_VertexID].y) / 64.0);
+-
+-  //gl_ClipDistance[0] = 0;
+-  gl_Position = vec4(tc.x - 0.5, 0.0, (1.0 - tc.y) - 0.5, 1.0);
+-}
+-
+-#type tess_control
+-#version 410 core
+-
+-layout (vertices = 4) out;
+-
+-in vec2 tc[];
+-out vec2 tc_out[];
+-
+-uniform int maxTessLevel;
+-uniform mat4 viewProject;
+-uniform mat4 model;
+-
+-float calcTessLevel()
+-{
+-  const int minLevel = 4;
+-  const float minDepth = 0.001;
+-  const float maxDepth = 30.0;
+-
+-  vec4 p = viewProject * model * gl_in[gl_InvocationID].gl_Position;
+-
+-  float depth = clamp((abs(p.z) - minDepth)/(maxDepth - minDepth), 0.0, 1.0);
+-  float tl = mix(maxTessLevel, minLevel, depth);
+-  return tl;
+-}
+-
+-void main()
+-{
+-  float tessLevel = calcTessLevel();
+-  gl_TessLevelOuter[0] = tessLevel;
+-  gl_TessLevelOuter[1] = tessLevel;
+-  gl_TessLevelOuter[2] = tessLevel;
+-  gl_TessLevelOuter[3] = tessLevel;
+-  gl_TessLevelInner[0] = tessLevel;
+-  gl_TessLevelInner[1] = tessLevel;
+-  tc_out[gl_InvocationID] = tc[gl_InvocationID];
+-  gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+-  //gl_out[gl_InvocationID].gl_ClipDistance[0] = gl_in[gl_InvocationID].gl_ClipDistance[0];
+-}
+-
+-#type tess_evaluation
+-#version 410
+-
+-layout (quads, fractional_even_spacing, ccw) in;
+-
+-in vec2 tc_out[];
+-out vec2 texCoords;
+-out vec3 fragPos;
+-
+-uniform sampler2D heightMap;
+-uniform float depth;
+-uniform mat4 viewProject;
+-uniform mat4 model;
+-uniform vec4 clipPlane;
+-
+-void main()
+-{
+-  vec2 tc = vec2(tc_out[0].x + (gl_TessCoord.x) / 64.0, tc_out[0].y + (1.0 - gl_TessCoord.y) / 64.0);
+-
+-  vec4 tessellatedPoint = vec4(gl_in[0].gl_Position.x + gl_TessCoord.x / 64.0, 0.0, gl_in[0].gl_Position.z + gl_TessCoord.y / 64.0, 1.0);
+-  tessellatedPoint.y += texture(heightMap, tc).r * depth;
+-
+-  gl_Position = viewProject * model * tessellatedPoint;
+-  fragPos = vec3(model * tessellatedPoint);
+-
+-  vec4 vertexPos = vec4(fragPos, 1.0);
+-  //gl_ClipDistance[0] = dot(vertexPos, clipPlane);
+-  texCoords = tc;
+-}
+-
+-#type fragment
+-#version 410 core
+-
+-layout (location = 0) out vec4 fragColor;
+-layout (location = 1) out vec4 brightColor;
+-
+-in vec2 texCoords;
+-in vec3 fragPos;
+-
+-const int SHINENESS = 32;
+-const vec3 BRIGHT_FACTOR = vec3(0.2126, 0.7152, 0.0722);
+-const int AMOUNT_OF_POINT_LIGHTS = 1;
+-const int DISCS_PCF_AMOUNT = 20;
+-const vec3 DISCS_PCF[DISCS_PCF_AMOUNT] = vec3[](
+-   vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
+-   vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+-   vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+-   vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
+-   vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
+-);
+-
+-struct PointLight
+-{
+-  vec3 position;
+-  float constant;
+-  float linear;
+-  float quadratic;
+-  vec3 diffuse;
+-  vec3 ambient;
+-  vec3 specular;
+-};
+-
+-uniform sampler2D heightMap;
+-uniform sampler2D grassTex;
+-uniform sampler2D stoneTex;
+-uniform sampler2D normalMap;
+-uniform vec3 viewPos;
+-uniform float farPlane;
+-uniform int lightsAmount;
+-uniform PointLight lights[AMOUNT_OF_POINT_LIGHTS];
+-uniform samplerCube shadowMaps[AMOUNT_OF_POINT_LIGHTS];
+-uniform int allowShadows;
+-
+-float shadowCalculation(samplerCube shadowMap, vec3 lightPos);
+-vec3 calcPointLight(PointLight light, vec3 material, vec3 viewDir, vec3 normal, float shadow);
+-vec3 blendColor(vec3 rgbA, vec3 rgbB, vec3 rgbC, float alpha);
+-vec3 calcFog(vec3 material);
+-
+-void main()
+-{
+-  vec3 viewDir = normalize(viewPos - fragPos);
+-  vec3 normalColor = texture(normalMap, texCoords).rgb;
+-  vec3 normal = vec3(normalColor.r * 2.0 - 1.0, normalColor.b, normalColor.g * 2.0 - 1.0);
+-  normal = normalize(normal);
+-  
+-  vec3 height = texture(heightMap, texCoords).rgb;
+-  
+-  vec3 grass1 = texture(grassTex, texCoords * 10 + 5).rgb;
+-  vec3 grass2 = texture(grassTex, texCoords * 15 + 20).rgb;
+-  vec3 grass3 = texture(grassTex, texCoords * 20 + 30).rgb;
+-  vec3 grass = blendColor(grass1, grass2, grass3, 0.33);
+-  
+-  vec3 stone1 = texture(stoneTex, texCoords * 10 + 5).rgb;
+-  vec3 stone2 = texture(stoneTex, texCoords * 15 + 20).rgb;
+-  vec3 stone3 = texture(stoneTex, texCoords * 20 + 30).rgb;
+-  vec3 stone = blendColor(stone1, stone2, stone3, 0.33) * vec3(2.0, 2.0, 2.0);
+-  
+-  vec3 material = mix(stone, grass, pow(normal.y, 5));
+-  material = mix(grass, material, min(fragPos.y / 0.7, 1));
+-  
+-  vec3 result = vec3(0.2, 0.2, 0.2);
+-  //for (int i = 0; i < lightsAmount; ++i)
+-  //{
+-  //  float pointShadow = 0.0;
+-  //  if (allowShadows == 1)
+-  //    pointShadow = shadowCalculation(shadowMaps[i], lights[i].position);
+-  //  result += calcPointLight(lights[i], material, viewDir, normal, pointShadow);
+-  //}
+-  
+-  float brightness = dot(result, BRIGHT_FACTOR);
+-  if (brightness > 1.0)
+-    brightColor = vec4(result, 1.0);
+-  else brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+-  
+-  //result = calcFog(result);
+-  fragColor = vec4(result, 1.0);
+-  //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+-}
+-
+-float shadowCalculation(samplerCube shadowMap, vec3 lightPos)
+-{
+-  //const float bias = 0.25;
+-  //
+-  //vec3 LightToFragDir = fragPos - lightPos;
+-  //float currentDepth = length(LightToFragDir) - bias;
+-  //float viewDistance = length(viewPos - fragPos);
+-  //float diskRadius = clamp(viewDistance / farPlane, 0.005, 0.02);
+-  //
+-  //float shadow = 0.0;
+-  //for (int i = 0; i < DISCS_PCF_AMOUNT; ++i)
+-  //{
+-  //  float closestDepth = texture(shadowMap, LightToFragDir + DISCS_PCF[i] * diskRadius).r;
+-  //  closestDepth *= farPlane;
+-  //  if (currentDepth > closestDepth)
+-  //    shadow += 1.0;
+-  //}
+-  //shadow /= float(DISCS_PCF_AMOUNT);
+-  //return shadow;
+-  return 0.0;
+-}
+-
+-vec3 calcPointLight(PointLight light, vec3 material, vec3 viewDir, vec3 normal, float shadow)
+-{
+-  //vec3 fragToLightDir = fragPos - light.position;
+-  //float distances = length(fragToLightDir);
+-  //fragToLightDir = normalize(fragToLightDir);
+-  //float weakening = 1.0 / (light.constant + light.linear * distances + light.quadratic * pow(distances, 2));
+-  //
+-  //float diff = max(dot(fragToLightDir, normal), 0.0);
+-  //vec3 halfwayDir = normalize(fragToLightDir + viewDir);
+-  //float specAngle = max(dot(halfwayDir, normal), 0.0);
+-  //float spec = pow(specAngle, SHINENESS);
+-  //
+-  //vec3 ambient = light.ambient * material * weakening;
+-  //vec3 diffuse = light.diffuse * diff * weakening;
+-  //vec3 specular = light.specular * spec * weakening;
+-  //return (ambient + (1.0 - shadow) * (diffuse + specular)) * (material);
+-  return vec3(0.0, 0.0, 0.0);
+-}
+-
+-vec3 blendColor(vec3 rgbA, vec3 rgbB, vec3 rgbC, float alpha)
+-{
+-	return (rgbA * alpha) + (rgbB * alpha) + (rgbC * alpha);
+-}
+-
+-vec3 calcFog(vec3 material)
+-{
+-  const vec3 fogColor = vec3(0.6, 0.7, 0.8);
+-  const float fogStart = 120;
+-  const float fogEnd = 200;
+-  float dist = length(viewPos - fragPos);
+-  float fogFactor = clamp(((fogEnd - dist)/(fogEnd - fogStart)), 0.125, 1.0);
+-  return mix(fogColor, material, fogFactor);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/Texture - Copy.glsl b/AlbedoEditor/Shaders/Texture - Copy.glsl
+deleted file mode 100644
+index 7526c0e..0000000
+--- a/AlbedoEditor/Shaders/Texture - Copy.glsl	
++++ /dev/null
+@@ -1,77 +0,0 @@
+-#type vertex
+-#version 330 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec4 a_Color;
+-layout(location = 2) in vec2 a_TexCoord;
+-layout(location = 3) in int a_TexIndex;
+-layout(location = 4) in float a_TilingFactor;
+-
+-uniform mat4 u_ProjectionView;
+-
+-out vec4 v_Color;
+-out vec2 v_TexCoord;
+-flat out int v_TexIndex;
+-out float v_TilingFactor;
+-
+-void main()
+-{
+-	v_Color = a_Color;
+-	v_TexCoord = a_TexCoord;
+-	v_TexIndex = a_TexIndex;
+-	v_TilingFactor = a_TilingFactor;
+-	gl_Position = u_ProjectionView * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-
+-layout(location = 0) out vec4 color;
+-
+-in vec4 v_Color;
+-in vec2 v_TexCoord;
+-flat in int v_TexIndex;
+-in float v_TilingFactor;
+-
+-uniform sampler2D u_Textures[32];
+-
+-void main()
+-{
+-	vec4 texColor = v_Color;
+-	switch(v_TexIndex)
+-	{
+-		case 0: texColor *= texture(u_Textures[0], v_TexCoord * v_TilingFactor); break;
+-		case 1: texColor *= texture(u_Textures[1], v_TexCoord * v_TilingFactor); break;
+-		case 2: texColor *= texture(u_Textures[2], v_TexCoord * v_TilingFactor); break;
+-		case 3: texColor *= texture(u_Textures[3], v_TexCoord * v_TilingFactor); break;
+-		case 4: texColor *= texture(u_Textures[4], v_TexCoord * v_TilingFactor); break;
+-		case 5: texColor *= texture(u_Textures[5], v_TexCoord * v_TilingFactor); break;
+-		case 6: texColor *= texture(u_Textures[6], v_TexCoord * v_TilingFactor); break;
+-		case 7: texColor *= texture(u_Textures[7], v_TexCoord * v_TilingFactor); break;
+-		case 8: texColor *= texture(u_Textures[8], v_TexCoord * v_TilingFactor); break;
+-		case 9: texColor *= texture(u_Textures[9], v_TexCoord * v_TilingFactor); break;
+-		case 10: texColor *= texture(u_Textures[10], v_TexCoord * v_TilingFactor); break;
+-		case 11: texColor *= texture(u_Textures[11], v_TexCoord * v_TilingFactor); break;
+-		case 12: texColor *= texture(u_Textures[12], v_TexCoord * v_TilingFactor); break;
+-		case 13: texColor *= texture(u_Textures[13], v_TexCoord * v_TilingFactor); break;
+-		case 14: texColor *= texture(u_Textures[14], v_TexCoord * v_TilingFactor); break;
+-		case 15: texColor *= texture(u_Textures[15], v_TexCoord * v_TilingFactor); break;
+-		case 16: texColor *= texture(u_Textures[16], v_TexCoord * v_TilingFactor); break;
+-		case 17: texColor *= texture(u_Textures[17], v_TexCoord * v_TilingFactor); break;
+-		case 18: texColor *= texture(u_Textures[18], v_TexCoord * v_TilingFactor); break;
+-		case 19: texColor *= texture(u_Textures[19], v_TexCoord * v_TilingFactor); break;
+-		case 20: texColor *= texture(u_Textures[20], v_TexCoord * v_TilingFactor); break;
+-		case 21: texColor *= texture(u_Textures[21], v_TexCoord * v_TilingFactor); break;
+-		case 22: texColor *= texture(u_Textures[22], v_TexCoord * v_TilingFactor); break;
+-		case 23: texColor *= texture(u_Textures[23], v_TexCoord * v_TilingFactor); break;
+-		case 24: texColor *= texture(u_Textures[24], v_TexCoord * v_TilingFactor); break;
+-		case 25: texColor *= texture(u_Textures[25], v_TexCoord * v_TilingFactor); break;
+-		case 26: texColor *= texture(u_Textures[26], v_TexCoord * v_TilingFactor); break;
+-		case 27: texColor *= texture(u_Textures[27], v_TexCoord * v_TilingFactor); break;
+-		case 28: texColor *= texture(u_Textures[28], v_TexCoord * v_TilingFactor); break;
+-		case 29: texColor *= texture(u_Textures[29], v_TexCoord * v_TilingFactor); break;
+-		case 30: texColor *= texture(u_Textures[30], v_TexCoord * v_TilingFactor); break;
+-		case 31: texColor *= texture(u_Textures[31], v_TexCoord * v_TilingFactor); break;
+-	}
+-	color = texColor;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/Texture.glsl b/AlbedoEditor/Shaders/Texture.glsl
+deleted file mode 100644
+index a01dc57..0000000
+--- a/AlbedoEditor/Shaders/Texture.glsl
++++ /dev/null
+@@ -1,181 +0,0 @@
+-#type vertex
+-#version 330 core
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec3 a_Normal;
+-layout(location = 2) in vec2 a_UV0;
+-layout(location = 3) in vec2 a_UV1;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Model;
+-uniform mat3 u_NormalMatrix;
+-
+-out vec2 v_UV0;
+-out vec2 v_UV1;
+-out vec3 v_WorldPos;
+-out vec3 v_Normal;
+-
+-void main()
+-{
+-    v_UV0 = a_UV0;
+-    v_UV1 = a_UV1;
+-    v_WorldPos = vec3(u_Model * vec4(a_Position, 1.0));
+-    v_Normal = u_NormalMatrix * a_Normal; 
+-    gl_Position = u_ProjectionView * u_Model * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-layout (location = 0) out vec4 Color;
+-
+-in vec2 v_UV0;
+-in vec2 v_UV1;
+-in vec3 v_WorldPos;
+-in vec3 v_Normal;
+-
+-uniform vec3 u_CamPos;
+-
+-const float PI = 3.14159265359;
+-
+-uniform sampler2D u_Albedo;
+-uniform sampler2D u_MetallicRoughness;
+-uniform sampler2D u_Normal;
+-uniform sampler2D u_Occlusion;
+-uniform sampler2D u_Emissive;
+-
+-uniform int u_AlbedoExists;
+-uniform int u_MetallicRoughnessExists;
+-uniform int u_NormalExists;
+-uniform int u_OcclusionExists;
+-uniform int u_EmissiveExists;
+-
+-uniform int u_AlbedoSet;
+-uniform int u_MetallicRoughnessSet;
+-uniform int u_NormalSet;
+-uniform int u_OcclusionSet;
+-uniform int u_EmissiveSet;
+-
+-vec3 getNormalFromMap()
+-{
+-    vec3 tangentNormal = texture(u_Normal, v_UV0).xyz * 2.0 - 1.0;
+-
+-    vec3 Q1  = dFdx(v_WorldPos);
+-    vec3 Q2  = dFdy(v_WorldPos);
+-    vec2 st1 = dFdx(v_UV0);
+-    vec2 st2 = dFdy(v_UV0);
+-
+-    vec3 N   = normalize(v_Normal);
+-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+-    vec3 B  = -normalize(cross(N, T));
+-    mat3 TBN = mat3(T, B, N);
+-
+-    return normalize(TBN * tangentNormal);
+-}
+-// ----------------------------------------------------------------------------
+-float DistributionGGX(vec3 N, vec3 H, float roughness)
+-{
+-    float a = roughness*roughness;
+-    float a2 = a*a;
+-    float NdotH = max(dot(N, H), 0.0);
+-    float NdotH2 = NdotH*NdotH;
+-
+-    float nom   = a2;
+-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+-    denom = PI * denom * denom;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySchlickGGX(float NdotV, float roughness)
+-{
+-    float r = (roughness + 1.0);
+-    float k = (r*r) / 8.0;
+-
+-    float nom   = NdotV;
+-    float denom = NdotV * (1.0 - k) + k;
+-
+-    return nom / denom;
+-}
+-// ----------------------------------------------------------------------------
+-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+-{
+-    float NdotV = max(dot(N, V), 0.0);
+-    float NdotL = max(dot(N, L), 0.0);
+-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+-
+-    return ggx1 * ggx2;
+-}
+-// ----------------------------------------------------------------------------
+-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+-{
+-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+-}
+-void main()
+-{
+-    vec3 albedo     = pow(texture(u_Albedo, v_UV0).rgb, vec3(2.2));
+-    float metallic  = texture(u_MetallicRoughness, v_UV0).r;
+-    float roughness = texture(u_MetallicRoughness, v_UV0).r;
+-    float ao        = texture(u_Occlusion, v_UV0).r;
+-
+-    vec3 N = getNormalFromMap();
+-    vec3 V = normalize(u_CamPos - v_WorldPos);
+-
+-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
+-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
+-    vec3 F0 = vec3(0.04); 
+-    F0 = mix(F0, albedo, metallic);
+-
+-    // reflectance equation
+-    vec3 Lo = vec3(0.0);
+-    
+-    vec3 lightPos = vec3(0.0f, 1.0f, 0.0f);
+-    vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
+-    for(int i = 0; i < 1; ++i) 
+-    {
+-        // calculate per-light radiance
+-        vec3 L = normalize(lightPos - v_WorldPos);
+-        vec3 H = normalize(V + L);
+-        float distance = length(lightPos - v_WorldPos);
+-        float attenuation = 1.0 / (distance * distance);
+-        vec3 radiance = lightColor * attenuation;
+-
+-        // Cook-Torrance BRDF
+-        float NDF = DistributionGGX(N, H, roughness);   
+-        float G   = GeometrySmith(N, V, L, roughness);      
+-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+-           
+-        vec3 numerator    = NDF * G * F; 
+-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+-        vec3 specular = numerator / denominator;
+-        
+-        // kS is equal to Fresnel
+-        vec3 kS = F;
+-        // for energy conservation, the diffuse and specular light can't
+-        // be above 1.0 (unless the surface emits light); to preserve this
+-        // relationship the diffuse component (kD) should equal 1.0 - kS.
+-        vec3 kD = vec3(1.0) - kS;
+-        // multiply kD by the inverse metalness such that only non-metals 
+-        // have diffuse lighting, or a linear blend if partly metal (pure metals
+-        // have no diffuse light).
+-        kD *= 1.0 - metallic;	  
+-
+-        // scale light by NdotL
+-        float NdotL = max(dot(N, L), 0.0);        
+-
+-        // add to outgoing radiance Lo
+-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+-    }
+-    // ambient lighting (note that the next IBL tutorial will replace 
+-    // this ambient lighting with environment lighting).
+-    vec3 ambient = vec3(0.2) * albedo * ao;
+-    
+-    vec3 color = ambient + Lo;
+-
+-    // HDR tonemapping
+-    color = color / (color + vec3(1.0));
+-    // gamma correct
+-    color = pow(color, vec3(1.0/2.2)); 
+-
+-    Color = vec4(color, 1.0);
+-    //Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+-}
+diff --git a/AlbedoEditor/Shaders/Texture2.glsl b/AlbedoEditor/Shaders/Texture2.glsl
+deleted file mode 100644
+index 77646a1..0000000
+--- a/AlbedoEditor/Shaders/Texture2.glsl
++++ /dev/null
+@@ -1,32 +0,0 @@
+-#type vertex
+-#version 330 core
+-
+-layout (location = 0) in vec3 a_Position;
+-layout (location = 1) in vec3 a_Normal;
+-layout (location = 2) in vec2 a_UV;
+-
+-uniform mat4 u_ProjectionView;
+-
+-out vec2 v_TexCoord;
+-
+-void main()
+-{
+-	v_TexCoord = a_UV;
+-	gl_Position = u_ProjectionView * vec4(a_Position, 1.0);
+-}
+-
+-#type fragment
+-#version 330 core
+-
+-layout(location = 0) out vec4 color;
+-
+-in vec2 v_TexCoord;
+-
+-uniform sampler2D u_Texture;
+-
+-void main()
+-{
+-	//color = texture(u_Texture, v_TexCoord);
+-	color = texture(u_Texture, v_TexCoord);
+-}
+-
+diff --git a/AlbedoEditor/Shaders/TextureSquare.glsl b/AlbedoEditor/Shaders/TextureSquare.glsl
+deleted file mode 100644
+index 415da38..0000000
+--- a/AlbedoEditor/Shaders/TextureSquare.glsl
++++ /dev/null
+@@ -1,167 +0,0 @@
+-///////////////////////////////////////// - VERTEX SHADER - /////////////////////////////////////////
+-#type vertex
+-#version 430 core
+-
+-layout(location = 0) in vec3 a_Position;
+-layout(location = 1) in vec2 a_TexCoord;
+-layout(location = 2) in vec3 a_Normals;
+-
+-uniform mat4 u_ProjectionView;
+-uniform mat4 u_Transform;
+-uniform int  u_TextureEnabled;
+-
+-out vec2 v_TexCoord;
+-out vec3 v_FragPos;
+-out vec3 v_Normal;
+-flat out int v_TextureEnabled;
+-
+-void main()
+-{
+-	v_FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+-	v_TextureEnabled = u_TextureEnabled;
+-	v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normals;
+-	v_TexCoord = a_TexCoord;
+-	gl_Position = u_ProjectionView * vec4(v_FragPos, 1.0);
+-}
+-
+-///////////////////////////////////////// - FRAGMENT SHADER - /////////////////////////////////////////
+-
+-#type fragment
+-#version 430 core
+-
+-out vec4 color;
+-
+-struct Material {
+-    sampler2D u_DiffuseMap;
+-    sampler2D u_SpecularMap;		
+-    float u_Shininess;
+-};
+-
+-struct DirLight {
+-    vec3 u_Direction;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct PointLight {
+-    vec3 u_Position;
+-    
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-	
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;
+-};
+-
+-struct SpotLight {
+-    vec3  u_Position;
+-    vec3  u_Direction;
+-    float u_CutOff;
+-    float u_OuterCutOff;
+-  
+-    float u_Constant;
+-    float u_Linear;
+-    float u_Quadratic;
+-  
+-    vec3 u_Ambient;
+-    vec3 u_Diffuse;
+-    vec3 u_Specular;       
+-};
+-
+-#define NR_POINT_LIGHTS 4
+-
+-in vec2 v_TexCoord;
+-in vec3 v_FragPos;
+-in vec3 v_Normal;
+-
+-uniform vec3	   u_CameraPos;
+-uniform DirLight   dirLight;
+-uniform PointLight pointLights[NR_POINT_LIGHTS];
+-uniform SpotLight  spotLight;
+-uniform Material   material;
+-
+-// function prototypes
+-//vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
+-//vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+-//vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+-
+-void main()
+-{
+-	//vec3 normal = normalize(v_Normal);
+-	//vec3 viewDir = normalize(u_CameraPos - v_FragPos);
+-
+-    //vec3 result = CalcDirLight(dirLight, norm, viewDir);
+-
+-    //for(int i = 0; i < NR_POINT_LIGHTS; i++)
+-        //result += CalcPointLight(u_PointLights[i], norm, v_FragPos, viewDir);
+-
+-    //result += CalcSpotLight(spotLight, norm, v_FragPos, viewDir);
+-    
+-    //FragColor = vec4(result, 1.0);
+-}
+-
+-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+-{
+-    //vec3 lightDir = normalize(-light.u_Direction);
+-    //// diffuse shading
+-    //float diff = max(dot(normal, lightDir), 0.0);
+-    //// specular shading
+-    //vec3 reflectDir = reflect(-lightDir, normal);
+-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-    //// combine results
+-    //vec3 ambient  = light.u_Ambient  * vec3(texture(material.u_Diffuse, v_TexCoords));
+-    //vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(material.u_Diffuse,  v_TexCoords));
+-    //vec3 specular = light.u_Specular * spec * vec3(texture(material.u_Specular, v_TexCoords));
+-    //return (ambient + diffuse + specular);
+-}
+-
+-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    //vec3 lightDir = normalize(light.u_Position - fragPos);
+-    //// diffuse shading
+-    //float diff = max(dot(normal, lightDir), 0.0);
+-    //// specular shading
+-    //vec3 reflectDir = reflect(-lightDir, normal);
+-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-    //// attenuation
+-    //float distance = length(light.u_Position - v_FragPos);
+-    //float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-    //// combine results
+-    //vec3 ambient  = light.u_Ambient  * vec3(texture(material.u_Diffuse, v_TexCoords));
+-    //vec3 diffuse  = light.u_Diffuse  * diff * vec3(texture(material.u_Diffuse, v_TexCoords));
+-    //vec3 specular = light.u_Specular * spec * vec3(texture(material.u_Specular, v_TexCoords));
+-    //ambient *= attenuation;
+-    //diffuse *= attenuation;
+-    //specular *= attenuation;
+-    //return (ambient + diffuse + specular);
+-}
+-
+-// calculates the color when using a spot light.
+-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+-{
+-    //vec3 lightDir = normalize(light.u_Position - v_FragPos);
+-    //// diffuse shading
+-    //float diff = max(dot(normal, lightDir), 0.0);
+-    //// specular shading
+-    //vec3 reflectDir = reflect(-lightDir, normal);
+-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.u_Shininess);
+-    //// attenuation
+-    //float distance = length(light.u_Position - fragPos);
+-    //float attenuation = 1.0 / (light.u_Constant + light.u_Linear * distance + light.u_Quadratic * (distance * distance));    
+-    //// spotlight intensity
+-    //float theta = dot(lightDir, normalize(-light.direction)); 
+-    //float epsilon = light.u_CutOff - light.u_OuterCutOff;
+-    //float intensity = clamp((theta - light.u_OuterCutOff) / epsilon, 0.0, 1.0);
+-    //// combine results
+-    //vec3 ambient = light.ambient * vec3(texture(material.u_Diffuse, v_TexCoords));
+-    //vec3 diffuse = light.diffuse * diff * vec3(texture(material.u_Diffuse, v_TexCoords));
+-    //vec3 specular = light.specular * spec * vec3(texture(material.u_Specular, v_TexCoords));
+-    //ambient *= attenuation * intensity;
+-    //diffuse *= attenuation * intensity;
+-    //specular *= attenuation * intensity;
+-    //return (ambient + diffuse + specular);
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/dnoise.glsl b/AlbedoEditor/Shaders/dnoise.glsl
+deleted file mode 100644
+index d48e933..0000000
+--- a/AlbedoEditor/Shaders/dnoise.glsl
++++ /dev/null
+@@ -1,474 +0,0 @@
+-// Description : Array and textureless GLSL 2D/3D/4D simplex 
+-//               noise functions.
+-//      Author : Ian McEwan, Ashima Arts.
+-//  Maintainer : ijm
+-//     Lastmod : 20110822 (ijm)
+-//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+-//               Distributed under the MIT License. See LICENSE file.
+-//               https://github.com/ashima/webgl-noise
+-//
+-//
+-//           The text from LICENSE file:
+-//
+-//
+-// Copyright (C) 2011 by Ashima Arts (Simplex noise)
+-// Copyright (C) 2011 by Stefan Gustavson (Classic noise)
+-// 
+-// Permission is hereby granted, free of charge, to any person obtaining a copy
+-// of this software and associated documentation files (the "Software"), to deal
+-// in the Software without restriction, including without limitation the rights
+-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-// copies of the Software, and to permit persons to whom the Software is
+-// furnished to do so, subject to the following conditions:
+-// 
+-// The above copyright notice and this permission notice shall be included in
+-// all copies or substantial portions of the Software.
+-// 
+-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+-// THE SOFTWARE.
+-
+-//Modified to use double precision
+-
+-//sin() does not support double precision
+-//iq hash
+-/* double hash( double n )
+-{
+-    return fract(sin(n)*54321.98761234); 
+-}
+-
+-//iq derivative noise function
+-// returns dvec3(noise, dnoise/dx, dnoise/dy)
+-dvec3 pnoised(dvec2 pos )
+-{
+-    dvec2 p = floor(pos);
+-    dvec2 f = fract(pos);
+-    
+-    dvec2 u = (10.0+(-15.0+6.0*f)*f)*f*f*f;  // f=6*x^5-15*x^4+10*x^3  df/dx=30*x^4-60*x^3+30*x^2; horner of df is 30.0*f*f*(f*(f-2.0)+1.0)
+-    
+-    double n = p.x + p.y*57.0;
+-    
+-    double a = hash(n+  0.0);
+-    double b = hash(n+  1.0);
+-    double c = hash(n+ 57.0);
+-    double d = hash(n+ 58.0);
+-    
+-    return dvec3( a+(b-a)*u.x+(c-a)*u.y+(a-b-c+d)*u.x*u.y,
+-    30.0*f*f*(f*(f-2.0)+1.0) * (dvec2(b-a,c-a)+(a-b-c+d)*u.yx) );
+-    
+-}
+-
+-double pnoise( in dvec2 x )
+-{
+-    dvec2 p = floor(x);
+-    dvec2 f = fract(x);
+-
+-    f = f*f*(3.0-2.0*f);
+-
+-    double n = p.x + p.y*57.0;
+-
+-    double res = mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+-                    mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y);
+-
+-    return res;
+-}
+-
+-double pnoise( in dvec3 x )
+-{
+-    dvec3 p = floor(x);
+-    dvec3 f = fract(x);
+-
+-    f = f*f*(3.0-2.0*f);
+-    double n = p.x + p.y*57.0 + 113.0*p.z;
+-    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+-                   mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+-               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+-                   mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+-} */
+-
+-dvec2 mod289(dvec2 x) {
+-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+-}
+-
+-dvec3 mod289(dvec3 x) {
+-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+-}
+-
+-dvec4 mod289(dvec4 x) {
+-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+-}
+-
+-dvec3 permute(dvec3 x) {
+-  return mod289(((x*34.0)+1.0)*x);
+-}
+-
+-dvec4 permute(dvec4 x) {
+-     return mod289(((x*34.0)+1.0)*x);
+-}
+-
+-dvec4 taylorInvSqrt(dvec4 r)
+-{
+-  return 1.79284291400159 - 0.85373472095314 * r;
+-}
+-
+-double snoise(dvec2 v)
+-  {
+-  const dvec4 C = dvec4(0.211324865405187, // (3.0-sqrt(3.0))/6.0
+-                      0.366025403784439, // 0.5*(sqrt(3.0)-1.0)
+-                     -0.577350269189626, // -1.0 + 2.0 * C.x
+-                      0.024390243902439); // 1.0 / 41.0
+-// First corner
+-  dvec2 i = floor(v + dot(v, C.yy) );
+-  dvec2 x0 = v - i + dot(i, C.xx);
+-
+-// Other corners
+-  dvec2 i1;
+-  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
+-  //i1.y = 1.0 - i1.x;
+-  i1 = (x0.x > x0.y) ? dvec2(1.0, 0.0) : dvec2(0.0, 1.0);
+-  // x0 = x0 - 0.0 + 0.0 * C.xx ;
+-  // x1 = x0 - i1 + 1.0 * C.xx ;
+-  // x2 = x0 - 1.0 + 2.0 * C.xx ;
+-  dvec4 x12 = x0.xyxy + C.xxzz;
+-  x12.xy -= i1;
+-
+-// Permutations
+-  i = mod289(i); // Avoid truncation effects in permutation
+-  dvec3 p = permute( permute( i.y + dvec3(0.0, i1.y, 1.0 ))
+-+ i.x + dvec3(0.0, i1.x, 1.0 ));
+-
+-  dvec3 m = max(0.5 - dvec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+-  m = m*m ;
+-  m = m*m ;
+-
+-// Gradients: 41 points uniformly over a line, mapped onto a diamond.
+-// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
+-
+-  dvec3 x = 2.0 * fract(p * C.www) - 1.0;
+-  dvec3 h = abs(x) - 0.5;
+-  dvec3 ox = floor(x + 0.5);
+-  dvec3 a0 = x - ox;
+-
+-// Normalise gradients implicitly by scaling m
+-// Approximation of: m *= inversesqrt( a0*a0 + h*h );
+-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+-
+-// Compute final noise value at P
+-  dvec3 g;
+-  g.x = a0.x * x0.x + h.x * x0.y;
+-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+-  return 130.0 * dot(m, g);
+-}
+-
+-double snoise(dvec3 v)
+-{
+-	const dvec2 C = dvec2(1.0/6.0, 1.0/3.0) ;
+-	const dvec4 D = dvec4(0.0, 0.5, 1.0, 2.0);
+-
+-	// First corner
+-	dvec3 i = floor(v + dot(v, C.yyy) );
+-	dvec3 x0 = v - i + dot(i, C.xxx) ;
+-
+-	// Other corners
+-	dvec3 g = step(x0.yzx, x0.xyz);
+-	dvec3 l = 1.0 - g;
+-	dvec3 i1 = min( g.xyz, l.zxy );
+-	dvec3 i2 = max( g.xyz, l.zxy );
+-
+-	// x0 = x0 - 0.0 + 0.0 * C.xxx;
+-	// x1 = x0 - i1 + 1.0 * C.xxx;
+-	// x2 = x0 - i2 + 2.0 * C.xxx;
+-	// x3 = x0 - 1.0 + 3.0 * C.xxx;
+-	dvec3 x1 = x0 - i1 + C.xxx;
+-	dvec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+-	dvec3 x3 = x0 - D.yyy; // -1.0+3.0*C.x = -0.5 = -D.y
+-
+-	// Permutations
+-	i = mod289(i);
+-	dvec4 p = permute( permute( permute(
+-			 i.z + dvec4(0.0, i1.z, i2.z, 1.0 ))
+-		   + i.y + dvec4(0.0, i1.y, i2.y, 1.0 ))
+-		   + i.x + dvec4(0.0, i1.x, i2.x, 1.0 ));
+-
+-	// Gradients: 7x7 points over a square, mapped onto an octahedron.
+-	// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+-	double n_ = 0.142857142857; // 1.0/7.0
+-	dvec3 ns = n_ * D.wyz - D.xzx;
+-
+-	dvec4 j = p - 49.0 * floor(p * ns.z * ns.z); // mod(p,7*7)
+-
+-	dvec4 x_ = floor(j * ns.z);
+-	dvec4 y_ = floor(j - 7.0 * x_ ); // mod(j,N)
+-
+-	dvec4 x = x_ *ns.x + ns.yyyy;
+-	dvec4 y = y_ *ns.x + ns.yyyy;
+-	dvec4 h = 1.0 - abs(x) - abs(y);
+-
+-	dvec4 b0 = dvec4( x.xy, y.xy );
+-	dvec4 b1 = dvec4( x.zw, y.zw );
+-
+-	//dvec4 s0 = dvec4(lessThan(b0,0.0))*2.0 - 1.0;
+-	//dvec4 s1 = dvec4(lessThan(b1,0.0))*2.0 - 1.0;
+-	dvec4 s0 = floor(b0)*2.0 + 1.0;
+-	dvec4 s1 = floor(b1)*2.0 + 1.0;
+-	dvec4 sh = -step(h, dvec4(0.0));
+-
+-	dvec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+-	dvec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+-
+-	dvec3 p0 = dvec3(a0.xy,h.x);
+-	dvec3 p1 = dvec3(a0.zw,h.y);
+-	dvec3 p2 = dvec3(a1.xy,h.z);
+-	dvec3 p3 = dvec3(a1.zw,h.w);
+-
+-	//Normalise gradients
+-	dvec4 norm = taylorInvSqrt(dvec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+-	p0 *= norm.x;
+-	p1 *= norm.y;
+-	p2 *= norm.z;
+-	p3 *= norm.w;
+-
+-	// Mix final noise value
+-	dvec4 m = max(0.6 - dvec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+-	m = m * m;
+-	return 42.0 * dot( m*m, dvec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+-}
+-
+-// Permutation polynomial: (34x^2 + x) mod 289
+-dvec3 permuteCell(dvec3 x) {
+-  return mod((34.0 * x + 1.0) * x, 289.0);
+-}
+-
+-// Cellular noise, returning F1 and F2 in a vec2.
+-// 3x3x3 search region for good F2 everywhere, but a lot
+-// slower than the 2x2x2 version.
+-// The code below is a bit scary even to its author,
+-// but it has at least half decent performance on a
+-// modern GPU. In any case, it beats any software
+-// implementation of Worley noise hands down.
+-
+-dvec2 cellular(dvec3 P) {
+-#define K 0.142857142857 // 1/7
+-#define Ko 0.428571428571 // 1/2-K/2
+-#define K2 0.020408163265306 // 1/(7*7)
+-#define Kz 0.166666666667 // 1/6
+-#define Kzo 0.416666666667 // 1/2-1/6*2
+-#define jitter 1.0 // smaller jitter gives more regular pattern
+-
+-	dvec3 Pi = mod(floor(P), 289.0);
+- 	dvec3 Pf = fract(P) - 0.5;
+-
+-	dvec3 Pfx = Pf.x + vec3(1.0, 0.0, -1.0);
+-	dvec3 Pfy = Pf.y + vec3(1.0, 0.0, -1.0);
+-	dvec3 Pfz = Pf.z + vec3(1.0, 0.0, -1.0);
+-
+-	dvec3 p = permuteCell(Pi.x + vec3(-1.0, 0.0, 1.0));
+-	dvec3 p1 = permuteCell(p + Pi.y - 1.0);
+-	dvec3 p2 = permuteCell(p + Pi.y);
+-	dvec3 p3 = permuteCell(p + Pi.y + 1.0);
+-
+-	dvec3 p11 = permuteCell(p1 + Pi.z - 1.0);
+-	dvec3 p12 = permuteCell(p1 + Pi.z);
+-	dvec3 p13 = permuteCell(p1 + Pi.z + 1.0);
+-
+-	dvec3 p21 = permuteCell(p2 + Pi.z - 1.0);
+-	dvec3 p22 = permuteCell(p2 + Pi.z);
+-	dvec3 p23 = permuteCell(p2 + Pi.z + 1.0);
+-
+-	dvec3 p31 = permuteCell(p3 + Pi.z - 1.0);
+-	dvec3 p32 = permuteCell(p3 + Pi.z);
+-	dvec3 p33 = permuteCell(p3 + Pi.z + 1.0);
+-
+-	dvec3 ox11 = fract(p11*K) - Ko;
+-	dvec3 oy11 = mod(floor(p11*K), 7.0)*K - Ko;
+-	dvec3 oz11 = floor(p11*K2)*Kz - Kzo; // p11 < 289 guaranteed
+-
+-	dvec3 ox12 = fract(p12*K) - Ko;
+-	dvec3 oy12 = mod(floor(p12*K), 7.0)*K - Ko;
+-	dvec3 oz12 = floor(p12*K2)*Kz - Kzo;
+-
+-	dvec3 ox13 = fract(p13*K) - Ko;
+-	dvec3 oy13 = mod(floor(p13*K), 7.0)*K - Ko;
+-	dvec3 oz13 = floor(p13*K2)*Kz - Kzo;
+-
+-	dvec3 ox21 = fract(p21*K) - Ko;
+-	dvec3 oy21 = mod(floor(p21*K), 7.0)*K - Ko;
+-	dvec3 oz21 = floor(p21*K2)*Kz - Kzo;
+-
+-	dvec3 ox22 = fract(p22*K) - Ko;
+-	dvec3 oy22 = mod(floor(p22*K), 7.0)*K - Ko;
+-	dvec3 oz22 = floor(p22*K2)*Kz - Kzo;
+-
+-	dvec3 ox23 = fract(p23*K) - Ko;
+-	dvec3 oy23 = mod(floor(p23*K), 7.0)*K - Ko;
+-	dvec3 oz23 = floor(p23*K2)*Kz - Kzo;
+-
+-	dvec3 ox31 = fract(p31*K) - Ko;
+-	dvec3 oy31 = mod(floor(p31*K), 7.0)*K - Ko;
+-	dvec3 oz31 = floor(p31*K2)*Kz - Kzo;
+-
+-	dvec3 ox32 = fract(p32*K) - Ko;
+-	dvec3 oy32 = mod(floor(p32*K), 7.0)*K - Ko;
+-	dvec3 oz32 = floor(p32*K2)*Kz - Kzo;
+-
+-	dvec3 ox33 = fract(p33*K) - Ko;
+-	dvec3 oy33 = mod(floor(p33*K), 7.0)*K - Ko;
+-	dvec3 oz33 = floor(p33*K2)*Kz - Kzo;
+-
+-	dvec3 dx11 = Pfx + jitter*ox11;
+-	dvec3 dy11 = Pfy.x + jitter*oy11;
+-	dvec3 dz11 = Pfz.x + jitter*oz11;
+-
+-	dvec3 dx12 = Pfx + jitter*ox12;
+-	dvec3 dy12 = Pfy.x + jitter*oy12;
+-	dvec3 dz12 = Pfz.y + jitter*oz12;
+-
+-	dvec3 dx13 = Pfx + jitter*ox13;
+-	dvec3 dy13 = Pfy.x + jitter*oy13;
+-	dvec3 dz13 = Pfz.z + jitter*oz13;
+-
+-	dvec3 dx21 = Pfx + jitter*ox21;
+-	dvec3 dy21 = Pfy.y + jitter*oy21;
+-	dvec3 dz21 = Pfz.x + jitter*oz21;
+-
+-	dvec3 dx22 = Pfx + jitter*ox22;
+-	dvec3 dy22 = Pfy.y + jitter*oy22;
+-	dvec3 dz22 = Pfz.y + jitter*oz22;
+-
+-	dvec3 dx23 = Pfx + jitter*ox23;
+-	dvec3 dy23 = Pfy.y + jitter*oy23;
+-	dvec3 dz23 = Pfz.z + jitter*oz23;
+-
+-	dvec3 dx31 = Pfx + jitter*ox31;
+-	dvec3 dy31 = Pfy.z + jitter*oy31;
+-	dvec3 dz31 = Pfz.x + jitter*oz31;
+-
+-	dvec3 dx32 = Pfx + jitter*ox32;
+-	dvec3 dy32 = Pfy.z + jitter*oy32;
+-	dvec3 dz32 = Pfz.y + jitter*oz32;
+-
+-	dvec3 dx33 = Pfx + jitter*ox33;
+-	dvec3 dy33 = Pfy.z + jitter*oy33;
+-	dvec3 dz33 = Pfz.z + jitter*oz33;
+-
+-	dvec3 d11 = dx11 * dx11 + dy11 * dy11 + dz11 * dz11;
+-	dvec3 d12 = dx12 * dx12 + dy12 * dy12 + dz12 * dz12;
+-	dvec3 d13 = dx13 * dx13 + dy13 * dy13 + dz13 * dz13;
+-	dvec3 d21 = dx21 * dx21 + dy21 * dy21 + dz21 * dz21;
+-	dvec3 d22 = dx22 * dx22 + dy22 * dy22 + dz22 * dz22;
+-	dvec3 d23 = dx23 * dx23 + dy23 * dy23 + dz23 * dz23;
+-	dvec3 d31 = dx31 * dx31 + dy31 * dy31 + dz31 * dz31;
+-	dvec3 d32 = dx32 * dx32 + dy32 * dy32 + dz32 * dz32;
+-	dvec3 d33 = dx33 * dx33 + dy33 * dy33 + dz33 * dz33;
+-
+-	// Sort out the two smallest distances (F1, F2)
+-#if 0
+-	// Cheat and sort out only F1
+-	dvec3 d1 = min(min(d11,d12), d13);
+-	dvec3 d2 = min(min(d21,d22), d23);
+-	dvec3 d3 = min(min(d31,d32), d33);
+-	dvec3 d = min(min(d1,d2), d3);
+-	d.x = min(min(d.x,d.y),d.z);
+-	return sqrt(d.xx); // F1 duplicated, no F2 computed
+-#else
+-	// Do it right and sort out both F1 and F2
+-	dvec3 d1a = min(d11, d12);
+-	d12 = max(d11, d12);
+-	d11 = min(d1a, d13); // Smallest now not in d12 or d13
+-	d13 = max(d1a, d13);
+-	d12 = min(d12, d13); // 2nd smallest now not in d13
+-	dvec3 d2a = min(d21, d22);
+-	d22 = max(d21, d22);
+-	d21 = min(d2a, d23); // Smallest now not in d22 or d23
+-	d23 = max(d2a, d23);
+-	d22 = min(d22, d23); // 2nd smallest now not in d23
+-	dvec3 d3a = min(d31, d32);
+-	d32 = max(d31, d32);
+-	d31 = min(d3a, d33); // Smallest now not in d32 or d33
+-	d33 = max(d3a, d33);
+-	d32 = min(d32, d33); // 2nd smallest now not in d33
+-	dvec3 da = min(d11, d21);
+-	d21 = max(d11, d21);
+-	d11 = min(da, d31); // Smallest now in d11
+-	d31 = max(da, d31); // 2nd smallest now not in d31
+-	d11.xy = (d11.x < d11.y) ? d11.xy : d11.yx;
+-	d11.xz = (d11.x < d11.z) ? d11.xz : d11.zx; // d11.x now smallest
+-	d12 = min(d12, d21); // 2nd smallest now not in d21
+-	d12 = min(d12, d22); // nor in d22
+-	d12 = min(d12, d31); // nor in d31
+-	d12 = min(d12, d32); // nor in d32
+-	d11.yz = min(d11.yz,d12.xy); // nor in d12.yz
+-	d11.y = min(d11.y,d12.z); // Only two more to go
+-	d11.y = min(d11.y,d11.z); // Done! (Phew!)
+-	return sqrt(d11.xy); // F1, F2
+-#endif
+-}
+-
+-//Fractional Brownian Motion
+-double fbm(dvec2 x, double initialFrequency, double lacunarity, double gain, int octaves)
+-{
+-	double total = 0.0f;
+-	double frequency = initialFrequency;
+-	double amplitude = gain;
+-	
+-	for (int i = 0; i < octaves; ++i)
+-	{
+-		total += snoise(x * frequency) * amplitude;         
+-		frequency *= lacunarity;
+-		amplitude *= gain;
+-	}
+-	
+-	return total;
+-}
+-
+-double fbm(dvec3 x, double initialFrequency, double lacunarity, double gain, int octaves)
+-{
+-	double total = 0.0f;
+-	double frequency = initialFrequency;
+-	double amplitude = gain;
+-	
+-	for (int i = 0; i < octaves; ++i)
+-	{
+-		total += snoise(x * frequency) * amplitude;         
+-		frequency *= lacunarity;
+-		amplitude *= gain;
+-	}
+-	
+-	return total;
+-}
+-
+-double ridgedFbm(dvec3 x, double initialFrequency, double lacunarity, double gain, int octaves)
+-{
+-	double total = 0.0f;
+-	double frequency = initialFrequency;
+-	double amplitude = gain;
+-	
+-	for (int i = 0; i < octaves; ++i)
+-	{
+-		total += abs(snoise(x * frequency) * amplitude);         
+-		frequency *= lacunarity;
+-		amplitude *= gain;
+-	}
+-	
+-	return total;
+-}
+-
+-double cellularFbm(dvec3 x, double initialFrequency, double lacunarity, double gain, int octaves)
+-{
+-	double total = 0.0f;
+-	double frequency = initialFrequency;
+-	double amplitude = gain;
+-	
+-	for (int i = 0; i < octaves; ++i)
+-	{
+-		total += abs(cellular(x * frequency).x * amplitude);         
+-		frequency *= lacunarity;
+-		amplitude *= gain;
+-	}
+-	
+-	return total;
+-}
+\ No newline at end of file
+diff --git a/AlbedoEditor/Shaders/terrain_h.glsl b/AlbedoEditor/Shaders/terrain_h.glsl
+deleted file mode 100644
+index 6d1ab41..0000000
+--- a/AlbedoEditor/Shaders/terrain_h.glsl
++++ /dev/null
+@@ -1,139 +0,0 @@
+-//The MIT License (MIT)
+-//
+-//Copyright (c) 2014 Leif Erkenbrach
+-//
+-//Permission is hereby granted, free of charge, to any person obtaining a copy
+-//of this software and associated documentation files (the "Software"), to deal
+-//in the Software without restriction, including without limitation the rights
+-//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-//copies of the Software, and to permit persons to whom the Software is
+-//furnished to do so, subject to the following conditions:
+-//
+-//The above copyright notice and this permission notice shall be included in
+-//all copies or substantial portions of the Software.
+-//
+-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+-//THE SOFTWARE.
+-
+-#include <Shaders/uniforms_h.glsl>
+-#include <Shaders/atmosphere_h.glsl>
+-
+-float denormalizeTerrainHeight(float height)
+-{
+-	return (height) * 20000.0 - 10000.0;
+-}
+-
+-vec3 projectOntoSphere(vec3 pos)
+-{
+-	vec3 posSqr = pos * pos;
+-	vec3 result;
+-	
+-	result.x = pos.x * sqrt(1.0 - (posSqr.y / 2.0) - (posSqr.z / 2.0) + ((posSqr.y * posSqr.z) / 3.0));
+-	result.y = pos.y * sqrt(1.0 - (posSqr.z / 2.0) - (posSqr.x / 2.0) + ((posSqr.z * posSqr.x) / 3.0));
+-	result.z = pos.z * sqrt(1.0 - (posSqr.x / 2.0) - (posSqr.y / 2.0) + ((posSqr.x * posSqr.y) / 3.0));
+-	
+-	return result;
+-}
+-
+-dvec3 projectOntoSphere(dvec3 pos)
+-{
+-	dvec3 posSqr = pos * pos;
+-	dvec3 result;
+-	
+-	result.x = pos.x * sqrt(1.0 - (posSqr.y / 2.0) - (posSqr.z / 2.0) + ((posSqr.y * posSqr.z) / 3.0));
+-	result.y = pos.y * sqrt(1.0 - (posSqr.z / 2.0) - (posSqr.x / 2.0) + ((posSqr.z * posSqr.x) / 3.0));
+-	result.z = pos.z * sqrt(1.0 - (posSqr.x / 2.0) - (posSqr.y / 2.0) + ((posSqr.x * posSqr.y) / 3.0));
+-	
+-	return result;
+-}
+-
+-const int nSamples = 3;
+-const float fSamples = 3.0;
+-
+-void calculateGroundScattering(vec3 posW, out vec4 frontColor, out vec4 secondaryColor, out float fogFactor)
+-{
+-	vec3 origin = vec3(0.0, -fInnerRadius, 0.0);
+-	vec3 adjustedCameraPos = perFrame.ViewPosition - origin;
+-	float cameraHeight = length(adjustedCameraPos);
+-	float cameraHeight2 = cameraHeight * cameraHeight;
+-
+-	// Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
+-	vec3 v3Pos = posW - origin;
+-	vec3 v3Ray = v3Pos - adjustedCameraPos;
+-	float fFar = length(v3Ray);
+-	v3Ray /= fFar;
+-
+-	vec3 v3Start;
+-	
+-	if (length(adjustedCameraPos) > fOuterRadius)
+-	{
+-		// Calculate the closest intersection of the ray with the outer atmosphere (which is the near point of the ray passing through the atmosphere)
+-		float B = 2.0 * dot(adjustedCameraPos, v3Ray);
+-		float C = cameraHeight2 - fOuterRadius2;
+-		float fDet = max(0.0, B*B - 4.0 * C);
+-		float fNear = 0.5 * (-B - sqrt(fDet));
+-		
+-		// Calculate the ray's starting position, then calculate its scattering offset
+-		v3Start = adjustedCameraPos + v3Ray * fNear;
+-		fFar -= fNear;
+-	}
+-	else
+-	{
+-		v3Start = adjustedCameraPos;
+-	}
+-	
+-	//Calcluate fog factor
+-	float distance = fFar / 5000.0;
+-	fogFactor = exp2( -0.016 * 0.016 * distance * distance * 1.442697);
+-	fogFactor = clamp(fogFactor, 0.0, 1.0);
+-	
+-	
+-	//Calculate color
+-	float fDepth = exp((fInnerRadius - fOuterRadius) / fScaleDepth);
+-	float fCameraAngle = dot(-v3Ray, v3Pos) / length(v3Pos);
+-	float fLightAngle = dot(perFrame.directionalLight.Direction, v3Pos) / length(v3Pos);
+-	float fCameraScale = scale(fCameraAngle);
+-	float fLightScale = scale(fLightAngle);
+-	float fCameraOffset = fDepth*fCameraScale;
+-	float fTemp = (fLightScale + fCameraScale);
+-
+-	// Initialize the scattering loop variables
+-	float fSampleLength = fFar / fSamples;
+-	float fScaledLength = fSampleLength * fScale;
+-	vec3 v3SampleRay = v3Ray * fSampleLength;
+-	vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
+-
+-	// Now loop through the sample rays
+-	vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);
+-	vec3 v3Attenuate;
+-	for(int i=0; i<nSamples; i++)
+-	{
+-		float fHeight = length(v3SamplePoint);
+-		float fDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fHeight));
+-		float fScatter = fDepth*fTemp - fCameraOffset;
+-		v3Attenuate = exp(-fScatter * (v3InvWavelength * fKr4PI + fKm4PI));
+-		v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
+-		v3SamplePoint += v3SampleRay;
+-	}
+-
+-	frontColor.rgb = v3FrontColor * (v3InvWavelength * fKrESun + fKmESun);
+-
+-	// Calculate the attenuation factor for the ground
+-	secondaryColor.rgb = v3Attenuate;
+-}
+-
+-const float worldScale = 6378.1 * 1000.0;
+-
+-layout(std140) uniform TerrainUniformBuffer
+-{
+-	mat4 terrainTransform;
+-	float scale;
+-	vec2 offset;
+-	float pad2;
+-	float pad3;
+-} terrainPatchInfo;
+\ No newline at end of file
+diff --git a/AlbedoEditor/imgui.ini b/AlbedoEditor/imgui.ini
+index 90c9525..0ae5dd9 100644
+--- a/AlbedoEditor/imgui.ini
++++ b/AlbedoEditor/imgui.ini
+@@ -15,8 +15,8 @@ Collapsed=0
+ DockId=0x00000004,1
+ 
+ [Window][Viewport]
+-Pos=252,18
+-Size=838,490
++Pos=268,18
++Size=822,490
+ Collapsed=0
+ DockId=0x0000000B,0
+ 
+@@ -38,14 +38,14 @@ Size=114,82
+ Collapsed=0
+ 
+ [Window][Content Browser]
+-Pos=252,510
+-Size=838,235
++Pos=268,510
++Size=822,235
+ Collapsed=0
+ DockId=0x00000006,0
+ 
+ [Window][##toolbar]
+ Pos=0,18
+-Size=250,48
++Size=266,48
+ Collapsed=0
+ DockId=0x00000007,0
+ 
+@@ -80,7 +80,7 @@ DockId=0x0000000E,0
+ 
+ [Window][Entities]
+ Pos=0,68
+-Size=250,677
++Size=266,677
+ Collapsed=0
+ DockId=0x00000009,0
+ 
+@@ -105,10 +105,10 @@ DockId=0x00000012,0
+ [Docking][Data]
+ DockSpace             ID=0x3BC79352 Window=0x4647B76E Pos=0,41 Size=1366,727 Split=X Selected=0x13926F0B
+   DockNode            ID=0x00000001 Parent=0x3BC79352 SizeRef=1090,727 Split=X
+-    DockNode          ID=0x00000013 Parent=0x00000001 SizeRef=250,727 Split=Y Selected=0xA628E342
++    DockNode          ID=0x00000013 Parent=0x00000001 SizeRef=266,727 Split=Y Selected=0xA628E342
+       DockNode        ID=0x00000007 Parent=0x00000013 SizeRef=251,48 HiddenTabBar=1 Selected=0xF0F70764
+       DockNode        ID=0x00000009 Parent=0x00000013 SizeRef=251,677 Selected=0xA628E342
+-    DockNode          ID=0x00000014 Parent=0x00000001 SizeRef=838,727 Split=X
++    DockNode          ID=0x00000014 Parent=0x00000001 SizeRef=822,727 Split=X
+       DockNode        ID=0x00000003 Parent=0x00000014 SizeRef=294,727 Selected=0x199AB496
+       DockNode        ID=0x00000004 Parent=0x00000014 SizeRef=1070,727 Split=Y
+         DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=1044,490 Split=X Selected=0x13926F0B
+diff --git a/AlbedoEditor/src/Panels/SceneHierarchyPanel.cpp b/AlbedoEditor/src/Panels/SceneHierarchyPanel.cpp
+index 02b4949..cbac5bf 100644
+--- a/AlbedoEditor/src/Panels/SceneHierarchyPanel.cpp
++++ b/AlbedoEditor/src/Panels/SceneHierarchyPanel.cpp
+@@ -70,12 +70,12 @@ namespace Albedo {
+ 				m_SelectionContext = e;
+ 			}
+ 
+-			//if (ImGui::MenuItem("Create Default Plane"))
+-			//{
+-			//	Entity e = m_Context->CreatePlaneEntity("Default Plane");
+-			//
+-			//	m_SelectionContext = e;
+-			//}
++			if (ImGui::MenuItem("Create Default Plane"))
++			{
++				Entity e = m_Context->CreatePlaneEntity("Default Plane");
++			
++				m_SelectionContext = e;
++			}
+ 
+ 			if (ImGui::MenuItem("Create Scene Light"))
+ 			{
+@@ -181,13 +181,6 @@ namespace Albedo {
+ 				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+ 					ImGui::TreePop();
+ 			}
+-			if (entity.HasComponent<TransformComponent>())
+-			{
+-				auto e = entity.GetComponent<TransformComponent>();
+-				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+-				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+-					ImGui::TreePop();
+-			}
+ 			if (entity.HasComponent<ModelComponent>())
+ 			{
+ 				auto e = entity.GetComponent<ModelComponent>();
+@@ -252,14 +245,6 @@ namespace Albedo {
+ 					ImGui::TreePop();
+ 			}
+ 
+-			if (entity.HasComponent<SkyboxComponent>())
+-			{
+-				auto e = entity.GetComponent<SkyboxComponent>();
+-				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+-				if (ImGui::TreeNodeEx((void*)++i, flags, e.name.c_str()))
+-					ImGui::TreePop();
+-			}
+-
+ 
+ 			ImGui::TreePop();
+ 		}
+@@ -540,15 +525,19 @@ namespace Albedo {
+ 					{
+ 						const wchar_t* path = (const wchar_t*)payload->Data;
+ 						std::filesystem::path meshPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+-						component.tobeinitialized = true;
+-						if (m_AssetManager->ValidateModelPath(meshPath.string()))
+-							component.AddMesh(m_AssetManager->LoadGLTFModel(meshPath.string()), (uint32_t)entity);
++						//component.initialize = true; // TODO: See if this needs to be here or not
++						//if (m_AssetManager->ValidateModelPath(meshPath.string()))
++						//	component.AddMesh(m_AssetManager->LoadModel(meshPath.string()), (uint32_t)entity);
+ 					}
+ 					ImGui::EndDragDropTarget();
+ 				}
+-
+-				const std::string s = "Path " + component.m_Model->GetPath();
+-				ImGui::Button(s.c_str());
++				//if (component.m_Model)
++				//{
++				//	const std::string& s = "Vertices " + std::to_string(component.m_Mesh->GetTotalVertices());
++				//	ImGui::Text(s.c_str());
++				//}
++				//const std::string& s = "Name " + component.m_Mesh->GetName();
++				//ImGui::Button(s.c_str());
+ 			});
+ 
+ 		DrawComponent<TextureComponent>("Texture", entity, [&](auto& component)
+@@ -635,6 +624,22 @@ namespace Albedo {
+ 
+ 		DrawComponent<ShaderComponent>("Shader", entity, [&](auto& component)
+ 			{
++				std::string items[] = { "Vertex", "Fragment", "Compute", "Geometry"};
++				if (ImGui::BeginCombo("##shaders", m_CurrentShader.c_str()))
++				{
++					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
++					{
++						bool is_selected = (m_CurrentShader == items[n]);
++						if (ImGui::Selectable(items[n].c_str(), is_selected))
++							m_CurrentShader = items[n];
++						if(is_selected)
++						{
++							ImGui::SetItemDefaultFocus();
++						}
++					}
++					ImGui::EndCombo();
++				}
++				ImGui::SameLine();
+ 				ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
+ 				if (ImGui::BeginDragDropTarget())
+ 				{
+@@ -642,7 +647,7 @@ namespace Albedo {
+ 					{
+ 						const wchar_t* path = (const wchar_t*)payload->Data;
+ 						std::filesystem::path shaderPath = std::filesystem::path(std::filesystem::path("Assets") / path);
+-						component.tobeinitialized = true;
++						//component.initialize = true; // TODO: See if this needs to be here or not
+ 						if (m_AssetManager->ValidateShaderPath(shaderPath.string()))
+ 							component.AddShader(m_AssetManager->LoadShader(shaderPath.u8string()));
+ 					}
+@@ -650,9 +655,6 @@ namespace Albedo {
+ 				}
+ 				ImGui::Separator();
+ 
+-				if (ImGui::Button("Reload Shader")) {
+-					component.tobeinitialized = true;
+-				}
+ 				const std::string& s = "Name " + component.m_Shader->GetName();
+ 				ImGui::Button(s.c_str());
+ 			});
+@@ -994,38 +996,38 @@ namespace Albedo {
+ 			{
+ 				ImGui::Text("Skybox Component");
+ 
+-				//component.faces.resize(6);
+-				//std::vector<std::string> sideNames = 
+-				//{
+-				//	"Right",
+-				//	"Left",
+-				//	"Top",
+-				//	"Bottom",
+-				//	"Front",
+-				//	"Back"
+-				//};
+-				//for (int i = 0; i < 6; i++)
+-				//{
+-				//	ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
+-				//	if (ImGui::BeginDragDropTarget())
+-				//	{
+-				//		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+-				//		{
+-				//			const wchar_t* path = (const wchar_t*)payload->Data;
+-				//			std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
+-				//			if (m_AssetManager->ValidateTexturePath(texturePath.string()))
+-				//				component.faces[i] = texturePath.string();
+-				//		}
+-				//		ImGui::EndDragDropTarget();
+-				//	}
+-				//	ImGui::SameLine();
+-				//	ImGui::Text(sideNames[i].c_str());
+-				//	if (!component.faces[i].empty())
+-				//	{
+-				//		ImGui::SameLine();
+-				//		ImGui::Text(component.faces[i].c_str());
+-				//	}
+-				//}
++				component.faces.resize(6);
++				std::vector<std::string> sideNames = 
++				{
++					"Right",
++					"Left",
++					"Top",
++					"Bottom",
++					"Front",
++					"Back"
++				};
++				for (int i = 0; i < 6; i++)
++				{
++					ImGui::Image(reinterpret_cast<void*>(m_BlackTexture->GetTextureID()), ImVec2{ 30.0f, 30.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }, ImVec4{ 1, 1, 1, 1 }, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
++					if (ImGui::BeginDragDropTarget())
++					{
++						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
++						{
++							const wchar_t* path = (const wchar_t*)payload->Data;
++							std::filesystem::path texturePath = std::filesystem::path(std::filesystem::path("Assets") / path);
++							if (m_AssetManager->ValidateTexturePath(texturePath.string()))
++								component.faces[i] = texturePath.string();
++						}
++						ImGui::EndDragDropTarget();
++					}
++					ImGui::SameLine();
++					ImGui::Text(sideNames[i].c_str());
++					if (!component.faces[i].empty())
++					{
++						ImGui::SameLine();
++						ImGui::Text(component.faces[i].c_str());
++					}
++				}
+ 
+ 				//for (const auto& face : component.faces)
+ 				//{
+@@ -1035,11 +1037,11 @@ namespace Albedo {
+ 				//}
+ 				if (ImGui::Button("Reload Skybox"))
+ 				{
+-					//TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
+-					//	Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
+-					//	Config::DataFormat::RGB, false, false);
+-					//config.Faces = component.faces;
+-					//component.m_Skybox = Texture2D::Create(config);
++					TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
++						Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
++						Config::DataFormat::RGB, false, false);
++					config.Faces = component.faces;
++					component.m_Skybox = Texture2D::Create(config);
+ 				}
+ 
+ 			});
+diff --git a/AlbedoEditor/src/Panels/SceneHierarchyPanel.h b/AlbedoEditor/src/Panels/SceneHierarchyPanel.h
+index b7b4006..e5517bd 100644
+--- a/AlbedoEditor/src/Panels/SceneHierarchyPanel.h
++++ b/AlbedoEditor/src/Panels/SceneHierarchyPanel.h
+@@ -34,6 +34,7 @@ namespace Albedo {
+ 		bool default = false;
+ 		bool m_Albedo = false, m_AmbientOcclusion = false, 
+ 			m_Metallic = false, m_Normal = false, m_Roughness = false;
++		std::string m_CurrentShader = "Vertex";
+ 		std::string m_CurrentTexture = "Albedo";
+ 		std::string m_CurrentLight = "Point";
+ 		std::string m_CurrentPhysicsType = "Dynamic";
+diff --git a/README.md b/README.md
+index b430ba4..a2b5cf1 100644
+--- a/README.md
++++ b/README.md
+@@ -1,16 +1,2 @@
+ # Albedo
+-I worked on this project to understand the implementaion and architecturel design of an industry level game engine
+-
+-## Features
+-- 3D/2D Renderer
+-- GLTF
+-- GUI Editor
+-- Scene system
+-- C# scripting
+-- Physics using Box2D and PhysX
+-
+-### Learning resources
+-- Cherno's Game Engine series on YouTube
+-- Learn Opengl
+-- Sascha Willems's Github
+-- 'Game Engine Architecure' book by Jason Gregory
++3D Game Engine in C++

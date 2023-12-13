@@ -252,9 +252,6 @@ namespace Albedo {
 
 		std::string phyTypeName = "Dynamic";
 
-		Ref<PhysicsMaterial> physicsMaterial;
-		Ref<RigidBodyDynamicComponent> dynamicBody;
-		Ref<RigidBodyStaticComponent> staticBody;
 		bool initialize = true;
 
 		PhysicsComponent() = default;
@@ -279,8 +276,6 @@ namespace Albedo {
 
 		std::string colTypeName = "Box";
 		
-
-		Ref<PhysicsCollider> collider;
 		bool initialize = true;
 		
 		ColliderComponent() = default;

@@ -31,8 +31,10 @@ IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
 IncludeDir["Box2d"]  	= "%{wks.location}/Albedo/dependencies/Box2d/include"
 IncludeDir["Assimp"]  	= "%{wks.location}/Albedo/dependencies/assimp/include"
 IncludeDir["tinygltf"]  	= "%{wks.location}/Albedo/dependencies/tinygltf/include"
+IncludeDir["reactphysics3d"]  	= "%{wks.location}/Albedo/dependencies/reactphysics3d/include"
 
 LibraryDir = {}
+LibraryDir["reactphysics3d"] 		= "%{wks.location}/Albedo/dependencies/reactphysics3d/lib/%{cfg.buildcfg}"
 LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
 LibraryDir["Box2d"] 		= "%{wks.location}/Albedo/dependencies/Box2d/lib/%{cfg.buildcfg}"
 LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
@@ -56,6 +58,7 @@ Library["mono_runtime"] 				   = "%{LibraryDir.mono}/libmonoruntime-sgen.lib"
 Library["mono_utils"] 				   = "%{LibraryDir.mono}/libmonoutils.lib"
 Library["mono_posix"] 				   = "%{LibraryDir.mono}/MonoPosixHelper.lib"
 Library["Assimp"] 				   = "%{LibraryDir.Assimp}/assimp.lib"
+Library["reactphysics3d"] 				   = "%{LibraryDir.reactphysics3d}/reactphysics3d.lib"
 
 group "Dependencies"
 	include "Albedo/dependencies/GLFW"
@@ -118,6 +121,7 @@ project "Albedo"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Physx}",
+		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",
@@ -136,6 +140,8 @@ project "Albedo"
 		"opengl32.lib",
 		-- Box2d
 		"%{Library.Box2d}",
+		-- reactphysics3d
+		"%{Library.reactphysics3d}",
 		-- Physx
 		"%{Library.Physx}",
 		"%{Library.PhysXPvdSDK}",
@@ -219,6 +225,7 @@ project "AlbedoEditor"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Physx}",
+		-- "%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
@@ -282,6 +289,7 @@ project "Sandbox"
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.Physx}",
+		-- "%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.entt}"

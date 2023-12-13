@@ -8,18 +8,15 @@
 #include "Albedo/Utils/AssetSystem.h"
 #include "Albedo/Core/Application.h"
 #include "Albedo/Renderer/Renderer.h"
-#include "Albedo/Physics/PhysicsSolver.h"
-#include "Albedo/Physics/PhysicsWorld.h"
 #include "Albedo/Scripting/ScriptEngine.h"
 #include "Albedo/Physics/Conversions.h"
 
+#include <reactphysics3d/reactphysics3d.h>
 #include <box2d/box2d.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#define ALBEDO_PHYSX 1;
 
 namespace Albedo {
 
@@ -65,10 +62,6 @@ namespace Albedo {
 		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
 		m_DepthShader = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
 
-#if ALBEDO_PHYSX
-		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
-		m_PhysicsSolver->Init();
-#endif
 		{
 			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
 				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
@@ -78,123 +71,14 @@ namespace Albedo {
 		m_ShadowMap = std::make_shared<ShadowMap>(2048, 2048);
 	}
 
-	void Scene::InitPhysicsObjects()
-	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent>();
-
-		for (auto entity : view)
-		{
-			auto& tra = view.get<TransformComponent>(entity);
-			auto& phy = view.get<PhysicsComponent>(entity);
-			auto& col = view.get<ColliderComponent>(entity);
-
-			glm::vec3 pos{ 0.0f };
-			glm::vec3 rot{ 0.0f };
-			phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>(pos, rot, 1.0f);
-			m_PhysicsSolver->AddActor(*phy.dynamicBody);
-		}
-
-		for (auto entity : view)
-		{
-			break;
-			auto& tra = view.get<TransformComponent>(entity);
-			auto& phy = view.get<PhysicsComponent>(entity);
-			auto& col = view.get<ColliderComponent>(entity);
-			phy.initialize = true;
-			col.initialize = true;
-			
-			phy.physicsMaterial = std::make_shared<PhysicsMaterial>
-				(phy.staticFriction, phy.dynamicFriction, phy.restitution);
-
-			if (phy.bodyType == phy.BodyType::Static && phy.initialize)
-			{
-				phy.BodyPosition = tra.Position;
-				phy.staticBody = std::make_shared<RigidBodyStaticComponent>
-					(phy.BodyPosition, phy.BodyOrientation);
-				phy.initialize = false;
-				phy.staticBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
-			}
-
-			else if (phy.bodyType == phy.BodyType::Dynamic && phy.initialize)
-			{
-				//if (phy.infiniteMass)
-				//	phy.Mass = .0f;
-
-				phy.BodyPosition = tra.Position;
-				phy.dynamicBody = std::make_shared<RigidBodyDynamicComponent>
-					(phy.BodyPosition, phy.BodyOrientation, phy.Mass);
-				phy.dynamicBody->GetRigidActor()->setGlobalPose(glmToPhysx::ToTransform(phy.BodyPosition));
-				phy.dynamicBody->DisableGravity(phy.disableGravity);
-				if(phy.isKinematic)
-					phy.dynamicBody->MakeKinematic();
-				phy.initialize = false;
-			}
-
-			if (col.colliderType == col.ColliderType::Box)
-			{
-				if (phy.bodyType == phy.BodyType::Static && phy.staticBody && col.initialize)
-				{
-					col.ColliderPosition = tra.Position;
-					col.collider = std::make_shared<BoxCollider>
-						(phy.staticBody.get(), col.ColliderSize,
-							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.initialize = false;
-					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
-				}
-
-				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody && col.initialize)
-				{
-					col.ColliderPosition = tra.Position;
-					col.collider = std::make_shared<BoxCollider>
-						(phy.dynamicBody.get(), col.ColliderSize,
-							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.initialize = false;
-					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
-				}
-			}
-			else if (col.colliderType == col.ColliderType::Sphere)
-			{
-				if (phy.bodyType == phy.BodyType::Static && phy.staticBody && col.initialize)
-				{
-					col.ColliderPosition = tra.Position;
-					col.collider = std::make_shared<SphereCollider>
-						(phy.staticBody.get(), col.ColliderRadius,
-							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.initialize = false;
-					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
-				}
-
-				else if (phy.bodyType == phy.BodyType::Dynamic && phy.dynamicBody && col.initialize)
-				{
-					col.ColliderPosition = tra.Position;
-					col.collider = std::make_shared<SphereCollider>
-						(phy.dynamicBody.get(), col.ColliderRadius,
-							phy.physicsMaterial, col.ColliderPosition, col.ColliderOrientation);
-					col.initialize = false;
-					//col.collider->SetType(PhysicsCollider::CollisionType::Collider);
-				}
-			}
-			else if (col.colliderType == col.ColliderType::ConvexMesh)
-			{
-				Albedo_Core_ERROR("ConvexMesh not implemented yet");
-			}
-			else if (col.colliderType == col.ColliderType::Mesh)
-			{
-				Albedo_Core_ERROR("Mesh not implemented yet");
-			}
-		}
-	}
-
 	void Scene::InitScene()
 	{
-		//m_PhysicsWorld3D = std::make_shared<PhysicsWorld>();
-		m_PhysicsSolver = std::make_shared<PhysicsSolver>();
-		m_PhysicsSolver->Init();
-		//if(!m_DefaultsInitialized)
-			//InitDefaults();
+		reactphysics3d::PhysicsCommon physicsCommon;
 
-		// Physx not working correctly
-		InitPhysicsObjects();
+		// Create a physics world
+		reactphysics3d::PhysicsWorld* world = physicsCommon.createPhysicsWorld();
+
+		world->update(1.0f);
 
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
 		for (auto entity : view)
@@ -221,7 +105,7 @@ namespace Albedo {
 		//entity.AddComponent<BoxCollider2DComponent>();
 		entity.GetComponent<PhysicsComponent>().dynamicBody = 
 			std::make_shared<RigidBodyDynamicComponent>(tra.GetPosition(), tra.GetRotation(), 0.001f);
-		m_PhysicsSolver->AddActor(*entity.GetComponent<PhysicsComponent>().dynamicBody);
+		//m_PhysicsSolver->AddActor(*entity.GetComponent<PhysicsComponent>().dynamicBody);
 		
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
