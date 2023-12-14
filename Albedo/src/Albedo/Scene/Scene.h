@@ -6,6 +6,7 @@
 #include "Albedo/Renderer/Framebuffer.h"
 #include "Platform/OpenGL/ShadowMap.h"
 #include "Albedo/TerrainGeneration/TerrainManager.h"
+#include "Albedo/Physics/PhysicsWorld.h"
 
 #include "entt.hpp"
 
@@ -101,7 +102,8 @@ namespace Albedo {
 		SceneSetting m_SceneSetting;
 
 		b2World* m_PhysicsWorld = nullptr;
-		//Ref<PhysicsWorld> m_PhysicsWorld3D;
+
+		Ref<PhysicsWorld> m_PhysicsWorld3D;
 
 		bool m_DefaultsInitialized = false;
 		bool fbo = true;

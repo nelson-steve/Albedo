@@ -1437,6 +1437,9 @@
     <ClInclude Include="src\Albedo\Math\Math.h">
       <Filter>src\Albedo\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\Albedo\Physics\PhysicsWorld.h">
+      <Filter>src\Albedo\Physics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Buffer.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1612,6 +1615,9 @@
     </ClCompile>
     <ClCompile Include="src\Albedo\Math\Math.cpp">
       <Filter>src\Albedo\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Physics\PhysicsWorld.cpp">
+      <Filter>src\Albedo\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Buffer.cpp">
       <Filter>src\Albedo\Renderer</Filter>

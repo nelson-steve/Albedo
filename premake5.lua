@@ -225,7 +225,7 @@ project "AlbedoEditor"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.Physx}",
-		-- "%{IncludeDir.reactphysics3d}",
+		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
@@ -289,7 +289,7 @@ project "Sandbox"
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.Physx}",
-		-- "%{IncludeDir.reactphysics3d}",
+		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",
 		"%{IncludeDir.entt}"

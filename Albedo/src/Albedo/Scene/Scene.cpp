@@ -10,7 +10,6 @@
 #include "Albedo/Renderer/Renderer.h"
 #include "Albedo/Scripting/ScriptEngine.h"
 
-#include <reactphysics3d/reactphysics3d.h>
 #include <box2d/box2d.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -72,12 +71,8 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
-		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
-		for (auto entity : view)
-		{
-			//auto& mat = view.get<MaterialComponent>(entity);
-			//mat.m_Material = std::make_shared<Material>();
-		}
+		m_PhysicsWorld3D = std::make_shared<PhysicsWorld>();
+		m_PhysicsWorld3D->Init();
 
 		Renderer::Init(m_Registry);
 	}
@@ -90,12 +85,9 @@ namespace Albedo {
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		//entity.AddComponent<Physics2DComponent>();
 		entity.AddComponent<PhysicsComponent>();
-		entity.GetComponent<PhysicsComponent>().bodyType = PhysicsComponent::BodyType::Dynamic;
-		entity.AddComponent<ColliderComponent>();
-		//entity.AddComponent<BoxCollider2DComponent>();
-		//m_PhysicsSolver->AddActor(*entity.GetComponent<PhysicsComponent>().dynamicBody);
+		entity.GetComponent<PhysicsComponent>();
+		entity.AddComponent<BoxColliderComponent>();
 		
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -126,7 +118,7 @@ namespace Albedo {
 		entity.AddComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/albedo.png"), 0);
 		entity.GetComponent<TextureComponent>().AddTexture(m_AssetManager->LoadTexture("Assets/Models/board/ao.png"), 1);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelPBRShader.glsl"));
-		entity.AddComponent<BoxCollider2DComponent>();
+
 
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -272,6 +264,35 @@ namespace Albedo {
 	{
 		m_IsSimulating = true;
 
+		{
+			auto view = m_Registry.view<PhysicsComponent>();
+			for (auto e : view) {
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& physics = entity.GetComponent<PhysicsComponent>();
+
+				if (physics.bodyType == PhysicsComponent::BodyType::Static)
+					physics.StaticRuntimeBody = m_PhysicsWorld3D->CreateStaticBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
+				else if (physics.bodyType == PhysicsComponent::BodyType::Dynamic)
+					physics.DynamicRuntimeBody = m_PhysicsWorld3D->CreateDynamicBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
+
+
+				if (entity.HasComponent<BoxColliderComponent>())
+				{
+					auto& bc3d = entity.GetComponent<BoxColliderComponent>();
+
+					if (physics.bodyType == PhysicsComponent::BodyType::Static) {
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.HalfSize);
+						physics.StaticRuntimeBody->AddBoxCollider(collider, bc3d.offset);
+					}
+					if (physics.bodyType == PhysicsComponent::BodyType::Dynamic) {
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.HalfSize);
+						physics.DynamicRuntimeBody->AddBoxCollider(collider, bc3d.offset);
+					}
+				}
+			}
+		}
+
 		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
 		EnableGravity(m_SceneSetting.enableGravity);
 		{
@@ -324,6 +345,8 @@ namespace Albedo {
 
 	void Scene::OnSimulationStop()
 	{
+		m_PhysicsWorld3D->Destroy();
+
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
 
@@ -688,7 +711,17 @@ namespace Albedo {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<ColliderComponent>(Entity entity, ColliderComponent& component)
+	void Scene::OnComponentAdded<BoxColliderComponent>(Entity entity, BoxColliderComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<SphereColliderComponent>(Entity entity, SphereColliderComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<CapsuleColliderComponent>(Entity entity, CapsuleColliderComponent& component)
 	{
 	}
 

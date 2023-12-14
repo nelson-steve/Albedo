@@ -225,61 +225,51 @@ namespace Albedo {
 	struct PhysicsComponent
 	{
 		std::string name = "Physics Compnent";
+		enum class BodyType { Static, Dynamic };
 
-		enum BodyType
-		{
-			Static = 0,
-			Dynamic
-		};
+		BodyType bodyType = BodyType::Static;
+		DynamicBody::BodyType dynamicType = DynamicBody::BodyType::STATIC;
 
-		float staticFriction = 0.05;
-		float dynamicFriction = 0.005;
-		float restitution = 0.0;
-
-		// Rigid Body
-		glm::vec3 BodyPosition = glm::vec3(0.0);
-		glm::quat BodyOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
-		BodyType bodyType = BodyType::Dynamic;
-		glm::vec3 Force = glm::vec3(0.0);
-		glm::vec3 Velocity = glm::vec3(0.0, 0.0, 0.0);
-		float Mass = 1;
-		//bool infiniteMass = false;
-
-		//states
-		bool disableGravity = true;
-		bool isKinematic = false;
-		float SphereColliderRadius = 1.0f;
-
-		std::string phyTypeName = "Dynamic";
-
-		bool initialize = true;
+		// states
+		bool enableGravity = true;
+		// Body
+		Ref<StaticBody> StaticRuntimeBody = nullptr;
+		Ref<DynamicBody> DynamicRuntimeBody = nullptr;
 
 		PhysicsComponent() = default;
 		PhysicsComponent(const PhysicsComponent&) = default;
 	};
 
-	struct ColliderComponent
+	struct BoxColliderComponent
 	{
-		enum ColliderType
-		{
-			Box = 0,
-			Sphere,
-			Mesh,
-			ConvexMesh
-		};
+		glm::vec3 offset;
+		glm::vec3 HalfSize;
 
-		ColliderType colliderType = ColliderType::Box;
-		glm::vec3 ColliderPosition = glm::vec3(0.0);
-		float ColliderRadius = 1;
-		glm::vec3 ColliderSize = glm::vec3(1.0f, 1.0f, 1.0f);
-		glm::quat ColliderOrientation = glm::quat(1.0, 0.0, 0.0, 0.0);
+		Ref<BoxCollider> collider;
+		
+		BoxColliderComponent() = default;
+		BoxColliderComponent(const BoxColliderComponent&) = default;
+	};
 
-		std::string colTypeName = "Box";
-		
-		bool initialize = true;
-		
-		ColliderComponent() = default;
-		ColliderComponent(const ColliderComponent&) = default;
+	struct SphereColliderComponent
+	{
+		float radius;
+
+		Ref<SphereCollider> collider;
+
+		SphereColliderComponent() = default;
+		SphereColliderComponent(const SphereColliderComponent&) = default;
+	};
+
+	struct CapsuleColliderComponent
+	{
+		float radius;
+		float height;
+
+		Ref<CapsuleCollider> collider;
+
+		CapsuleColliderComponent() = default;
+		CapsuleColliderComponent(const CapsuleColliderComponent&) = default;
 	};
 
 	struct SpriteRendererComponent
@@ -340,7 +330,7 @@ namespace Albedo {
 
 	using AllComponents =
 		ComponentGroup<ModelComponent, TransformComponent, LightComponent, SkyboxComponent, Physics2DComponent, BoxCollider2DComponent,
-		PhysicsComponent, ColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
+		PhysicsComponent, BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, TagComponent, ShaderComponent, TextureComponent, MaterialComponent, 
 		ScriptComponent>;
 
 }

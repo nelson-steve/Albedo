@@ -49,7 +49,7 @@ namespace Albedo {
 
     struct StaticBody {
     public:
-        void AddBoxCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+        void AddBoxCollider(Ref<BoxCollider> collider, const glm::vec3& relativePos) {
             assert(m_Body != nullptr);
             reactphysics3d::Transform transform;
             transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
@@ -61,7 +61,7 @@ namespace Albedo {
             transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
             m_Body->addCollider(collider->m_Shape, transform);
         }
-        void AddCapsuleCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+        void AddCapsuleCollider(Ref<CapsuleCollider> collider, const glm::vec3& relativePos) {
             assert(m_Body != nullptr);
             reactphysics3d::Transform transform;
             transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
@@ -99,14 +99,31 @@ namespace Albedo {
     };
 
     struct DynamicBody {
-    private:
+    public:
         enum class BodyType {
             STATIC,
             KINEMATIC,
             DYNAMIC
         } m_Type = BodyType::STATIC;
-        reactphysics3d::RigidBody* m_Body;
     public:
+        void AddBoxCollider(Ref<BoxCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
+        void AddSphereCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
+        void AddCapsuleCollider(Ref<CapsuleCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
         void EnableGravity(bool gravity) {
             m_Body->enableGravity(gravity);
         }
@@ -189,5 +206,12 @@ namespace Albedo {
         reactphysics3d::PhysicsCommon m_PhysicsCommon;
         // Create a physics world
         reactphysics3d::PhysicsWorld* m_World;
+
+        std::vector<Ref<StaticBody>> m_StaticBodies;
+        std::vector<Ref<DynamicBody>> m_DynamicBodies;
+
+        std::vector<Ref<BoxCollider>> m_BoxColliders;
+        std::vector<Ref<SphereCollider>> m_SphereColliders;
+        std::vector<Ref<CapsuleCollider>> m_CapsuleColliders;
     };
 }
