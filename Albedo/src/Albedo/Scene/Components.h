@@ -247,7 +247,7 @@ namespace Albedo {
 	struct BoxColliderComponent
 	{
 		glm::vec3 offset{ 0.0f };
-		glm::vec3 halfSize{ 1.0f }; // TODO: not a half size
+		glm::vec3 Size{ 1.0f }; // TODO: not a half size
 
 		Ref<BoxCollider> collider;
 		

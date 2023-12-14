@@ -750,7 +750,7 @@ namespace Albedo {
 		DrawComponent<BoxColliderComponent>("Box Collider", entity, [&](auto& component)
 			{
 				DrawVec3Control("Offset", component.offset, 1.0f, 70);
-				DrawVec3Control("HalfSize", component.halfSize, 1.0f, 70);
+				DrawVec3Control("Size", component.Size, 1.0f, 70);
 			});
 #endif
 #if 1

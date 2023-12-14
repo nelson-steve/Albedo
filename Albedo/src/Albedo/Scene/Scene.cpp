@@ -282,11 +282,11 @@ namespace Albedo {
 					auto& bc3d = entity.GetComponent<BoxColliderComponent>();
 
 					if (physics.bodyType == PhysicsComponent::BodyType::Static) {
-						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.halfSize);
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.Size);
 						physics.StaticRuntimeBody->AddBoxCollider(collider, bc3d.offset);
 					}
 					if (physics.bodyType == PhysicsComponent::BodyType::Dynamic) {
-						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.halfSize);
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.Size);
 						physics.DynamicRuntimeBody->AddBoxCollider(collider, bc3d.offset);
 					}
 				}
