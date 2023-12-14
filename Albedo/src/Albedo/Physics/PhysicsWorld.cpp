@@ -37,9 +37,31 @@ namespace Albedo {
         return dynamicBody;
     }
 
+    Ref<BoxCollider> PhysicsWorld::CreateBoxShape(const glm::vec3& size) {
+        Ref<BoxCollider> collider = std::make_shared<BoxCollider>();
+        collider->SetHalfSize(size / 2.0f);
+        collider->m_Shape = m_PhysicsCommon.createBoxShape(reactphysics3d::Vector3(size.x, size.y, size.z));
+        return collider;
+    }
+
+    Ref<SphereCollider> PhysicsWorld::CreateSphereShape(float radius) {
+        Ref<SphereCollider> collider = std::make_shared<SphereCollider>();
+        collider->SetRadius(radius);
+        collider->m_Shape = m_PhysicsCommon.createSphereShape(radius);
+        return collider;
+    }
+
+    Ref<CapsuleCollider> PhysicsWorld::CreateCapsuleShape(float radius, float height) {
+        Ref<CapsuleCollider> collider = std::make_shared<CapsuleCollider>();
+        collider->SetSize(radius, height);
+        collider->m_Shape = m_PhysicsCommon.createCapsuleShape(radius, height);
+        return collider;
+    }
+
     void PhysicsWorld::DestroyStaticBody(const Ref<StaticBody> m_Body) {
         m_World->destroyCollisionBody(m_Body->m_Body);
     }
+
     void PhysicsWorld::DestroyDynamicBody(const Ref<DynamicBody> m_Body) {
         m_World->destroyRigidBody(m_Body->m_Body);
     }

@@ -4,8 +4,69 @@
 #include <reactphysics3d/reactphysics3d.h>
 
 namespace Albedo {
+    struct BoxCollider {
+        void SetHalfSize(const glm::vec3& halfSize) {
+            m_HalfSize = halfSize;
+        }
+        const glm::vec3& GetHalfSize() const { return m_HalfSize; }
+    private:
+        glm::vec3 m_HalfSize;
+        reactphysics3d::BoxShape* m_Shape;
+
+        friend class PhysicsWorld;
+        friend class StaticBody;
+        friend class DynamicBody;
+    };
+
+    struct SphereCollider {
+        void SetRadius(float radius) {
+            m_Radius = radius;
+        }
+        float GetRadius() const { return m_Radius; }
+    private:
+        float m_Radius;
+        reactphysics3d::SphereShape* m_Shape;
+
+        friend class PhysicsWorld;
+        friend class StaticBody;
+        friend class DynamicBody;
+    };
+
+    struct CapsuleCollider {
+        void SetSize(float radius, float height) {
+            m_Radius = radius;
+            m_Height = height;
+        }
+    private:
+        float m_Radius;
+        float m_Height;
+        reactphysics3d::CapsuleShape* m_Shape;
+
+        friend class PhysicsWorld;
+        friend class StaticBody;
+        friend class DynamicBody;
+    };
+
     struct StaticBody {
     public:
+        void AddBoxCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
+        void AddSphereCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
+        void AddCapsuleCollider(Ref<SphereCollider> collider, const glm::vec3& relativePos) {
+            assert(m_Body != nullptr);
+            reactphysics3d::Transform transform;
+            transform.setPosition(reactphysics3d::Vector3(relativePos.x, relativePos.y, relativePos.z));
+            m_Body->addCollider(collider->m_Shape, transform);
+        }
         void SetPosition(const glm::vec3& pos) {
             reactphysics3d::Transform transform;
             transform.setPosition(reactphysics3d::Vector3(pos.x, pos.y, pos.z));
@@ -49,6 +110,12 @@ namespace Albedo {
         void EnableGravity(bool gravity) {
             m_Body->enableGravity(gravity);
         }
+        float GetAngularDamping() {
+            m_Body->getAngularDamping();
+        }
+        float GetLinearDamping() {
+            m_Body->getLinearDamping();
+        }
         const glm::vec3& GetPosition() const {
             return glm::vec3{
                 m_Body->getTransform().getPosition().x,
@@ -63,6 +130,12 @@ namespace Albedo {
                 m_Body->getTransform().getOrientation().z,
                 m_Body->getTransform().getOrientation().w
             };
+        }
+        void SetAngularDamping(float dampingValue) {
+            m_Body->setAngularDamping(dampingValue);
+        }
+        void SetLinearDamping(float dampingValue) {
+            m_Body->setLinearDamping(dampingValue);
         }
         void SetPosition(const glm::vec3& pos) {
             reactphysics3d::Transform transform;
@@ -105,6 +178,10 @@ namespace Albedo {
 
         Ref<StaticBody> CreateStaticBody(const glm::vec3& pos = glm::vec3{0.0f}, const glm::vec4& rot = glm::vec4{ 0.0f });
         Ref<DynamicBody> CreateDynamicBody(const glm::vec3& pos = glm::vec3{0.0f}, const glm::vec4& rot = glm::vec4{ 0.0f });
+
+        Ref<BoxCollider> CreateBoxShape(const glm::vec3& size);
+        Ref<SphereCollider> CreateSphereShape(float radius);
+        Ref<CapsuleCollider> CreateCapsuleShape(float radius, float height);
 
         void DestroyStaticBody(const Ref<StaticBody> body);
         void DestroyDynamicBody(const Ref<DynamicBody> body);
