@@ -468,12 +468,30 @@ namespace Albedo {
 					ImGui::CloseCurrentPopup();
 				}
 			}
+			if (!m_SelectionContext.HasComponent<PhysicsComponent>())
+			{
+				if (ImGui::MenuItem("PhysicsBody"))
+				{
+					if (!m_SelectionContext.HasComponent<PhysicsComponent>())
+						m_SelectionContext.AddComponent<PhysicsComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
 			if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
 			{
-				if (ImGui::MenuItem("BoxCollider"))
+				if (ImGui::MenuItem("BoxCollider2D"))
 				{
 					if (!m_SelectionContext.HasComponent<BoxCollider2DComponent>())
 						m_SelectionContext.AddComponent<BoxCollider2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			if (!m_SelectionContext.HasComponent<BoxColliderComponent>())
+			{
+				if (ImGui::MenuItem("BoxCollider"))
+				{
+					if (!m_SelectionContext.HasComponent<BoxColliderComponent>())
+						m_SelectionContext.AddComponent<BoxColliderComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -662,57 +680,27 @@ namespace Albedo {
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
 			});
-#if 0
-		DrawComponent<PhysicsComponent>("Physics", entity, [&](auto& component)
+#if 1
+		DrawComponent<PhysicsComponent>("Physicsbody", entity, [&](auto& component)
 			{
-				if (ImGui::Checkbox("Disable Gravity", &component.disableGravity))
-					component.initialize = true;
-				//if (ImGui::Checkbox("Infinite Mass", &component.infiniteMass))
-				//	component.initialize = true;
-				if (ImGui::Checkbox("Kinematic", &component.isKinematic))
-					component.initialize = true;
-
-				ImGui::Separator();
-				ImGui::Separator();
-				ImGui::Separator();
-
-				if (ImGui::DragFloat("Mass", &component.Mass))
-					component.initialize = true;
-
-				ImGui::Separator();
-				
-				if (ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f))
-					component.initialize = true;
-				if (ImGui::DragFloat("Dynamic Friction", &component.dynamicFriction, 1.0f, 0.0f))
-					component.initialize = true;
-				if (ImGui::DragFloat("Static Friction", &component.staticFriction, 1.0f, 0.0f))
-					component.initialize = true;
-
-				ImGui::Separator();
-
 				ImGui::Text("Body Type");
 				ImGui::SameLine();
-				std::string items[] = { "Static", "Dynamic" };
-				if (ImGui::BeginCombo("##physics", items[component.bodyType].c_str()))
+				std::string itemsfirst[] = { "Static", "Dynamic" };
+				if (ImGui::BeginCombo("##body", itemsfirst[int(component.bodyType)].c_str()))
 				{
-					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+					for (int n = 0; n < IM_ARRAYSIZE(itemsfirst); n++)
 					{
-						bool is_selected = (component.phyTypeName == items[n]);
-						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						bool is_selected = (component.bodyTypeName == itemsfirst[n]);
+						if (ImGui::Selectable(itemsfirst[n].c_str(), is_selected))
 						{
-							//component.physicsMaterial = std::make_shared<PhysicsMaterial>
-							//	(component.staticFriction, component.dynamicFriction, component.restitution);
-
-							component.phyTypeName = items[n];
+							component.bodyTypeName = itemsfirst[n];
 							switch (n)
 							{
 							case 0: // Static
 								component.bodyType = component.BodyType::Static;
-								component.initialize = true;
 								break;
 							case 1: // Dynamic
 								component.bodyType = component.BodyType::Dynamic;
-								component.initialize = true;
 								break;
 							default:
 								break;
@@ -724,54 +712,45 @@ namespace Albedo {
 					ImGui::EndCombo();
 				}
 				ImGui::Separator();
-			});
-
-		DrawComponent<ColliderComponent>("Collider", entity, [&](auto& component)
-			{
-				ImGui::Text("Collider Type");
-				ImGui::SameLine();
-				std::string items[] = { "Box", "Sphere", "Mesh", "ConvexMesh" };
-				if (ImGui::BeginCombo("##collider", component.colTypeName.c_str()))
-				{
-					for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				if (component.BodyType::Dynamic == component.bodyType) {
+					ImGui::Text("RigidBody Type");
+					ImGui::SameLine();
+					std::string itemssecond[] = { "Static", "Kinematic", "Dynamic" };
+					if (ImGui::BeginCombo("##rigidbody", itemssecond[int(component.rigidBodyType)].c_str()))
 					{
-						bool is_selected = (component.colTypeName == items[n]);
-						if (ImGui::Selectable(items[n].c_str(), is_selected))
+						for (int n = 0; n < IM_ARRAYSIZE(itemssecond); n++)
 						{
-							auto& e = entity.GetComponent<PhysicsComponent>();
-							component.colTypeName = items[n];
-							switch (n)
+							bool is_selected = (component.rigidBodyTypeName == itemssecond[n]);
+							if (ImGui::Selectable(itemssecond[n].c_str(), is_selected))
 							{
-								case 0: // Box
+								component.rigidBodyTypeName = itemssecond[n];
+								switch (n)
 								{
-									component.colliderType = component.ColliderType::Box;
-									component.initialize = true;
+								case 0: // Static
+									component.rigidBodyType = component.RigidBodyType::Static;
 									break;
-								}
-								case 1: // Sphere
-									component.colliderType = component.ColliderType::Sphere;
-									component.initialize = true;
+								case 1: // Kinematic
+									component.rigidBodyType = component.RigidBodyType::Kinematic;
 									break;
-								case 2: // Mesh
-									component.colliderType = component.ColliderType::Mesh;
-									component.initialize = true;
-									break;
-								case 3: // Convex Mesh
-									component.colliderType = component.ColliderType::ConvexMesh;
-									component.initialize = true;
+								case 2: // Dynamic
+									component.rigidBodyType = component.RigidBodyType::Dynamic;
 									break;
 								default:
 									break;
+								}
 							}
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
 						}
-						if (is_selected)
-							ImGui::SetItemDefaultFocus();
+						ImGui::EndCombo();
 					}
-					ImGui::EndCombo();
 				}
-				ImGui::Separator();
-				//DrawVec3Control("Rotation", g, 0, 70);
-				DrawVec3Control("Scale", component.ColliderSize, 1.0f, 70);
+			});
+
+		DrawComponent<BoxColliderComponent>("Box Collider", entity, [&](auto& component)
+			{
+				DrawVec3Control("Offset", component.offset, 1.0f, 70);
+				DrawVec3Control("HalfSize", component.halfSize, 1.0f, 70);
 			});
 #endif
 #if 1

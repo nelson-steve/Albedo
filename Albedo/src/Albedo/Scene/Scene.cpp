@@ -81,12 +81,10 @@ namespace Albedo {
 	{
 		Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
-		auto tra = entity.GetComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
 		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/DamagedHelmet/glTF/DamagedHelmet.gltf"), (uint32_t)entity);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
 		entity.AddComponent<PhysicsComponent>();
-		entity.GetComponent<PhysicsComponent>();
 		entity.AddComponent<BoxColliderComponent>();
 		
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -97,12 +95,12 @@ namespace Albedo {
 	Entity Scene::CreateCubeEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/Models/rounded_cube/rounded_cube.obj"), (uint32_t)entity);
 		entity.AddComponent<TransformComponent>();
 		entity.AddComponent<ScriptComponent>();
+		entity.AddComponent<ModelComponent>().AddMesh(m_AssetManager->LoadGLTFModel("Assets/gltf_models/Cube/glTF/Cube.gltf"), (uint32_t)entity);
 		entity.AddComponent<ShaderComponent>().AddShader(m_AssetManager->LoadShader("Assets/Shaders/ModelShader.glsl"));
-		entity.AddComponent<Physics2DComponent>();
-		entity.AddComponent<BoxCollider2DComponent>();
+		entity.AddComponent<PhysicsComponent>();
+		entity.AddComponent<BoxColliderComponent>();
 
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -274,19 +272,21 @@ namespace Albedo {
 				if (physics.bodyType == PhysicsComponent::BodyType::Static)
 					physics.StaticRuntimeBody = m_PhysicsWorld3D->CreateStaticBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
 				else if (physics.bodyType == PhysicsComponent::BodyType::Dynamic)
+				{
 					physics.DynamicRuntimeBody = m_PhysicsWorld3D->CreateDynamicBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
-
+					physics.DynamicRuntimeBody->SetBodyType(DynamicBody::BodyType(physics.rigidBodyType));
+				}
 
 				if (entity.HasComponent<BoxColliderComponent>())
 				{
 					auto& bc3d = entity.GetComponent<BoxColliderComponent>();
 
 					if (physics.bodyType == PhysicsComponent::BodyType::Static) {
-						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.HalfSize);
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.halfSize);
 						physics.StaticRuntimeBody->AddBoxCollider(collider, bc3d.offset);
 					}
 					if (physics.bodyType == PhysicsComponent::BodyType::Dynamic) {
-						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.HalfSize);
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.halfSize);
 						physics.DynamicRuntimeBody->AddBoxCollider(collider, bc3d.offset);
 					}
 				}
@@ -331,16 +331,16 @@ namespace Albedo {
 			}
 		}
 
-		ScriptEngine::OnRuntimeStart(this);
-		// Instantiate all script entities
-		{
-			auto view = m_Registry.view<ScriptComponent>();
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				ScriptEngine::OnCreateEntity(entity);
-			}
-		}
+		//ScriptEngine::OnRuntimeStart(this);
+		//// Instantiate all script entities
+		//{
+		//	auto view = m_Registry.view<ScriptComponent>();
+		//	for (auto e : view)
+		//	{
+		//		Entity entity = { e, this };
+		//		ScriptEngine::OnCreateEntity(entity);
+		//	}
+		//}
 	}
 
 	void Scene::OnSimulationStop()
@@ -355,6 +355,19 @@ namespace Albedo {
 
 	void Scene::OnUpdateSimulation(Timestep ts, const EditorCamera& camera)
 	{
+		m_PhysicsWorld3D->Update(ts);
+		{
+			auto view = m_Registry.view<PhysicsComponent>();
+			for (auto e : view) {
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& physics = entity.GetComponent<PhysicsComponent>();
+
+				if (physics.bodyType == PhysicsComponent::BodyType::Dynamic)
+					transform.Position = physics.DynamicRuntimeBody->GetPosition();
+			}
+		}
+
 		// Physics
 		EnableGravity(m_SceneSetting.enableGravity);
 		{
@@ -378,6 +391,7 @@ namespace Albedo {
 			}
 		}
 
+		OnUpdateEditor(camera, ts);
 	}
 
 	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
@@ -494,7 +508,7 @@ namespace Albedo {
 		}
 	}
 
-	void Scene::OnUpdateEditor(EditorCamera& camera, Timestep ts)
+	void Scene::OnUpdateEditor(const EditorCamera& camera, Timestep ts)
 	{
 		OnUpdatePhysics(ts);
 

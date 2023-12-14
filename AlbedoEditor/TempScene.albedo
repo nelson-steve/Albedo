@@ -1,3 +1,40 @@
 Scene: Untitled
 Entities:
-  []
+  - Entity: 1
+    TagComponent:
+      Tag: Default Model
+    MeshComponent:
+      Mesh:
+        {}
+    ShaderComponent:
+      Shader:
+        Path: Assets/Shaders/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, 1.70000005, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      {}
+    BoxColliderComponent:
+      {}
+    ScriptComponent:
+      ClassName: Sandbox.Player
+  - Entity: 0
+    TagComponent:
+      Tag: Default Cube
+    MeshComponent:
+      Mesh:
+        {}
+    ShaderComponent:
+      Shader:
+        Path: Assets/Shaders/ModelShader.glsl
+    TransformComponent:
+      Translation: [0, -3.5999999, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    PhysicsComponent:
+      {}
+    BoxColliderComponent:
+      {}
+    ScriptComponent:
+      ClassName: Sandbox.Player

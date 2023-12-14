@@ -226,9 +226,13 @@ namespace Albedo {
 	{
 		std::string name = "Physics Compnent";
 		enum class BodyType { Static, Dynamic };
+		enum class RigidBodyType { Static, Kinematic, Dynamic };
 
 		BodyType bodyType = BodyType::Static;
-		DynamicBody::BodyType dynamicType = DynamicBody::BodyType::STATIC;
+		RigidBodyType rigidBodyType = RigidBodyType::Static;
+
+		std::string bodyTypeName = "Static";
+		std::string rigidBodyTypeName = "Static";
 
 		// states
 		bool enableGravity = true;
@@ -242,8 +246,8 @@ namespace Albedo {
 
 	struct BoxColliderComponent
 	{
-		glm::vec3 offset;
-		glm::vec3 HalfSize;
+		glm::vec3 offset{ 0.0f };
+		glm::vec3 halfSize{ 1.0f }; // TODO: not a half size
 
 		Ref<BoxCollider> collider;
 		

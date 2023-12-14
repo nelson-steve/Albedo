@@ -144,7 +144,7 @@ namespace Albedo {
 
 				m_EditorCamera.OnUpdate(ts);
 
-				m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
+				m_ActiveScene->OnUpdateSimulation(ts, m_EditorCamera);
 				break;
 			}
 			case SceneState::Play:

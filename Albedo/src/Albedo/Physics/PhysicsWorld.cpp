@@ -7,10 +7,10 @@ namespace Albedo {
         reactphysics3d::PhysicsWorld::WorldSettings settings;
         settings.defaultVelocitySolverNbIterations = 20;
         settings.isSleepingEnabled = false;
-        settings.gravity = reactphysics3d::Vector3(0, -9.81, 0);
-        //m_World = m_PhysicsCommon.createPhysicsWorld(settings);
+        settings.gravity = reactphysics3d::Vector3(0, -1.81, 0);
+        m_World = m_PhysicsCommon.createPhysicsWorld(settings);
         
-        m_World = m_PhysicsCommon.createPhysicsWorld();
+        //m_World = m_PhysicsCommon.createPhysicsWorld();
     }
 
     void PhysicsWorld::Update(float ts) {
