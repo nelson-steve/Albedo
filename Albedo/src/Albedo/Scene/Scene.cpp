@@ -72,13 +72,6 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
-		reactphysics3d::PhysicsCommon physicsCommon;
-
-		// Create a physics world
-		reactphysics3d::PhysicsWorld* world = physicsCommon.createPhysicsWorld();
-
-		world->update(1.0f);
-
 		auto view = m_Registry.view<PhysicsComponent, ColliderComponent, TransformComponent, MaterialComponent>();
 		for (auto entity : view)
 		{
