@@ -680,7 +680,7 @@ namespace Albedo {
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
 			});
-#if 1
+
 		DrawComponent<PhysicsComponent>("Physicsbody", entity, [&](auto& component)
 			{
 				ImGui::Text("Body Type");
@@ -752,7 +752,17 @@ namespace Albedo {
 				DrawVec3Control("Offset", component.offset, 1.0f, 70);
 				DrawVec3Control("Size", component.Size, 1.0f, 70);
 			});
-#endif
+
+		DrawComponent<SphereColliderComponent>("Sphere Collider", entity, [&](auto& component)
+			{
+				ImGui::DragFloat("Radius", component.radius, 0.1f, 0.0f);
+			});
+
+		DrawComponent<CapsuleColliderComponent>("Capsule Collider", entity, [&](auto& component)
+			{
+				ImGui::DragFloat("Radius", component.radius, 0.1f, 0.0f);
+				ImGui::DragFloat("Height", component.height, 0.1f, 0.0f);
+			});
 #if 1
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable
 			{
