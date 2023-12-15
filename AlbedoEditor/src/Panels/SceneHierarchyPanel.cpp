@@ -486,6 +486,24 @@ namespace Albedo {
 					ImGui::CloseCurrentPopup();
 				}
 			}
+			if (!m_SelectionContext.HasComponent<SphereColliderComponent>())
+			{
+				if (ImGui::MenuItem("SphereCollider"))
+				{
+					if (!m_SelectionContext.HasComponent<SphereColliderComponent>())
+						m_SelectionContext.AddComponent<SphereColliderComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			if (!m_SelectionContext.HasComponent<CapsuleColliderComponent>())
+			{
+				if (ImGui::MenuItem("CapsuleCollider"))
+				{
+					if (!m_SelectionContext.HasComponent<CapsuleColliderComponent>())
+						m_SelectionContext.AddComponent<CapsuleColliderComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
 			if (!m_SelectionContext.HasComponent<BoxColliderComponent>())
 			{
 				if (ImGui::MenuItem("BoxCollider"))
@@ -755,13 +773,13 @@ namespace Albedo {
 
 		DrawComponent<SphereColliderComponent>("Sphere Collider", entity, [&](auto& component)
 			{
-				ImGui::DragFloat("Radius", component.radius, 0.1f, 0.0f);
+				ImGui::DragFloat("Radius", &component.radius, 0.1f, 0.0f);
 			});
 
 		DrawComponent<CapsuleColliderComponent>("Capsule Collider", entity, [&](auto& component)
 			{
-				ImGui::DragFloat("Radius", component.radius, 0.1f, 0.0f);
-				ImGui::DragFloat("Height", component.height, 0.1f, 0.0f);
+				ImGui::DragFloat("Radius", &component.radius, 0.1f, 0.0f);
+				ImGui::DragFloat("Height", &component.height, 0.1f, 0.0f);
 			});
 #if 1
 		DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto& component) mutable

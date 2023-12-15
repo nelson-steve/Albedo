@@ -7,6 +7,7 @@
 #include "Platform/OpenGL/ShadowMap.h"
 #include "Albedo/TerrainGeneration/TerrainManager.h"
 #include "Albedo/Physics/PhysicsWorld.h"
+#include "Albedo/Renderer/Model.h"
 
 #include "entt.hpp"
 
@@ -19,12 +20,10 @@ namespace Albedo {
 	//
 
 	class Entity;
-	class PhysicsSolver;
-	class PhysicsWorld;
 
 	struct SceneSetting
 	{
-		bool ShowCollider = false;
+		bool ShowCollider = true;
 		bool enableGravity = true;
 		float backgroundLight = 1.0;
 	};
@@ -35,9 +34,7 @@ namespace Albedo {
 		Scene(); // this is a constructor as you may remember. since it's name is the same as the class
 
 		void InitDefaults();
-		void InitPhysicsObjects();
 		void InitScene();
-		void ReInitScene();
 
 		Entity CreateMeshEntity(const std::string& name = std::string());
 		Entity CreateCubeEntity(const std::string& name = "Cube");
@@ -84,7 +81,6 @@ namespace Albedo {
 		glm::vec3 lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
 
 		//TODO: make this private
-		Ref<PhysicsSolver> m_PhysicsSolver;
 		Ref<Texture2D> m_DepthMap;
 		Ref<Framebuffer> m_DepthMapFBO;
 		Ref<ShadowMap> m_ShadowMap;
@@ -92,6 +88,13 @@ namespace Albedo {
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 	private:
+		// Colliders stuff
+		Ref<Model> m_Cube;
+		Ref<Model> m_Sphere;
+		Ref<Model> m_Capsule;
+		Ref<Shader> m_ColliderShader;
+		//
+
 		entt::registry m_Registry;
 		Ref<Framebuffer> m_Framebuffer;
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
@@ -104,36 +107,15 @@ namespace Albedo {
 		b2World* m_PhysicsWorld = nullptr;
 
 		Ref<PhysicsWorld> m_PhysicsWorld3D;
-
-		bool m_DefaultsInitialized = false;
-		bool fbo = true;
-		Ref<Texture2D> skyboxTemp;
 		Ref<Shader> m_SkyboxShader;
-		Ref<Shader> m_DepthShader;
 
-		Ref<Texture2D> AlbedoMap;
-		Ref<Texture2D> NormalMap;
-		Ref<Texture2D> MetallicMap;
-		Ref<Texture2D> RoughnessMap;
-		Ref<Texture2D> AOMap;
-
-		unsigned int depthMapFBO;
-
-		Ref<Shader> m_TerrainShader;
 		Ref<Shader> m_CubeShader;
-		Ref<Texture2D> tex;
 
-		Ref<Shader> m_ColliderShader;
-		glm::mat4 m_Transform = glm::mat4(1.0);
-		//Shader paths
-		std::string m_PBRShaderPath = "Assets/Shaders/ModelPBRShader.glsl";
-		std::string m_NonPBRShaderPath = "Assets/Shaders/ShadowMappingShader.glsl";
-		std::string m_SkyboxShaderPath;
-		std::string m_ShaderPath;
+		glm::mat4 transform{ 1.0f };
+
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
-		//inline static Ref<Skybox> m_Skybox; //TODO: Add Skybox
 	};
 
 }

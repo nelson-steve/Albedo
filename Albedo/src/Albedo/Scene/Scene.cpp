@@ -55,11 +55,6 @@ namespace Albedo {
 
 	void Scene::InitDefaults()
 	{
-		tex = m_AssetManager->LoadTexture("Assets/Textures/Wood.png", true);
-
-		m_SkyboxShader = Shader::Create("Assets/Shaders/Background.glsl");
-		m_DepthShader = Shader::Create("Assets/Shaders/DepthMapShader.glsl");
-
 		{
 			TextureConfiguration config(Config::TextureType::Cubemap, Config::InternalFormat::RGB, Config::TextureLayout::ClampToEdge,
 				Config::MinMagFilters::LINEAR, Config::MinMagFilters::LINEAR, Config::DataType::UNSIGNED_BYTE,
@@ -71,6 +66,14 @@ namespace Albedo {
 
 	void Scene::InitScene()
 	{
+		m_Cube = m_AssetManager->LoadGLTFModel("Assets/gltf_models/Cube/glTF/Cube.gltf");
+		m_Cube->SetSkybox(true);
+		m_Sphere = m_AssetManager->LoadGLTFModel("Assets/gltf_models/Sphere/glTF/Sphere.gltf");
+		m_Sphere->SetSkybox(true);
+		//m_Capsule = m_AssetManager->LoadGLTFModel("Assets/gltf_models/Capsule/glTF/Capsule.gltf");
+
+		m_ColliderShader = m_AssetManager->LoadShader("Assets/Shaders/ColliderShader.glsl");
+
 		m_PhysicsWorld3D = std::make_shared<PhysicsWorld>();
 		m_PhysicsWorld3D->Init();
 
@@ -565,46 +568,8 @@ namespace Albedo {
 		else
 			l = lights[0].position;
 
-
-		for (auto& entity : view)
-		{
-
-#if ALBEDO_PHYSX
-			//auto& pos = view.get<TransformComponent>(entity).Position;
-			//auto& rot = view.get<TransformComponent>(entity).Rotation;
-			//view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			//view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-			//view.get<ColliderComponent>(entity).ColliderPosition = pos;
-#endif
-		}
-
-		//
-		// Shadow map render pass
-		//
-		//Renderer::PreRenderPass(m_DepthShader, m_ShadowMap, m_Registry, lightDirection, tex);
-
 		m_Framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		for (auto& entity : view)
-		{
-#if ALBEDO_PHYSX
-			//auto& pos = view.get<TransformComponent>(entity).Position;
-			//auto& rot = view.get<TransformComponent>(entity).Rotation;
-			//view.get<PhysicsComponent>(entity).BodyPosition = pos;
-			//view.get<PhysicsComponent>(entity).BodyOrientation = glm::quat(rot);
-			//view.get<ColliderComponent>(entity).ColliderPosition = pos;
-#endif
-		}
-
-		auto shader_view = m_Registry.view<ShaderComponent>();
-		for (auto& entity : shader_view) {
-			if (shader_view.get<ShaderComponent>(entity).tobeinitialized) {
-				std::string path = shader_view.get<ShaderComponent>(entity).m_Shader->GetPath();
-				shader_view.get<ShaderComponent>(entity).m_Shader = Shader::Create(path);
-				shader_view.get<ShaderComponent>(entity).tobeinitialized = false;
-			}
-		}
 
 		auto skybox_view = m_Registry.view<ShaderComponent, SkyboxComponent, TransformComponent>();
 		for (auto& entity : skybox_view)
@@ -625,18 +590,35 @@ namespace Albedo {
 
 		auto phyView = m_Registry.view<TransformComponent, BoxCollider2DComponent, Physics2DComponent>();
 
-		m_Transform = glm::mat4(1.0);
 		for (auto& entity : phyView)
 		{
+			glm::mat4 transform;
 			auto& tra = phyView.get<TransformComponent>(entity);
 			auto& bc2d = phyView.get<BoxCollider2DComponent>(entity);
-			m_Transform = glm::translate(glm::mat4(1.0f), tra.Position) * glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 1.0));
+			transform = glm::translate(glm::mat4(1.0f), tra.Position) * glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 1.0));
 			//m_Transform = glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 0.0));
 			
 			if(m_SceneSetting.ShowCollider)
 			{
-				Renderer::Setup(camera, m_ColliderShader, m_Transform);
+				Renderer::Setup(camera, m_ColliderShader, transform);
 				//Renderer::RenderOverlay(m_Collider);
+			}
+		}
+
+		auto colView = m_Registry.view<TransformComponent, BoxColliderComponent, PhysicsComponent>();
+
+		for (auto& entity : colView)
+		{
+			glm::mat4 transform{ 1.0f };
+			auto& tra = colView.get<TransformComponent>(entity);
+			auto& bc3d = colView.get<BoxColliderComponent>(entity);
+			transform = glm::translate(glm::mat4(1.0f), tra.Position) 
+				* glm::scale(glm::mat4(1.0f), glm::vec3(bc3d.Size.x, bc3d.Size.y, bc3d.Size.z));
+
+			if (m_SceneSetting.ShowCollider)
+			{
+				Renderer::SetupCollider(camera, m_ColliderShader, transform);
+				Renderer::RenderCollider(m_Cube, m_ColliderShader);
 			}
 		}
 	}

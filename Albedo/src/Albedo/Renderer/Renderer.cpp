@@ -365,6 +365,13 @@ namespace Albedo {
 		skybox.m_Skybox->Bind(0);
 	}
 
+	void Renderer::SetupCollider(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
+	{
+		shader->Bind();
+		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader->SetUniformMat4("u_Model", transform);
+	}
+
 	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
 		shader->Bind();
@@ -390,10 +397,17 @@ namespace Albedo {
 	void Renderer::Render(const Ref<Model> model, const Ref<Shader> shader)
 	{
 		//if(config.PolygonMode)
-		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		model->Draw(shader);
 		//if(config.PolygonMode) 
-		//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	void Renderer::RenderCollider(const Ref<Model> model, const Ref<Shader> shader)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		model->Draw(shader);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	void Renderer::Shutdown()
