@@ -399,64 +399,11 @@ namespace Albedo {
 
 	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
 	{
-
-	}
-
-	void Scene::OnUpdatePhysics(Timestep ts)
-	{
-#if ALBEDO_PHYSX
-		m_PhysicsSolver->UpdatePhysics(ts);
-
-		auto view = m_Registry.view<TransformComponent, PhysicsComponent, ColliderComponent>();
-
-		for (auto entity : view)
-		{
-			auto& phy = view.get<PhysicsComponent>(entity);
-			auto& col = view.get<ColliderComponent>(entity);
-			auto& tra = view.get<TransformComponent>(entity);
-
-			if (phy.bodyType == phy.BodyType::Dynamic)
-			{
-				auto& p = phy.dynamicBody->GetRigidActor()->getGlobalPose().p;
-				auto& q = phy.dynamicBody->GetRigidActor()->getGlobalPose().q;
-				//Albedo_Core_INFO("Rotation: {} {} {} {}", q.x, q.y, q.z, q.w);
-				Albedo_Core_INFO("Position: {} {} {}", p.x, p.y, p.z);
-				tra.AddTranform(glm::vec3(p.x, p.y, p.z), glm::vec4(q.x, q.y, q.z, q.w));
-
-				phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
-				phy.BodyOrientation = glm::quat(q.x, q.y, q.z, q.w);
-			}
-			else if (phy.bodyType == phy.BodyType::Static && phy.staticBody)
-			{
-				//auto p = phy.staticBody->GetRigidActor()->getGlobalPose().p;
-				//tra.AddTranform(glm::vec3(p.x, p.y, p.z));
-				//phy.BodyPosition = glm::vec3(p.x, p.y, p.z);
-			}
-			else
-				Albedo_Core_ERROR("Invalid Body Type");
-		}
-#endif
-		//m_PhysicsSolver->Update(ts);
-		//
-		//// retrieve array of actors that moved
-		//physx::PxU32 nbActiveActors;
-		//physx::PxActor** activeActors = m_PhysicsSolver->scene->getActiveActors(nbActiveActors);
-		//if (activeActors == nullptr || nbActiveActors == 0) return;
-		//const physx::PxRigidActor* s = dynamic_cast<physx::PxRigidActor*>(*activeActors);
-		//
-		//// update each render object with the new transform
-		//for (physx::PxU32 i = 0; i < nbActiveActors; ++i)
-		//{
-		//	Mesh* renderObject = static_cast<Mesh*>(activeActors[i]->userData);
-		//	const auto& t = s[i].getGlobalPose().p;
-		//	Albedo_Core_INFO("pos: {0} {1} {2}", t.x, t.y, t.z);
-		//}
+		assert(false);
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		OnUpdatePhysics(ts);
-
 		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 			{
 				if (!nsc.Instance)

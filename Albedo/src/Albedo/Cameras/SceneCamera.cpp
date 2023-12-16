@@ -1,4 +1,4 @@
-	#include "AlbedoPreCompiledHeader.h"
+#include "AlbedoPreCompiledHeader.h"
 
 #include "SceneCamera.h"
 

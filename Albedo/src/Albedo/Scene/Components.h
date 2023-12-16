@@ -6,7 +6,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include "Albedo/Scene/SceneCamera.h"
+#include "Albedo/Cameras/SceneCamera.h"
 #include"Albedo/Cameras/OrthographicCamera.h"
 #include "ScriptableEntity.h"
 #include "Albedo/Renderer/Model.h"

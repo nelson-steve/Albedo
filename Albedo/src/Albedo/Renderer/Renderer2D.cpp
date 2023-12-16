@@ -118,7 +118,7 @@ namespace Albedo {
 		Albedo_PROFILE_FUNCTION();
 
 		s_RendererData.TextureShader->Bind();
-		s_RendererData.TextureShader->SetUniformMat4("u_ProjectionView", camera.GetProjectionViewMatrix());
+		s_RendererData.TextureShader->SetUniformMat4("u_ProjectionView", camera.GetProjectionView());
 
 		s_RendererData.QuadIndexCount = 0;
 		s_RendererData.QuadVertexBufferPtr = s_RendererData.QuadVertexBufferBase;

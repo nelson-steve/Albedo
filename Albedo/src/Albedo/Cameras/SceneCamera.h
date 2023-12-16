@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Albedo/Cameras/Camera.h"
+#include "Camera.h"
 
 namespace Albedo {
 
