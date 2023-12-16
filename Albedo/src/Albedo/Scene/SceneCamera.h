@@ -21,9 +21,10 @@ namespace Albedo {
 		float GetPerspectiveNearClip()    const { return m_PerspectiveNear; }
 		float GetPerspectiveFarClip()     const { return m_PerspectiveFar;  }
 
-		//const glm::mat4& GetProjection() const { return m_Projection; }
-		const glm::mat4& GetView() const { return m_ViewMatrix; }
-		const glm::mat4& GetProjectionView() const { return m_Projection * m_ViewMatrix; }
+		virtual const glm::mat4& GetView() const override { return m_View; }
+		virtual const glm::mat4& GetProjectionView() const override { return m_Projection * m_View; }
+		virtual const glm::mat4& GetProjection() const override { return m_Projection; }
+		virtual const glm::vec3& GetPosition() const override { return m_Position; }
 	private:
 		void RecalculateView();
 		void RecalculateProjection();
@@ -33,16 +34,9 @@ namespace Albedo {
 		float m_PerspectiveFar  = 1000.0f;
 		float m_AspectRatio     = 0.0f;
 
-		glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::vec3 m_Front    = glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 m_Up		 = glm::vec3(0.0f, 1.0f, 0.0f);
 		float offset = 5.0f;
-
-		glm::mat4 m_ViewMatrix	   = glm::mat4(1.0);
-		//glm::mat4 m_Projection	   = glm::mat4(1.0);
-		glm::mat4 m_ProjectionView = glm::mat4(1.0);
-		
-
 	};
 
 	class SceneOrthoCamera : public Camera

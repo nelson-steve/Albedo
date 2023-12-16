@@ -14,18 +14,18 @@ namespace Albedo {
 		static void   Init(const entt::registry& reg);
 		static void	  PreRenderPass(Ref<Shader> depthShader, Ref<ShadowMap> fbo, 
 			const entt::registry& reg, const glm::vec3& l, Ref<Texture2D> tex);
-		static void   SetupPBR(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		static void   SetupPBR(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
-		static void   SetupPlane(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		static void   SetupPlane(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights,
 			const Ref<ShadowMap> shadowMap);
-		static void   Setup(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		static void   Setup(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights);
-		static void   Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+		static void   Setup(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 			const TextureComponent& texture, const MaterialComponent& material);
-		static void   SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform);
-		static void   SetupCollider(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);
-		static void	  Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform);
+		static void   SetupSkybox(Camera* camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform);
+		static void   SetupCollider(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform);
+		static void	  Setup(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform);
 		static void   RenderOverlay(const Ref<Mesh> mesh);
 		static void   Render(const Ref<Model> model, const Ref<Shader> shader);
 		static void   RenderCollider(const Ref<Model> model, const Ref<Shader> shader);

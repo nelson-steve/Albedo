@@ -78,12 +78,12 @@ namespace Albedo {
 		}
 	}
 
-	void Renderer::SetupPBR(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+	void Renderer::SetupPBR(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 		const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
-		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
 		//shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
 
 		int i = 0;
@@ -111,14 +111,14 @@ namespace Albedo {
 		}
 	}
 
-	void Renderer::SetupPlane(const EditorCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+	void Renderer::SetupPlane(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 		const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights,
 		const Ref<ShadowMap> shadowMap)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
-		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera->GetPosition());
 
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
@@ -245,15 +245,15 @@ namespace Albedo {
 		glBindTexture(GL_TEXTURE_2D, shadowMap->GetDepthMapID());
 	}
 
-	void Renderer::Setup(const EditorCamera& camera, const ShaderComponent& shader,
+	void Renderer::Setup(Camera* camera, const ShaderComponent& shader,
 		const TransformComponent& transform, const TextureComponent& texture, const MaterialComponent& material, 
 		const std::vector<LightComponent>& lights)
 	{
 
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
-		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
-		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera->GetPosition());
 		shader.m_Shader->SetUniformInt1("m_DiffuseMap", 0);
 
 		int i = 0;
@@ -319,7 +319,7 @@ namespace Albedo {
 		shader.m_Shader->SetUniformInt1("u_SpotLightExists", (int)spotLightExits);
 		shader.m_Shader->SetUniformInt1("u_PointLightExists", (int)pointLightExists);
 		shader.m_Shader->SetUniformInt1("u_DirLightExists", (int)dirLightExists);
-		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera.GetPosition());
+		shader.m_Shader->SetUniformFloat3("u_CameraPosition", camera->GetPosition());
 		//shader.m_Shader->SetUniformFloat3("u_MaterialColor", material.m_Material->GetAlbedoColor());
 		shader.m_Shader->SetUniformFloat3("u_MaterialColor", glm::vec3(1.0f));
 		
@@ -331,12 +331,12 @@ namespace Albedo {
 
 	}
 
-	void Renderer::Setup(const SceneCamera& camera, const ShaderComponent& shader, const TransformComponent& transform,
+	void Renderer::Setup(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 		const TextureComponent& texture, const MaterialComponent& material)
 	{
 		shader.m_Shader->Bind();
 		shader.m_Shader->SetUniformMat4("u_Transform", transform.GetTransform());
-		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera.GetProjectionView());
+		shader.m_Shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
 		shader.m_Shader->SetUniformInt1("u_AlbedoMap", 0);
 		shader.m_Shader->SetUniformInt1("u_AOMap", 1);
 		shader.m_Shader->SetUniformInt1("u_MetallicMap", 2);
@@ -353,11 +353,11 @@ namespace Albedo {
 		}
 	}
 
-	void Renderer::SetupSkybox(const EditorCamera& camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform)
+	void Renderer::SetupSkybox(Camera* camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform)
 	{
 		shader.m_Shader->Bind();
-		shader.m_Shader->SetUniformMat4("u_Projection", camera.GetProjection());
-		shader.m_Shader->SetUniformMat4("u_View", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+		shader.m_Shader->SetUniformMat4("u_Projection", camera->GetProjection());
+		shader.m_Shader->SetUniformMat4("u_View", glm::mat4(glm::mat3(camera->GetView())));
 		shader.m_Shader->SetUniformMat4("u_Model", glm::mat4(1.0f));
 
 		shader.m_Shader->SetUniformInt1("u_EquirectangularMap", 0);
@@ -365,20 +365,20 @@ namespace Albedo {
 		skybox.m_Skybox->Bind(0);
 	}
 
-	void Renderer::SetupCollider(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
+	void Renderer::SetupCollider(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
 		shader->SetUniformMat4("u_Model", transform);
 	}
 
-	void Renderer::Setup(const EditorCamera& camera, const Ref<Shader> shader, const glm::mat4& transform)
+	void Renderer::Setup(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetUniformMat4("u_ProjectionView", camera.GetViewProjection());
+		shader->SetUniformMat4("u_ProjectionView", camera->GetProjectionView());
 		shader->SetUniformMat4("u_Model", transform);
 		shader->SetUniformMat3("u_NormalMatrix", glm::mat4(transform));
-		shader->SetUniformFloat3("u_CamPos", camera.GetPosition());
+		shader->SetUniformFloat3("u_CamPos", camera->GetPosition());
 
 		shader->SetUniformInt1("u_Albedo", 0);
 		shader->SetUniformInt1("u_MetallicRoughness", 1);

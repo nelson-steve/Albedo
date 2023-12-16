@@ -356,7 +356,7 @@ namespace Albedo {
 		m_IsSimulating = false;
 	}
 
-	void Scene::OnUpdateSimulation(Timestep ts, const EditorCamera& camera)
+	void Scene::OnUpdateSimulation(Ref<EditorCamera> camera, Timestep ts)
 	{
 		m_PhysicsWorld3D->Update(ts);
 		{
@@ -482,7 +482,7 @@ namespace Albedo {
 
 				if (camera.Primary)
 				{
-					mainCamera = &camera.Camera;
+					mainCamera = camera.Camera.get();
 					mainCamera->SetPosition(transform.Position);
 					break;
 				}
@@ -511,43 +511,10 @@ namespace Albedo {
 		}
 	}
 
-	void Scene::OnUpdateEditor(const EditorCamera& camera, Timestep ts)
+	void Scene::RenderScene(Camera* camera, Timestep ts) 
 	{
-		OnUpdatePhysics(ts);
-
-		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, 
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent,
 			TextureComponent, MaterialComponent, ScriptComponent>();
-
-		Camera* mainCamera = nullptr;
-
-		if (m_IsSimulating)
-		{
-			// changing to Scene Camera
-			//auto cameraView = m_Registry.view<TransformComponent, CameraComponent>();
-			//for (auto entity : cameraView)
-			//{
-			//	auto [transform, newCamera] = cameraView.get<TransformComponent, CameraComponent>(entity);
-			//
-			//	if (newCamera.Primary)
-			//	{
-			//		mainCamera = &newCamera.Camera;
-			//		((SceneCamera*)mainCamera)->SetPosition(transform.Position);
-			//		camera =  *(EditorCamera*)mainCamera;
-			//		break;
-			//	}
-			//}
-
-			//OnUpdateSimulation(ts, camera);
-			//OnUpdatePhysics(ts);
-
-			auto view = m_Registry.view<ScriptComponent>();
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				//ScriptEngine::OnUpdateEntity(entity, ts);
-				//Ref<ScriptInstance> instance = ScriptEngine::GetEntityScriptInstance(entity);
-			}
-		}
 
 		// Getting light components
 		auto& lightComponents = m_Registry.view<LightComponent>();
@@ -595,10 +562,10 @@ namespace Albedo {
 			glm::mat4 transform;
 			auto& tra = phyView.get<TransformComponent>(entity);
 			auto& bc2d = phyView.get<BoxCollider2DComponent>(entity);
-			transform = glm::translate(glm::mat4(1.0f), tra.Position) * glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 1.0));
-			//m_Transform = glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 0.0));
-			
-			if(m_SceneSetting.ShowCollider)
+			transform = glm::translate(glm::mat4(1.0f), tra.Position)
+				* glm::scale(glm::mat4(1.0f), glm::vec3(bc2d.Size.x * 2, bc2d.Size.y * 2, 1.0));
+
+			if (m_SceneSetting.ShowCollider)
 			{
 				Renderer::Setup(camera, m_ColliderShader, transform);
 				//Renderer::RenderOverlay(m_Collider);
@@ -612,7 +579,7 @@ namespace Albedo {
 			glm::mat4 transform{ 1.0f };
 			auto& tra = colView.get<TransformComponent>(entity);
 			auto& bc3d = colView.get<BoxColliderComponent>(entity);
-			transform = glm::translate(glm::mat4(1.0f), tra.Position) 
+			transform = glm::translate(glm::mat4(1.0f), tra.Position)
 				* glm::scale(glm::mat4(1.0f), glm::vec3(bc3d.Size.x, bc3d.Size.y, bc3d.Size.z));
 
 			if (m_SceneSetting.ShowCollider)
@@ -621,6 +588,10 @@ namespace Albedo {
 				Renderer::RenderCollider(m_Cube, m_ColliderShader);
 			}
 		}
+	}
+
+	void Scene::OnUpdateEditor(const Ref<EditorCamera> camera, Timestep ts)
+	{
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -637,9 +608,8 @@ namespace Albedo {
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
 			if (!cameraComponent.FixedAspectRatio)
-				cameraComponent.Camera.SetViewportSize(width, height);
+				cameraComponent.Camera->SetViewportSize(width, height);
 		}
-
 	}
 
 	Entity Scene::GetPrimaryCameraEntity()

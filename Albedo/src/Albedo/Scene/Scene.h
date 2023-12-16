@@ -52,8 +52,9 @@ namespace Albedo {
 		void OnSimulationStop();
 
 		void OnUpdateRuntime(Timestep ts);
-		void OnUpdateSimulation(Timestep ts, const EditorCamera& camera);
-		void OnUpdateEditor(const EditorCamera& camera, Timestep ts);
+		void OnUpdateSimulation(Ref<EditorCamera> camera, Timestep ts);
+		void OnUpdateEditor(Ref<EditorCamera> camera, Timestep ts);
+		void RenderScene(Camera* camera, Timestep ts);
 		void OnUpdateResize(uint32_t width, uint32_t height);
 
 		void OnUpdatePhysics(Timestep ts);

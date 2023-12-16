@@ -139,7 +139,7 @@ namespace Albedo {
 		m_Shader->Bind();
 		const float kTerrainHeightScale = m_Terrain->GetHeightScale();
 		//m_Shader->SetUniformMat4("view", camera.GetViewMatrix());
-		m_Shader->SetUniformMat4("MVP", camera.GetViewProjection());
+		m_Shader->SetUniformMat4("MVP", camera.GetProjectionView());
 		m_Shader->SetUniformInt1("texArray", 0);
 		m_Shader->SetUniformInt1("land", 1);
 

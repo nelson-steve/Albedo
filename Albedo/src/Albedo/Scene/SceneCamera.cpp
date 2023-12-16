@@ -34,7 +34,7 @@ namespace Albedo {
 
 	void SceneCamera::RecalculateView()
 	{
-		m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+		m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
 	}
 
 	//-----------------------------------------------------------------------------------//

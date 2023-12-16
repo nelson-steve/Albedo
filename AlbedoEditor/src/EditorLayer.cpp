@@ -52,7 +52,7 @@ namespace Albedo {
 
 		m_ActiveScene->SetMainFramebuffer(m_Framebuffer);
 
-		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 10000.0f);
+		m_EditorCamera = std::make_shared<EditorCamera>(30.0f, 1.778f, 0.1f, 10000.0f);
 
 #if 0
 		class CameraController : public ScriptableEntity
@@ -113,7 +113,7 @@ namespace Albedo {
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 		
-			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+			m_EditorCamera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 			//m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		}
 
@@ -131,7 +131,7 @@ namespace Albedo {
 				if (m_ViewportFocused)
 					m_CameraController.OnUpdate(ts);
 
-				m_EditorCamera.OnUpdate(ts);
+				m_EditorCamera->OnUpdate(ts);
 
 				m_ActiveScene->OnUpdateEditor(m_EditorCamera, ts);
 				break;
@@ -142,9 +142,9 @@ namespace Albedo {
 				if (m_ViewportFocused)
 					m_CameraController.OnUpdate(ts);
 
-				m_EditorCamera.OnUpdate(ts);
+				m_EditorCamera->OnUpdate(ts);
 
-				m_ActiveScene->OnUpdateSimulation(ts, m_EditorCamera);
+				m_ActiveScene->OnUpdateSimulation(m_EditorCamera, ts);
 				break;
 			}
 			case SceneState::Play:
@@ -320,8 +320,8 @@ namespace Albedo {
 				//glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
 
 				// Editor camera
-				const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
-				glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+				const glm::mat4& cameraProjection = m_EditorCamera->GetProjection();
+				glm::mat4 cameraView = m_EditorCamera->GetView();
 
 				// Entity transform
 				glm::mat4 transform{ 1.0 };
@@ -459,7 +459,7 @@ namespace Albedo {
 	{
 		m_CameraController.OnEvent(e);
 
-		m_EditorCamera.OnEvent(e);
+		m_EditorCamera->OnEvent(e);
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(EditorLayer::OnKeyPressed));

@@ -143,7 +143,7 @@ namespace Albedo {
 
 	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
-		glm::mat4 viewProj = camera.GetViewProjection();
+		glm::mat4 viewProj = camera.GetProjectionView();
 
 		s_RendererData.TextureShader->Bind();
 		s_RendererData.TextureShader->SetUniformMat4("u_ProjectionView", viewProj);

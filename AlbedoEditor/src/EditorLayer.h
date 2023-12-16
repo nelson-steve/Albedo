@@ -53,7 +53,7 @@ namespace Albedo {
 
 		Ref<Texture2D> m_IconPlay, m_IconPause, m_IconStep, m_IconSimulate, m_IconStop;
 
-		EditorCamera				 m_EditorCamera;
+		Ref<EditorCamera>			 m_EditorCamera;
 		Entity						 m_HoveredEntity;
 		glm::vec2					 m_ViewportSize = { 0.0f, 0.0f };
 		glm::vec2					 m_ViewportBounds[2];

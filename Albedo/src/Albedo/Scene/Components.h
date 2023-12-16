@@ -292,7 +292,7 @@ namespace Albedo {
 	{
 		std::string name = "Camera Compnent";
 
-		SceneCamera Camera;
+		Ref<SceneCamera> Camera;
 		bool Primary = true; // TODO: think about moving to Scene
 		bool FixedAspectRatio = false;
 
