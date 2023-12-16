@@ -457,58 +457,35 @@ namespace Albedo {
 	{
 		OnUpdatePhysics(ts);
 
-		{
-			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-				{
-					if (!nsc.Instance)
-					{
-						nsc.Instance = nsc.InstantiateScript();
-						nsc.Instance->m_Entity = Entity{ entity, this };
-		
-						nsc.Instance->OnCreate();
-					}
-		
-					nsc.Instance->OnUpdate(ts);
-				});
-		}
-
-		SceneCamera* mainCamera = nullptr;
-
-		{
-			auto view = m_Registry.view<TransformComponent, CameraComponent>();
-			for (auto entity : view)
+		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 			{
-				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-				if (camera.Primary)
+				if (!nsc.Instance)
 				{
-					mainCamera = camera.Camera.get();
-					mainCamera->SetPosition(transform.Position);
-					break;
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->m_Entity = Entity{ entity, this };
+
+					nsc.Instance->OnCreate();
 				}
-			}
-		}
 
-		if (mainCamera)
+				nsc.Instance->OnUpdate(ts);
+			});
+
+		Ref<SceneCamera> sceneCamera = nullptr;
+
+		auto view = m_Registry.view<TransformComponent, CameraComponent>();
+		for (auto entity : view)
 		{
-			auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent, TextureComponent>();
+			auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
 
-			for (auto entity : view)
+			if (camera.Primary)
 			{
-				auto& model = view.get<ModelComponent>(entity);
-				auto& shader = view.get<ShaderComponent>(entity);
-				//if (model.m_Model->GetInitializationStatus() || shader.m_Shader->GetInitializationStatus())
-				//	InitScene();
-			}
-			for (auto entity : view)
-			{
-				if (m_Registry.any_of<CameraComponent>(entity)) continue;
-
-				// TODO: fix
-				//Renderer::Setup(*mainCamera, view.get<ShaderComponent>(entity), view.get<TransformComponent>(entity), view.get<TextureComponent>(entity));
-				//Renderer::Render(view.get<ModelComponent>(entity), view.get<ModelComponent>(entity).m_Mesh->GetRendererConfig());
+				sceneCamera = camera.Camera;
+				sceneCamera->SetPosition(transform.Position);
+				break;
 			}
 		}
+
+		RenderScene(sceneCamera.get(), ts);
 	}
 
 	void Scene::RenderScene(Camera* camera, Timestep ts) 
@@ -592,6 +569,7 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(const Ref<EditorCamera> camera, Timestep ts)
 	{
+		RenderScene(camera.get(), ts);
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
