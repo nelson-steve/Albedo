@@ -206,9 +206,6 @@ namespace Albedo {
 		}
 		glBindVertexArray(0);
 
-
-
-		// end
 		return true;
 	}
 

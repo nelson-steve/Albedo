@@ -56,28 +56,6 @@ namespace Albedo {
 
 	}
 
-	GLenum Renderer::AlbedoDrawTypeToGLType(DrawType type)
-	{
-		switch (type)
-		{
-			case Albedo::DrawType::Albedo_POINTS:					return GL_POINTS;
-			case Albedo::DrawType::Albedo_LINE_STRIP:				return GL_LINE_STRIP;
-			case Albedo::DrawType::Albedo_LINE_LOOP:				return GL_LINE_LOOP;
-			case Albedo::DrawType::Albedo_LINES:					return GL_LINES;
-			case Albedo::DrawType::Albedo_LINE_STRIP_ADJACENCY:		return GL_LINE_STRIP_ADJACENCY;
-			case Albedo::DrawType::Albedo_LINES_ADJACENCY:			return GL_LINES_ADJACENCY;
-			case Albedo::DrawType::Albedo_TRIANGLE_STRIP:			return GL_TRIANGLE_STRIP;
-			case Albedo::DrawType::Albedo_TRIANGLE_FAN:				return GL_TRIANGLE_FAN;
-			case Albedo::DrawType::Albedo_TRIANGLES:				return GL_TRIANGLES;
-			case Albedo::DrawType::Albedo_TRIANGLE_STRIP_ADJACENCY:	return GL_TRIANGLE_STRIP_ADJACENCY;
-			case Albedo::DrawType::Albedo_TRIANGLES_ADJACENCY:		return GL_TRIANGLES_ADJACENCY;
-			case Albedo::DrawType::Albedo_PATCHES:					return GL_PATCHES;
-			default: 
-				Albedo_Core_ERROR("Error: Unknown Rendering Type");
-				return GL_TRIANGLES;
-		}
-	}
-
 	void Renderer::SetupPBR(Camera* camera, const ShaderComponent& shader, const TransformComponent& transform,
 		const TextureComponent& texture, const MaterialComponent& material, const std::vector<LightComponent>& lights)
 	{
@@ -387,13 +365,6 @@ namespace Albedo {
 		shader->SetUniformInt1("u_Emissive", 4);
 	}
 
-	void Renderer::RenderOverlay(const Ref<Mesh> mesh)
-	{
-		mesh->GetMeshBufferData().m_VertexArray->Bind();
-		glDrawArrays(AlbedoDrawTypeToGLType(mesh->GetRendererConfig().Type), 0, mesh->GetVertices().size());
-		mesh->GetMeshBufferData().m_VertexArray->UnBind();
-	}
-
 	void Renderer::Render(const Ref<Model> model, const Ref<Shader> shader)
 	{
 		//if(config.PolygonMode)
@@ -417,7 +388,6 @@ namespace Albedo {
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
-		Albedo_PROFILE_FUNCTION();
 		RenderCommand::SetViewPort(0, 0, width, height);
 	}
 

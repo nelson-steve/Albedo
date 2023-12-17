@@ -3,7 +3,6 @@
 #include "RenderCommand.h"
 #include "Albedo/Scene/Components.h"
 #include "Albedo/Cameras/EditorCamera.h"
-#include "Mesh.h"
 #include <entt.hpp>
 
 namespace Albedo {
@@ -26,10 +25,8 @@ namespace Albedo {
 		static void   SetupSkybox(Camera* camera, const SkyboxComponent skybox, const ShaderComponent shader, const glm::mat4& transform);
 		static void   SetupCollider(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform);
 		static void	  Setup(Camera* camera, const Ref<Shader> shader, const glm::mat4& transform);
-		static void   RenderOverlay(const Ref<Mesh> mesh);
 		static void   Render(const Ref<Model> model, const Ref<Shader> shader);
 		static void   RenderCollider(const Ref<Model> model, const Ref<Shader> shader);
-		static GLenum AlbedoDrawTypeToGLType(DrawType type);
 		static void   Shutdown();
 		static void   OnWindowResize(uint32_t width, uint32_t height);
 		

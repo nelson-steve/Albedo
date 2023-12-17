@@ -63,6 +63,13 @@ namespace Albedo {
 				m_SelectionContext = e;
 			}
 
+			if (ImGui::MenuItem("Create Scene Camera"))
+			{
+				Entity e = m_Context->CreateCameraEntity("Scene Camera");
+
+				m_SelectionContext = e;
+			}
+
 			if (ImGui::MenuItem("Create Default Cube"))
 			{
 				Entity e = m_Context->CreateCubeEntity("Default Cube");

@@ -16,7 +16,6 @@ namespace Albedo {
 
 	Application::Application(const std::string& name)
 	{
-		Albedo_PROFILE_FUNCTION();
 		s_Instance = this;
 
 		m_Window = Scope<Window>(Window::Create(WindowProps(name)));
@@ -59,7 +58,6 @@ namespace Albedo {
 
 	void Application::Run()
 	{
-		Albedo_PROFILE_FUNCTION();
 		//WindowResizeEvent e(1280, 720);
 		//if(e.IsInCategory(EventCategoryApplication))
 		//{
@@ -71,7 +69,6 @@ namespace Albedo {
 		//}
 		while (m_Running) 
 		{
-			Albedo_PROFILE_FUNCTION();
 			float time = (float)glfwGetTime();
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
@@ -81,12 +78,10 @@ namespace Albedo {
 			if (!m_Minimized)
 			{
 				{
-					Albedo_PROFILE_FUNCTION();
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(timestep);
 				}
 				{
-					Albedo_PROFILE_FUNCTION();
 					m_ImGuiLayer->Begin();
 					for (Layer* layer : m_LayerStack)
 						layer->OnImGuiRender();

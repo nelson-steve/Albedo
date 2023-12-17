@@ -23,11 +23,9 @@ IncludeDir["glm"] 		= "%{wks.location}/Albedo/dependencies/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Albedo/dependencies/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Albedo/dependencies/entt/include"
 IncludeDir["FileWatch"] = "%{wks.location}/Albedo/dependencies/FileWatch/include"
-IncludeDir["tinyobj"] 	= "%{wks.location}/Albedo/dependencies/tinyobj/include"
 IncludeDir["mono"] 	= "%{wks.location}/Albedo/dependencies/mono/include"
 IncludeDir["yaml_cpp"]  = "%{wks.location}/Albedo/dependencies/yaml-cpp/include"
 IncludeDir["ImGuizmo"]  = "%{wks.location}/Albedo/dependencies/ImGuizmo"
-IncludeDir["Physx"]  	= "%{wks.location}/Albedo/dependencies/Physx/include"
 IncludeDir["Box2d"]  	= "%{wks.location}/Albedo/dependencies/Box2d/include"
 IncludeDir["Assimp"]  	= "%{wks.location}/Albedo/dependencies/assimp/include"
 IncludeDir["tinygltf"]  	= "%{wks.location}/Albedo/dependencies/tinygltf/include"
@@ -35,21 +33,12 @@ IncludeDir["reactphysics3d"]  	= "%{wks.location}/Albedo/dependencies/reactphysi
 
 LibraryDir = {}
 LibraryDir["reactphysics3d"] 		= "%{wks.location}/Albedo/dependencies/reactphysics3d/lib/%{cfg.buildcfg}"
-LibraryDir["Physx"] 		= "%{wks.location}/Albedo/dependencies/Physx/lib/%{cfg.buildcfg}"
 LibraryDir["Box2d"] 		= "%{wks.location}/Albedo/dependencies/Box2d/lib/%{cfg.buildcfg}"
 LibraryDir["mono"] 		= "%{wks.location}/Albedo/dependencies/mono/lib/%{cfg.buildcfg}"
 LibraryDir["Assimp"] 		= "%{wks.location}/Albedo/dependencies/assimp/libs"
 
 Library = {}
 Library["Box2d"] 				   = "%{LibraryDir.Box2d}/box2d.lib"
-Library["Physx"] 				   = "%{LibraryDir.Physx}/PhysX_static_64.lib"
-Library["PhysXPvdSDK"] 			   = "%{LibraryDir.Physx}/PhysXPvdSDK_static_64.lib"
-Library["PhysXCommon"] 			   = "%{LibraryDir.Physx}/PhysXCommon_static_64.lib"
-Library["PhysXCooking"] 		   = "%{LibraryDir.Physx}/PhysXCooking_static_64.lib"
-Library["PhysXVehicle"] 		   = "%{LibraryDir.Physx}/PhysXVehicle_static_64.lib"
-Library["PhysXExtensions"] 		   = "%{LibraryDir.Physx}/PhysXExtensions_static_64.lib"
-Library["PhysXFoundation"] 		   = "%{LibraryDir.Physx}/PhysXFoundation_static_64.lib"
-Library["PhysXCharacterKinematic"] = "%{LibraryDir.Physx}/PhysXCharacterKinematic_static_64.lib"
 Library["mono_sgen"] 			   = "%{LibraryDir.mono}/mono-2.0-sgen.lib"
 Library["mono_eglib"] 				   = "%{LibraryDir.mono}/eglib.lib"
 Library["mono_libgc"] 				   = "%{LibraryDir.mono}/libgcmonosgen.lib"
@@ -92,8 +81,6 @@ project "Albedo"
 		"%{prj.name}/dependencies/FileWatch/include/**.hpp",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.h",
 		"%{prj.name}/dependencies/ImGuizmo/ImGuizmo.cpp",
-		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.h",
-		"%{prj.name}/dependencies/tinyobj/include/tiny_obj_loader.cpp",
 		"%{prj.name}/dependencies/tinygltf/include/tiny_gltf.h",
 		"%{prj.name}/dependencies/tinygltf/include/json.hpp",
 		"%{prj.name}/dependencies/tinygltf/include/stb_image_write.h",
@@ -102,7 +89,6 @@ project "Albedo"
 
 	defines
 	{
-		"PX_PHYSX_STATIC_LIB",
 		"_CRT_SECURE_NO_WARNINGS"
 	}
 
@@ -120,7 +106,6 @@ project "Albedo"
 		"%{IncludeDir.FileWatch}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.Physx}",
 		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.mono}",
@@ -142,15 +127,6 @@ project "Albedo"
 		"%{Library.Box2d}",
 		-- reactphysics3d
 		"%{Library.reactphysics3d}",
-		-- Physx
-		"%{Library.Physx}",
-		"%{Library.PhysXPvdSDK}",
-		"%{Library.PhysXCommon}",
-		"%{Library.PhysXCooking}",
-		"%{Library.PhysXVehicle}",
-		"%{Library.PhysXExtensions}",
-		"%{Library.PhysXFoundation}",
-		"%{Library.PhysXCharacterKinematic}",
 		-- mono libs
 		"%{Library.mono_sgen}",
 		"%{Library.mono_eglib}",
@@ -224,7 +200,6 @@ project "AlbedoEditor"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.Physx}",
 		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.Box2d}",
 		"%{IncludeDir.tinyobj}",
@@ -288,7 +263,6 @@ project "Sandbox"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.tinygltf}",
-		"%{IncludeDir.Physx}",
 		"%{IncludeDir.reactphysics3d}",
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.Assimp}",

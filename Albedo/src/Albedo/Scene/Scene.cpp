@@ -136,8 +136,6 @@ namespace Albedo {
 		return entity;
 	}
 
-	
-
 	Entity Scene::CreateSkyboxEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
@@ -201,52 +199,84 @@ namespace Albedo {
 	{
 		m_IsRunning = true;
 
-		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
-		EnableGravity(m_SceneSetting.enableGravity);
-
-		auto view = m_Registry.view<Physics2DComponent>();
-		for (auto e : view)
 		{
-			Entity entity = { e, this };
-			auto& transform = entity.GetComponent<TransformComponent>();
-			auto& rb2d = entity.GetComponent<Physics2DComponent>();
+			auto view = m_Registry.view<PhysicsComponent>();
+			for (auto e : view) {
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& physics = entity.GetComponent<PhysicsComponent>();
 
-			b2BodyDef bodyDef;
-			bodyDef.type = Rigidbody2DTypeToBox2DBody(rb2d.Type);
-			bodyDef.position.Set(transform.Position.x, transform.Position.y);
-			bodyDef.angle = transform.Rotation.z;
+				if (physics.bodyType == PhysicsComponent::BodyType::Static)
+					physics.StaticRuntimeBody = m_PhysicsWorld3D->CreateStaticBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
+				else if (physics.bodyType == PhysicsComponent::BodyType::Dynamic)
+				{
+					physics.DynamicRuntimeBody = m_PhysicsWorld3D->CreateDynamicBody(transform.GetPosition(), glm::vec4(transform.GetRotation(), 1.0f));
+					physics.DynamicRuntimeBody->SetBodyType(DynamicBody::BodyType(physics.rigidBodyType));
+				}
 
-			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
-			body->SetFixedRotation(rb2d.FixedRotation);
-			rb2d.RuntimeBody = body;
+				if (entity.HasComponent<BoxColliderComponent>())
+				{
+					auto& bc3d = entity.GetComponent<BoxColliderComponent>();
 
-			if (entity.HasComponent<BoxCollider2DComponent>())
+					if (physics.bodyType == PhysicsComponent::BodyType::Static) {
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.Size);
+						physics.StaticRuntimeBody->AddBoxCollider(collider, bc3d.offset);
+					}
+					if (physics.bodyType == PhysicsComponent::BodyType::Dynamic) {
+						Ref<BoxCollider> collider = m_PhysicsWorld3D->CreateBoxShape(bc3d.Size);
+						physics.DynamicRuntimeBody->AddBoxCollider(collider, bc3d.offset);
+					}
+				}
+			}
+		}
+
+		{
+			m_PhysicsWorld = new b2World({ 0.0f, -9.81f });
+			EnableGravity(m_SceneSetting.enableGravity);
+			auto view = m_Registry.view<Physics2DComponent>();
+			for (auto e : view)
 			{
-				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& rb2d = entity.GetComponent<Physics2DComponent>();
 
-				b2PolygonShape boxShape;
-				boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+				b2BodyDef bodyDef;
+				bodyDef.type = Rigidbody2DTypeToBox2DBody(rb2d.Type);
+				bodyDef.position.Set(transform.Position.x, transform.Position.y);
+				bodyDef.angle = transform.Rotation.z;
 
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &boxShape;
-				fixtureDef.density = bc2d.Density;
-				fixtureDef.friction = bc2d.Friction;
-				fixtureDef.restitution = bc2d.Restitution;
-				fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;
-				body->CreateFixture(&fixtureDef);
+				b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
+				body->SetFixedRotation(rb2d.FixedRotation);
+				rb2d.RuntimeBody = body;
+
+				if (entity.HasComponent<BoxCollider2DComponent>())
+				{
+					auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+
+					b2PolygonShape boxShape;
+					boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+
+					b2FixtureDef fixtureDef;
+					fixtureDef.shape = &boxShape;
+					fixtureDef.density = bc2d.Density;
+					fixtureDef.friction = bc2d.Friction;
+					fixtureDef.restitution = bc2d.Restitution;
+					fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;
+					body->CreateFixture(&fixtureDef);
+				}
 			}
 		}
 
 		// Scripting
 		{
-			ScriptEngine::OnRuntimeStart(this);
+			//ScriptEngine::OnRuntimeStart(this);
 			// Instantiate all script entities
 
 			auto view = m_Registry.view<ScriptComponent>();
 			for (auto e : view)
 			{
 				Entity entity = { e, this };	
-				ScriptEngine::OnCreateEntity(entity);
+				//ScriptEngine::OnCreateEntity(entity);
 			}
 		}
 	}
@@ -394,7 +424,7 @@ namespace Albedo {
 			}
 		}
 
-		OnUpdateEditor(camera, ts);
+		RenderScene(camera.get(), ts);
 	}
 
 	void Scene::OnUpdateResize(uint32_t width, uint32_t height)
@@ -404,19 +434,6 @@ namespace Albedo {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-			{
-				if (!nsc.Instance)
-				{
-					nsc.Instance = nsc.InstantiateScript();
-					nsc.Instance->m_Entity = Entity{ entity, this };
-
-					nsc.Instance->OnCreate();
-				}
-
-				nsc.Instance->OnUpdate(ts);
-			});
-
 		Ref<SceneCamera> sceneCamera = nullptr;
 
 		auto view = m_Registry.view<TransformComponent, CameraComponent>();
@@ -429,6 +446,42 @@ namespace Albedo {
 				sceneCamera = camera.Camera;
 				sceneCamera->SetPosition(transform.Position);
 				break;
+			}
+		}
+
+		m_PhysicsWorld3D->Update(ts);
+		{
+			auto view = m_Registry.view<PhysicsComponent>();
+			for (auto e : view) {
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& physics = entity.GetComponent<PhysicsComponent>();
+
+				if (physics.bodyType == PhysicsComponent::BodyType::Dynamic)
+					transform.Position = physics.DynamicRuntimeBody->GetPosition();
+			}
+		}
+
+		// Physics
+		EnableGravity(m_SceneSetting.enableGravity);
+		{
+			const int32_t velocityIterations = 6;
+			const int32_t positionIterations = 2;
+			m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+
+			// Retrieve transform from Box2D
+			auto view = m_Registry.view<Physics2DComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& rb2d = entity.GetComponent<Physics2DComponent>();
+
+				b2Body* body = (b2Body*)rb2d.RuntimeBody;
+				const auto& position = body->GetPosition();
+				transform.Position.x = position.x;
+				transform.Position.y = position.y;
+				transform.Rotation.z = body->GetAngle();
 			}
 		}
 

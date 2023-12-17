@@ -40,12 +40,6 @@
     <Filter Include="dependencies\tinygltf\include">
       <UniqueIdentifier>{BFDE8251-2BF7-697B-F4A3-F914607BFE14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="dependencies\tinyobj">
-      <UniqueIdentifier>{DA867C92-C615-065C-6F34-1A575BA21602}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dependencies\tinyobj\include">
-      <UniqueIdentifier>{4DE8279E-39A3-174A-E25A-9094CEF461DA}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
@@ -1365,9 +1359,6 @@
     <ClInclude Include="dependencies\tinygltf\include\tiny_gltf.h">
       <Filter>dependencies\tinygltf\include</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\tinyobj\include\tiny_obj_loader.h">
-      <Filter>dependencies\tinyobj\include</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1381,6 +1372,9 @@
       <Filter>src\Albedo\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Cameras\OrthographicCameraController.h">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Albedo\Cameras\SceneCamera.h">
       <Filter>src\Albedo\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Core\Application.h">
@@ -1452,9 +1446,6 @@
     <ClInclude Include="src\Albedo\Renderer\Material.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Albedo\Renderer\Mesh.h">
-      <Filter>src\Albedo\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\Albedo\Renderer\Model.h">
       <Filter>src\Albedo\Renderer</Filter>
     </ClInclude>
@@ -1489,9 +1480,6 @@
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Scene\Scene.h">
-      <Filter>src\Albedo\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Albedo\Cameras\SceneCamera.h">
       <Filter>src\Albedo\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Albedo\Scene\SceneSerializer.h">
@@ -1583,9 +1571,6 @@
     <ClCompile Include="dependencies\tinygltf\tiny_gltf.cpp">
       <Filter>dependencies\tinygltf</Filter>
     </ClCompile>
-    <ClCompile Include="dependencies\tinyobj\include\tiny_obj_loader.cpp">
-      <Filter>dependencies\tinyobj\include</Filter>
-    </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\EditorCamera.cpp">
       <Filter>src\Albedo\Cameras</Filter>
     </ClCompile>
@@ -1593,6 +1578,9 @@
       <Filter>src\Albedo\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Cameras\OrthographicCameraController.cpp">
+      <Filter>src\Albedo\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Albedo\Cameras\SceneCamera.cpp">
       <Filter>src\Albedo\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Core\Application.cpp">
@@ -1628,9 +1616,6 @@
     <ClCompile Include="src\Albedo\Renderer\Material.cpp">
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Albedo\Renderer\Mesh.cpp">
-      <Filter>src\Albedo\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="src\Albedo\Renderer\Model.cpp">
       <Filter>src\Albedo\Renderer</Filter>
     </ClCompile>
@@ -1662,9 +1647,6 @@
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Scene\Scene.cpp">
-      <Filter>src\Albedo\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Albedo\Cameras\SceneCamera.cpp">
       <Filter>src\Albedo\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Albedo\Scene\SceneSerializer.cpp">

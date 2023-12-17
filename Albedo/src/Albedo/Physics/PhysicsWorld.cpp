@@ -9,7 +9,7 @@ namespace Albedo {
         settings.isSleepingEnabled = false;
         settings.gravity = reactphysics3d::Vector3(0, -1.81, 0);
         m_World = m_PhysicsCommon.createPhysicsWorld(settings);
-        
+
         //m_World = m_PhysicsCommon.createPhysicsWorld();
     }
 
@@ -66,6 +66,10 @@ namespace Albedo {
 
         m_CapsuleColliders.push_back(collider);
         return collider;
+    }
+
+    void CreateConvexMesh() {
+
     }
 
     void PhysicsWorld::DestroyStaticBody(const Ref<StaticBody> m_Body) {
