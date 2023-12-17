@@ -1,2 +1,19 @@
 # Albedo
 3D Game Engine in C++
+## Dependencies
+ - ASSIMP
+ - Box2D
+ - entt
+ - FileWatch
+ - Glad
+ - GLFW
+ - glm
+ - imgui
+ - ImGuizmo
+ - Mono
+ - reactphysics3d
+ - spdlog
+ - stb_image
+ - tinygltf
+ - tinyobj
+ - yaml-cpp
