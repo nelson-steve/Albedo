@@ -45,7 +45,6 @@ namespace Albedo {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		//TODO:Fix window closing on resize
 		 
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
@@ -56,8 +55,6 @@ namespace Albedo {
 			if (e.Handled)
 				break;
 		}
-
-		//Albedo_TRACE("{0}", e);
 	}
 
 	void Application::Run()
@@ -119,9 +116,6 @@ namespace Albedo {
 			m_Minimized = true;
 			return false;
 		}
-
-		auto x = e.GetWidth();
-		auto y = e.GetHeight();
 
 		m_Minimized = false;
 		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());

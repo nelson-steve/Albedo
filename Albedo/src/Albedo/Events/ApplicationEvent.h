@@ -73,7 +73,7 @@ namespace Albedo {
 	public:
 		WindowCloseEvent() {}
 
-		EVENT_CLASS_TYPE(WindowResize)
+		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
@@ -82,7 +82,7 @@ namespace Albedo {
 	public:
 		AppTickEvent() {}
 
-		EVENT_CLASS_TYPE(WindowResize)
+		EVENT_CLASS_TYPE(AppTick)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
@@ -91,7 +91,7 @@ namespace Albedo {
 	public:
 		AppRenderEvent() {}
 
-		EVENT_CLASS_TYPE(WindowResize)
+		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
@@ -100,7 +100,7 @@ namespace Albedo {
 	public:
 		AppUpdateEvent() {}
 
-		EVENT_CLASS_TYPE(WindowResize)
+		EVENT_CLASS_TYPE(AppUpdate)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
 	};
