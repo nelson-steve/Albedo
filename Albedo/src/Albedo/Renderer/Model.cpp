@@ -263,6 +263,16 @@ namespace Albedo {
 					m_NullTexture->Bind(3);
 				}
 			}
+			if (material.normalTexture.index >= 0) {
+				const auto& texture = m_model.textures[material.normalTexture.index];
+				if (texture.source >= 0) {
+					m_Textures[texture.source]->Bind(4);
+					m_UVs.normal = material.normalTexture.texCoord;
+				}
+				else {
+					m_NullTexture->Bind(3);
+				}
+			}
 
 			shader->SetUniformInt1("u_AlbedoUV", m_UVs.albedo);
 			shader->SetUniformInt1("u_MetallicRoughnessUV", m_UVs.metallicroughness);

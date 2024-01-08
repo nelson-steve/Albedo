@@ -361,8 +361,8 @@ namespace Albedo {
 		shader->SetUniformInt1("u_Albedo", 0);
 		shader->SetUniformInt1("u_MetallicRoughness", 1);
 		shader->SetUniformInt1("u_Emissive", 2);
-		shader->SetUniformInt1("u_Occlusion", 4);
-		shader->SetUniformInt1("u_Normal", 3);
+		shader->SetUniformInt1("u_Occlusion", 3);
+		shader->SetUniformInt1("u_Normal", 4);
 	}
 
 	void Renderer::Render(const Ref<Model> model, const Ref<Shader> shader)
