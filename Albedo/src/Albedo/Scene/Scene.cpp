@@ -569,6 +569,17 @@ namespace Albedo {
 
 	void Scene::OnUpdateEditor(const Ref<EditorCamera> camera, Timestep ts)
 	{
+		// reload shader
+		auto view = m_Registry.view<ShaderComponent, TransformComponent, ModelComponent>();
+		for (auto& entity : view)
+		{
+			auto& shader = view.get<ShaderComponent>(entity);
+			if (shader.tobeinitialized) {
+				shader.m_Shader =  Shader::Create(shader.m_Shader->GetPath());
+				shader.tobeinitialized = false;
+			}
+		}
+
 		RenderScene(camera.get(), ts);
 	}
 
